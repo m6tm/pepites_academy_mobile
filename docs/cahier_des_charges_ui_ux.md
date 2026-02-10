@@ -4,6 +4,8 @@
 
 Le projet consiste en la création d'une application mobile "supra attractive" destinée à la gestion d'une académie de football. L'objectif principal est de moderniser et de faciliter le suivi des entraînements, des académiciens et des encadreurs via une interface intuitive, fluide et premium.
 
+L'application communiquera avec un backend dédié (projet séparé) via une API REST. Ce document est centré exclusivement sur les interfaces et l'expérience utilisateur du projet mobile.
+
 ## 2. Directions Artistiques et Expérience Utilisateur (UX/UI)
 
 L'application doit dégager une impression de professionnalisme et d'innovation.
@@ -49,8 +51,9 @@ L'application doit dégager une impression de professionnalisme et d'innovation.
 
 ### 3.6. Paramétrages de l'Académie
 
-- **Référentiels :** Listes éditables pour les postes de football (Gardien, Défenseur, etc.) et les niveaux scolaires (CM1, 6ème, etc.).
-- **Interface SMS :** Module d'envoi de messages groupés ou individuels. Interface de type messagerie moderne avec sélection facile des destinataires par filtres (ex: "Tous les attaquants", "Tous les CM2").
+- **Référentiels :** Listes éditables pour les postes de football (Gardien, Défenseur, Milieu, Attaquant, etc.) et les niveaux scolaires/académiques (Primaire, Collège, Lycée, etc.).
+- **Consultation Globale :** Une barre de recherche universelle permettant d'accéder instantanément à la fiche d'un académicien, d'un encadreur ou au compte-rendu d'une séance passée.
+- **Interface SMS :** Module d'envoi de messages groupés ou individuels vers les académiciens et les encadreurs. Interface de type messagerie moderne avec sélection facile des destinataires par filtres (ex: "Tous les attaquants", "Tous les CM2").
 
 ## 4. Parcours Utilisateurs (User Flows)
 
