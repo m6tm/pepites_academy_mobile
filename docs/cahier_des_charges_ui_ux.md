@@ -1,10 +1,10 @@
-# Cahier des Charges UI/UX - Pépites Academy
+# Cahier des Charges Fonctionnel et Technique - Pépites Academy
 
 ## 1. Introduction et Objectifs
 
 Le projet consiste en la création d'une application mobile "supra attractive" destinée à la gestion d'une académie de football. L'objectif principal est de moderniser et de faciliter le suivi des entraînements, des académiciens et des encadreurs via une interface intuitive, fluide et premium.
 
-L'application communiquera avec un backend dédié (projet séparé) via une API REST. Ce document est centré exclusivement sur les interfaces et l'expérience utilisateur du projet mobile.
+L'application communiquera avec un backend dédié (projet séparé) via une API REST. Ce document détaille les spécifications fonctionnelles, techniques et les directions artistiques de l'application mobile.
 
 ## 2. Directions Artistiques et Expérience Utilisateur (UX/UI)
 
@@ -16,44 +16,114 @@ L'application doit dégager une impression de professionnalisme et d'innovation.
 - **Typographie :** Utilisation systématique de la police **Montserrat** pour son caractère moderne et sportif, assurant une lisibilité maximale sur le terrain.
 - **Accessibilité :** Boutons larges et zones tactiles optimisées pour une utilisation dans un environnement sportif (parfois à une main).
 
-## 3. Fonctionnalités Détaillées (Focus Interface)
+## 3. Spécifications Fonctionnelles Détaillées
 
-### 3.1. Gestion des Accès (Scan QR)
+Ce chapitre décrit de manière exhaustive les fonctionnalités attendues de l'application, organisées par modules logiques.
 
-- **Interface Glass-Scanner :** Superposition d'un viseur en verre dépoli avec bordures lumineuses sur le flux vidéo. Les informations de l'académicien scanné s'affichent dans un volet flottant avec effet de flou d'arrière-plan.
+### 3.1 Architecture et Modèle de Données
 
-* **Écran Scanner :** Interface de scan plein écran avec un viseur animé. Retour haptique (vibration) et visuel immédiat lors de la détection.
-* **Badges de Statut :** Affichage d'un badge "Accès Autorisé" (Vert) ou "Accès Refusé" (Rouge) avec la photo de l'académicien ou de l'encadreur après le scan.
-* **Mode "Entrée Rapide" :** Possibilité d'enchaîner les scans sans quitter l'interface du scanner.
+L'application repose sur un modèle de données structuré autour des entités métier suivantes :
 
-### 3.2. Gestion des Séances d'Entraînement
+- **Académicien** : Élève inscrit à l'académie (Nom, Prénom, Photo, Poste de football, Niveau scolaire, QR Code unique).
+- **Encadreur** : Coach ou formateur (Nom, Prénom, Photo, Spécialité, Rôle, QR Code unique).
+- **Séance** : Unité d'entraînement (Date, Horaires, Statut, Encadreur responsable).
+- **Atelier** : Exercice spécifique au sein d'une séance (Nom, Description, Ordre d'exécution).
+- **Annotation** : Observation qualifiée sur un académicien dans un atelier donné (Contenu, Tags, Note, Horodatage).
+- **Présence** : Enregistrement d'accès au stade (Horodatage, Profil scanné).
+- **Bulletin** : Synthèse périodique des performances d'un académicien.
 
-- **Tableau de bord des séances :** Liste chronologique des séances avec indicateurs de statut (En cours, Terminée, À venir).
-- **Contrôle de Flux :** Bouton "Ouvrir séance" actif uniquement si la séance précédente est clôturée. Message d'avertissement contextuel si une séance est restée ouverte.
-- **Détails de Séance :** Vue récapitulative affichant les encadreurs présents et les ateliers programmés.
+### 3.2 Authentification et Sécurité
 
-### 3.3. Ateliers et Annotations
+L'accès à l'application est strictement contrôlé pour garantir la confidentialité des données sensibles (informations personnelles, évaluations).
 
-- **Gestion des Ateliers :** Interface permettant d'ajouter des ateliers à une séance via des icônes représentatifs (ex: icône cône pour le dribble, icône cage pour la finition).
-- **Fiche de Suivi Temps Réel :** Lors d'un atelier, liste des académiciens présents. Possibilité de cliquer sur un nom pour ouvrir un volet latéral d'annotations.
-- **Annotations Rapides :** Système de tags pour des observations fréquentes ("Manque de concentration", "Excellente technique", etc.) et champ de texte pour des notes détaillées.
+- **Contrôle d'accès :** Seuls les administrateurs et les encadreurs disposent d'un compte utilisateur. Les académiciens sont gérés mais ne se connectent pas.
+- **Gestion des Sessions :** Authentification via Email/Mot de passe avec persistance de session sécurisée pour éviter les reconnexions fréquentes sur le terrain.
+- **Rôles et Permissions :**
+  - _Administrateur_ : Accès complet (Gestion des référentiels, Inscriptions, SMS, Bulletins).
+  - _Encadreur_ : Accès opérationnel (Gestion des séances, Ateliers, Annotations, Scanner QR).
+- **Interface de Connexion :** Design soigné (Glassmorphism) avec gestion explicite des erreurs (réseau, identifiants).
 
-### 3.4. Inscriptions et Profils
+### 3.3 Gestion des Utilisateurs (Académiciens et Encadreurs)
 
-- **Formulaire d'Enregistrement :** Formulaires segmentés par étapes pour éviter la surcharge cognitive lors de l'inscription d'un académicien ou d'un encadreur.
-- **Profil Académicien :** Vue d'ensemble incluant photo, poste favori, niveau scolaire, et un graphique radar d'évolution des compétences.
-- **Profil Encadreur :** Historique des séances dirigées et spécialités.
+Le système permet l'enregistrement complet des acteurs de l'académie via des formulaires assistés ("Step-by-Step") pour éviter la surcharge cognitive.
 
-### 3.5. Bulletin de Formation Périodique
+**Module Académiciens :**
 
-- **Générateur de Bulletin :** Interface permettant de sélectionner une période (trimestre/mois) et de prévisualiser le bulletin avant export/consultation.
-- **Visualisation de Données :** Utilisation de graphiques (courbes d'évolution, diagrammes) pour rendre le bulletin "parlant" pour les parents et les élèves.
+- Saisie des informations personnelles (Identité, Contact parent, Photo).
+- Attribution du profil sportif (Poste favori via référentiel, Pied fort).
+- Attribution du niveau scolaire (via référentiel).
+- **Génération de QR Code :** Création automatique d'un badge numérique unique à la validation, exportable pour impression ou partage.
 
-### 3.6. Paramétrages de l'Académie
+**Module Encadreurs :**
 
-- **Référentiels :** Listes éditables pour les postes de football (Gardien, Défenseur, Milieu, Attaquant, etc.) et les niveaux scolaires/académiques (Primaire, Collège, Lycée, etc.).
-- **Consultation Globale :** Une barre de recherche universelle permettant d'accéder instantanément à la fiche d'un académicien, d'un encadreur ou au compte-rendu d'une séance passée.
-- **Interface SMS :** Module d'envoi de messages groupés ou individuels vers les académiciens et les encadreurs. Interface de type messagerie moderne avec sélection facile des destinataires par filtres (ex: "Tous les attaquants", "Tous les CM2").
+- Saisie du profil professionnel (Identité, Contact, Photo, Spécialité sportive).
+- Génération similaire d'un badge QR pour l'accès au stade et l'identification lors des séances.
+- Consultation de l'historique des activités (séances dirigées).
+
+### 3.4 Contrôle d'Accès et Présence (Module QR)
+
+Le système remplace les feuilles de présence par un scan numérique rapide et fiable.
+
+- **Scanner Intelligent :** Interface plein écran avec viseur graphique ("Verre dépoli").
+- **Identification Instantanée :** Reconnaissance du QR Code (Académicien ou Encadreur) avec affichage immédiat de l'identité et du statut (Accès Autorisé/Refusé).
+- **Validation Contextuelle :** L'encadreur scanne pour ouvrir sa session de travail, l'académicien scanne pour valider sa présence à la séance en cours.
+- **Mode "Rafale" :** Possibilité d'enchaîner les scans rapidement pour gérer l'arrivée d'un groupe (Entrée Rapide).
+
+### 3.5 Gestion des Séances d'Entraînement
+
+La séance est l'unité centrale de l'activité pédagogique. Le système gère son cycle de vie complet pour assurer l'intégrité des données.
+
+- **Ouverture de Séance :** Action explicite de l'encadreur. Le système vérifie qu'aucune séance précédente n'est restée ouverte (blocage ou alerte en cas de conflit).
+- **Configuration des Ateliers :** Composition flexible du programme de la séance (Ajout/Modification/Suppression d'ateliers, réorganisation par glisser-déposer).
+- **Fermeture de Séance :** Clôture obligatoire en fin d'entraînement. Cette action fige les données (présences, annotations) et génère le rapport de séance.
+- **Tableau de Bord :** Vue synthétique des séances (En cours, À venir, Terminées) avec filtres chronologiques.
+
+### 3.6 Suivi Pédagogique (Ateliers et Annotations)
+
+Ce module permet l'évaluation continue et contextualisée des académiciens.
+
+- **Évaluation en Temps Réel :** Interface optimisée pour la saisie terrain (boutons larges, interactions rapides).
+- **Annotations Contextualisées :** Chaque observation est liée à un triptyque : _Académicien + Atelier + Séance_.
+- **Outils de Saisie Rapide :**
+  - Tags prédéfinis (Positif/Négatif, ex: "Application", "Technique").
+  - Champ libre pour observations détaillées.
+  - Volet latéral rappelant l'historique récent de l'élève pour mesurer sa progression immédiate.
+
+### 3.7 Rapports et Bulletins
+
+Le système exploite les données collectées pour produire des bilans de performance.
+
+- **Bulletin de Formation :** Génération de rapports périodiques (mensuels, trimestriels, saisonniers) agrégeant les annotations.
+- **Visualisation de Données :**
+  - Graphiques radar (Spider charts) pour les compétences (Technique, Physique, Tactique, Mental).
+  - Courbes d'évolution comparant les périodes.
+- **Export et Partage :** Formatage du bulletin pour export PDF ou image, facilitant la communication avec les familles.
+
+### 3.8 Communication (Module SMS)
+
+Outil intégré pour faciliter les échanges sans quitter l'application.
+
+- **Envoi Ciblé :** Module d'envoi de SMS (via passerelle backend).
+- **Filtres Intelligents :** Sélection des destinataires par critères métier (Par poste, Par niveau scolaire, Par statut présence, etc.).
+- **Historique :** Suivi des messages envoyés par l'administration ou les coachs.
+
+### 3.9 Administration et Paramétrage
+
+Le système offre des outils transverses pour la maintenance des données de référence.
+
+- **Recherche Universelle :** Barre de recherche globale permettant d'accéder instantanément à n'importe quelle entité (Académicien, Encadreur, Séance) avec auto-complétion.
+- **Gestion des Référentiels :** Interfaces CRUD (Création, Lecture, Mise à jour, Suppression) pour les listes de paramètres :
+  - _Postes de Football_ (ex: Gardien, Ailier...).
+  - _Niveaux Scolaires_ (ex: 6ème, 5ème...).
+    Ceci garantit l'évolutivité de l'application sans intervention technique.
+
+### 3.10 Mode Hors-ligne
+
+Pour répondre aux contraintes terrain (zones à faible couverture réseau), l'application intègre une stratégie "Offline-First".
+
+- **Continuité de Service :** Possibilité de réaliser toutes les actions terrain (Scan, Annotations, Création de séance) sans connexion internet.
+- **Synchronisation Différée :** Stockage local des données et synchronisation automatique avec le backend dès le rétablissement de la connexion.
+- **Gestion des Conflits :** Mécanismes pour assurer la cohérence des données lors de la fusion avec le serveur.
 
 ## 4. Parcours Utilisateurs (User Flows)
 
@@ -61,9 +131,8 @@ L'application doit dégager une impression de professionnalisme et d'innovation.
 2.  **L'Encadreur évalue un élève :** Séance en cours -> Choix de l'atelier -> Clic sur l'élève -> Ajout d'une annotation "Progrès en endurance" -> Enregistrement automatique.
 3.  **L'Administrateur consulte un bulletin :** Recherche élève -> Onglet "Bulletins" -> Sélection période -> Affichage du bulletin interactif.
 
-## 5. Propositions Complémentaires (Suggestions)
+## 5. Propositions Complémentaires
 
-- **Mode Hors-ligne :** Possibilité de faire les annotations sans connexion (fréquent sur les terrains) et synchronisation automatique une fois le Wi-Fi/4G retrouvé.
 - **Gamification :** Attribution de "badges" de mérite aux académiciens consultables sur leur profil pour les motiver.
 - **Notifications Push :** Rappel automatique aux encadreurs de fermer la séance si elle dure plus de 3 heures.
 - **Scanner Multifonction :** Le scanner QR pourrait aussi servir à scanner les équipements (ballons, chasubles) en début et fin de séance.
