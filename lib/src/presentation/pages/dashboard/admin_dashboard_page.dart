@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../injection_container.dart';
 import '../../../presentation/theme/app_colors.dart';
 import '../../../presentation/widgets/stat_card.dart';
 import '../../../presentation/widgets/quick_action_tile.dart';
@@ -7,6 +8,7 @@ import '../../../presentation/widgets/activity_card.dart';
 import '../../../presentation/widgets/section_title.dart';
 import '../../../presentation/widgets/circular_progress_widget.dart';
 import '../academy/academicien_registration_page.dart';
+import '../auth/login_page.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/seance_card.dart';
 
@@ -76,6 +78,53 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
         ),
       ),
       bottomNavigationBar: _buildBottomNav(colorScheme),
+    );
+  }
+
+  //... (other imports)
+
+  /// Gestion de la déconnexion avec confirmation
+  void _handleLogout() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Déconnexion',
+            style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Êtes-vous sûr de vouloir vous déconnecter ?',
+            style: GoogleFonts.montserrat(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Annuler', style: GoogleFonts.montserrat()),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Clear session
+                await DependencyInjection.preferences.logout();
+                if (mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false,
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text(
+                'Déconnecter',
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1004,9 +1053,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
+              onPressed: _handleLogout,
               icon: const Icon(Icons.logout_rounded),
               label: Text(
                 'Se deconnecter',

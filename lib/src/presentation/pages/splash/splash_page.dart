@@ -2,8 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../injection_container.dart';
+import '../../../domain/entities/user_role.dart';
 import '../onboarding/onboarding_page.dart';
 import '../auth/login_page.dart';
+import '../dashboard/admin_dashboard_page.dart';
+import '../dashboard/encadreur_dashboard_page.dart';
 import '../../theme/app_colors.dart';
 
 /// Page de démarrage (Splash Screen) pour Pépites Academy.
@@ -47,7 +50,27 @@ class _SplashPageState extends State<SplashPage>
 
     // Navigation automatique après le délai du splash
     Future.delayed(const Duration(seconds: 4), () async {
-      final bool isOnboardingCompleted = await DependencyInjection.preferences
+      final preferences = DependencyInjection.preferences;
+      final bool isLoggedIn = await preferences.isUserLoggedIn();
+
+      if (isLoggedIn && mounted) {
+        final roleId = await preferences.getUserRole();
+        final userName = await preferences.getUserName() ?? 'Utilisateur';
+        // Protection contre un roleId null, retour au login si problème
+        if (roleId != null && mounted) {
+          final role = UserRole.fromId(roleId);
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => role == UserRole.admin
+                  ? AdminDashboardPage(userName: userName)
+                  : EncadreurDashboardPage(userName: userName),
+            ),
+          );
+          return;
+        }
+      }
+
+      final bool isOnboardingCompleted = await preferences
           .isOnboardingCompleted();
 
       if (mounted) {

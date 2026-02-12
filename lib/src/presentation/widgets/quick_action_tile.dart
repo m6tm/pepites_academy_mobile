@@ -45,7 +45,7 @@ class _QuickActionTileState extends State<QuickActionTile> {
         scale: _isPressed ? 0.95 : 1.0,
         duration: const Duration(milliseconds: 150),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isDark ? colorScheme.surface : Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -103,7 +103,7 @@ class _QuickActionTileState extends State<QuickActionTile> {
                     ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               Text(
                 widget.title,
                 style: GoogleFonts.montserrat(

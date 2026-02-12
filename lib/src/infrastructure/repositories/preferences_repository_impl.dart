@@ -28,6 +28,28 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   }
 
   @override
+  Future<String?> getString(String key) async {
+    try {
+      return _prefs.getString(key);
+    } catch (e) {
+      throw CacheException(
+        "Erreur lors de la lecture de la chaîne '$key' : $e",
+      );
+    }
+  }
+
+  @override
+  Future<void> setString(String key, String value) async {
+    try {
+      await _prefs.setString(key, value);
+    } catch (e) {
+      throw CacheException(
+        "Erreur lors de l'écriture de la chaîne '$key' : $e",
+      );
+    }
+  }
+
+  @override
   Future<bool> containsKey(String key) async {
     return _prefs.containsKey(key);
   }
