@@ -1,41 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'otp_verification_page.dart';
+import 'reset_password_page.dart';
 
-/// Page de récupération de mot de passe pour Pépites Academy.
-class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
+/// Page de vérification OTP pour Pépites Academy.
+/// Permet de valider le code envoyé par email.
+class OtpVerificationPage extends StatefulWidget {
+  final String email;
+
+  const OtpVerificationPage({super.key, required this.email});
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+  State<OtpVerificationPage> createState() => _OtpVerificationPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+class _OtpVerificationPageState extends State<OtpVerificationPage> {
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (index) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
     super.dispose();
   }
 
-  void _handleReset() async {
-    if (_formKey.currentState!.validate()) {
+  void _verifyOtp() async {
+    final code = _controllers.map((c) => c.text).join();
+    if (code.length == 6) {
       setState(() => _isLoading = true);
-      // Simulation d'envoi d'email
+      // Simulation de vérification
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) {
         setState(() => _isLoading = false);
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                OtpVerificationPage(email: _emailController.text),
-          ),
+          MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
         );
       }
+    }
+  }
+
+  /// Gère le collage d'un code entier dans les cases.
+  void _handlePaste(String data) {
+    // On ne garde que les chiffres et on limite à 6
+    final digits = data.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) return;
+
+    final length = digits.length > 6 ? 6 : digits.length;
+
+    setState(() {
+      for (int i = 0; i < length; i++) {
+        _controllers[i].text = digits[i];
+      }
+    });
+
+    // Déplacer le focus vers la dernière case remplie ou la suivante
+    if (length < 6) {
+      _focusNodes[length].requestFocus();
+    } else {
+      _focusNodes[5].requestFocus();
+      _verifyOtp();
     }
   }
 
@@ -69,7 +102,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Mot de passe oublié',
+                        'Vérification',
                         style: theme.textTheme.headlineLarge?.copyWith(
                           color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
@@ -77,34 +110,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Saisissez votre email pour recevoir un code de vérification à 6 chiffres.',
+                        'Saisissez le code à 6 chiffres envoyé à\n${widget.email}',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
-                      const SizedBox(height: 40),
-                      Form(
-                        key: _formKey,
-                        child: _buildTextField(
-                          controller: _emailController,
-                          label: 'Email',
-                          hint: 'votre@email.com',
-                          prefixIcon: Icons.email_outlined,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Veuillez saisir votre email';
-                            }
-                            return null;
-                          },
+                      const SizedBox(height: 48),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(
+                          6,
+                          (index) => _buildOtpBox(index),
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 48),
                       SizedBox(
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleReset,
+                          onPressed: _isLoading ? null : _verifyOtp,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colorScheme.primary,
                             foregroundColor: Colors.white,
@@ -128,7 +152,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ),
                                 )
                               : Text(
-                                  'Envoyer le code',
+                                  'Vérifier le code',
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -139,12 +163,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       const Spacer(),
                       Center(
                         child: TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Retour à la connexion',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.bold,
+                          onPressed: () {
+                            // Logique pour renvoyer le code
+                          },
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Vous n'avez pas reçu de code ? ",
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: "Renvoyer",
+                                  style: TextStyle(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -161,71 +199,71 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
-  /// Construit un champ de texte stylisé conforme à la charte graphique.
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData prefixIcon,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
+  Widget _buildOtpBox(int index) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
+    return SizedBox(
+      width: 45,
+      height: 55,
+      child: KeyboardListener(
+        focusNode: FocusNode(skipTraversal: true),
+        onKeyEvent: (event) {
+          if (event is KeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.backspace) {
+            if (_controllers[index].text.isEmpty && index > 0) {
+              _controllers[index - 1].clear();
+              _focusNodes[index - 1].requestFocus();
+            }
+          }
+        },
+        child: TextFormField(
+          controller: _controllers[index],
+          focusNode: _focusNodes[index],
+          onChanged: (value) {
+            // Si l'utilisateur colle un texte de plusieurs caractères
+            if (value.length > 1) {
+              _handlePaste(value);
+              return;
+            }
+
+            if (value.length == 1 && index < 5) {
+              _focusNodes[index + 1].requestFocus();
+            }
+            if (_controllers.every((c) => c.text.isNotEmpty)) {
+              _verifyOtp();
+            }
+          },
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            // On autorise temporairement plus de 1 caractère pour détecter le collage
+            LengthLimitingTextInputFormatter(6),
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: colorScheme.primary,
             fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          validator: validator,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.3),
-            ),
-            prefixIcon: Icon(prefixIcon, color: colorScheme.primary, size: 20),
+            counterText: "",
             filled: true,
             fillColor: colorScheme.surface,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 18,
-              horizontal: 16,
-            ),
+            contentPadding: EdgeInsets.zero,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: colorScheme.onSurface.withValues(alpha: 0.1),
-                width: 1,
+                width: 1.5,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: colorScheme.primary, width: 2),
             ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.error, width: 1),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.error, width: 2),
-            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
