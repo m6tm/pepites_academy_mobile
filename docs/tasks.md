@@ -51,7 +51,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Bouton de déconnexion accessible depuis les paramètres.
   - Écran de mot de passe oublié (optionnel).
 
-### [T-202] Écran d'Enregistrement Académicien (Step-by-Step)
+### [T-202] Écran d'Enregistrement Académicien (Step-by-Step) [DONE]
 
 - **Objectif :** L'académicien est l'acteur central de l'application. Avant de pouvoir être scanné, évalué, annoté ou apparaître dans un bulletin, il doit être enregistré dans le système. Ce formulaire permet de :
   - **Constituer la fiche de l'élève** : Recueillir toutes les informations nécessaires au suivi (identité, photo, contact, poste de football, niveau scolaire).

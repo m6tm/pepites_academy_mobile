@@ -7,6 +7,7 @@ import '../../../presentation/widgets/quick_action_tile.dart';
 import '../../../presentation/widgets/activity_card.dart';
 import '../../../presentation/widgets/section_title.dart';
 import '../../../presentation/widgets/circular_progress_widget.dart';
+import '../academy/registration/registration_page.dart';
 import '../auth/login_page.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/seance_card.dart';
@@ -542,12 +543,19 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
         childAspectRatio: 1.15,
         children: [
           QuickActionTile(
-            title: 'Ouvrir seance',
-            description: 'Demarrer un entrainement',
-            icon: Icons.play_circle_rounded,
+            title: 'Inscrire',
+            description: 'Nouvel académicien',
+            icon: Icons.person_add_rounded,
             color: const Color(0xFF10B981),
             badge: 'Go',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AcademyRegistrationPage(),
+                ),
+              );
+            },
           ),
           QuickActionTile(
             title: 'Annoter',

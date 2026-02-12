@@ -7,7 +7,7 @@ import '../../../presentation/widgets/quick_action_tile.dart';
 import '../../../presentation/widgets/activity_card.dart';
 import '../../../presentation/widgets/section_title.dart';
 import '../../../presentation/widgets/circular_progress_widget.dart';
-import '../academy/academicien_registration_page.dart';
+import '../academy/registration/registration_page.dart';
 import '../auth/login_page.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/seance_card.dart';
@@ -356,7 +356,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AcademicienRegistrationPage(),
+                  builder: (context) => const AcademyRegistrationPage(),
                 ),
               );
             },
