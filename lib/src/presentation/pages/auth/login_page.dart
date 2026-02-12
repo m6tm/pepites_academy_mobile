@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
+import '../../../infrastructure/utils/dev_credentials.dart';
 
 /// Page de connexion pour Pépites Academy.
 /// Design premium, minimaliste et high-end pour le secteur sportif.
@@ -29,10 +30,37 @@ class _LoginPageState extends State<LoginPage> {
   void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      // Simulation de connexion
+
+      // Simulation de latence réseau
       await Future.delayed(const Duration(seconds: 2));
+
       if (mounted) {
-        setState(() => _isLoading = false);
+        final email = _emailController.text.trim();
+        final password = _passwordController.text;
+
+        if (DevCredentials.isValid(email, password)) {
+          setState(() => _isLoading = false);
+
+          // Dans une vraie app, on naviguerait vers le dashboard ici
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Bienvenue ! Connecté en tant que ${DevCredentials.getRole(email)!.id}',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Identifiants incorrects. Veuillez utiliser les comptes de test.',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }

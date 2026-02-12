@@ -8,3 +8,4 @@ export 'poste_football.dart';
 export 'presence.dart';
 export 'seance.dart';
 export 'sms_message.dart';
+export 'user_role.dart';

@@ -1,3 +1,5 @@
+import 'user_role.dart';
+
 /// Représente un coach ou formateur de l'académie.
 class Encadreur {
   final String id;
@@ -6,7 +8,7 @@ class Encadreur {
   final String telephone;
   final String photoUrl;
   final String specialite; // Ex: Technique, Physique, Gardien, etc.
-  final String role; // Ex: admin, encadreur
+  final UserRole role; // Profil utilisateur : admin ou encadreur
   final String codeQrUnique;
 
   Encadreur({
