@@ -34,8 +34,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       if (password.length >= 8) strength += 0.25;
       if (password.contains(RegExp(r'[A-Z]'))) strength += 0.25;
       if (password.contains(RegExp(r'[0-9]'))) strength += 0.25;
-      if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')))
+      if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
         strength += 0.25;
+      }
     }
 
     setState(() => _passwordStrength = strength);

@@ -4,6 +4,9 @@ import 'register_page.dart';
 import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
 import '../../../infrastructure/utils/dev_credentials.dart';
+import '../../../domain/entities/user_role.dart';
+import '../dashboard/admin_dashboard_page.dart';
+import '../dashboard/encadreur_dashboard_page.dart';
 
 /// Page de connexion pour Pépites Academy.
 /// Design premium, minimaliste et high-end pour le secteur sportif.
@@ -41,14 +44,26 @@ class _LoginPageState extends State<LoginPage> {
 
         if (DevCredentials.isValid(email, password)) {
           setState(() => _isLoading = false);
+          final role = DevCredentials.getRole(email)!;
 
           AcademyToast.show(
             context,
             title: 'Bienvenue !',
-            description:
-                'Connecté en tant que ${DevCredentials.getRole(email)!.id}',
+            description: 'Connecte en tant que ${role.id}',
             isSuccess: true,
           );
+
+          // Navigation vers le dashboard selon le role
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => role == UserRole.admin
+                    ? const AdminDashboardPage(userName: 'Administrateur')
+                    : const EncadreurDashboardPage(userName: 'Coach Mamadou'),
+              ),
+            );
+          }
         } else {
           setState(() => _isLoading = false);
           AcademyToast.show(
