@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'src/presentation/pages/splash/splash_page.dart';
 import 'src/presentation/theme/app_theme.dart';
+import 'src/injection_container.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialisation des dépendances
+  await DependencyInjection.init();
+
   runApp(const MyApp());
 }
 

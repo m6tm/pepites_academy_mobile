@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../injection_container.dart';
+import '../onboarding/onboarding_page.dart';
 import '../login/login_page.dart';
 import '../../theme/app_colors.dart';
 
@@ -44,10 +46,17 @@ class _SplashPageState extends State<SplashPage>
     _controller.forward();
 
     // Navigation automatique après le délai du splash
-    Future.delayed(const Duration(seconds: 4), () {
+    Future.delayed(const Duration(seconds: 4), () async {
+      final bool isOnboardingCompleted = await DependencyInjection.preferences
+          .isOnboardingCompleted();
+
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(
+            builder: (context) => isOnboardingCompleted
+                ? const LoginPage()
+                : const OnboardingPage(),
+          ),
         );
       }
     });
