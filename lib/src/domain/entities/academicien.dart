@@ -1,59 +1,26 @@
-import 'annotation.dart';
-import 'bulletin.dart';
-import 'niveau_scolaire.dart';
-import 'poste_football.dart';
-import 'presence.dart';
-
-/// Représente un élève inscrit à l'académie.
+/// Représente un élève inscrit à l'académie (Pépites Academy).
 class Academicien {
-  /// Identifiant unique de l'académicien.
   final String id;
-
-  /// Nom de famille.
   final String nom;
-
-  /// Prénom.
   final String prenom;
-
-  /// Date de naissance.
   final DateTime dateNaissance;
-
-  /// Chemin ou URL de la photo de profil.
-  final String? photo;
-
-  /// Numéro de téléphone du parent.
+  final String photoUrl;
   final String telephoneParent;
+  final String posteFootballId; // Référence à l'id du poste
+  final String niveauScolaireId; // Référence à l'id du niveau scolaire
+  final String codeQrUnique;
+  final String? piedFort; // Optionnel (Gaucher, Droitier, Ambidextre)
 
-  /// Poste de football favori.
-  final PosteFootball? posteFootball;
-
-  /// Niveau scolaire actuel.
-  final NiveauScolaire? niveauScolaire;
-
-  /// Code contenu dans le QR Code unique.
-  final String codeQr;
-
-  /// Historique des présences (chargé optionnellement).
-  final List<Presence>? presences;
-
-  /// Historique des annotations/observations (chargé optionnellement).
-  final List<Annotation>? annotations;
-
-  /// Historique des bulletins (chargé optionnellement).
-  final List<Bulletin>? bulletins;
-
-  const Academicien({
+  Academicien({
     required this.id,
     required this.nom,
     required this.prenom,
     required this.dateNaissance,
+    required this.photoUrl,
     required this.telephoneParent,
-    required this.codeQr,
-    this.photo,
-    this.posteFootball,
-    this.niveauScolaire,
-    this.presences,
-    this.annotations,
-    this.bulletins,
+    required this.posteFootballId,
+    required this.niveauScolaireId,
+    required this.codeQrUnique,
+    this.piedFort,
   });
 }

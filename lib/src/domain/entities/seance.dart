@@ -1,34 +1,21 @@
-import 'atelier.dart';
-
-/// Statut d'une séance d'entraînement.
-enum StatutSeance { ouverte, fermee, aVenir }
-
 /// Représente une séance d'entraînement.
+enum SeanceStatus { ouverte, fernee, aVenir }
+
 class Seance {
-  /// Identifiant unique de la séance.
   final String id;
+  final DateTime date;
+  final DateTime heureDebut;
+  final DateTime heureFin;
+  final SeanceStatus statut;
+  final String
+  encadreurResponsableId; // ID de l'encadreur qui a ouvert la séance
 
-  /// Date et heure de début prévue.
-  final DateTime dateDebut;
-
-  /// Date et heure de fin prévue ou effective.
-  final DateTime dateFin;
-
-  /// Statut actuel de la séance.
-  final StatutSeance statut;
-
-  /// Identifiant de l'encadreur responsable de la séance.
-  final String encadreurId;
-
-  /// Liste des ateliers de la séance (chargés optionnellement).
-  final List<Atelier>? ateliers;
-
-  const Seance({
+  Seance({
     required this.id,
-    required this.dateDebut,
-    required this.dateFin,
-    required this.encadreurId,
-    this.statut = StatutSeance.aVenir,
-    this.ateliers,
+    required this.date,
+    required this.heureDebut,
+    required this.heureFin,
+    required this.statut,
+    required this.encadreurResponsableId,
   });
 }

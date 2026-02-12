@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'src/presentation/pages/splash/splash_page.dart';
 import 'src/presentation/theme/app_theme.dart';
 
 void main() {
@@ -8,7 +9,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const MyHomePage(title: 'Pépites Academy'),
+      home: const SplashPage(),
     );
   }
 }
