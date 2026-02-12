@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../injection_container.dart';
 import '../onboarding/onboarding_page.dart';
-import '../login/login_page.dart';
+import '../auth/login_page.dart';
 import '../../theme/app_colors.dart';
 
 /// Page de démarrage (Splash Screen) pour Pépites Academy.

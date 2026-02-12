@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../injection_container.dart';
 import '../../../presentation/theme/app_colors.dart';
-import '../login/login_page.dart';
+import '../auth/login_page.dart';
 
 /// Un modèle représentant une diapositive de l'onboarding.
 class OnboardingSlide {
