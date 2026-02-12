@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
+import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
 import '../../../infrastructure/utils/dev_credentials.dart';
 
 /// Page de connexion pour Pépites Academy.
@@ -41,24 +42,21 @@ class _LoginPageState extends State<LoginPage> {
         if (DevCredentials.isValid(email, password)) {
           setState(() => _isLoading = false);
 
-          // Dans une vraie app, on naviguerait vers le dashboard ici
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Bienvenue ! Connecté en tant que ${DevCredentials.getRole(email)!.id}',
-              ),
-              backgroundColor: Colors.green,
-            ),
+          AcademyToast.show(
+            context,
+            title: 'Bienvenue !',
+            description:
+                'Connecté en tant que ${DevCredentials.getRole(email)!.id}',
+            isSuccess: true,
           );
         } else {
           setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Identifiants incorrects. Veuillez utiliser les comptes de test.',
-              ),
-              backgroundColor: Colors.red,
-            ),
+          AcademyToast.show(
+            context,
+            title: 'Échec de connexion',
+            description:
+                'Identifiants incorrects. Utilisez les comptes de test.',
+            isError: true,
           );
         }
       }
