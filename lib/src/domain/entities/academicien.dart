@@ -1,5 +1,8 @@
+import 'annotation.dart';
+import 'bulletin.dart';
 import 'niveau_scolaire.dart';
 import 'poste_football.dart';
+import 'presence.dart';
 
 /// Représente un élève inscrit à l'académie.
 class Academicien {
@@ -30,6 +33,15 @@ class Academicien {
   /// Code contenu dans le QR Code unique.
   final String codeQr;
 
+  /// Historique des présences (chargé optionnellement).
+  final List<Presence>? presences;
+
+  /// Historique des annotations/observations (chargé optionnellement).
+  final List<Annotation>? annotations;
+
+  /// Historique des bulletins (chargé optionnellement).
+  final List<Bulletin>? bulletins;
+
   const Academicien({
     required this.id,
     required this.nom,
@@ -40,5 +52,8 @@ class Academicien {
     this.photo,
     this.posteFootball,
     this.niveauScolaire,
+    this.presences,
+    this.annotations,
+    this.bulletins,
   });
 }

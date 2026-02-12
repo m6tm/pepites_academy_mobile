@@ -1,3 +1,5 @@
+import 'atelier.dart';
+
 /// Statut d'une séance d'entraînement.
 enum StatutSeance { ouverte, fermee, aVenir }
 
@@ -18,11 +20,15 @@ class Seance {
   /// Identifiant de l'encadreur responsable de la séance.
   final String encadreurId;
 
+  /// Liste des ateliers de la séance (chargés optionnellement).
+  final List<Atelier>? ateliers;
+
   const Seance({
     required this.id,
     required this.dateDebut,
     required this.dateFin,
     required this.encadreurId,
     this.statut = StatutSeance.aVenir,
+    this.ateliers,
   });
 }

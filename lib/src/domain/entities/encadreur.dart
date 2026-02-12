@@ -1,3 +1,5 @@
+import 'seance.dart';
+
 /// Rôles possibles pour un encadreur.
 enum RoleEncadreur { admin, encadreur }
 
@@ -27,6 +29,9 @@ class Encadreur {
   /// Code contenu dans le QR Code unique.
   final String codeQr;
 
+  /// Historique des séances dirigées (chargé optionnellement).
+  final List<Seance>? seancesDirigees;
+
   const Encadreur({
     required this.id,
     required this.nom,
@@ -36,5 +41,6 @@ class Encadreur {
     required this.codeQr,
     this.photo,
     this.specialite,
+    this.seancesDirigees,
   });
 }

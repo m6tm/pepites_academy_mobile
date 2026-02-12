@@ -1,3 +1,5 @@
+import 'annotation.dart';
+
 /// Représente un atelier ou exercice au sein d'une séance.
 class Atelier {
   /// Identifiant unique de l'atelier.
@@ -18,6 +20,9 @@ class Atelier {
   /// Identifiant de la séance parente.
   final String seanceId;
 
+  /// Liste des annotations faites durant cet atelier (chargées optionnellement).
+  final List<Annotation>? annotations;
+
   const Atelier({
     required this.id,
     required this.nom,
@@ -25,5 +30,6 @@ class Atelier {
     required this.seanceId,
     this.description,
     this.icone,
+    this.annotations,
   });
 }
