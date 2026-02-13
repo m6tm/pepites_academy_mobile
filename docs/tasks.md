@@ -84,7 +84,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
 
 ## PHASE 3 : Gestion des Accès QR & Séances (Points 1, 2, 3)
 
-### [T-301] Implémentation du Scanner QR (Glassmorphism)
+### [T-301] Implémentation du Scanner QR (Glassmorphism) [DONE]
 
 - **Objectif :** Chaque académicien et chaque encadreur dispose d'un code QR unique attribué lors de son inscription. Ce code QR sert de badge d'accès numérique au stade d'entraînement. L'application permet de scanner ce QR via la caméra du téléphone pour :
   - **Académiciens :** Valider leur présence à l'entraînement et enregistrer automatiquement leur arrivée dans la séance en cours.

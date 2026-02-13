@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../injection_container.dart';
 import '../../../presentation/theme/app_colors.dart';
 import '../auth/login_page.dart';
+import '../scanner/qr_scanner_page.dart';
 import 'screens/encadreur_home_screen.dart';
 import 'screens/encadreur_seances_screen.dart';
 import 'screens/encadreur_annotations_screen.dart';
@@ -91,7 +92,9 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
       margin: const EdgeInsets.only(top: 30),
       child: FloatingActionButton(
         onPressed: () {
-          setState(() => _selectedNavIndex = 2);
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const QrScannerPage()));
         },
         backgroundColor: AppColors.primary,
         elevation: 8,

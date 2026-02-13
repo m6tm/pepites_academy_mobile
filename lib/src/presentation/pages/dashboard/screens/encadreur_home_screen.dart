@@ -7,6 +7,7 @@ import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../academy/academicien_registration_page.dart';
+import '../../scanner/qr_scanner_page.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
@@ -40,7 +41,9 @@ class EncadreurHomeScreen extends StatelessWidget {
           ),
         ),
         SliverToBoxAdapter(child: _buildTerrainBanner(colorScheme)),
-        SliverToBoxAdapter(child: _buildCurrentSeanceCard(context, colorScheme)),
+        SliverToBoxAdapter(
+          child: _buildCurrentSeanceCard(context, colorScheme),
+        ),
         const SliverToBoxAdapter(child: SectionTitle(title: 'Mon activite')),
         SliverToBoxAdapter(child: _buildCoachStats()),
         const SliverToBoxAdapter(child: SectionTitle(title: 'Actions terrain')),
@@ -166,7 +169,10 @@ class EncadreurHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentSeanceCard(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildCurrentSeanceCard(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -415,7 +421,12 @@ class EncadreurHomeScreen extends StatelessWidget {
             description: 'Scanner les arrivees',
             icon: Icons.qr_code_scanner_rounded,
             color: AppColors.primary,
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const QrScannerPage()),
+              );
+            },
           ),
         ],
       ),
