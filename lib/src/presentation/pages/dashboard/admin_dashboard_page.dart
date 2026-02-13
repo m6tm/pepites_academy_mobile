@@ -176,7 +176,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                 icon: Icons.sms_rounded,
                 label: 'SMS',
                 isSelected: _selectedNavIndex == 3,
-                badge: '3',
                 onTap: () => setState(() => _selectedNavIndex = 3),
               ),
               AdminNavItem(

@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../domain/entities/sms_message.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../../../presentation/widgets/section_title.dart';
-import '../../../../domain/entities/sms_message.dart';
 import '../../sms/sms_compose_page.dart';
 import '../../sms/sms_history_page.dart';
 import '../widgets/admin_internal_widgets.dart';
 
-/// Ecran Communication du dashboard administrateur.
-/// Gestion des SMS et notifications avec historique.
-class AdminCommunicationScreen extends StatefulWidget {
-  const AdminCommunicationScreen({super.key});
+/// Ecran Communication du dashboard encadreur.
+/// Permet aux encadreurs d'envoyer des SMS aux academiciens et parents.
+class EncadreurCommunicationScreen extends StatefulWidget {
+  const EncadreurCommunicationScreen({super.key});
 
   @override
-  State<AdminCommunicationScreen> createState() =>
-      _AdminCommunicationScreenState();
+  State<EncadreurCommunicationScreen> createState() =>
+      _EncadreurCommunicationScreenState();
 }
 
-class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
+class _EncadreurCommunicationScreenState
+    extends State<EncadreurCommunicationScreen> {
   @override
   void initState() {
     super.initState();
@@ -56,7 +57,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'SMS et notifications',
+                      'Envoyez des SMS aux academiciens et parents',
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -187,7 +188,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                 },
               ),
             ),
-            // Derniers messages dynamiques depuis l'historique
+            // Derniers messages dynamiques
             if (historique.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
@@ -209,21 +210,24 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
               )
             else
               SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final sms = historique[index];
-                  final isSuccess = sms.statut == StatutEnvoi.envoye;
-                  return SmsListItem(
-                    data: SmsData(
-                      sms.contenu.length > 40
-                          ? '${sms.contenu.substring(0, 40)}...'
-                          : sms.contenu,
-                      '${sms.destinataires.length} destinataire${sms.destinataires.length > 1 ? 's' : ''}',
-                      _formatDateCourte(sms.dateEnvoi),
-                      isSuccess,
-                    ),
-                    isDark: isDark,
-                  );
-                }, childCount: historique.length > 5 ? 5 : historique.length),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final sms = historique[index];
+                    final isSuccess = sms.statut == StatutEnvoi.envoye;
+                    return SmsListItem(
+                      data: SmsData(
+                        sms.contenu.length > 40
+                            ? '${sms.contenu.substring(0, 40)}...'
+                            : sms.contenu,
+                        '${sms.destinataires.length} destinataire${sms.destinataires.length > 1 ? 's' : ''}',
+                        _formatDateCourte(sms.dateEnvoi),
+                        isSuccess,
+                      ),
+                      isDark: isDark,
+                    );
+                  },
+                  childCount: historique.length > 5 ? 5 : historique.length,
+                ),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
           ],
@@ -234,18 +238,8 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
 
   String _formatDateCourte(DateTime date) {
     const mois = [
-      'Jan',
-      'Fev',
-      'Mar',
-      'Avr',
-      'Mai',
-      'Juin',
-      'Juil',
-      'Aout',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin',
+      'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
     return '${date.day} ${mois[date.month - 1]}';
   }

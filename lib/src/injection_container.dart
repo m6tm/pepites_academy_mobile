@@ -5,6 +5,7 @@ import 'application/services/atelier_service.dart';
 import 'application/services/bulletin_service.dart';
 import 'application/services/qr_scanner_service.dart';
 import 'application/services/seance_service.dart';
+import 'application/services/sms_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
@@ -13,6 +14,7 @@ import 'infrastructure/datasources/bulletin_local_datasource.dart';
 import 'infrastructure/datasources/encadreur_local_datasource.dart';
 import 'infrastructure/datasources/presence_local_datasource.dart';
 import 'infrastructure/datasources/seance_local_datasource.dart';
+import 'infrastructure/datasources/sms_local_datasource.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
@@ -21,6 +23,8 @@ import 'infrastructure/repositories/encadreur_repository_impl.dart';
 import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
 import 'infrastructure/repositories/seance_repository_impl.dart';
+import 'infrastructure/repositories/sms_repository_impl.dart';
+import 'presentation/state/sms_state.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
@@ -38,6 +42,9 @@ class DependencyInjection {
   static late final AnnotationService annotationService;
   static late final BulletinRepositoryImpl bulletinRepository;
   static late final BulletinService bulletinService;
+  static late final SmsRepositoryImpl smsRepository;
+  static late final SmsService smsService;
+  static late final SmsState smsState;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -108,6 +115,16 @@ class DependencyInjection {
       bulletinRepository: bulletinRepository,
       annotationRepository: annotationRepository,
       seanceRepository: seanceRepository,
+    );
+
+    // Initialisation du module SMS
+    final smsDatasource = SmsLocalDatasource(sharedPrefs);
+    smsRepository = SmsRepositoryImpl(smsDatasource);
+    smsService = SmsService(smsRepository: smsRepository);
+    smsState = SmsState(
+      smsService: smsService,
+      academicienRepository: academicienRepository,
+      encadreurRepository: encadreurRepoImpl,
     );
   }
 }

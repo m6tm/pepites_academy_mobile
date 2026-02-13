@@ -165,7 +165,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Section "Observations générales" rédigée par l'encadreur principal.
   - Export du bulletin en PDF ou image partageable (WhatsApp, SMS, impression).
 
-### [T-502] Module d'Envoi SMS
+### [T-502] Module d'Envoi SMS [DONE]
 
 - **Objectif :** La communication avec les académiciens (ou leurs parents) et les encadreurs est essentielle pour le bon fonctionnement de l'académie. Ce module permet d'envoyer des SMS directement depuis l'application, sans passer par le répertoire téléphonique personnel. Il couvre les cas suivants :
   - **SMS individuel** : Envoyer un message à un académicien précis (ex: "Votre fils est convoqué pour un match amical samedi") ou à un encadreur (ex: "Séance décalée à 16h demain").

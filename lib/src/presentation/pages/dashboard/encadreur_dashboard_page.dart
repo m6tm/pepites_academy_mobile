@@ -8,6 +8,7 @@ import '../../widgets/academy_toast.dart';
 import 'screens/encadreur_home_screen.dart';
 import 'screens/encadreur_seances_screen.dart';
 import 'screens/encadreur_annotations_screen.dart';
+import 'screens/encadreur_communication_screen.dart';
 import 'screens/encadreur_profile_screen.dart';
 import 'widgets/encadreur_internal_widgets.dart';
 
@@ -72,6 +73,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
               ),
               const EncadreurSeancesScreen(),
               const SizedBox(),
+              const EncadreurCommunicationScreen(),
               const EncadreurAnnotationsScreen(),
               EncadreurProfileScreen(
                 userName: widget.userName,
@@ -227,16 +229,22 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
               ),
               const Expanded(child: SizedBox()),
               CoachNavItem(
-                icon: Icons.edit_note_rounded,
-                label: 'Annotations',
+                icon: Icons.sms_rounded,
+                label: 'SMS',
                 isSelected: _selectedNavIndex == 3,
                 onTap: () => setState(() => _selectedNavIndex = 3),
               ),
               CoachNavItem(
-                icon: Icons.person_rounded,
-                label: 'Profil',
+                icon: Icons.edit_note_rounded,
+                label: 'Notes',
                 isSelected: _selectedNavIndex == 4,
                 onTap: () => setState(() => _selectedNavIndex = 4),
+              ),
+              CoachNavItem(
+                icon: Icons.person_rounded,
+                label: 'Profil',
+                isSelected: _selectedNavIndex == 5,
+                onTap: () => setState(() => _selectedNavIndex = 5),
               ),
             ],
           ),
