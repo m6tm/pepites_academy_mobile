@@ -70,11 +70,12 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
               EncadreurHomeScreen(
                 userName: widget.userName,
                 greeting: _getGreeting(),
+                onSmsTap: () => setState(() => _selectedNavIndex = 4),
               ),
               const EncadreurSeancesScreen(),
               const SizedBox(),
-              const EncadreurCommunicationScreen(),
               const EncadreurAnnotationsScreen(),
+              const EncadreurCommunicationScreen(),
               EncadreurProfileScreen(
                 userName: widget.userName,
                 onLogout: _handleLogout,
@@ -229,16 +230,10 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
               ),
               const Expanded(child: SizedBox()),
               CoachNavItem(
-                icon: Icons.sms_rounded,
-                label: 'SMS',
-                isSelected: _selectedNavIndex == 3,
-                onTap: () => setState(() => _selectedNavIndex = 3),
-              ),
-              CoachNavItem(
                 icon: Icons.edit_note_rounded,
                 label: 'Notes',
-                isSelected: _selectedNavIndex == 4,
-                onTap: () => setState(() => _selectedNavIndex = 4),
+                isSelected: _selectedNavIndex == 3,
+                onTap: () => setState(() => _selectedNavIndex = 3),
               ),
               CoachNavItem(
                 icon: Icons.person_rounded,

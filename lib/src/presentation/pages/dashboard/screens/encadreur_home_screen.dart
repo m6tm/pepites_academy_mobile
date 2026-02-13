@@ -21,11 +21,13 @@ import '../widgets/encadreur_internal_widgets.dart';
 class EncadreurHomeScreen extends StatefulWidget {
   final String userName;
   final String greeting;
+  final VoidCallback? onSmsTap;
 
   const EncadreurHomeScreen({
     super.key,
     required this.userName,
     required this.greeting,
+    this.onSmsTap,
   });
 
   @override
@@ -93,6 +95,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             role: 'Encadreur',
             greeting: widget.greeting,
             notificationCount: 1,
+            onSmsTap: widget.onSmsTap,
             onNotificationTap: () {},
             onProfileTap: () {},
           ),

@@ -9,6 +9,7 @@ class DashboardHeader extends StatelessWidget {
   final String role;
   final String greeting;
   final VoidCallback? onNotificationTap;
+  final VoidCallback? onSmsTap;
   final VoidCallback? onProfileTap;
   final int notificationCount;
 
@@ -18,6 +19,7 @@ class DashboardHeader extends StatelessWidget {
     required this.role,
     required this.greeting,
     this.onNotificationTap,
+    this.onSmsTap,
     this.onProfileTap,
     this.notificationCount = 0,
   });
@@ -91,6 +93,28 @@ class DashboardHeader extends StatelessWidget {
               ],
             ),
           ),
+          // Bouton SMS
+          if (onSmsTap != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: IconButton(
+                onPressed: onSmsTap,
+                style: IconButton.styleFrom(
+                  backgroundColor: colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ),
+                icon: Icon(
+                  Icons.sms_rounded,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  size: 22,
+                ),
+              ),
+            ),
           // Bouton de notification
           Stack(
             children: [
