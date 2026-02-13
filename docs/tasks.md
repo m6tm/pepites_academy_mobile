@@ -67,7 +67,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Génération automatique du code QR unique après confirmation.
   - Possibilité de partager ou imprimer le QR généré (envoi par SMS ou export image).
 
-### [T-203] Gestion des Encadreurs
+### [T-203] Gestion des Encadreurs [DONE]
 
 - **Objectif :** L'encadreur est le pilote opérationnel de l'application. C'est lui qui ouvre les séances, compose les ateliers, scanne les académiciens et rédige les annotations. Pour exercer ces fonctions, il doit d'abord être enregistré dans le système. Ce formulaire permet de :
   - **Créer le profil du coach** : Recueillir ses informations personnelles (identité, photo, contact, spécialité sportive).
