@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../domain/entities/seance.dart';
+import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../../../presentation/widgets/stat_card.dart';
 import '../../../../presentation/widgets/quick_action_tile.dart';
 import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
+import '../../../state/seance_state.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../scanner/qr_scanner_page.dart';
+import '../../seance/seance_detail_page.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
 /// Ecran d'accueil du dashboard encadreur.
 /// Affiche la seance en cours, statistiques terrain et academiciens supervises.
-class EncadreurHomeScreen extends StatelessWidget {
+class EncadreurHomeScreen extends StatefulWidget {
   final String userName;
   final String greeting;
 
@@ -24,6 +28,32 @@ class EncadreurHomeScreen extends StatelessWidget {
   });
 
   @override
+  State<EncadreurHomeScreen> createState() => _EncadreurHomeScreenState();
+}
+
+class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
+  late final SeanceState _seanceState;
+
+  @override
+  void initState() {
+    super.initState();
+    _seanceState = SeanceState(DependencyInjection.seanceService);
+    _seanceState.addListener(_onStateChanged);
+    _seanceState.chargerSeances();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _seanceState.removeListener(_onStateChanged);
+    _seanceState.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -32,18 +62,21 @@ class EncadreurHomeScreen extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: DashboardHeader(
-            userName: userName,
+            userName: widget.userName,
             role: 'Encadreur',
-            greeting: greeting,
+            greeting: widget.greeting,
             notificationCount: 1,
             onNotificationTap: () {},
             onProfileTap: () {},
           ),
         ),
         SliverToBoxAdapter(child: _buildTerrainBanner(colorScheme)),
-        SliverToBoxAdapter(
-          child: _buildCurrentSeanceCard(context, colorScheme),
-        ),
+        if (_seanceState.seanceOuverte != null)
+          SliverToBoxAdapter(
+            child: _buildCurrentSeanceCard(context, colorScheme),
+          )
+        else
+          SliverToBoxAdapter(child: _buildNoSeanceCard(context, colorScheme)),
         const SliverToBoxAdapter(child: SectionTitle(title: 'Mon activite')),
         SliverToBoxAdapter(child: _buildCoachStats()),
         const SliverToBoxAdapter(child: SectionTitle(title: 'Actions terrain')),
@@ -174,6 +207,170 @@ class EncadreurHomeScreen extends StatelessWidget {
     ColorScheme colorScheme,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final seance = _seanceState.seanceOuverte!;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => SeanceDetailPage(seance: seance)),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: isDark ? colorScheme.surface : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFF10B981).withValues(alpha: 0.25),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF10B981).withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.play_circle_rounded,
+                        size: 14,
+                        color: Color(0xFF10B981),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'En cours',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF10B981),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  seance.dureeFormatee,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              seance.titre,
+              style: GoogleFonts.montserrat(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                SeanceStatChip(
+                  icon: Icons.people_rounded,
+                  value: '${seance.nbPresents}',
+                  label: 'Presents',
+                  color: const Color(0xFF3B82F6),
+                ),
+                const SizedBox(width: 12),
+                SeanceStatChip(
+                  icon: Icons.sports_soccer_rounded,
+                  value: '${seance.atelierIds.length}',
+                  label: 'Ateliers',
+                  color: const Color(0xFF8B5CF6),
+                ),
+                const SizedBox(width: 12),
+                SeanceStatChip(
+                  icon: Icons.edit_note_rounded,
+                  value: '0',
+                  label: 'Annotations',
+                  color: const Color(0xFFF59E0B),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: Text(
+                      'Ajouter atelier',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _handleFermerSeance(seance),
+                    icon: const Icon(Icons.stop_rounded, size: 18),
+                    label: Text(
+                      'Fermer seance',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colorScheme.onSurface,
+                      side: BorderSide(
+                        color: colorScheme.onSurface.withValues(alpha: 0.15),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoSeanceCard(BuildContext context, ColorScheme colorScheme) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -182,150 +379,65 @@ class EncadreurHomeScreen extends StatelessWidget {
         color: isDark ? colorScheme.surface : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF10B981).withValues(alpha: 0.25),
-          width: 1.5,
+          color: colorScheme.onSurface.withValues(alpha: 0.06),
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF10B981).withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.play_circle_rounded,
-                      size: 14,
-                      color: Color(0xFF10B981),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'En cours',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF10B981),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '15:00 - 17:00',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onSurface.withValues(alpha: 0.4),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'Entrainement Technique',
-            style: GoogleFonts.montserrat(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
-            ),
+          Icon(
+            Icons.sports_soccer_rounded,
+            size: 40,
+            color: colorScheme.onSurface.withValues(alpha: 0.15),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              SeanceStatChip(
-                icon: Icons.people_rounded,
-                value: '18',
-                label: 'Presents',
-                color: const Color(0xFF3B82F6),
-              ),
-              const SizedBox(width: 12),
-              SeanceStatChip(
-                icon: Icons.sports_soccer_rounded,
-                value: '4',
-                label: 'Ateliers',
-                color: const Color(0xFF8B5CF6),
-              ),
-              const SizedBox(width: 12),
-              SeanceStatChip(
-                icon: Icons.edit_note_rounded,
-                value: '12',
-                label: 'Annotations',
-                color: const Color(0xFFF59E0B),
-              ),
-            ],
+          Text(
+            'Aucune seance en cours',
+            style: GoogleFonts.montserrat(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: Text(
-                    'Ajouter atelier',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.stop_rounded, size: 18),
-                  label: Text(
-                    'Fermer seance',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: colorScheme.onSurface,
-                    side: BorderSide(
-                      color: colorScheme.onSurface.withValues(alpha: 0.15),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-            ],
+          const SizedBox(height: 4),
+          Text(
+            'Ouvrez une seance pour commencer.',
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              color: colorScheme.onSurface.withValues(alpha: 0.35),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  /// Gere la fermeture d'une seance depuis le home screen.
+  Future<void> _handleFermerSeance(Seance seance) async {
+    final result = await _seanceState.fermerSeance(seance.id);
+    if (!mounted) return;
+
+    if (result.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message, style: GoogleFonts.montserrat()),
+          backgroundColor: const Color(0xFF10B981),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message, style: GoogleFonts.montserrat()),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   Widget _buildCoachStats() {

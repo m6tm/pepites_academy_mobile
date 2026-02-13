@@ -1,32 +1,37 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'application/services/app_preferences.dart';
 import 'application/services/qr_scanner_service.dart';
+import 'application/services/seance_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/encadreur_local_datasource.dart';
 import 'infrastructure/datasources/presence_local_datasource.dart';
+import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/encadreur_repository_impl.dart';
 import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
+import 'infrastructure/repositories/seance_repository_impl.dart';
 
-/// Gestionnaire d'injection de dépendances simplifié pour le projet.
-/// Centralise la création des services et repositories.
+/// Gestionnaire d'injection de dependances simplifie pour le projet.
+/// Centralise la creation des services et repositories.
 class DependencyInjection {
   static late final AppPreferences preferences;
   static late final EncadreurRepository encadreurRepository;
   static late final AcademicienRepositoryImpl academicienRepository;
   static late final PresenceRepositoryImpl presenceRepository;
+  static late final SeanceRepositoryImpl seanceRepository;
   static late final QrScannerService qrScannerService;
+  static late final SeanceService seanceService;
 
-  /// Initialise les dépendances asynchrones.
+  /// Initialise les dependances asynchrones.
   static Future<void> init() async {
     final sharedPrefs = await SharedPreferences.getInstance();
 
-    // Initialisation du Repository (Infrastructure)
+    // Initialisation du Repository Preferences (Infrastructure)
     final preferencesRepository = PreferencesRepositoryImpl(sharedPrefs);
 
-    // Initialisation du Service (Application)
+    // Initialisation du Service Preferences (Application)
     preferences = AppPreferences(preferencesRepository);
 
     // Initialisation du Repository Encadreur
@@ -42,10 +47,20 @@ class DependencyInjection {
     final presenceDatasource = PresenceLocalDatasource(sharedPrefs);
     presenceRepository = PresenceRepositoryImpl(presenceDatasource);
 
+    // Initialisation du Repository Seance
+    final seanceDatasource = SeanceLocalDatasource(sharedPrefs);
+    seanceRepository = SeanceRepositoryImpl(seanceDatasource);
+
     // Initialisation du Service QR Scanner
     qrScannerService = QrScannerService(
       academicienRepository: academicienRepository,
       encadreurRepository: encadreurRepoImpl,
+      presenceRepository: presenceRepository,
+    );
+
+    // Initialisation du Service Seance
+    seanceService = SeanceService(
+      seanceRepository: seanceRepository,
       presenceRepository: presenceRepository,
     );
   }

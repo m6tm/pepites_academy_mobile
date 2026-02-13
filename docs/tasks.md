@@ -98,7 +98,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Affichage du badge de statut avec photo et nom après scan.
   - Mode "Entrée Rapide" pour enchaîner les scans sans quitter l'interface.
 
-### [T-302] Flux de Séance (Ouverture/Fermeture)
+### [T-302] Flux de Séance (Ouverture/Fermeture) [DONE]
 
 - **Objectif :** Une séance d'entraînement est l'unité centrale de l'application. Elle structure tout le travail sur le terrain : ateliers, annotations, présences. Ce ticket gère le cycle de vie complet d'une séance pour les académiciens et les encadreurs :
   - **Ouverture :** Un encadreur ouvre une nouvelle séance. Le système vérifie automatiquement que la séance précédente a bien été clôturée avant d'autoriser l'ouverture. Si ce n'est pas le cas, un message d'avertissement s'affiche et l'ouverture est bloquée.

@@ -1,29 +1,28 @@
-import '../entities/atelier.dart';
 import '../entities/seance.dart';
 
-/// Contrat pour la gestion des séances et des ateliers.
+/// Contrat pour la gestion des seances d'entrainement.
 abstract class SeanceRepository {
-  /// Récupère une séance par son identifiant.
+  /// Recupere une seance par son identifiant.
   Future<Seance?> getById(String id);
 
-  /// Récupère la liste de toutes les séances.
+  /// Recupere la liste de toutes les seances.
   Future<List<Seance>> getAll();
 
-  /// Crée une nouvelle séance.
+  /// Recupere la seance actuellement ouverte (s'il y en a une).
+  Future<Seance?> getSeanceOuverte();
+
+  /// Cree une nouvelle seance.
   Future<Seance> create(Seance seance);
 
-  /// Met à jour une séance existante.
+  /// Met a jour une seance existante.
   Future<Seance> update(Seance seance);
 
-  /// Clôture une séance.
-  Future<void> close(String id);
+  /// Ouvre une seance (passe son statut a ouverte).
+  Future<Seance> ouvrir(String id);
 
-  /// Ajoute un atelier à une séance.
-  Future<Atelier> addAtelier(String seanceId, Atelier atelier);
+  /// Cloture une seance (passe son statut a fermee).
+  Future<Seance> fermer(String id);
 
-  /// Supprime un atelier.
-  Future<void> removeAtelier(String atelierId);
-
-  /// Réorganise les ateliers d'une séance.
-  Future<void> reorderAteliers(String seanceId, List<String> atelierIdsOrdered);
+  /// Supprime une seance.
+  Future<void> delete(String id);
 }
