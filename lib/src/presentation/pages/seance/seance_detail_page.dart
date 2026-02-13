@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
@@ -27,13 +28,26 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   bool _isLoadingAteliers = false;
   bool _isLoadingPersonnes = false;
 
-  Seance get seance => widget.seance;
+  late Seance _seance;
+  Seance get seance => _seance;
 
   @override
   void initState() {
     super.initState();
+    _seance = widget.seance;
+    _rafraichirSeance();
     _chargerAteliers();
-    _chargerPersonnes();
+  }
+
+  /// Recharge la seance depuis le datasource pour refleter les modifications.
+  Future<void> _rafraichirSeance() async {
+    final updated = await DependencyInjection.seanceRepository.getById(
+      widget.seance.id,
+    );
+    if (mounted && updated != null) {
+      setState(() => _seance = updated);
+      _chargerPersonnes();
+    }
   }
 
   Future<void> _chargerAteliers() async {
@@ -62,10 +76,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       if (mounted) {
         setState(() {
           _academiciens = tousAcademiciens
-              .where((a) => seance.academicienIds.contains(a.id))
+              .where((a) => _seance.academicienIds.contains(a.id))
               .toList();
           _encadreurs = tousEncadreurs
-              .where((e) => seance.encadreurIds.contains(e.id))
+              .where((e) => _seance.encadreurIds.contains(e.id))
               .toList();
           _isLoadingPersonnes = false;
         });
@@ -84,6 +98,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       ),
     );
     _chargerAteliers();
+    _rafraichirSeance();
   }
 
   @override
@@ -818,20 +833,7 @@ class _PersonChip extends StatelessWidget {
             child: photoUrl != null && photoUrl!.isNotEmpty
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      photoUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Center(
-                        child: Text(
-                          displayInitials,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: color,
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: _buildPhoto(displayInitials),
                   )
                 : Center(
                     child: Text(
@@ -858,6 +860,39 @@ class _PersonChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Construit l'image de profil en gerant les chemins locaux et distants.
+  Widget _buildPhoto(String displayInitials) {
+    final isLocal = !photoUrl!.startsWith('http');
+    final fallback = Center(
+      child: Text(
+        displayInitials,
+        style: GoogleFonts.montserrat(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
+
+    if (isLocal) {
+      return Image.file(
+        File(photoUrl!),
+        fit: BoxFit.cover,
+        width: 34,
+        height: 34,
+        errorBuilder: (_, e1, s1) => fallback,
+      );
+    }
+
+    return Image.network(
+      photoUrl!,
+      fit: BoxFit.cover,
+      width: 34,
+      height: 34,
+      errorBuilder: (_, e2, s2) => fallback,
     );
   }
 }

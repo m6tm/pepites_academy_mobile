@@ -12,7 +12,9 @@ import 'widgets/scanner_overlay.dart';
 /// Permet de scanner les codes QR des academiciens et encadreurs
 /// pour enregistrer leur presence a une seance.
 class QrScannerPage extends StatefulWidget {
-  const QrScannerPage({super.key});
+  final String seanceId;
+
+  const QrScannerPage({super.key, required this.seanceId});
 
   @override
   State<QrScannerPage> createState() => _QrScannerPageState();
@@ -32,8 +34,7 @@ class _QrScannerPageState extends State<QrScannerPage>
     super.initState();
     _scannerState = QrScannerState(DependencyInjection.qrScannerService);
 
-    // Seance par defaut pour le mode demo
-    _scannerState.setSeanceId('seance_active');
+    _scannerState.setSeanceId(widget.seanceId);
     _scannerState.startScanning();
 
     _cameraController = MobileScannerController(

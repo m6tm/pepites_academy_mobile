@@ -104,9 +104,11 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
       return;
     }
 
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const QrScannerPage()));
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => QrScannerPage(seanceId: seanceOuverte.id),
+      ),
+    );
   }
 
   /// Bouton flottant central "Scanner QR"

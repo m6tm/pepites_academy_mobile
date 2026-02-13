@@ -64,10 +64,13 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
       return;
     }
 
-    Navigator.push(
+    await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const QrScannerPage()),
+      MaterialPageRoute(
+        builder: (_) => QrScannerPage(seanceId: seanceOuverte.id),
+      ),
     );
+    _seanceState.chargerSeances();
   }
 
   @override
