@@ -88,7 +88,7 @@ class RegistrationSuccessPage extends StatelessWidget {
                 Image.asset(
                   'assets/logo.png',
                   height: 30,
-                  errorBuilder: (_, __, ___) =>
+                  errorBuilder: (_, _, _) =>
                       const Icon(Icons.sports_soccer, color: AppColors.primary),
                 ),
                 const Spacer(),

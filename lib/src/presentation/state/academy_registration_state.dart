@@ -49,13 +49,13 @@ class AcademyRegistrationState extends ChangeNotifier {
   }
 
   void setFootballInfo({String? posteId, String? piedFort}) {
-    if (posteId != null) this.posteFootballId = posteId;
+    if (posteId != null) posteFootballId = posteId;
     if (piedFort != null) this.piedFort = piedFort;
     notifyListeners();
   }
 
   void setSchoolInfo({String? niveauId}) {
-    if (niveauId != null) this.niveauScolaireId = niveauId;
+    if (niveauId != null) niveauScolaireId = niveauId;
     notifyListeners();
   }
 

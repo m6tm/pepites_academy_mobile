@@ -139,11 +139,12 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop();
+                final navigator = Navigator.of(context);
+                navigator.pop();
                 // Clear session
                 await DependencyInjection.preferences.logout();
                 if (mounted) {
-                  Navigator.of(context).pushAndRemoveUntil(
+                  navigator.pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                     (route) => false,
                   );
@@ -1008,7 +1009,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        separatorBuilder: (_, _a) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemCount: tags.length,
         itemBuilder: (context, index) {
           final (label, isSelected) = tags[index];

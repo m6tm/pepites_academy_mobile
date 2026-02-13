@@ -1,5 +1,7 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../../../domain/entities/poste_football.dart';
@@ -93,9 +95,9 @@ class _AcademicienRegistrationPageState
 
   void _nextStep() {
     bool isValid = false;
-    if (_currentStep == 0)
+    if (_currentStep == 0) {
       isValid = _step1Key.currentState!.validate();
-    else if (_currentStep == 1) {
+    } else if (_currentStep == 1) {
       if (_selectedPosteId == null || _selectedPiedFort == null) {
         AcademyToast.show(
           context,
@@ -481,7 +483,7 @@ class _AcademicienRegistrationPageState
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _niveaux.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final n = _niveaux[index];
               final isSelected = _selectedNiveauId == n.id;
@@ -544,134 +546,420 @@ class _AcademicienRegistrationPageState
   }
 
   // --- Step 4: Recap & QR ---
+
+  String? _generatedQrCode;
+
+  String _generateQrCode() {
+    if (_generatedQrCode != null) return _generatedQrCode!;
+    final random = Random();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final code =
+        'PA-ACA-${timestamp.toString().substring(5)}-${random.nextInt(9999).toString().padLeft(4, '0')}';
+    _generatedQrCode = code;
+    return code;
+  }
+
+  String _getPosteName() {
+    if (_selectedPosteId == null) return 'Non specifie';
+    return _postes
+        .firstWhere(
+          (p) => p.id == _selectedPosteId,
+          orElse: () => PosteFootball(id: '', nom: 'Non specifie'),
+        )
+        .nom;
+  }
+
+  String _getNiveauName() {
+    if (_selectedNiveauId == null) return 'Non specifie';
+    return _niveaux
+        .firstWhere(
+          (n) => n.id == _selectedNiveauId,
+          orElse: () => NiveauScolaire(id: '', nom: 'Non specifie', ordre: 0),
+        )
+        .nom;
+  }
+
   Widget _buildStep4(ThemeData theme, ColorScheme colorScheme) {
+    final isDark = theme.brightness == Brightness.dark;
+    final qrCode = _generateQrCode();
+    final nomComplet = '${_prenomController.text} ${_nomController.text}';
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          const Icon(
-            Icons.check_circle_outline_rounded,
-            color: Color(0xFF10B981),
-            size: 64,
+          // Animation de succes
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.elasticOut,
+            builder: (context, value, child) {
+              return Transform.scale(scale: value, child: child);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF10B981),
+                size: 56,
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
-            'Inscription réussie !',
+            'Inscription reussie !',
             style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
               color: colorScheme.onSurface,
+              letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Le badge QR de l\'académicien a été généré.',
+            'Le badge QR unique de l\'academicien a ete genere\navec succes. Vous pouvez le partager ou le telecharger.',
             style: GoogleFonts.montserrat(
               color: colorScheme.onSurface.withValues(alpha: 0.5),
+              fontSize: 13,
+              height: 1.5,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
 
-          // Badge QR Simulé
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'PEPITES ACADEMY',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 14,
-                    letterSpacing: 2,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Placeholder pour le QR Code
-                Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.qr_code_2_rounded, size: 140),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  '${_nomController.text} ${_prenomController.text}',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                Text(
-                  _selectedPosteId != null
-                      ? _postes
-                            .firstWhere(
-                              (p) => p.id == _selectedPosteId,
-                              orElse: () => PosteFootball(id: '', nom: ''),
-                            )
-                            .nom
-                      : 'Poste non spécifié',
-                  style: GoogleFonts.montserrat(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Badge QR premium
+          _buildQrBadgeCard(qrCode, nomComplet, colorScheme, isDark),
+          const SizedBox(height: 24),
 
-          const SizedBox(height: 40),
+          // Recapitulatif detaille
+          _buildRecapCard(nomComplet, colorScheme, isDark),
+          const SizedBox(height: 32),
+
+          // Boutons d'action
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.share_rounded, size: 20),
-                  label: const Text('Partager le badge'),
+                  label: Text(
+                    'Partager',
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                  ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    side: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                   ),
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.pop(context, true),
+                  icon: const Icon(Icons.check_rounded, size: 20),
+                  label: Text(
+                    'Terminer',
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF10B981),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
+                    elevation: 4,
+                    shadowColor: const Color(0xFF10B981).withValues(alpha: 0.3),
                   ),
-                  child: const Text('Terminer'),
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 20),
         ],
       ),
+    );
+  }
+
+  Widget _buildQrBadgeCard(
+    String qrCode,
+    String nomComplet,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // En-tete badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'PEPITES ACADEMY',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
+                  letterSpacing: 3,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'ACADEMICIEN',
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.w700,
+                fontSize: 10,
+                letterSpacing: 2,
+                color: const Color(0xFF3B82F6),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // QR Code reel
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: QrImageView(
+              data: qrCode,
+              version: QrVersions.auto,
+              size: 180,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: Color(0xFF1C1C1C),
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: Color(0xFF1C1C1C),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Nom complet
+          Text(
+            nomComplet,
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: const Color(0xFF1C1C1C),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _getPosteName(),
+            style: GoogleFonts.montserrat(
+              color: Colors.grey[600],
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Code QR texte
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              qrCode,
+              style: GoogleFonts.sourceCodePro(
+                fontSize: 11,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecapCard(
+    String nomComplet,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    final dateInscription = DateTime.now();
+    final dateStr =
+        '${dateInscription.day.toString().padLeft(2, '0')}/${dateInscription.month.toString().padLeft(2, '0')}/${dateInscription.year}';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surface : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colorScheme.onSurface.withValues(alpha: 0.06),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Recapitulatif',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildRecapRow(
+            Icons.person_outline,
+            'Nom complet',
+            nomComplet,
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.cake_outlined,
+            'Date de naissance',
+            _dateNaissanceController.text.isNotEmpty
+                ? _dateNaissanceController.text
+                : 'Non renseignee',
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.phone_android_outlined,
+            'Telephone parent',
+            _telephoneParentController.text.isNotEmpty
+                ? _telephoneParentController.text
+                : 'Non renseigne',
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.sports_soccer_rounded,
+            'Poste',
+            _getPosteName(),
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.directions_run_rounded,
+            'Pied fort',
+            _selectedPiedFort ?? 'Non specifie',
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.school_outlined,
+            'Niveau scolaire',
+            _getNiveauName(),
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.calendar_today_outlined,
+            'Date d\'inscription',
+            dateStr,
+            colorScheme,
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecapRow(
+    IconData icon,
+    String label,
+    String value,
+    ColorScheme colorScheme, {
+    bool isLast = false,
+  }) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: AppColors.primary.withValues(alpha: 0.7),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  value,
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!isLast)
+          Divider(
+            color: colorScheme.onSurface.withValues(alpha: 0.05),
+            height: 1,
+          ),
+      ],
     );
   }
 

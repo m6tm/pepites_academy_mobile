@@ -7,8 +7,10 @@ import '../../../presentation/widgets/quick_action_tile.dart';
 import '../../../presentation/widgets/activity_card.dart';
 import '../../../presentation/widgets/section_title.dart';
 import '../../../presentation/widgets/circular_progress_widget.dart';
+import '../academy/academicien_list_page.dart';
 import '../academy/academicien_registration_page.dart';
 import '../auth/login_page.dart';
+import '../encadreur/encadreur_list_page.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/seance_card.dart';
 
@@ -104,11 +106,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop();
+                final navigator = Navigator.of(context);
+                navigator.pop();
                 // Clear session
                 await DependencyInjection.preferences.logout();
                 if (mounted) {
-                  Navigator.of(context).pushAndRemoveUntil(
+                  navigator.pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                     (route) => false,
                   );
@@ -369,19 +372,36 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             onTap: () {},
           ),
           QuickActionTile(
-            title: 'Envoyer SMS',
-            description: 'Communication groupee',
-            icon: Icons.sms_rounded,
+            title: 'Joueurs',
+            description: 'Liste des academiciens',
+            icon: Icons.sports_soccer_rounded,
             color: const Color(0xFF10B981),
-            badge: '3',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AcademicienListPage(
+                    repository: DependencyInjection.academicienRepository,
+                  ),
+                ),
+              );
+            },
           ),
           QuickActionTile(
-            title: 'Referentiels',
-            description: 'Postes & Niveaux',
-            icon: Icons.tune_rounded,
+            title: 'Encadreurs',
+            description: 'Gestion des coachs',
+            icon: Icons.sports_rounded,
             color: const Color(0xFF8B5CF6),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EncadreurListPage(
+                    repository: DependencyInjection.encadreurRepository,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -614,11 +634,24 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             child: Row(
               children: [
                 Expanded(
-                  child: _MiniStatCard(
-                    label: 'Total inscrits',
-                    value: '47',
-                    icon: Icons.people_rounded,
-                    color: const Color(0xFF3B82F6),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AcademicienListPage(
+                            repository:
+                                DependencyInjection.academicienRepository,
+                          ),
+                        ),
+                      );
+                    },
+                    child: _MiniStatCard(
+                      label: 'Total inscrits',
+                      value: '47',
+                      icon: Icons.people_rounded,
+                      color: const Color(0xFF3B82F6),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -632,11 +665,23 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _MiniStatCard(
-                    label: 'Encadreurs',
-                    value: '8',
-                    icon: Icons.sports_rounded,
-                    color: const Color(0xFF8B5CF6),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EncadreurListPage(
+                            repository: DependencyInjection.encadreurRepository,
+                          ),
+                        ),
+                      );
+                    },
+                    child: _MiniStatCard(
+                      label: 'Encadreurs',
+                      value: '8',
+                      icon: Icons.sports_rounded,
+                      color: const Color(0xFF8B5CF6),
+                    ),
                   ),
                 ),
               ],

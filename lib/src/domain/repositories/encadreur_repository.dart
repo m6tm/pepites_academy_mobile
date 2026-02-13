@@ -14,6 +14,12 @@ abstract class EncadreurRepository {
   /// Met à jour les informations d'un encadreur.
   Future<Encadreur> update(Encadreur encadreur);
 
+  /// Supprime un encadreur par son identifiant.
+  Future<void> delete(String id);
+
   /// Récupère un encadreur via son code QR.
   Future<Encadreur?> getByQrCode(String qrCode);
+
+  /// Recherche des encadreurs par nom ou prénom.
+  Future<List<Encadreur>> search(String query);
 }

@@ -146,7 +146,7 @@ class RecapStep extends StatelessWidget {
       child: const Row(
         children: [
           Icon(Icons.qr_code, color: Colors.orange),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Text(
               "La validation générera automatiquement un Badge QR unique pour cet élève.",
