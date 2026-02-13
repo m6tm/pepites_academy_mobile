@@ -7,7 +7,6 @@ import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../injection_container.dart';
-import '../../academy/academicien_list_page.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
 import '../widgets/dashboard_header.dart';
@@ -18,11 +17,13 @@ import '../widgets/seance_card.dart';
 class AdminHomeScreen extends StatelessWidget {
   final String userName;
   final String greeting;
+  final ValueChanged<int>? onNavigateToTab;
 
   const AdminHomeScreen({
     super.key,
     required this.userName,
     required this.greeting,
+    this.onNavigateToTab,
   });
 
   @override
@@ -68,7 +69,9 @@ class AdminHomeScreen extends StatelessWidget {
         const SliverToBoxAdapter(
           child: SectionTitle(title: 'Performance globale'),
         ),
-        SliverToBoxAdapter(child: _buildPerformanceSection(context, colorScheme)),
+        SliverToBoxAdapter(
+          child: _buildPerformanceSection(context, colorScheme),
+        ),
         const SliverToBoxAdapter(
           child: SectionTitle(
             title: 'Activite recente',
@@ -256,14 +259,7 @@ class AdminHomeScreen extends StatelessWidget {
             icon: Icons.sports_soccer_rounded,
             color: const Color(0xFF10B981),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AcademicienListPage(
-                    repository: DependencyInjection.academicienRepository,
-                  ),
-                ),
-              );
+              onNavigateToTab?.call(1);
             },
           ),
           QuickActionTile(
@@ -287,7 +283,10 @@ class AdminHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPerformanceSection(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildPerformanceSection(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(

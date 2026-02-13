@@ -67,6 +67,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               AdminHomeScreen(
                 userName: widget.userName,
                 greeting: _getGreeting(),
+                onNavigateToTab: (index) {
+                  setState(() => _selectedNavIndex = index);
+                },
               ),
               const AdminAcademyScreen(),
               const AdminSeancesScreen(),
