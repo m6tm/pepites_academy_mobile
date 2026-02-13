@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/glassmorphism_card.dart';
+import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
 
 class RegistrationSuccessPage extends StatelessWidget {
   final String academicienName;
@@ -142,8 +143,11 @@ class RegistrationSuccessPage extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               // Implementation of sharing
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Partage en cours... (Simulé)")),
+              AcademyToast.show(
+                context,
+                title: 'Partage en cours...',
+                description: 'Fonctionnalite bientot disponible.',
+                icon: Icons.share_rounded,
               );
             },
             icon: const Icon(Icons.share),

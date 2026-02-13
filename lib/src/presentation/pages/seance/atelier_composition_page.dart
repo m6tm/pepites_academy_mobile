@@ -6,6 +6,7 @@ import '../../../injection_container.dart';
 import '../../state/annotation_state.dart';
 import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/academy_toast.dart';
 import '../annotation/annotation_page.dart';
 
 /// Ecran de composition des ateliers rattache a une seance.
@@ -44,28 +45,12 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
 
     final state = widget.atelierState;
     if (state.successMessage != null) {
-      _showSnackBar(state.successMessage!, isError: false);
+      AcademyToast.show(context, title: state.successMessage!, isSuccess: true);
       state.clearMessages();
     } else if (state.errorMessage != null) {
-      _showSnackBar(state.errorMessage!, isError: true);
+      AcademyToast.show(context, title: state.errorMessage!, isError: true);
       state.clearMessages();
     }
-  }
-
-  void _showSnackBar(String message, {required bool isError}) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.montserrat(fontSize: 13, color: Colors.white),
-        ),
-        backgroundColor: isError ? AppColors.error : AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
   }
 
   @override

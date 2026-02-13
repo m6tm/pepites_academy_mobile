@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
+import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
 
 class ProfileImagePicker extends StatefulWidget {
   final String? initialImage;
@@ -38,13 +39,11 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
     } catch (e) {
       debugPrint('Erreur lors de la sélection de limage: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Impossible d\'ouvrir la galerie. Redémarrez l\'application.',
-            ),
-            backgroundColor: Colors.red,
-          ),
+        AcademyToast.show(
+          context,
+          title: 'Impossible d\'ouvrir la galerie',
+          description: 'Redémarrez l\'application.',
+          isError: true,
         );
       }
     }

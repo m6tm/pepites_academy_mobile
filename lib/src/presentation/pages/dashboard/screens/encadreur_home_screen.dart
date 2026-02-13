@@ -11,6 +11,7 @@ import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../state/seance_state.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../scanner/qr_scanner_page.dart';
+import '../../../widgets/academy_toast.dart';
 import '../../seance/seance_detail_page.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/encadreur_internal_widgets.dart';
@@ -44,6 +45,29 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
 
   void _onStateChanged() {
     if (mounted) setState(() {});
+  }
+
+  /// Verifie qu'une seance est ouverte avant de lancer le scanner.
+  Future<void> _ouvrirScanner() async {
+    final seanceOuverte = await DependencyInjection.seanceRepository
+        .getSeanceOuverte();
+    if (!mounted) return;
+
+    if (seanceOuverte == null) {
+      AcademyToast.show(
+        context,
+        title: 'Aucune seance en cours',
+        description: 'Veuillez ouvrir une seance avant de scanner.',
+        icon: Icons.warning_amber_rounded,
+        isError: true,
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const QrScannerPage()),
+    );
   }
 
   @override
@@ -424,19 +448,9 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     if (!mounted) return;
 
     if (result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message, style: GoogleFonts.montserrat()),
-          backgroundColor: const Color(0xFF10B981),
-        ),
-      );
+      AcademyToast.show(context, title: result.message, isSuccess: true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message, style: GoogleFonts.montserrat()),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AcademyToast.show(context, title: result.message, isError: true);
     }
   }
 
@@ -533,12 +547,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             description: 'Scanner les arrivees',
             icon: Icons.qr_code_scanner_rounded,
             color: AppColors.primary,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const QrScannerPage()),
-              );
-            },
+            onTap: _ouvrirScanner,
           ),
         ],
       ),

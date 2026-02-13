@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../widgets/academy_toast.dart';
 
 /// Page de réinitialisation du mot de passe pour Pépites Academy.
 /// Inclut le même validateur premium que la page d'inscription.
@@ -72,10 +73,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       if (mounted) {
         setState(() => _isLoading = false);
         // Retour à la connexion ou message de succès
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Mot de passe réinitialisé avec succès'),
-          ),
+        AcademyToast.show(
+          context,
+          title: 'Mot de passe reinitialise avec succes',
+          isSuccess: true,
         );
         Navigator.of(context).popUntil((route) => route.isFirst);
       }

@@ -2,6 +2,7 @@ import '../../domain/entities/presence.dart';
 import '../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../infrastructure/repositories/encadreur_repository_impl.dart';
 import '../../infrastructure/repositories/presence_repository_impl.dart';
+import '../../infrastructure/repositories/seance_repository_impl.dart';
 
 /// Resultat du scan QR contenant les informations du profil identifie.
 class ScanResult {
@@ -39,14 +40,17 @@ class QrScannerService {
   final AcademicienRepositoryImpl _academicienRepository;
   final EncadreurRepositoryImpl _encadreurRepository;
   final PresenceRepositoryImpl _presenceRepository;
+  final SeanceRepositoryImpl _seanceRepository;
 
   QrScannerService({
     required AcademicienRepositoryImpl academicienRepository,
     required EncadreurRepositoryImpl encadreurRepository,
     required PresenceRepositoryImpl presenceRepository,
+    required SeanceRepositoryImpl seanceRepository,
   }) : _academicienRepository = academicienRepository,
        _encadreurRepository = encadreurRepository,
-       _presenceRepository = presenceRepository;
+       _presenceRepository = presenceRepository,
+       _seanceRepository = seanceRepository;
 
   /// Identifie un profil a partir d'un code QR scanne.
   /// Recherche d'abord parmi les academiciens, puis les encadreurs.
@@ -97,6 +101,7 @@ class QrScannerService {
   }
 
   /// Enregistre la presence d'un profil pour une seance.
+  /// Met aussi a jour la seance avec le profilId dans la liste correspondante.
   Future<Presence> enregistrerPresence({
     required ProfilType typeProfil,
     required String profilId,
@@ -109,7 +114,33 @@ class QrScannerService {
       profilId: profilId,
       seanceId: seanceId,
     );
-    return _presenceRepository.mark(presence);
+    final saved = await _presenceRepository.mark(presence);
+
+    // Mise a jour de la seance avec le profil present
+    final seance = await _seanceRepository.getById(seanceId);
+    if (seance != null) {
+      final updatedAcademicienIds = List<String>.from(seance.academicienIds);
+      final updatedEncadreurIds = List<String>.from(seance.encadreurIds);
+
+      if (typeProfil == ProfilType.academicien &&
+          !updatedAcademicienIds.contains(profilId)) {
+        updatedAcademicienIds.add(profilId);
+      } else if (typeProfil == ProfilType.encadreur &&
+          !updatedEncadreurIds.contains(profilId)) {
+        updatedEncadreurIds.add(profilId);
+      }
+
+      final presences = await _presenceRepository.getBySeance(seanceId);
+      await _seanceRepository.update(
+        seance.copyWith(
+          academicienIds: updatedAcademicienIds,
+          encadreurIds: updatedEncadreurIds,
+          nbPresents: presences.length,
+        ),
+      );
+    }
+
+    return saved;
   }
 
   /// Recupere le nombre de presences pour une seance.

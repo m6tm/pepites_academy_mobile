@@ -6,6 +6,7 @@ import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../../state/seance_state.dart';
 import '../../seance/seance_detail_page.dart';
+import '../../../widgets/academy_toast.dart';
 import '../widgets/seance_card.dart';
 
 /// Ecran Tableau de bord des seances du dashboard encadreur.
@@ -511,19 +512,14 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                       child: ElevatedButton.icon(
                         onPressed: () async {
                           if (titreController.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Veuillez saisir un titre.',
-                                  style: GoogleFonts.montserrat(),
-                                ),
-                                backgroundColor: AppColors.error,
-                              ),
+                            AcademyToast.show(
+                              context,
+                              title: 'Veuillez saisir un titre.',
+                              isError: true,
                             );
                             return;
                           }
 
-                          final messenger = ScaffoldMessenger.of(context);
                           Navigator.of(context).pop();
 
                           final now = DateTime.now();
@@ -550,14 +546,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                           if (!mounted) return;
 
                           if (result.success) {
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  result.message,
-                                  style: GoogleFonts.montserrat(),
-                                ),
-                                backgroundColor: const Color(0xFF10B981),
-                              ),
+                            AcademyToast.show(
+                              context,
+                              title: result.message,
+                              isSuccess: true,
                             );
                           } else {
                             _showAvertissementSeanceOuverte(
@@ -849,14 +841,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                 if (result.success) {
                   _showFermetureRecapitulatif(result);
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        result.message,
-                        style: GoogleFonts.montserrat(),
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
+                  AcademyToast.show(
+                    context,
+                    title: result.message,
+                    isError: true,
                   );
                 }
               },

@@ -66,6 +66,7 @@ class DependencyInjection {
       academicienRepository: academicienRepository,
       encadreurRepository: encadreurRepoImpl,
       presenceRepository: presenceRepository,
+      seanceRepository: seanceRepository,
     );
 
     // Initialisation du Repository Atelier

@@ -6,6 +6,7 @@ import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
 import '../../state/annotation_state.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/academy_toast.dart';
 import 'widgets/academicien_annotation_tile.dart';
 import 'widgets/annotation_side_panel.dart';
 
@@ -53,10 +54,18 @@ class _AnnotationPageState extends State<AnnotationPage> {
     if (mounted) setState(() {});
 
     if (annotationState.successMessage != null) {
-      _showSnackBar(annotationState.successMessage!, isError: false);
+      AcademyToast.show(
+        context,
+        title: annotationState.successMessage!,
+        isSuccess: true,
+      );
       annotationState.clearMessages();
     } else if (annotationState.errorMessage != null) {
-      _showSnackBar(annotationState.errorMessage!, isError: true);
+      AcademyToast.show(
+        context,
+        title: annotationState.errorMessage!,
+        isError: true,
+      );
       annotationState.clearMessages();
     }
   }
@@ -105,29 +114,14 @@ class _AnnotationPageState extends State<AnnotationPage> {
     });
   }
 
-  void _showSnackBar(String message, {required bool isError}) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.montserrat(fontSize: 13, color: Colors.white),
-        ),
-        backgroundColor: isError ? AppColors.error : AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -183,9 +177,7 @@ class _AnnotationPageState extends State<AnnotationPage> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.surfaceDark
-            : AppColors.surfaceLight,
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark
@@ -314,8 +306,9 @@ class _AnnotationPageState extends State<AnnotationPage> {
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color:
-                  isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+              color: isDark
+                  ? AppColors.textMutedDark
+                  : AppColors.textMutedLight,
             ),
           ),
           const SizedBox(height: 8),
@@ -324,8 +317,9 @@ class _AnnotationPageState extends State<AnnotationPage> {
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 13,
-              color:
-                  isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+              color: isDark
+                  ? AppColors.textMutedDark
+                  : AppColors.textMutedLight,
             ),
           ),
         ],
@@ -337,23 +331,21 @@ class _AnnotationPageState extends State<AnnotationPage> {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final academicien = _academiciens[index];
-            final nbAnnotations = annotationState
-                .nbAnnotationsPourAcademicien(academicien.id);
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: AcademicienAnnotationTile(
-                academicien: academicien,
-                nbAnnotations: nbAnnotations,
-                isDark: isDark,
-                onTap: () => _ouvrirVoletAnnotation(academicien),
-              ),
-            );
-          },
-          childCount: _academiciens.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final academicien = _academiciens[index];
+          final nbAnnotations = annotationState.nbAnnotationsPourAcademicien(
+            academicien.id,
+          );
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: AcademicienAnnotationTile(
+              academicien: academicien,
+              nbAnnotations: nbAnnotations,
+              isDark: isDark,
+              onTap: () => _ouvrirVoletAnnotation(academicien),
+            ),
+          );
+        }, childCount: _academiciens.length),
       ),
     );
   }

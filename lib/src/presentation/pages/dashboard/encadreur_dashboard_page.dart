@@ -4,6 +4,7 @@ import '../../../injection_container.dart';
 import '../../../presentation/theme/app_colors.dart';
 import '../auth/login_page.dart';
 import '../scanner/qr_scanner_page.dart';
+import '../../widgets/academy_toast.dart';
 import 'screens/encadreur_home_screen.dart';
 import 'screens/encadreur_seances_screen.dart';
 import 'screens/encadreur_annotations_screen.dart';
@@ -86,16 +87,34 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
     );
   }
 
+  /// Verifie qu'une seance est ouverte avant de lancer le scanner.
+  Future<void> _ouvrirScanner() async {
+    final seanceOuverte = await DependencyInjection.seanceRepository
+        .getSeanceOuverte();
+    if (!mounted) return;
+
+    if (seanceOuverte == null) {
+      AcademyToast.show(
+        context,
+        title: 'Aucune seance en cours',
+        description: 'Veuillez ouvrir une seance avant de scanner.',
+        icon: Icons.warning_amber_rounded,
+        isError: true,
+      );
+      return;
+    }
+
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const QrScannerPage()));
+  }
+
   /// Bouton flottant central "Scanner QR"
   Widget _buildScanFAB() {
     return Container(
       margin: const EdgeInsets.only(top: 30),
       child: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const QrScannerPage()));
-        },
+        onPressed: _ouvrirScanner,
         backgroundColor: AppColors.primary,
         elevation: 8,
         shape: const CircleBorder(),
