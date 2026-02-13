@@ -21,7 +21,7 @@ class FootballStep extends StatelessWidget {
 
     final pieds = ['Droitier', 'Gaucher', 'Ambidextre'];
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -18,7 +18,7 @@ class SchoolStep extends StatelessWidget {
       {'id': '6', 'nom': 'Secondaire - 3ème'},
     ];
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

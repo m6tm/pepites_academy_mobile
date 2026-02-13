@@ -46,16 +46,27 @@ class _AcademicienRegistrationPageState
       nom: 'Défenseur central',
       icone: Icons.security_rounded,
     ),
-    PosteFootball(id: '3', nom: 'Latéral', icone: Icons.directions_run_rounded),
-    PosteFootball(id: '4', nom: 'Milieu défensif', icone: Icons.anchor_rounded),
     PosteFootball(
-      id: '5',
+      id: '3',
+      nom: 'Défenseur latéral',
+      icone: Icons.directions_run_rounded,
+    ),
+    PosteFootball(id: '4', nom: 'Piston', icone: Icons.swap_calls_rounded),
+    PosteFootball(id: '5', nom: 'Milieu défensif', icone: Icons.anchor_rounded),
+    PosteFootball(id: '6', nom: 'Milieu relayeur', icone: Icons.repeat_rounded),
+    PosteFootball(
+      id: '7',
       nom: 'Milieu offensif',
       icone: Icons.auto_awesome_rounded,
     ),
-    PosteFootball(id: '6', nom: 'Ailier', icone: Icons.flash_on_rounded),
+    PosteFootball(id: '8', nom: 'Ailier', icone: Icons.flash_on_rounded),
     PosteFootball(
-      id: '7',
+      id: '9',
+      nom: 'Second attaquant',
+      icone: Icons.control_point_duplicate_rounded,
+    ),
+    PosteFootball(
+      id: '10',
       nom: 'Avant-centre',
       icone: Icons.sports_soccer_rounded,
     ),
@@ -270,7 +281,7 @@ class _AcademicienRegistrationPageState
               child: OutlinedButton(
                 onPressed: _prevStep,
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 48),
                   side: BorderSide(
                     color: colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
@@ -282,20 +293,20 @@ class _AcademicienRegistrationPageState
                   'Précédent',
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
+                    fontSize: 14,
                     color: colorScheme.onSurface,
                   ),
                 ),
               ),
             ),
-          if (_currentStep > 0) const SizedBox(width: 16),
+          if (_currentStep > 0) const SizedBox(width: 12),
           Expanded(
-            flex: 2,
             child: ElevatedButton(
               onPressed: _nextStep,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                minimumSize: const Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -309,11 +320,11 @@ class _AcademicienRegistrationPageState
                     _currentStep == _totalSteps - 2 ? 'Confirmer' : 'Continuer',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward_rounded, size: 20),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward_rounded, size: 18),
                 ],
               ),
             ),
@@ -429,7 +440,6 @@ class _AcademicienRegistrationPageState
             children: [
               _buildChoiceChip(
                 label: 'Droitier',
-                icon: '🦶',
                 isSelected: _selectedPiedFort == 'Droitier',
                 onSelected: (s) =>
                     setState(() => _selectedPiedFort = s ? 'Droitier' : null),
@@ -438,7 +448,6 @@ class _AcademicienRegistrationPageState
               const SizedBox(width: 12),
               _buildChoiceChip(
                 label: 'Gaucher',
-                icon: '🦶',
                 isSelected: _selectedPiedFort == 'Gaucher',
                 onSelected: (s) =>
                     setState(() => _selectedPiedFort = s ? 'Gaucher' : null),
@@ -446,8 +455,7 @@ class _AcademicienRegistrationPageState
               ),
               const SizedBox(width: 12),
               _buildChoiceChip(
-                label: 'Ambi.',
-                icon: '👣',
+                label: 'Ambidextre',
                 isSelected: _selectedPiedFort == 'Ambidextre',
                 onSelected: (s) =>
                     setState(() => _selectedPiedFort = s ? 'Ambidextre' : null),
@@ -612,7 +620,14 @@ class _AcademicienRegistrationPageState
                   ),
                 ),
                 Text(
-                  _postes.firstWhere((p) => p.id == _selectedPosteId).nom,
+                  _selectedPosteId != null
+                      ? _postes
+                            .firstWhere(
+                              (p) => p.id == _selectedPosteId,
+                              orElse: () => PosteFootball(id: '', nom: ''),
+                            )
+                            .nom
+                      : 'Poste non spécifié',
                   style: GoogleFonts.montserrat(
                     color: Colors.grey,
                     fontSize: 14,
@@ -715,19 +730,19 @@ class _AcademicienRegistrationPageState
             filled: true,
             fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.02),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.primary, width: 2),
             ),
           ),
@@ -738,7 +753,7 @@ class _AcademicienRegistrationPageState
 
   Widget _buildChoiceChip({
     required String label,
-    required dynamic icon,
+    IconData? icon,
     required bool isSelected,
     required Function(bool) onSelected,
     required ColorScheme colorScheme,
@@ -747,14 +762,12 @@ class _AcademicienRegistrationPageState
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon is IconData)
+          if (icon != null)
             Icon(
               icon,
               size: 18,
               color: isSelected ? AppColors.primary : colorScheme.onSurface,
-            )
-          else
-            Text(icon.toString()),
+            ),
           const SizedBox(width: 8),
           Text(label),
         ],
