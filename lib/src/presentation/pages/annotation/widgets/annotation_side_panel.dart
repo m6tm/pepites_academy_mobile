@@ -92,7 +92,6 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
         _tagsSelectionnes.add(tag);
       }
     });
-    _enregistrerAutomatiquement();
   }
 
   Future<void> _enregistrerAutomatiquement() async {
@@ -364,6 +363,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
           child: TextField(
             controller: _contenuController,
             maxLines: 3,
+            onChanged: (_) => setState(() {}),
             style: GoogleFonts.montserrat(
               fontSize: 14,
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,

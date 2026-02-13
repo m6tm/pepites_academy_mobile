@@ -6,8 +6,11 @@ import '../../../domain/entities/atelier.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
+import '../../state/annotation_state.dart';
 import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/academy_toast.dart';
+import '../annotation/widgets/annotation_side_panel.dart';
 import 'atelier_composition_page.dart';
 
 /// Vue detaillee d'une seance affichant les encadreurs presents,
@@ -87,6 +90,43 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     } catch (_) {
       if (mounted) setState(() => _isLoadingPersonnes = false);
     }
+  }
+
+  void _ouvrirAnnotationAcademicien(Academicien academicien) {
+    if (_ateliers.isEmpty) {
+      AcademyToast.show(
+        context,
+        title: 'Ajoutez au moins un atelier pour pouvoir annoter.',
+        isError: true,
+      );
+      return;
+    }
+
+    final annotationState = AnnotationState(
+      DependencyInjection.annotationService,
+    );
+    final atelier = _ateliers.first;
+
+    annotationState.initialiserContexte(
+      atelierId: atelier.id,
+      seanceId: seance.id,
+    );
+    annotationState.selectionnerAcademicien(academicien.id);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AnnotationSidePanel(
+        academicien: academicien,
+        atelier: atelier,
+        seance: seance,
+        annotationState: annotationState,
+        encadreurId: seance.encadreurResponsableId,
+      ),
+    ).whenComplete(() {
+      annotationState.deselectionnerAcademicien();
+    });
   }
 
   Future<void> _naviguerVersComposition() async {
@@ -432,13 +472,16 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
         itemBuilder: (context, index) {
           if (index < _academiciens.length) {
             final aca = _academiciens[index];
-            return _PersonChip(
-              label: '${aca.prenom} ${aca.nom}',
-              initials:
-                  '${aca.prenom.isNotEmpty ? aca.prenom[0] : ''}${aca.nom.isNotEmpty ? aca.nom[0] : ''}',
-              photoUrl: aca.photoUrl,
-              color: const Color(0xFF3B82F6),
-              isDark: isDark,
+            return GestureDetector(
+              onTap: () => _ouvrirAnnotationAcademicien(aca),
+              child: _PersonChip(
+                label: '${aca.prenom} ${aca.nom}',
+                initials:
+                    '${aca.prenom.isNotEmpty ? aca.prenom[0] : ''}${aca.nom.isNotEmpty ? aca.nom[0] : ''}',
+                photoUrl: aca.photoUrl,
+                color: const Color(0xFF3B82F6),
+                isDark: isDark,
+              ),
             );
           }
           return _PersonChip(

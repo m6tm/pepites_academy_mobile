@@ -547,7 +547,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
 
                           if (result.success) {
                             AcademyToast.show(
-                              context,
+                              this.context,
                               title: result.message,
                               isSuccess: true,
                             );
