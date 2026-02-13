@@ -148,7 +148,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
 
 ## PHASE 5 : Rapports et Communication (Points 8, 10)
 
-### [T-501] Bulletin de Formation Périodique
+### [T-501] Bulletin de Formation Périodique [DONE]
 
 - **Objectif :** Le bulletin de formation est l'équivalent d'un bulletin de notes scolaire, mais appliqué au football. Il synthétise l'ensemble des annotations et observations recueillies sur un académicien au cours d'une période donnée (mois, trimestre, saison). Ce module permet de :
   - **Consolider les évaluations** : Agréger toutes les annotations des différents ateliers et séances sur la période sélectionnée pour produire un bilan clair et lisible.

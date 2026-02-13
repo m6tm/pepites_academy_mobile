@@ -2,18 +2,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
 import 'application/services/atelier_service.dart';
+import 'application/services/bulletin_service.dart';
 import 'application/services/qr_scanner_service.dart';
 import 'application/services/seance_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
+import 'infrastructure/datasources/bulletin_local_datasource.dart';
 import 'infrastructure/datasources/encadreur_local_datasource.dart';
 import 'infrastructure/datasources/presence_local_datasource.dart';
 import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
+import 'infrastructure/repositories/bulletin_repository_impl.dart';
 import 'infrastructure/repositories/encadreur_repository_impl.dart';
 import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
@@ -33,6 +36,8 @@ class DependencyInjection {
   static late final AtelierService atelierService;
   static late final AnnotationRepositoryImpl annotationRepository;
   static late final AnnotationService annotationService;
+  static late final BulletinRepositoryImpl bulletinRepository;
+  static late final BulletinService bulletinService;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -92,6 +97,17 @@ class DependencyInjection {
     // Initialisation du Service Annotation
     annotationService = AnnotationService(
       annotationRepository: annotationRepository,
+    );
+
+    // Initialisation du Repository Bulletin
+    final bulletinDatasource = BulletinLocalDatasource(sharedPrefs);
+    bulletinRepository = BulletinRepositoryImpl(bulletinDatasource);
+
+    // Initialisation du Service Bulletin
+    bulletinService = BulletinService(
+      bulletinRepository: bulletinRepository,
+      annotationRepository: annotationRepository,
+      seanceRepository: seanceRepository,
     );
   }
 }

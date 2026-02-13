@@ -7,6 +7,7 @@ import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../theme/app_colors.dart';
+import '../bulletin/bulletin_page.dart';
 
 /// Page de consultation du profil d'un academicien (joueur).
 /// Affiche les informations completes, le badge QR et les statistiques.
@@ -47,11 +48,13 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
   }
 
   String _getPosteName() {
-    return widget.postesMap[_academicien.posteFootballId]?.nom ?? 'Non specifie';
+    return widget.postesMap[_academicien.posteFootballId]?.nom ??
+        'Non specifie';
   }
 
   String _getNiveauName() {
-    return widget.niveauxMap[_academicien.niveauScolaireId]?.nom ?? 'Non specifie';
+    return widget.niveauxMap[_academicien.niveauScolaireId]?.nom ??
+        'Non specifie';
   }
 
   int _calculateAge() {
@@ -115,6 +118,14 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
     );
   }
 
+  void _ouvrirBulletin() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BulletinPage(academicien: _academicien),
+      ),
+    );
+  }
+
   void _showQrFullScreen() {
     showModalBottomSheet(
       context: context,
@@ -169,7 +180,11 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             color: Colors.black.withValues(alpha: 0.3),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+          child: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 18,
+          ),
         ),
         onPressed: () => Navigator.pop(context),
       ),
@@ -258,7 +273,8 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(21),
-                      child: _academicien.photoUrl.isNotEmpty &&
+                      child:
+                          _academicien.photoUrl.isNotEmpty &&
                               File(_academicien.photoUrl).existsSync()
                           ? Image.file(
                               File(_academicien.photoUrl),
@@ -515,58 +531,77 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           _buildInfoSection(
             'Scolarite',
             Icons.school_rounded,
-            [
-              _InfoRowData(label: 'Niveau', value: _getNiveauName()),
-            ],
+            [_InfoRowData(label: 'Niveau', value: _getNiveauName())],
             colorScheme,
             isDark,
           ),
           const SizedBox(height: 24),
-          // Placeholder pour les performances futures
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: isDark ? colorScheme.surface : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: colorScheme.onSurface.withValues(alpha: 0.06),
+          GestureDetector(
+            onTap: _ouvrirBulletin,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: isDark ? colorScheme.surface : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: colorScheme.onSurface.withValues(alpha: 0.06),
+                ),
               ),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
-                    shape: BoxShape.circle,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.assessment_rounded,
+                      size: 32,
+                      color: AppColors.primary,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.bar_chart_rounded,
-                    size: 32,
-                    color: Color(0xFFF59E0B),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Bulletin de formation',
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Performances a venir',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: colorScheme.onSurface,
+                  const SizedBox(height: 6),
+                  Text(
+                    'Consulter et generer le bulletin\nde formation periodique.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+                      height: 1.5,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Les statistiques de performance seront\ndisponibles apres les premieres evaluations.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    color: colorScheme.onSurface.withValues(alpha: 0.5),
-                    height: 1.5,
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Acceder au bulletin',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -796,33 +831,35 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             ],
           ),
           const SizedBox(height: 16),
-          ...rows.map((row) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      row.label,
+          ...rows.map(
+            (row) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    row.label,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  Flexible(
+                    child: Text(
+                      row.value,
                       style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
                         fontSize: 13,
-                        color: colorScheme.onSurface.withValues(alpha: 0.5),
+                        color: colorScheme.onSurface,
                       ),
+                      textAlign: TextAlign.end,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Flexible(
-                      child: Text(
-                        row.value,
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: colorScheme.onSurface,
-                        ),
-                        textAlign: TextAlign.end,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -850,6 +887,15 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             onTap: () {
               Navigator.pop(context);
               _showQrFullScreen();
+            },
+          ),
+          _OptionItem(
+            icon: Icons.assessment_rounded,
+            label: 'Bulletin de formation',
+            color: AppColors.primary,
+            onTap: () {
+              Navigator.pop(context);
+              _ouvrirBulletin();
             },
           ),
           _OptionItem(
@@ -1131,9 +1177,7 @@ class _OptionItem extends StatelessWidget {
         Icons.chevron_right_rounded,
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 }
