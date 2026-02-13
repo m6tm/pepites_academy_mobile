@@ -1,15 +1,18 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
 import 'application/services/atelier_service.dart';
 import 'application/services/qr_scanner_service.dart';
 import 'application/services/seance_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
+import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
 import 'infrastructure/datasources/encadreur_local_datasource.dart';
 import 'infrastructure/datasources/presence_local_datasource.dart';
 import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
+import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
 import 'infrastructure/repositories/encadreur_repository_impl.dart';
 import 'infrastructure/repositories/preferences_repository_impl.dart';
@@ -28,6 +31,8 @@ class DependencyInjection {
   static late final QrScannerService qrScannerService;
   static late final SeanceService seanceService;
   static late final AtelierService atelierService;
+  static late final AnnotationRepositoryImpl annotationRepository;
+  static late final AnnotationService annotationService;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -77,6 +82,15 @@ class DependencyInjection {
     atelierService = AtelierService(
       atelierRepository: atelierRepository,
       seanceRepository: seanceRepository,
+    );
+
+    // Initialisation du Repository Annotation
+    final annotationDatasource = AnnotationLocalDatasource(sharedPrefs);
+    annotationRepository = AnnotationRepositoryImpl(annotationDatasource);
+
+    // Initialisation du Service Annotation
+    annotationService = AnnotationService(
+      annotationRepository: annotationRepository,
     );
   }
 }

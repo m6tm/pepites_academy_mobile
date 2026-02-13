@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/atelier.dart';
+import '../../../domain/entities/encadreur.dart';
 import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
 import '../../state/atelier_state.dart';
@@ -20,7 +22,10 @@ class SeanceDetailPage extends StatefulWidget {
 
 class _SeanceDetailPageState extends State<SeanceDetailPage> {
   List<Atelier> _ateliers = [];
+  List<Academicien> _academiciens = [];
+  List<Encadreur> _encadreurs = [];
   bool _isLoadingAteliers = false;
+  bool _isLoadingPersonnes = false;
 
   Seance get seance => widget.seance;
 
@@ -28,6 +33,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   void initState() {
     super.initState();
     _chargerAteliers();
+    _chargerPersonnes();
   }
 
   Future<void> _chargerAteliers() async {
@@ -43,6 +49,29 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       }
     } catch (_) {
       if (mounted) setState(() => _isLoadingAteliers = false);
+    }
+  }
+
+  Future<void> _chargerPersonnes() async {
+    setState(() => _isLoadingPersonnes = true);
+    try {
+      final tousAcademiciens = await DependencyInjection.academicienRepository
+          .getAll();
+      final tousEncadreurs = await DependencyInjection.encadreurRepository
+          .getAll();
+      if (mounted) {
+        setState(() {
+          _academiciens = tousAcademiciens
+              .where((a) => seance.academicienIds.contains(a.id))
+              .toList();
+          _encadreurs = tousEncadreurs
+              .where((e) => seance.encadreurIds.contains(e.id))
+              .toList();
+          _isLoadingPersonnes = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingPersonnes = false);
     }
   }
 
@@ -307,6 +336,19 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   }
 
   Widget _buildEncadreursList(ColorScheme colorScheme, bool isDark) {
+    if (_isLoadingPersonnes) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
     if (seance.encadreurIds.isEmpty) {
       return _buildEmptyListMessage('Aucun encadreur enregistre', colorScheme);
     }
@@ -317,8 +359,21 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemCount: seance.encadreurIds.length,
+        itemCount: _encadreurs.isNotEmpty
+            ? _encadreurs.length
+            : seance.encadreurIds.length,
         itemBuilder: (context, index) {
+          if (index < _encadreurs.length) {
+            final enc = _encadreurs[index];
+            return _PersonChip(
+              label: enc.nomComplet,
+              initials:
+                  '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}',
+              photoUrl: enc.photoUrl,
+              color: const Color(0xFF10B981),
+              isDark: isDark,
+            );
+          }
           return _PersonChip(
             label: 'Encadreur ${index + 1}',
             color: const Color(0xFF10B981),
@@ -330,6 +385,19 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   }
 
   Widget _buildAcademiciensList(ColorScheme colorScheme, bool isDark) {
+    if (_isLoadingPersonnes) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
     if (seance.academicienIds.isEmpty) {
       return _buildEmptyListMessage(
         'Aucun academicien enregistre',
@@ -343,8 +411,21 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemCount: seance.academicienIds.length,
+        itemCount: _academiciens.isNotEmpty
+            ? _academiciens.length
+            : seance.academicienIds.length,
         itemBuilder: (context, index) {
+          if (index < _academiciens.length) {
+            final aca = _academiciens[index];
+            return _PersonChip(
+              label: '${aca.prenom} ${aca.nom}',
+              initials:
+                  '${aca.prenom.isNotEmpty ? aca.prenom[0] : ''}${aca.nom.isNotEmpty ? aca.nom[0] : ''}',
+              photoUrl: aca.photoUrl,
+              color: const Color(0xFF3B82F6),
+              isDark: isDark,
+            );
+          }
           return _PersonChip(
             label: 'Academicien ${index + 1}',
             color: const Color(0xFF3B82F6),
@@ -698,11 +779,15 @@ class _StatBox extends StatelessWidget {
 /// Chip representant une personne (encadreur ou academicien).
 class _PersonChip extends StatelessWidget {
   final String label;
+  final String? initials;
+  final String? photoUrl;
   final Color color;
   final bool isDark;
 
   const _PersonChip({
     required this.label,
+    this.initials,
+    this.photoUrl,
     required this.color,
     required this.isDark,
   });
@@ -710,6 +795,7 @@ class _PersonChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final displayInitials = initials ?? (label.isNotEmpty ? label[0] : '?');
 
     return Container(
       width: 90,
@@ -729,16 +815,34 @@ class _PersonChip extends StatelessWidget {
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Center(
-              child: Text(
-                label[0],
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
-              ),
-            ),
+            child: photoUrl != null && photoUrl!.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      photoUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Center(
+                        child: Text(
+                          displayInitials,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: color,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: Text(
+                      displayInitials,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
+                    ),
+                  ),
           ),
           const SizedBox(height: 6),
           Text(

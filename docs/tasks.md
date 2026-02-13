@@ -129,7 +129,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Réorganisation de l'ordre des ateliers par glisser-déposer.
   - Affichage récapitulatif du programme de la séance avec le nombre d'ateliers.
 
-### [T-402] Module d'Annotations et Observations
+### [T-402] Module d'Annotations et Observations [DONE]
 
 - **Objectif :** L'encadreur doit pouvoir évaluer individuellement chaque académicien dans le cadre d'un atelier bien spécifique. Les annotations et observations constituent la matière première du suivi pédagogique. Ce module permet de :
   - **Annoter en temps réel** : Pendant ou juste après un atelier, l'encadreur sélectionne un académicien et rédige une observation (ex: "Bonne lecture du jeu", "Manque d'appui sur le pied gauche").

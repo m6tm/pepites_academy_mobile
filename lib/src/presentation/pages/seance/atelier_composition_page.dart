@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/atelier.dart';
 import '../../../domain/entities/seance.dart';
+import '../../../injection_container.dart';
+import '../../state/annotation_state.dart';
 import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
+import '../annotation/annotation_page.dart';
 
 /// Ecran de composition des ateliers rattache a une seance.
 /// Permet d'ajouter, modifier, supprimer et reorganiser les ateliers
@@ -72,7 +75,9 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
     final state = widget.atelierState;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -298,20 +303,18 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final atelier = state.ateliers[index];
-              return _AtelierCard(
-                atelier: atelier,
-                isDark: isDark,
-                colorScheme: colorScheme,
-                isEditable: false,
-                onEdit: null,
-                onDelete: null,
-              );
-            },
-            childCount: state.ateliers.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final atelier = state.ateliers[index];
+            return _AtelierCard(
+              atelier: atelier,
+              isDark: isDark,
+              colorScheme: colorScheme,
+              isEditable: false,
+              onEdit: null,
+              onDelete: null,
+              onAnnotate: () => _naviguerVersAnnotations(atelier),
+            );
+          }, childCount: state.ateliers.length),
         ),
       );
     }
@@ -331,6 +334,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
               isEditable: true,
               onEdit: () => _showModifierAtelierDialog(context, atelier),
               onDelete: () => _confirmerSuppression(context, atelier),
+              onAnnotate: () => _naviguerVersAnnotations(atelier),
             ),
           );
         },
@@ -371,6 +375,21 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             atelier.copyWith(nom: nom, type: type, description: description),
           );
         },
+      ),
+    );
+  }
+
+  void _naviguerVersAnnotations(Atelier atelier) {
+    final annotationState = AnnotationState(
+      DependencyInjection.annotationService,
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AnnotationPage(
+          atelier: atelier,
+          seance: widget.seance,
+          annotationState: annotationState,
+        ),
       ),
     );
   }
@@ -430,6 +449,7 @@ class _AtelierCard extends StatelessWidget {
   final bool isEditable;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onAnnotate;
 
   const _AtelierCard({
     required this.atelier,
@@ -438,6 +458,7 @@ class _AtelierCard extends StatelessWidget {
     required this.isEditable,
     this.onEdit,
     this.onDelete,
+    this.onAnnotate,
   });
 
   @override
@@ -449,9 +470,7 @@ class _AtelierCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? colorScheme.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: typeColor.withValues(alpha: 0.15),
-        ),
+        border: Border.all(color: typeColor.withValues(alpha: 0.15)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -525,8 +544,9 @@ class _AtelierCard extends StatelessWidget {
                                 atelier.description,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 11,
-                                  color: colorScheme.onSurface
-                                      .withValues(alpha: 0.4),
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.4,
+                                  ),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -538,6 +558,21 @@ class _AtelierCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (onAnnotate != null)
+                  IconButton(
+                    onPressed: onAnnotate,
+                    icon: Icon(
+                      Icons.edit_note_rounded,
+                      color: AppColors.primary.withValues(alpha: 0.7),
+                      size: 22,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                    padding: EdgeInsets.zero,
+                    tooltip: 'Annoter',
+                  ),
                 if (isEditable) ...[
                   IconButton(
                     onPressed: onDelete,
@@ -616,12 +651,10 @@ class _AtelierCard extends StatelessWidget {
 /// Bottom sheet pour ajouter ou modifier un atelier.
 class _AtelierFormSheet extends StatefulWidget {
   final Atelier? atelier;
-  final void Function(String nom, AtelierType type, String description) onSubmit;
+  final void Function(String nom, AtelierType type, String description)
+  onSubmit;
 
-  const _AtelierFormSheet({
-    this.atelier,
-    required this.onSubmit,
-  });
+  const _AtelierFormSheet({this.atelier, required this.onSubmit});
 
   @override
   State<_AtelierFormSheet> createState() => _AtelierFormSheetState();
@@ -642,8 +675,10 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
       text: widget.atelier?.description ?? '',
     );
     _selectedType = widget.atelier?.type ?? AtelierType.dribble;
-    _isCustomName = widget.atelier?.type == AtelierType.personnalise ||
-        (widget.atelier != null && widget.atelier!.nom != _getDefaultName(widget.atelier!.type));
+    _isCustomName =
+        widget.atelier?.type == AtelierType.personnalise ||
+        (widget.atelier != null &&
+            widget.atelier!.nom != _getDefaultName(widget.atelier!.type));
   }
 
   @override
@@ -884,14 +919,24 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: isSelected ? color : colorScheme.onSurface.withValues(alpha: 0.4), size: 28),
+                Icon(
+                  icon,
+                  color: isSelected
+                      ? color
+                      : colorScheme.onSurface.withValues(alpha: 0.4),
+                  size: 28,
+                ),
                 const SizedBox(height: 6),
                 Text(
-                  _getDefaultName(type).isEmpty ? 'Libre' : _getDefaultName(type),
+                  _getDefaultName(type).isEmpty
+                      ? 'Libre'
+                      : _getDefaultName(type),
                   style: GoogleFonts.montserrat(
                     fontSize: 10,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? color : colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: isSelected
+                        ? color
+                        : colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,

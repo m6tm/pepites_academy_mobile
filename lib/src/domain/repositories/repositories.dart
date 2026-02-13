@@ -1,5 +1,6 @@
 export 'academicien_repository.dart';
 export 'annotation_repository.dart';
+export 'atelier_repository.dart';
 export 'bulletin_repository.dart';
 export 'encadreur_repository.dart';
 export 'presence_repository.dart';

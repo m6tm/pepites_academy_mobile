@@ -1,11 +1,16 @@
+import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../domain/entities/academicien.dart';
+import '../../../domain/entities/niveau_scolaire.dart';
+import '../../../domain/entities/poste_football.dart';
+import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
-import '../../../domain/entities/poste_football.dart';
-import '../../../domain/entities/niveau_scolaire.dart';
 
 /// Page d'inscription pour un nouvel académicien.
 /// Processus étape par étape (Step-by-Step) avec design premium.
@@ -22,6 +27,12 @@ class _AcademicienRegistrationPageState
   final PageController _pageController = PageController();
   int _currentStep = 0;
   final int _totalSteps = 4;
+  bool _isLoading = false;
+  Academicien? _createdAcademicien;
+
+  // Photo
+  File? _photoFile;
+  final _picker = ImagePicker();
 
   // Form keys
   final _step1Key = GlobalKey<FormState>();
@@ -122,10 +133,60 @@ class _AcademicienRegistrationPageState
     }
 
     if (isValid && _currentStep < _totalSteps - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
+      if (_currentStep == 2) {
+        _confirmAndCreate();
+      } else {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmAndCreate() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final qrCode = _generateQrCode();
+
+      final academicien = Academicien(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        nom: _nomController.text.trim(),
+        prenom: _prenomController.text.trim(),
+        dateNaissance: _selectedDate!,
+        photoUrl: _photoFile?.path ?? '',
+        telephoneParent: _telephoneParentController.text.trim(),
+        posteFootballId: _selectedPosteId!,
+        niveauScolaireId: _selectedNiveauId!,
+        codeQrUnique: qrCode,
+        piedFort: _selectedPiedFort,
       );
+
+      final created = await DependencyInjection.academicienRepository.create(
+        academicien,
+      );
+
+      if (mounted) {
+        setState(() {
+          _createdAcademicien = created;
+          _isLoading = false;
+        });
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        AcademyToast.show(
+          context,
+          title: 'Erreur',
+          description: 'Impossible d\'enregistrer l\'academicien : $e',
+          isError: true,
+        );
+      }
     }
   }
 
@@ -135,6 +196,28 @@ class _AcademicienRegistrationPageState
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (pickedFile != null) {
+        setState(() => _photoFile = File(pickedFile.path));
+      }
+    } catch (e) {
+      debugPrint('Erreur selection image: $e');
+      if (mounted) {
+        AcademyToast.show(
+          context,
+          title: 'Erreur',
+          description: 'Impossible d\'ouvrir la galerie',
+          isError: true,
+        );
+      }
     }
   }
 
@@ -304,10 +387,13 @@ class _AcademicienRegistrationPageState
           if (_currentStep > 0) const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: _nextStep,
+              onPressed: _isLoading ? null : _nextStep,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.primary.withValues(
+                  alpha: 0.5,
+                ),
                 minimumSize: const Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -315,20 +401,127 @@ class _AcademicienRegistrationPageState
                 elevation: 4,
                 shadowColor: AppColors.primary.withValues(alpha: 0.4),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _currentStep == _totalSteps - 2 ? 'Confirmer' : 'Continuer',
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _currentStep == _totalSteps - 2
+                              ? 'Confirmer'
+                              : 'Continuer',
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward_rounded, size: 18),
+                      ],
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoPicker(bool isDark) {
+    final baseColor = isDark ? Colors.white : Colors.black;
+
+    return Center(
+      child: Column(
+        children: [
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(60),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: baseColor.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(60),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                        width: 3,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(57),
+                      child: _photoFile != null
+                          ? Image.file(_photoFile!, fit: BoxFit.cover)
+                          : Icon(
+                              Icons.person_outline_rounded,
+                              size: 50,
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                            ),
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.arrow_forward_rounded, size: 18),
-                ],
+                ),
               ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Photo de l\'academicien',
+            style: GoogleFonts.montserrat(
+              color: isDark
+                  ? AppColors.textMutedDark
+                  : AppColors.textMutedLight,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            '(Optionnel)',
+            style: GoogleFonts.montserrat(
+              color: isDark
+                  ? AppColors.textMutedDark.withValues(alpha: 0.6)
+                  : AppColors.textMutedLight.withValues(alpha: 0.6),
+              fontSize: 11,
             ),
           ),
         ],
@@ -350,6 +543,10 @@ class _AcademicienRegistrationPageState
               'Informations personnelles de l\'académicien',
             ),
             const SizedBox(height: 32),
+
+            _buildPhotoPicker(theme.brightness == Brightness.dark),
+            const SizedBox(height: 32),
+
             _buildTextField(
               controller: _nomController,
               label: 'Nom',
@@ -580,9 +777,14 @@ class _AcademicienRegistrationPageState
   }
 
   Widget _buildStep4(ThemeData theme, ColorScheme colorScheme) {
+    if (_createdAcademicien == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final isDark = theme.brightness == Brightness.dark;
-    final qrCode = _generateQrCode();
-    final nomComplet = '${_prenomController.text} ${_nomController.text}';
+    final aca = _createdAcademicien!;
+    final qrCode = aca.codeQrUnique;
+    final nomComplet = '${aca.prenom} ${aca.nom}';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
