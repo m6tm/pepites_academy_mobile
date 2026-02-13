@@ -1,14 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../domain/entities/atelier.dart';
 import '../../../domain/entities/seance.dart';
+import '../../../injection_container.dart';
+import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
+import 'atelier_composition_page.dart';
 
 /// Vue detaillee d'une seance affichant les encadreurs presents,
 /// les academiciens et les ateliers programmes.
-class SeanceDetailPage extends StatelessWidget {
+class SeanceDetailPage extends StatefulWidget {
   final Seance seance;
 
   const SeanceDetailPage({super.key, required this.seance});
+
+  @override
+  State<SeanceDetailPage> createState() => _SeanceDetailPageState();
+}
+
+class _SeanceDetailPageState extends State<SeanceDetailPage> {
+  List<Atelier> _ateliers = [];
+  bool _isLoadingAteliers = false;
+
+  Seance get seance => widget.seance;
+
+  @override
+  void initState() {
+    super.initState();
+    _chargerAteliers();
+  }
+
+  Future<void> _chargerAteliers() async {
+    setState(() => _isLoadingAteliers = true);
+    try {
+      final ateliers = await DependencyInjection.atelierService
+          .getAteliersParSeance(seance.id);
+      if (mounted) {
+        setState(() {
+          _ateliers = ateliers;
+          _isLoadingAteliers = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingAteliers = false);
+    }
+  }
+
+  Future<void> _naviguerVersComposition() async {
+    final atelierState = AtelierState(DependencyInjection.atelierService);
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            AtelierCompositionPage(seance: seance, atelierState: atelierState),
+      ),
+    );
+    _chargerAteliers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +84,8 @@ class SeanceDetailPage extends StatelessWidget {
             child: _buildAcademiciensList(colorScheme, isDark),
           ),
           SliverToBoxAdapter(
-            child: _buildSectionTitle(
+            child: _buildSectionTitleWithAction(
+              context,
               'Ateliers programmes',
               Icons.fitness_center_rounded,
             ),
@@ -141,13 +189,13 @@ class SeanceDetailPage extends StatelessWidget {
             label: 'Date',
             value: seance.dateFormatee,
           ),
-          const Divider(height: 20),
+          const Divider(height: 20, color: Colors.grey),
           _DetailRow(
             icon: Icons.access_time_rounded,
             label: 'Horaire',
             value: seance.dureeFormatee,
           ),
-          const Divider(height: 20),
+          const Divider(height: 20, color: Colors.grey),
           _DetailRow(
             icon: Icons.person_rounded,
             label: 'Responsable',
@@ -212,6 +260,52 @@ class SeanceDetailPage extends StatelessWidget {
     );
   }
 
+  Widget _buildSectionTitleWithAction(
+    BuildContext context,
+    String title,
+    IconData icon,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: _naviguerVersComposition,
+            icon: Icon(
+              seance.estOuverte ? Icons.edit_rounded : Icons.visibility_rounded,
+              size: 16,
+              color: AppColors.primary,
+            ),
+            label: Text(
+              seance.estOuverte ? 'Gerer' : 'Voir',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEncadreursList(ColorScheme colorScheme, bool isDark) {
     if (seance.encadreurIds.isEmpty) {
       return _buildEmptyListMessage('Aucun encadreur enregistre', colorScheme);
@@ -262,65 +356,174 @@ class SeanceDetailPage extends StatelessWidget {
   }
 
   Widget _buildAteliersList(ColorScheme colorScheme, bool isDark) {
-    if (seance.atelierIds.isEmpty) {
+    if (_isLoadingAteliers) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    if (_ateliers.isEmpty) {
       return _buildEmptyListMessage('Aucun atelier programme', colorScheme);
     }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: List.generate(seance.atelierIds.length, (index) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: isDark ? colorScheme.surface : Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: colorScheme.onSurface.withValues(alpha: 0.06),
+        children: List.generate(_ateliers.length, (index) {
+          final atelier = _ateliers[index];
+          final typeColor = _getAtelierTypeColor(atelier.type);
+          final typeIcon = _getAtelierTypeIcon(atelier.type);
+
+          return GestureDetector(
+            onTap: _naviguerVersComposition,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isDark ? colorScheme.surface : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: typeColor.withValues(alpha: 0.15)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: typeColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(typeIcon, color: typeColor, size: 22),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${index + 1}',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF8B5CF6),
-                      ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          atelier.nom,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 7,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: typeColor.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                atelier.typeLabel,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: typeColor,
+                                ),
+                              ),
+                            ),
+                            if (atelier.description.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  atelier.description,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 11,
+                                    color: colorScheme.onSurface.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Atelier ${index + 1}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                    ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
+                    size: 20,
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: colorScheme.onSurface.withValues(alpha: 0.2),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }),
       ),
     );
+  }
+
+  static Color _getAtelierTypeColor(AtelierType type) {
+    switch (type) {
+      case AtelierType.dribble:
+        return const Color(0xFF3B82F6);
+      case AtelierType.passes:
+        return const Color(0xFF10B981);
+      case AtelierType.finition:
+        return const Color(0xFFEF4444);
+      case AtelierType.physique:
+        return const Color(0xFFF59E0B);
+      case AtelierType.jeuEnSituation:
+        return const Color(0xFF8B5CF6);
+      case AtelierType.tactique:
+        return const Color(0xFF6366F1);
+      case AtelierType.gardien:
+        return const Color(0xFF14B8A6);
+      case AtelierType.echauffement:
+        return const Color(0xFFF97316);
+      case AtelierType.personnalise:
+        return const Color(0xFF64748B);
+    }
+  }
+
+  static IconData _getAtelierTypeIcon(AtelierType type) {
+    switch (type) {
+      case AtelierType.dribble:
+        return Icons.sports_soccer_rounded;
+      case AtelierType.passes:
+        return Icons.swap_horiz_rounded;
+      case AtelierType.finition:
+        return Icons.sports_rounded;
+      case AtelierType.physique:
+        return Icons.timer_rounded;
+      case AtelierType.jeuEnSituation:
+        return Icons.groups_rounded;
+      case AtelierType.tactique:
+        return Icons.map_rounded;
+      case AtelierType.gardien:
+        return Icons.sports_handball_rounded;
+      case AtelierType.echauffement:
+        return Icons.directions_run_rounded;
+      case AtelierType.personnalise:
+        return Icons.tune_rounded;
+    }
   }
 
   Widget _buildEmptyListMessage(String message, ColorScheme colorScheme) {

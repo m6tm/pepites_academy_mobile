@@ -114,7 +114,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
 
 ## PHASE 4 : Ateliers & Évaluation (Points 4, 5)
 
-### [T-401] Configuration des Ateliers de Séance
+### [T-401] Configuration des Ateliers de Séance [DONE]
 
 - **Objectif :** Chaque séance d'entraînement est composée de plusieurs ateliers (exercices thématiques). Un atelier représente un bloc d'activité précis durant la séance : dribble, passes, finition, condition physique, jeu en situation, etc. Ce ticket permet à l'encadreur de :
   - **Composer la séance** : Ajouter, modifier ou supprimer les ateliers prévus pour une séance donnée, directement depuis l'application.

@@ -1,13 +1,16 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'application/services/app_preferences.dart';
+import 'application/services/atelier_service.dart';
 import 'application/services/qr_scanner_service.dart';
 import 'application/services/seance_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
+import 'infrastructure/datasources/atelier_local_datasource.dart';
 import 'infrastructure/datasources/encadreur_local_datasource.dart';
 import 'infrastructure/datasources/presence_local_datasource.dart';
 import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
+import 'infrastructure/repositories/atelier_repository_impl.dart';
 import 'infrastructure/repositories/encadreur_repository_impl.dart';
 import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
@@ -21,8 +24,10 @@ class DependencyInjection {
   static late final AcademicienRepositoryImpl academicienRepository;
   static late final PresenceRepositoryImpl presenceRepository;
   static late final SeanceRepositoryImpl seanceRepository;
+  static late final AtelierRepositoryImpl atelierRepository;
   static late final QrScannerService qrScannerService;
   static late final SeanceService seanceService;
+  static late final AtelierService atelierService;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -58,10 +63,20 @@ class DependencyInjection {
       presenceRepository: presenceRepository,
     );
 
+    // Initialisation du Repository Atelier
+    final atelierDatasource = AtelierLocalDatasource(sharedPrefs);
+    atelierRepository = AtelierRepositoryImpl(atelierDatasource);
+
     // Initialisation du Service Seance
     seanceService = SeanceService(
       seanceRepository: seanceRepository,
       presenceRepository: presenceRepository,
+    );
+
+    // Initialisation du Service Atelier
+    atelierService = AtelierService(
+      atelierRepository: atelierRepository,
+      seanceRepository: seanceRepository,
     );
   }
 }
