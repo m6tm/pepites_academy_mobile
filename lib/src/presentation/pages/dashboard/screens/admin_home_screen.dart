@@ -9,6 +9,7 @@ import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../injection_container.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
+import '../../search/search_page.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/seance_card.dart';
 
@@ -39,6 +40,11 @@ class AdminHomeScreen extends StatelessWidget {
             role: 'Administrateur',
             greeting: greeting,
             notificationCount: 3,
+            onSearchTap: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
+            },
             onNotificationTap: () {},
             onProfileTap: () {},
           ),

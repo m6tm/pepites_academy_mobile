@@ -184,7 +184,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
 
 ## PHASE 6 : Paramètres & Consultation (Points 9, 11, 12, 13)
 
-### [T-601] Recherche Universelle & Consultation
+### [T-601] Recherche Universelle & Consultation [DONE]
 
 - **Objectif :** L'application contient de nombreuses données (académiciens, encadreurs, séances passées). Ce module offre un point d'accès unique pour consulter n'importe quelle entité rapidement, sans naviguer dans plusieurs menus. Il permet de :
   - **Consulter un académicien** : Accéder à sa fiche complète (photo, poste, niveau scolaire, historique de présence, annotations reçues, bulletins).

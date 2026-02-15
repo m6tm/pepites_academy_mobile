@@ -5,6 +5,7 @@ import 'application/services/atelier_service.dart';
 import 'application/services/bulletin_service.dart';
 import 'application/services/qr_scanner_service.dart';
 import 'application/services/seance_service.dart';
+import 'application/services/search_service.dart';
 import 'application/services/sms_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
@@ -24,6 +25,7 @@ import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
 import 'infrastructure/repositories/seance_repository_impl.dart';
 import 'infrastructure/repositories/sms_repository_impl.dart';
+import 'presentation/state/search_state.dart';
 import 'presentation/state/sms_state.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
@@ -45,6 +47,8 @@ class DependencyInjection {
   static late final SmsRepositoryImpl smsRepository;
   static late final SmsService smsService;
   static late final SmsState smsState;
+  static late final SearchService searchService;
+  static late final SearchState searchState;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -126,5 +130,13 @@ class DependencyInjection {
       academicienRepository: academicienRepository,
       encadreurRepository: encadreurRepoImpl,
     );
+
+    // Initialisation du module Recherche Universelle
+    searchService = SearchService(
+      academicienRepository: academicienRepository,
+      encadreurRepository: encadreurRepoImpl,
+      seanceRepository: seanceRepository,
+    );
+    searchState = SearchState(searchService: searchService, prefs: sharedPrefs);
   }
 }
