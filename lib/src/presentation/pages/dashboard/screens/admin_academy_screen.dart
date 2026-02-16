@@ -5,11 +5,14 @@ import '../../academy/academicien_list_page.dart';
 /// Ecran Academie du dashboard administrateur.
 /// Affiche directement la liste des academiciens.
 class AdminAcademyScreen extends StatelessWidget {
-  const AdminAcademyScreen({super.key});
+  final GlobalKey<AcademicienListPageState>? academyListKey;
+
+  const AdminAcademyScreen({super.key, this.academyListKey});
 
   @override
   Widget build(BuildContext context) {
     return AcademicienListPage(
+      key: academyListKey,
       repository: DependencyInjection.academicienRepository,
     );
   }

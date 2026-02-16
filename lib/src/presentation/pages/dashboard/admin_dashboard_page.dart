@@ -4,6 +4,7 @@ import '../../../injection_container.dart';
 import '../auth/login_page.dart';
 import 'screens/admin_home_screen.dart';
 import 'screens/admin_academy_screen.dart';
+import '../academy/academicien_list_page.dart';
 import 'screens/admin_seances_screen.dart';
 import 'screens/admin_communication_screen.dart';
 import 'screens/admin_settings_screen.dart';
@@ -23,6 +24,7 @@ class AdminDashboardPage extends StatefulWidget {
 class _AdminDashboardPageState extends State<AdminDashboardPage>
     with TickerProviderStateMixin {
   int _selectedNavIndex = 0;
+  final _academyKey = GlobalKey<AcademicienListPageState>();
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -69,9 +71,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                 greeting: _getGreeting(),
                 onNavigateToTab: (index) {
                   setState(() => _selectedNavIndex = index);
+                  if (index == 1) {
+                    _academyKey.currentState?.reload();
+                  }
                 },
               ),
-              const AdminAcademyScreen(),
+              AdminAcademyScreen(academyListKey: _academyKey),
               const AdminSeancesScreen(),
               const AdminCommunicationScreen(),
               AdminSettingsScreen(
@@ -164,7 +169,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                 icon: Icons.school_rounded,
                 label: 'Academie',
                 isSelected: _selectedNavIndex == 1,
-                onTap: () => setState(() => _selectedNavIndex = 1),
+                onTap: () {
+                  setState(() => _selectedNavIndex = 1);
+                  _academyKey.currentState?.reload();
+                },
               ),
               AdminNavItem(
                 icon: Icons.sports_soccer_rounded,

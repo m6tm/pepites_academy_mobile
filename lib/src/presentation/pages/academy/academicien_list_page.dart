@@ -18,10 +18,10 @@ class AcademicienListPage extends StatefulWidget {
   const AcademicienListPage({super.key, required this.repository});
 
   @override
-  State<AcademicienListPage> createState() => _AcademicienListPageState();
+  State<AcademicienListPage> createState() => AcademicienListPageState();
 }
 
-class _AcademicienListPageState extends State<AcademicienListPage> {
+class AcademicienListPageState extends State<AcademicienListPage> {
   List<Academicien> _academiciens = [];
   List<Academicien> _filteredAcademiciens = [];
   bool _isLoading = true;
@@ -58,6 +58,9 @@ class _AcademicienListPageState extends State<AcademicienListPage> {
     _searchController.dispose();
     super.dispose();
   }
+
+  /// Recharge la liste des academiciens depuis le repository.
+  Future<void> reload() => _loadAcademiciens();
 
   Future<void> _loadAcademiciens() async {
     setState(() => _isLoading = true);
