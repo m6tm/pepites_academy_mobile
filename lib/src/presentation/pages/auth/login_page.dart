@@ -53,6 +53,7 @@ class _LoginPageState extends State<LoginPage> {
           // Sauvegarde de la session
           await DependencyInjection.preferences.setUserLoggedIn(
             role: role.id,
+            userId: email,
             userName: userName,
           );
 

@@ -3,6 +3,7 @@ import '../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../infrastructure/repositories/encadreur_repository_impl.dart';
 import '../../infrastructure/repositories/presence_repository_impl.dart';
 import '../../infrastructure/repositories/seance_repository_impl.dart';
+import 'activity_service.dart';
 
 /// Resultat du scan QR contenant les informations du profil identifie.
 class ScanResult {
@@ -41,6 +42,7 @@ class QrScannerService {
   final EncadreurRepositoryImpl _encadreurRepository;
   final PresenceRepositoryImpl _presenceRepository;
   final SeanceRepositoryImpl _seanceRepository;
+  ActivityService? _activityService;
 
   QrScannerService({
     required AcademicienRepositoryImpl academicienRepository,
@@ -51,6 +53,11 @@ class QrScannerService {
        _encadreurRepository = encadreurRepository,
        _presenceRepository = presenceRepository,
        _seanceRepository = seanceRepository;
+
+  /// Injecte le service d'activites.
+  void setActivityService(ActivityService service) {
+    _activityService = service;
+  }
 
   /// Identifie un profil a partir d'un code QR scanne.
   /// Recherche d'abord parmi les academiciens, puis les encadreurs.
@@ -139,6 +146,28 @@ class QrScannerService {
         ),
       );
     }
+
+    // Enregistrement de l'activite
+    final typeLabel = typeProfil == ProfilType.academicien
+        ? 'Academicien'
+        : 'Encadreur';
+    String nomComplet = typeLabel;
+    if (typeProfil == ProfilType.academicien) {
+      final acad = await _academicienRepository.getById(profilId);
+      if (acad != null) {
+        nomComplet = '${acad.prenom} ${acad.nom}';
+      }
+    } else {
+      final enc = await _encadreurRepository.getById(profilId);
+      if (enc != null) {
+        nomComplet = '${enc.prenom} ${enc.nom}';
+      }
+    }
+    await _activityService?.enregistrerPresence(
+      typeLabel,
+      nomComplet,
+      saved.id,
+    );
 
     return saved;
   }

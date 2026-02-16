@@ -7,15 +7,20 @@ import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../injection_container.dart';
+import '../../../../domain/entities/activity.dart';
+import '../../../../domain/entities/seance.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
 import '../../search/search_page.dart';
+import '../../scanner/qr_scanner_page.dart';
+import '../../seance/seance_detail_page.dart';
+import '../../../widgets/academy_toast.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/seance_card.dart';
 
 /// Ecran d'accueil du dashboard administrateur.
 /// Affiche la vue d'ensemble avec statistiques, actions rapides et activite recente.
-class AdminHomeScreen extends StatelessWidget {
+class AdminHomeScreen extends StatefulWidget {
   final String userName;
   final String greeting;
   final ValueChanged<int>? onNavigateToTab;
@@ -28,6 +33,62 @@ class AdminHomeScreen extends StatelessWidget {
   });
 
   @override
+  State<AdminHomeScreen> createState() => _AdminHomeScreenState();
+}
+
+class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  Seance? _derniereSeance;
+  bool _seanceLoading = true;
+  List<Activity> _activites = [];
+  bool _activitesLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _chargerDerniereSeance();
+    _chargerActivitesRecentes();
+  }
+
+  /// Charge la derniere seance (ouverte en priorite, sinon la plus recente).
+  Future<void> _chargerDerniereSeance() async {
+    try {
+      final ouverte = await DependencyInjection.seanceRepository
+          .getSeanceOuverte();
+      if (ouverte != null) {
+        if (mounted) {
+          setState(() {
+            _derniereSeance = ouverte;
+            _seanceLoading = false;
+          });
+        }
+        return;
+      }
+      final toutes = await DependencyInjection.seanceRepository.getAll();
+      if (toutes.isNotEmpty) {
+        toutes.sort((a, b) => b.date.compareTo(a.date));
+        if (mounted) {
+          setState(() {
+            _derniereSeance = toutes.first;
+            _seanceLoading = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _seanceLoading = false;
+          });
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _seanceLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -36,9 +97,9 @@ class AdminHomeScreen extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: DashboardHeader(
-            userName: userName,
+            userName: widget.userName,
             role: 'Administrateur',
-            greeting: greeting,
+            greeting: widget.greeting,
             notificationCount: 3,
             onSearchTap: () {
               Navigator.of(
@@ -60,18 +121,7 @@ class AdminHomeScreen extends StatelessWidget {
             actionLabel: 'Historique',
           ),
         ),
-        SliverToBoxAdapter(
-          child: SeanceCard(
-            title: 'Entrainement Technique',
-            date: '12 Fev 2026',
-            heureDebut: '15:00',
-            heureFin: '17:00',
-            encadreur: 'Coach Mamadou Diallo',
-            nbPresents: 18,
-            nbAteliers: 4,
-            status: SeanceCardStatus.enCours,
-          ),
-        ),
+        SliverToBoxAdapter(child: _buildSeanceDuJour(context)),
         const SliverToBoxAdapter(
           child: SectionTitle(title: 'Performance globale'),
         ),
@@ -257,7 +307,7 @@ class AdminHomeScreen extends StatelessWidget {
             description: 'Controle d\'acces',
             icon: Icons.qr_code_scanner_rounded,
             color: AppColors.primary,
-            onTap: () {},
+            onTap: () => _ouvrirScanner(context),
           ),
           QuickActionTile(
             title: 'Joueurs',
@@ -265,7 +315,7 @@ class AdminHomeScreen extends StatelessWidget {
             icon: Icons.sports_soccer_rounded,
             color: const Color(0xFF10B981),
             onTap: () {
-              onNavigateToTab?.call(1);
+              widget.onNavigateToTab?.call(1);
             },
           ),
           QuickActionTile(
@@ -376,48 +426,222 @@ class AdminHomeScreen extends StatelessWidget {
     );
   }
 
+  /// Charge les activites recentes depuis le service d'activites.
+  Future<void> _chargerActivitesRecentes() async {
+    try {
+      final activites = await DependencyInjection.activityService
+          .getActivitesRecentes(limit: 15);
+      if (mounted) {
+        setState(() {
+          _activites = activites;
+          _activitesLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _activitesLoading = false;
+        });
+      }
+    }
+  }
+
   Widget _buildRecentActivity() {
+    if (_activitesLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_activites.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Text(
+          'Aucune activite recente.',
+          style: GoogleFonts.montserrat(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: const [
-          ActivityCard(
-            title: 'Seance ouverte',
-            subtitle: 'Entrainement Technique - Coach Mamadou',
-            time: 'Il y a 2h',
-            icon: Icons.play_circle_outline_rounded,
-            iconColor: Color(0xFF10B981),
+        children: List.generate(_activites.length, (index) {
+          final item = _activites[index];
+          return ActivityCard(
+            title: item.titre,
+            subtitle: item.description,
+            time: _formatTempsRelatif(item.date),
+            icon: _iconeParType(item.type),
+            iconColor: _couleurParType(item.type),
+            isLast: index == _activites.length - 1,
+          );
+        }),
+      ),
+    );
+  }
+
+  /// Retourne l'icone associee a un type d'activite.
+  IconData _iconeParType(ActivityType type) {
+    switch (type) {
+      case ActivityType.seanceOuverte:
+        return Icons.play_circle_outline_rounded;
+      case ActivityType.seanceCloturee:
+        return Icons.check_circle_outline_rounded;
+      case ActivityType.seanceProgrammee:
+        return Icons.schedule_rounded;
+      case ActivityType.academicienInscrit:
+        return Icons.person_add_outlined;
+      case ActivityType.academicienSupprime:
+        return Icons.person_remove_outlined;
+      case ActivityType.encadreurInscrit:
+        return Icons.sports_rounded;
+      case ActivityType.presenceEnregistree:
+        return Icons.qr_code_scanner_rounded;
+      case ActivityType.smsEnvoye:
+        return Icons.sms_outlined;
+      case ActivityType.smsEchec:
+        return Icons.sms_failed_outlined;
+      case ActivityType.bulletinGenere:
+        return Icons.description_outlined;
+      case ActivityType.referentielPosteAjoute:
+      case ActivityType.referentielPosteModifie:
+      case ActivityType.referentielPosteSupprime:
+      case ActivityType.referentielNiveauAjoute:
+      case ActivityType.referentielNiveauModifie:
+      case ActivityType.referentielNiveauSupprime:
+        return Icons.tune_rounded;
+    }
+  }
+
+  /// Retourne la couleur associee a un type d'activite.
+  Color _couleurParType(ActivityType type) {
+    switch (type) {
+      case ActivityType.seanceOuverte:
+      case ActivityType.presenceEnregistree:
+        return const Color(0xFF10B981);
+      case ActivityType.seanceCloturee:
+      case ActivityType.bulletinGenere:
+        return AppColors.primary;
+      case ActivityType.seanceProgrammee:
+      case ActivityType.academicienInscrit:
+        return const Color(0xFF3B82F6);
+      case ActivityType.academicienSupprime:
+        return AppColors.primary;
+      case ActivityType.encadreurInscrit:
+      case ActivityType.smsEnvoye:
+        return const Color(0xFF8B5CF6);
+      case ActivityType.smsEchec:
+        return AppColors.primary;
+      case ActivityType.referentielPosteAjoute:
+      case ActivityType.referentielPosteModifie:
+      case ActivityType.referentielPosteSupprime:
+      case ActivityType.referentielNiveauAjoute:
+      case ActivityType.referentielNiveauModifie:
+      case ActivityType.referentielNiveauSupprime:
+        return const Color(0xFFF59E0B);
+    }
+  }
+
+  /// Formate une date en temps relatif (ex: "Il y a 2h", "Hier", "3 jours").
+  String _formatTempsRelatif(DateTime date) {
+    final maintenant = DateTime.now();
+    final difference = maintenant.difference(date);
+
+    if (difference.inMinutes < 1) return 'A l\'instant';
+    if (difference.inMinutes < 60) return 'Il y a ${difference.inMinutes} min';
+    if (difference.inHours < 24) return 'Il y a ${difference.inHours}h';
+    if (difference.inDays == 1) return 'Hier';
+    if (difference.inDays < 7) return 'Il y a ${difference.inDays} jours';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  /// Convertit le statut de l'entite en statut visuel pour la carte.
+  SeanceCardStatus _mapSeanceStatus(SeanceStatus statut) {
+    switch (statut) {
+      case SeanceStatus.ouverte:
+        return SeanceCardStatus.enCours;
+      case SeanceStatus.fermee:
+        return SeanceCardStatus.terminee;
+      case SeanceStatus.aVenir:
+        return SeanceCardStatus.aVenir;
+    }
+  }
+
+  /// Construit la section seance du jour avec les donnees reelles.
+  Widget _buildSeanceDuJour(BuildContext context) {
+    if (_seanceLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_derniereSeance == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Text(
+          'Aucune seance enregistree.',
+          style: GoogleFonts.montserrat(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
           ),
-          ActivityCard(
-            title: 'Nouvel academicien',
-            subtitle: 'Amadou Keita inscrit avec succes',
-            time: 'Il y a 3h',
-            icon: Icons.person_add_outlined,
-            iconColor: Color(0xFF3B82F6),
-          ),
-          ActivityCard(
-            title: 'SMS envoye',
-            subtitle: '15 academiciens notifies pour le match amical',
-            time: 'Hier',
-            icon: Icons.sms_outlined,
-            iconColor: Color(0xFF8B5CF6),
-          ),
-          ActivityCard(
-            title: 'Bulletin genere',
-            subtitle: 'Bulletin trimestriel de Moussa Diaby',
-            time: 'Hier',
-            icon: Icons.description_outlined,
-            iconColor: AppColors.primary,
-          ),
-          ActivityCard(
-            title: 'Referentiel mis a jour',
-            subtitle: 'Nouveau poste: Milieu relayeur',
-            time: '2 jours',
-            icon: Icons.tune_rounded,
-            iconColor: Color(0xFFF59E0B),
-            isLast: true,
-          ),
-        ],
+        ),
+      );
+    }
+
+    final seance = _derniereSeance!;
+    return SeanceCard(
+      title: seance.titre,
+      date: seance.dateFormatee,
+      heureDebut:
+          '${seance.heureDebut.hour.toString().padLeft(2, '0')}:${seance.heureDebut.minute.toString().padLeft(2, '0')}',
+      heureFin:
+          '${seance.heureFin.hour.toString().padLeft(2, '0')}:${seance.heureFin.minute.toString().padLeft(2, '0')}',
+      encadreur: 'Encadreur',
+      nbPresents: seance.nbPresents,
+      nbAteliers: seance.nbAteliers,
+      status: _mapSeanceStatus(seance.statut),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => SeanceDetailPage(seance: seance)),
+        );
+      },
+    );
+  }
+
+  /// Verifie qu'une seance est ouverte avant de lancer le scanner.
+  Future<void> _ouvrirScanner(BuildContext context) async {
+    final seanceOuverte = await DependencyInjection.seanceRepository
+        .getSeanceOuverte();
+    if (!context.mounted) return;
+
+    if (seanceOuverte == null) {
+      AcademyToast.show(
+        context,
+        title: 'Aucune seance en cours',
+        description: 'Veuillez ouvrir une seance avant de scanner.',
+        icon: Icons.warning_amber_rounded,
+        isError: true,
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => QrScannerPage(seanceId: seanceOuverte.id),
       ),
     );
   }

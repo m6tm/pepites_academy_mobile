@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'application/services/activity_service.dart';
 import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
 import 'application/services/atelier_service.dart';
@@ -11,6 +12,7 @@ import 'application/services/referentiel_service.dart';
 import 'application/services/sms_service.dart';
 import 'application/services/sync_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
+import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/api_sync_datasource.dart';
@@ -24,6 +26,7 @@ import 'infrastructure/datasources/presence_local_datasource.dart';
 import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/datasources/sms_local_datasource.dart';
 import 'infrastructure/datasources/sync_queue_local_datasource.dart';
+import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
@@ -45,6 +48,7 @@ import 'presentation/state/sync_state.dart';
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
 class DependencyInjection {
+  static late final ActivityService activityService;
   static late final AppPreferences preferences;
   static late final EncadreurRepository encadreurRepository;
   static late final AcademicienRepositoryImpl academicienRepository;
@@ -177,6 +181,21 @@ class DependencyInjection {
       posteRepository: posteRepository,
       niveauRepository: niveauRepository,
     );
+
+    // Initialisation du module Activites
+    final activityDatasource = ActivityLocalDatasource(sharedPrefs);
+    final activityRepository = ActivityRepositoryImpl(activityDatasource);
+    activityService = ActivityService(
+      repository: activityRepository,
+      preferences: preferences,
+    );
+
+    // Injection tardive du service d'activites dans les services existants
+    seanceService.setActivityService(activityService);
+    smsService.setActivityService(activityService);
+    bulletinService.setActivityService(activityService);
+    qrScannerService.setActivityService(activityService);
+    referentielService.setActivityService(activityService);
 
     // Initialisation du module Hors-ligne / Synchronisation
     final connectivityDatasource = ConnectivityDatasource();

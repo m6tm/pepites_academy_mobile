@@ -8,6 +8,7 @@ class AppPreferences {
   // Clés statiques pour éviter les erreurs de frappe
   static const String _keyOnboardingCompleted = 'is_onboarding_completed';
   static const String _keyUserRole = 'user_role';
+  static const String _keyUserId = 'user_id';
   static const String _keyUserName = 'user_name';
 
   AppPreferences(this._repository);
@@ -33,9 +34,11 @@ class AppPreferences {
   /// Enregistre les informations de l'utilisateur connecté.
   Future<void> setUserLoggedIn({
     required String role,
+    required String userId,
     required String userName,
   }) async {
     await _repository.setString(_keyUserRole, role);
+    await _repository.setString(_keyUserId, userId);
     await _repository.setString(_keyUserName, userName);
   }
 
@@ -50,6 +53,11 @@ class AppPreferences {
     return _repository.getString(_keyUserRole);
   }
 
+  /// Récupère l'identifiant de l'utilisateur connecté.
+  Future<String?> getUserId() async {
+    return _repository.getString(_keyUserId);
+  }
+
   /// Récupère le nom de l'utilisateur connecté.
   Future<String?> getUserName() async {
     return _repository.getString(_keyUserName);
@@ -58,6 +66,7 @@ class AppPreferences {
   /// Déconnexion de l'utilisateur.
   Future<void> logout() async {
     await _repository.remove(_keyUserRole);
+    await _repository.remove(_keyUserId);
     await _repository.remove(_keyUserName);
   }
 }

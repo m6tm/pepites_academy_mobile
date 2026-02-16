@@ -3,6 +3,7 @@ import '../../domain/entities/bulletin.dart';
 import '../../infrastructure/repositories/annotation_repository_impl.dart';
 import '../../infrastructure/repositories/bulletin_repository_impl.dart';
 import '../../infrastructure/repositories/seance_repository_impl.dart';
+import 'activity_service.dart';
 
 /// Service applicatif gerant la logique metier des bulletins de formation.
 /// Agrege les annotations sur une periode pour produire un bilan
@@ -11,6 +12,7 @@ class BulletinService {
   final BulletinRepositoryImpl _bulletinRepository;
   final AnnotationRepositoryImpl _annotationRepository;
   final SeanceRepositoryImpl _seanceRepository;
+  ActivityService? _activityService;
 
   BulletinService({
     required BulletinRepositoryImpl bulletinRepository,
@@ -19,6 +21,11 @@ class BulletinService {
   }) : _bulletinRepository = bulletinRepository,
        _annotationRepository = annotationRepository,
        _seanceRepository = seanceRepository;
+
+  /// Injecte le service d'activites.
+  void setActivityService(ActivityService service) {
+    _activityService = service;
+  }
 
   /// Genere un bulletin pour un academicien sur une periode donnee.
   /// Agrege les annotations et calcule les competences moyennes.
@@ -66,7 +73,13 @@ class BulletinService {
       dateGeneration: DateTime.now(),
     );
 
-    return _bulletinRepository.create(bulletin);
+    final created = await _bulletinRepository.create(bulletin);
+    await _activityService?.enregistrerBulletinGenere(
+      created.periodeLabel,
+      academicienId,
+      created.id,
+    );
+    return created;
   }
 
   /// Calcule les competences moyennes a partir des annotations.

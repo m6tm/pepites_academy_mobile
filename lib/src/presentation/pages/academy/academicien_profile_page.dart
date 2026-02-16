@@ -6,6 +6,7 @@ import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
+import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../bulletin/bulletin_page.dart';
 
@@ -97,8 +98,12 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           ElevatedButton(
             onPressed: () async {
               final navigator = Navigator.of(context);
+              final nomComplet = '${_academicien.prenom} ${_academicien.nom}';
+              final academicienId = _academicien.id;
               navigator.pop();
-              await widget.repository.delete(_academicien.id);
+              await DependencyInjection.activityService
+                  .enregistrerAcademicienSupprime(nomComplet, academicienId);
+              await widget.repository.delete(academicienId);
               if (mounted) navigator.pop(true);
             },
             style: ElevatedButton.styleFrom(

@@ -2,6 +2,7 @@ import '../../domain/entities/poste_football.dart';
 import '../../domain/entities/niveau_scolaire.dart';
 import '../../domain/repositories/poste_football_repository.dart';
 import '../../domain/repositories/niveau_scolaire_repository.dart';
+import 'activity_service.dart';
 
 /// Resultat d'une operation sur un referentiel.
 class ReferentielResult {
@@ -16,12 +17,18 @@ class ReferentielResult {
 class ReferentielService {
   final PosteFootballRepository _posteRepository;
   final NiveauScolaireRepository _niveauRepository;
+  ActivityService? _activityService;
 
   ReferentielService({
     required PosteFootballRepository posteRepository,
     required NiveauScolaireRepository niveauRepository,
-  })  : _posteRepository = posteRepository,
-        _niveauRepository = niveauRepository;
+  }) : _posteRepository = posteRepository,
+       _niveauRepository = niveauRepository;
+
+  /// Injecte le service d'activites (injection tardive pour eviter les dependances circulaires).
+  void setActivityService(ActivityService service) {
+    _activityService = service;
+  }
 
   // --- Postes de football ---
 
@@ -36,9 +43,7 @@ class ReferentielService {
     String? description,
   }) async {
     final postes = await _posteRepository.getAll();
-    final existe = postes.any(
-      (p) => p.nom.toLowerCase() == nom.toLowerCase(),
-    );
+    final existe = postes.any((p) => p.nom.toLowerCase() == nom.toLowerCase());
     if (existe) {
       return const ReferentielResult(
         success: false,
@@ -47,12 +52,9 @@ class ReferentielService {
     }
 
     final id = DateTime.now().millisecondsSinceEpoch.toString();
-    final poste = PosteFootball(
-      id: id,
-      nom: nom,
-      description: description,
-    );
+    final poste = PosteFootball(id: id, nom: nom, description: description);
     await _posteRepository.create(poste);
+    await _activityService?.enregistrerPosteAjoute(nom);
     return ReferentielResult(
       success: true,
       message: 'Poste "$nom" cree avec succes.',
@@ -73,6 +75,7 @@ class ReferentielService {
     }
 
     await _posteRepository.update(poste);
+    await _activityService?.enregistrerPosteModifie(poste.nom);
     return ReferentielResult(
       success: true,
       message: 'Poste "${poste.nom}" modifie avec succes.',
@@ -85,11 +88,14 @@ class ReferentielService {
     if (count > 0) {
       return ReferentielResult(
         success: false,
-        message: 'Impossible de supprimer ce poste : $count academicien(s) rattache(s).',
+        message:
+            'Impossible de supprimer ce poste : $count academicien(s) rattache(s).',
       );
     }
 
+    final poste = await _posteRepository.getById(id);
     await _posteRepository.delete(id);
+    await _activityService?.enregistrerPosteSupprime(poste?.nom ?? id);
     return const ReferentielResult(
       success: true,
       message: 'Poste supprime avec succes.',
@@ -109,9 +115,7 @@ class ReferentielService {
     required int ordre,
   }) async {
     final niveaux = await _niveauRepository.getAll();
-    final existe = niveaux.any(
-      (n) => n.nom.toLowerCase() == nom.toLowerCase(),
-    );
+    final existe = niveaux.any((n) => n.nom.toLowerCase() == nom.toLowerCase());
     if (existe) {
       return const ReferentielResult(
         success: false,
@@ -122,6 +126,7 @@ class ReferentielService {
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final niveau = NiveauScolaire(id: id, nom: nom, ordre: ordre);
     await _niveauRepository.create(niveau);
+    await _activityService?.enregistrerNiveauAjoute(nom);
     return ReferentielResult(
       success: true,
       message: 'Niveau "$nom" cree avec succes.',
@@ -132,7 +137,8 @@ class ReferentielService {
   Future<ReferentielResult> modifierNiveau(NiveauScolaire niveau) async {
     final niveaux = await _niveauRepository.getAll();
     final doublon = niveaux.any(
-      (n) => n.id != niveau.id && n.nom.toLowerCase() == niveau.nom.toLowerCase(),
+      (n) =>
+          n.id != niveau.id && n.nom.toLowerCase() == niveau.nom.toLowerCase(),
     );
     if (doublon) {
       return const ReferentielResult(
@@ -142,6 +148,7 @@ class ReferentielService {
     }
 
     await _niveauRepository.update(niveau);
+    await _activityService?.enregistrerNiveauModifie(niveau.nom);
     return ReferentielResult(
       success: true,
       message: 'Niveau "${niveau.nom}" modifie avec succes.',
@@ -154,11 +161,14 @@ class ReferentielService {
     if (count > 0) {
       return ReferentielResult(
         success: false,
-        message: 'Impossible de supprimer ce niveau : $count academicien(s) rattache(s).',
+        message:
+            'Impossible de supprimer ce niveau : $count academicien(s) rattache(s).',
       );
     }
 
+    final niveau = await _niveauRepository.getById(id);
     await _niveauRepository.delete(id);
+    await _activityService?.enregistrerNiveauSupprime(niveau?.nom ?? id);
     return const ReferentielResult(
       success: true,
       message: 'Niveau supprime avec succes.',

@@ -1,6 +1,7 @@
 import '../../domain/entities/seance.dart';
 import '../../domain/repositories/presence_repository.dart';
 import '../../domain/repositories/seance_repository.dart';
+import 'activity_service.dart';
 
 /// Resultat d'une tentative d'ouverture de seance.
 class OuvertureResult {
@@ -39,12 +40,18 @@ class FermetureResult {
 class SeanceService {
   final SeanceRepository _seanceRepository;
   final PresenceRepository _presenceRepository;
+  ActivityService? _activityService;
 
   SeanceService({
     required SeanceRepository seanceRepository,
     required PresenceRepository presenceRepository,
-  })  : _seanceRepository = seanceRepository,
-        _presenceRepository = presenceRepository;
+  }) : _seanceRepository = seanceRepository,
+       _presenceRepository = presenceRepository;
+
+  /// Injecte le service d'activites.
+  void setActivityService(ActivityService service) {
+    _activityService = service;
+  }
 
   /// Recupere toutes les seances triees par date decroissante.
   Future<List<Seance>> getAllSeances() async {
@@ -96,6 +103,7 @@ class SeanceService {
     );
 
     final created = await _seanceRepository.create(seance);
+    await _activityService?.enregistrerSeanceOuverte(titre, created.id);
     return OuvertureResult(
       success: true,
       message: 'Seance "$titre" ouverte avec succes.',
@@ -132,6 +140,11 @@ class SeanceService {
     );
 
     final fermee = await _seanceRepository.update(updated);
+    await _activityService?.enregistrerSeanceCloturee(
+      seance.titre,
+      nbPresents,
+      fermee.id,
+    );
 
     return FermetureResult(
       success: true,
