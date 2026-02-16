@@ -218,7 +218,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Modification et suppression d'un niveau existant (avec vérification des académiciens rattachés avant suppression).
   - Pré-remplissage des référentiels avec les valeurs par défaut lors de la première installation.
 
-### [T-603] Mode Hors-ligne (Proposition)
+### [T-603] Mode Hors-ligne (Proposition) [DONE]
 
 - **Objectif :** Les terrains d'entraînement sont souvent situés dans des zones où la couverture réseau est faible voire inexistante (stades en périphérie, terrains en terre battue, zones rurales). Si l'application ne fonctionne qu'en ligne, l'encadreur ne pourrait pas enregistrer les présences ni rédiger les annotations pendant l'entraînement. Ce module permet de :
   - **Travailler sans connexion** : L'encadreur peut scanner les QR, ouvrir une séance, ajouter des ateliers et rédiger des annotations même sans réseau mobile ni Wi-Fi.

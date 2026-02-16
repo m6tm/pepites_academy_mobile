@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../injection_container.dart';
+import '../../widgets/sync_notification_banner.dart';
 import '../auth/login_page.dart';
 import 'screens/admin_home_screen.dart';
 import 'screens/admin_academy_screen.dart';
@@ -61,30 +62,40 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
 
     return Scaffold(
       body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: IndexedStack(
-            index: _selectedNavIndex,
-            children: [
-              AdminHomeScreen(
-                userName: widget.userName,
-                greeting: _getGreeting(),
-                onNavigateToTab: (index) {
-                  setState(() => _selectedNavIndex = index);
-                  if (index == 1) {
-                    _academyKey.currentState?.reload();
-                  }
-                },
+        child: Column(
+          children: [
+            SyncNotificationBanner(
+              connectivityState: DependencyInjection.connectivityState,
+              syncState: DependencyInjection.syncState,
+            ),
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: IndexedStack(
+                  index: _selectedNavIndex,
+                  children: [
+                    AdminHomeScreen(
+                      userName: widget.userName,
+                      greeting: _getGreeting(),
+                      onNavigateToTab: (index) {
+                        setState(() => _selectedNavIndex = index);
+                        if (index == 1) {
+                          _academyKey.currentState?.reload();
+                        }
+                      },
+                    ),
+                    AdminAcademyScreen(academyListKey: _academyKey),
+                    const AdminSeancesScreen(),
+                    const AdminCommunicationScreen(),
+                    AdminSettingsScreen(
+                      userName: widget.userName,
+                      onLogout: _handleLogout,
+                    ),
+                  ],
+                ),
               ),
-              AdminAcademyScreen(academyListKey: _academyKey),
-              const AdminSeancesScreen(),
-              const AdminCommunicationScreen(),
-              AdminSettingsScreen(
-                userName: widget.userName,
-                onLogout: _handleLogout,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: _buildBottomNav(colorScheme),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../injection_container.dart';
 import '../../../presentation/theme/app_colors.dart';
+import '../../widgets/sync_notification_banner.dart';
 import '../auth/login_page.dart';
 import '../scanner/qr_scanner_page.dart';
 import '../../widgets/academy_toast.dart';
@@ -62,26 +63,36 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
 
     return Scaffold(
       body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: IndexedStack(
-            index: _selectedNavIndex,
-            children: [
-              EncadreurHomeScreen(
-                userName: widget.userName,
-                greeting: _getGreeting(),
-                onSmsTap: () => setState(() => _selectedNavIndex = 4),
+        child: Column(
+          children: [
+            SyncNotificationBanner(
+              connectivityState: DependencyInjection.connectivityState,
+              syncState: DependencyInjection.syncState,
+            ),
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: IndexedStack(
+                  index: _selectedNavIndex,
+                  children: [
+                    EncadreurHomeScreen(
+                      userName: widget.userName,
+                      greeting: _getGreeting(),
+                      onSmsTap: () => setState(() => _selectedNavIndex = 4),
+                    ),
+                    const EncadreurSeancesScreen(),
+                    const SizedBox(),
+                    const EncadreurAnnotationsScreen(),
+                    const EncadreurCommunicationScreen(),
+                    EncadreurProfileScreen(
+                      userName: widget.userName,
+                      onLogout: _handleLogout,
+                    ),
+                  ],
+                ),
               ),
-              const EncadreurSeancesScreen(),
-              const SizedBox(),
-              const EncadreurAnnotationsScreen(),
-              const EncadreurCommunicationScreen(),
-              EncadreurProfileScreen(
-                userName: widget.userName,
-                onLogout: _handleLogout,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: _buildBottomNav(colorScheme),

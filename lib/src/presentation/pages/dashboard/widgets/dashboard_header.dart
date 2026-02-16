@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../injection_container.dart';
 import '../../../theme/app_colors.dart';
+import '../../../widgets/connectivity_indicator.dart';
 
-/// En-tête personnalisé pour les dashboards.
-/// Affiche l'avatar de l'utilisateur, un message de bienvenue et des actions.
+/// En-tete personnalise pour les dashboards.
+/// Affiche l'avatar de l'utilisateur, un message de bienvenue,
+/// l'indicateur de connectivite et des actions.
 class DashboardHeader extends StatelessWidget {
   final String userName;
   final String role;
@@ -93,6 +96,15 @@ class DashboardHeader extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          // Indicateur de connectivite
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: ConnectivityIndicator(
+              connectivityState: DependencyInjection.connectivityState,
+              syncState: DependencyInjection.syncState,
+              compact: true,
             ),
           ),
           // Bouton Recherche
