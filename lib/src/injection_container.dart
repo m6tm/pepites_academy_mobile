@@ -10,6 +10,7 @@ import 'application/services/seance_service.dart';
 import 'application/services/search_service.dart';
 import 'application/services/referentiel_service.dart';
 import 'application/services/sms_service.dart';
+import 'application/services/notification_service.dart';
 import 'application/services/sync_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
@@ -25,6 +26,7 @@ import 'infrastructure/datasources/poste_football_local_datasource.dart';
 import 'infrastructure/datasources/presence_local_datasource.dart';
 import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/datasources/sms_local_datasource.dart';
+import 'infrastructure/datasources/notification_local_datasource.dart';
 import 'infrastructure/datasources/sync_queue_local_datasource.dart';
 import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
@@ -39,10 +41,12 @@ import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
 import 'infrastructure/repositories/seance_repository_impl.dart';
 import 'infrastructure/repositories/sms_repository_impl.dart';
+import 'infrastructure/repositories/notification_repository_impl.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'presentation/state/connectivity_state.dart';
 import 'presentation/state/search_state.dart';
 import 'presentation/state/sms_state.dart';
+import 'presentation/state/notification_state.dart';
 import 'presentation/state/sync_state.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
@@ -72,6 +76,9 @@ class DependencyInjection {
   static late final SyncService syncService;
   static late final ConnectivityState connectivityState;
   static late final SyncState syncState;
+  static late final NotificationRepositoryImpl notificationRepository;
+  static late final NotificationService notificationService;
+  static late final NotificationState notificationState;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -196,6 +203,16 @@ class DependencyInjection {
     bulletinService.setActivityService(activityService);
     qrScannerService.setActivityService(activityService);
     referentielService.setActivityService(activityService);
+
+    // Initialisation du module Notifications
+    final notificationDatasource = NotificationLocalDatasource(sharedPrefs);
+    notificationRepository = NotificationRepositoryImpl(notificationDatasource);
+    notificationService = NotificationService(
+      notificationRepository: notificationRepository,
+    );
+    notificationState = NotificationState(
+      notificationService: notificationService,
+    );
 
     // Initialisation du module Hors-ligne / Synchronisation
     final connectivityDatasource = ConnectivityDatasource();

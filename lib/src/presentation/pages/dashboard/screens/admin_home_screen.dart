@@ -11,6 +11,7 @@ import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
+import '../../notification/notifications_page.dart';
 import '../../search/search_page.dart';
 import '../../scanner/qr_scanner_page.dart';
 import '../../seance/seance_detail_page.dart';
@@ -47,6 +48,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     super.initState();
     _chargerDerniereSeance();
     _chargerActivitesRecentes();
+    DependencyInjection.notificationState.chargerNotifications('admin');
   }
 
   /// Charge la derniere seance (ouverte en priorite, sinon la plus recente).
@@ -100,13 +102,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             userName: widget.userName,
             role: 'Administrateur',
             greeting: widget.greeting,
-            notificationCount: 3,
+            notificationCount:
+                DependencyInjection.notificationState.nonLuesCount,
             onSearchTap: () {
               Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
             },
-            onNotificationTap: () {},
+            onNotificationTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const NotificationsPage(userRole: 'admin'),
+                ),
+              );
+            },
             onProfileTap: () {},
           ),
         ),

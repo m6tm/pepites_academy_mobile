@@ -11,6 +11,7 @@ import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../state/seance_state.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../scanner/qr_scanner_page.dart';
+import '../../notification/notifications_page.dart';
 import '../../search/search_page.dart';
 import '../../../widgets/academy_toast.dart';
 import '../../seance/seance_detail_page.dart';
@@ -44,6 +45,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     _seanceState = SeanceState(DependencyInjection.seanceService);
     _seanceState.addListener(_onStateChanged);
     _seanceState.chargerSeances();
+    DependencyInjection.notificationState.chargerNotifications('encadreur');
   }
 
   void _onStateChanged() {
@@ -95,14 +97,22 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             userName: widget.userName,
             role: 'Encadreur',
             greeting: widget.greeting,
-            notificationCount: 1,
+            notificationCount:
+                DependencyInjection.notificationState.nonLuesCount,
             onSearchTap: () {
               Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
             },
             onSmsTap: widget.onSmsTap,
-            onNotificationTap: () {},
+            onNotificationTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const NotificationsPage(userRole: 'encadreur'),
+                ),
+              );
+            },
             onProfileTap: () {},
           ),
         ),
