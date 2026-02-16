@@ -5,6 +5,7 @@ import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
+import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import 'academicien_registration_page.dart';
 import 'academicien_profile_page.dart';
@@ -27,69 +28,29 @@ class _AcademicienListPageState extends State<AcademicienListPage> {
   final _searchController = TextEditingController();
   String _selectedFilter = 'Tous';
 
-  final List<String> _filters = [
-    'Tous',
-    'Gardien',
-    'Defenseur',
-    'Milieu',
-    'Attaquant',
-  ];
+  // Filtres dynamiques construits a partir des postes du referentiel
+  List<String> _filters = ['Tous'];
 
-  // Correspondance posteId -> nom pour l'affichage
-  final Map<String, PosteFootball> _postesMap = {
-    '1': PosteFootball(id: '1', nom: 'Gardien', icone: Icons.pan_tool_rounded),
-    '2': PosteFootball(
-      id: '2',
-      nom: 'Defenseur central',
-      icone: Icons.security_rounded,
-    ),
-    '3': PosteFootball(
-      id: '3',
-      nom: 'Defenseur lateral',
-      icone: Icons.directions_run_rounded,
-    ),
-    '4': PosteFootball(id: '4', nom: 'Piston', icone: Icons.swap_calls_rounded),
-    '5': PosteFootball(
-      id: '5',
-      nom: 'Milieu defensif',
-      icone: Icons.anchor_rounded,
-    ),
-    '6': PosteFootball(
-      id: '6',
-      nom: 'Milieu relayeur',
-      icone: Icons.repeat_rounded,
-    ),
-    '7': PosteFootball(
-      id: '7',
-      nom: 'Milieu offensif',
-      icone: Icons.auto_awesome_rounded,
-    ),
-    '8': PosteFootball(id: '8', nom: 'Ailier', icone: Icons.flash_on_rounded),
-    '9': PosteFootball(
-      id: '9',
-      nom: 'Second attaquant',
-      icone: Icons.control_point_duplicate_rounded,
-    ),
-    '10': PosteFootball(
-      id: '10',
-      nom: 'Avant-centre',
-      icone: Icons.sports_soccer_rounded,
-    ),
-  };
+  // Correspondance posteId -> PosteFootball chargee depuis le referentiel
+  Map<String, PosteFootball> _postesMap = {};
 
-  final Map<String, NiveauScolaire> _niveauxMap = {
-    '1': NiveauScolaire(id: '1', nom: 'CM1', ordre: 1),
-    '2': NiveauScolaire(id: '2', nom: 'CM2', ordre: 2),
-    '3': NiveauScolaire(id: '3', nom: '6eme', ordre: 3),
-    '4': NiveauScolaire(id: '4', nom: '5eme', ordre: 4),
-    '5': NiveauScolaire(id: '5', nom: '4eme', ordre: 5),
-    '6': NiveauScolaire(id: '6', nom: '3eme', ordre: 6),
-  };
+  // Correspondance niveauId -> NiveauScolaire chargee depuis le referentiel
+  Map<String, NiveauScolaire> _niveauxMap = {};
 
   @override
   void initState() {
     super.initState();
-    _loadAcademiciens();
+    _loadReferentielsAndAcademiciens();
+  }
+
+  Future<void> _loadReferentielsAndAcademiciens() async {
+    final postes = await DependencyInjection.referentielService.getAllPostes();
+    final niveaux = await DependencyInjection.referentielService
+        .getAllNiveaux();
+    _postesMap = {for (final p in postes) p.id: p};
+    _niveauxMap = {for (final n in niveaux) n.id: n};
+    _filters = ['Tous', ...postes.map((p) => p.nom)];
+    await _loadAcademiciens();
   }
 
   @override
@@ -120,20 +81,13 @@ class _AcademicienListPageState extends State<AcademicienListPage> {
     return _niveauxMap[niveauId]?.nom ?? 'Non specifie';
   }
 
-  String _getPosteCategory(String posteId) {
-    if (posteId == '1') return 'Gardien';
-    if (['2', '3', '4'].contains(posteId)) return 'Defenseur';
-    if (['5', '6', '7'].contains(posteId)) return 'Milieu';
-    return 'Attaquant';
-  }
-
   void _applyFilters() {
     List<Academicien> result = List.from(_academiciens);
 
-    // Filtre par categorie de poste
+    // Filtre par nom de poste
     if (_selectedFilter != 'Tous') {
       result = result.where((a) {
-        return _getPosteCategory(a.posteFootballId) == _selectedFilter;
+        return _getPosteName(a.posteFootballId) == _selectedFilter;
       }).toList();
     }
 

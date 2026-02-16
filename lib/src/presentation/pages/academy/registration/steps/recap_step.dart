@@ -1,12 +1,22 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:pepites_academy_mobile/src/domain/entities/niveau_scolaire.dart';
+import 'package:pepites_academy_mobile/src/domain/entities/poste_football.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/academy_registration_state.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/glassmorphism_card.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 
 class RecapStep extends StatelessWidget {
   final AcademyRegistrationState state;
-  const RecapStep({super.key, required this.state});
+  final List<PosteFootball> postes;
+  final List<NiveauScolaire> niveaux;
+
+  const RecapStep({
+    super.key,
+    required this.state,
+    this.postes = const [],
+    this.niveaux = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -159,28 +169,20 @@ class RecapStep extends StatelessWidget {
   }
 
   String _getPosteName(String? id) {
-    // Serait idéalement récupéré via un repository
-    final map = {
-      '1': 'Gardien',
-      '2': 'Défenseur Central',
-      '3': 'Défenseur Latéral',
-      '4': 'Milieu Défensif',
-      '5': 'Milieu Relayeur',
-      '6': 'Attaquant',
-      '7': 'Ailier',
-    };
-    return map[id] ?? "Non spécifié";
+    if (id == null) return "Non spécifié";
+    try {
+      return postes.firstWhere((p) => p.id == id).nom;
+    } catch (_) {
+      return "Non spécifié";
+    }
   }
 
   String _getNiveauName(String? id) {
-    final map = {
-      '1': 'Primaire - CM1',
-      '2': 'Primaire - CM2',
-      '3': 'Secondaire - 6ème',
-      '4': 'Secondaire - 5ème',
-      '5': 'Secondaire - 4ème',
-      '6': 'Secondaire - 3ème',
-    };
-    return map[id] ?? "Non spécifié";
+    if (id == null) return "Non spécifié";
+    try {
+      return niveaux.firstWhere((n) => n.id == id).nom;
+    } catch (_) {
+      return "Non spécifié";
+    }
   }
 }

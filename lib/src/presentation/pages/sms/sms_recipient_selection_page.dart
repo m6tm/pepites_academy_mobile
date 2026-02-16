@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/encadreur.dart';
+import '../../../domain/entities/niveau_scolaire.dart';
+import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/sms_message.dart';
+import '../../../injection_container.dart';
 import '../../state/sms_state.dart';
 import '../../theme/app_colors.dart';
 import 'sms_confirmation_page.dart';
@@ -24,12 +27,27 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
   late final TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  Map<String, PosteFootball> _postesMap = {};
+  Map<String, NiveauScolaire> _niveauxMap = {};
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     widget.smsState.chargerContacts();
+    _chargerReferentiels();
+  }
+
+  Future<void> _chargerReferentiels() async {
+    final postes = await DependencyInjection.referentielService.getAllPostes();
+    final niveaux = await DependencyInjection.referentielService
+        .getAllNiveaux();
+    if (mounted) {
+      setState(() {
+        _postesMap = {for (final p in postes) p.id: p};
+        _niveauxMap = {for (final n in niveaux) n.id: n};
+      });
+    }
   }
 
   @override
@@ -660,25 +678,11 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
   }
 
   String _getPosteLabel(String posteId) {
-    const labels = {
-      'gardien': 'Gardien',
-      'defenseur': 'Defenseur',
-      'milieu': 'Milieu',
-      'attaquant': 'Attaquant',
-    };
-    return labels[posteId] ?? posteId;
+    return _postesMap[posteId]?.nom ?? posteId;
   }
 
   String _getNiveauLabel(String niveauId) {
-    const labels = {
-      'cm1': 'CM1',
-      'cm2': 'CM2',
-      '6eme': '6eme',
-      '5eme': '5eme',
-      '4eme': '4eme',
-      '3eme': '3eme',
-    };
-    return labels[niveauId] ?? niveauId;
+    return _niveauxMap[niveauId]?.nom ?? niveauId;
   }
 
   // --- Onglet Selection : recapitulatif ---

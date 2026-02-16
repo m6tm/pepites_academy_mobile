@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 // ListenableBuilder is used instead of provider
+import 'package:pepites_academy_mobile/src/domain/entities/niveau_scolaire.dart';
+import 'package:pepites_academy_mobile/src/domain/entities/poste_football.dart';
+import 'package:pepites_academy_mobile/src/injection_container.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/step_progress_indicator.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/academy_registration_state.dart';
@@ -20,6 +23,8 @@ class AcademyRegistrationPage extends StatefulWidget {
 class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
   late AcademyRegistrationState _state;
   late PageController _pageController;
+  List<PosteFootball> _postes = [];
+  List<NiveauScolaire> _niveaux = [];
 
   @override
   void initState() {
@@ -27,6 +32,19 @@ class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
     _state = AcademyRegistrationState();
     _pageController = PageController();
     _state.addListener(_onStateChanged);
+    _chargerReferentiels();
+  }
+
+  Future<void> _chargerReferentiels() async {
+    final postes = await DependencyInjection.referentielService.getAllPostes();
+    final niveaux = await DependencyInjection.referentielService
+        .getAllNiveaux();
+    if (mounted) {
+      setState(() {
+        _postes = postes;
+        _niveaux = niveaux;
+      });
+    }
   }
 
   void _onStateChanged() {
@@ -78,9 +96,13 @@ class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     IdentityStep(state: _state),
-                    FootballStep(state: _state),
-                    SchoolStep(state: _state),
-                    RecapStep(state: _state),
+                    FootballStep(state: _state, postes: _postes),
+                    SchoolStep(state: _state, niveaux: _niveaux),
+                    RecapStep(
+                      state: _state,
+                      postes: _postes,
+                      niveaux: _niveaux,
+                    ),
                   ],
                 ),
               ),

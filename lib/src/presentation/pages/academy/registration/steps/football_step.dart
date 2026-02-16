@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:pepites_academy_mobile/src/domain/entities/poste_football.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/academy_registration_state.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/glass_dropdown.dart';
 
 class FootballStep extends StatelessWidget {
   final AcademyRegistrationState state;
-  const FootballStep({super.key, required this.state});
+  final List<PosteFootball> postes;
+
+  const FootballStep({super.key, required this.state, this.postes = const []});
 
   @override
   Widget build(BuildContext context) {
-    // Mock data for Postes
-    final postes = [
-      {'id': '1', 'nom': 'Gardien'},
-      {'id': '2', 'nom': 'Défenseur Central'},
-      {'id': '3', 'nom': 'Défenseur Latéral'},
-      {'id': '4', 'nom': 'Milieu Défensif'},
-      {'id': '5', 'nom': 'Milieu Relayeur'},
-      {'id': '6', 'nom': 'Attaquant'},
-      {'id': '7', 'nom': 'Ailier'},
-    ];
-
     final pieds = ['Droitier', 'Gaucher', 'Ambidextre'];
 
     return SingleChildScrollView(
@@ -46,7 +38,7 @@ class FootballStep extends StatelessWidget {
             value: state.posteFootballId,
             prefixIcon: Icons.sports_soccer,
             items: postes.map((p) {
-              return DropdownMenuItem(value: p['id'], child: Text(p['nom']!));
+              return DropdownMenuItem(value: p.id, child: Text(p.nom));
             }).toList(),
             onChanged: (val) => state.setFootballInfo(posteId: val),
           ),

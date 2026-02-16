@@ -427,6 +427,7 @@ class SettingsItemData {
   final String label;
   final String value;
   final Color color;
+  final VoidCallback? onTap;
 
-  SettingsItemData(this.icon, this.label, this.value, this.color);
+  SettingsItemData(this.icon, this.label, this.value, this.color, {this.onTap});
 }

@@ -201,7 +201,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Fiche de consultation détaillée pour une séance (récapitulatif complet en lecture seule).
   - Historique des recherches récentes pour un accès rapide.
 
-### [T-602] Gestion des Référentiels
+### [T-602] Gestion des Référentiels [DONE]
 
 - **Objectif :** Les référentiels sont les listes de base qui alimentent tout le reste de l'application. Ils regroupent deux types de données fondamentales :
   - **Postes de football en vigueur** : Gardien, Défenseur central, Latéral droit, Latéral gauche, Milieu défensif, Milieu offensif, Ailier droit, Ailier gauche, Avant-centre, etc. Ces postes sont attribués aux académiciens lors de leur inscription (T-202) et servent de filtre pour l'envoi de SMS ciblés (T-502) et pour l'évaluation par atelier (T-402).

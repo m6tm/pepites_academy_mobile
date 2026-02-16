@@ -51,48 +51,27 @@ class _AcademicienRegistrationPageState
   // Data - Step 3
   String? _selectedNiveauId;
 
-  // Mock data for dropdowns (will be fetched from repos later)
-  final List<PosteFootball> _postes = [
-    PosteFootball(id: '1', nom: 'Gardien', icone: Icons.pan_tool_rounded),
-    PosteFootball(
-      id: '2',
-      nom: 'Défenseur central',
-      icone: Icons.security_rounded,
-    ),
-    PosteFootball(
-      id: '3',
-      nom: 'Défenseur latéral',
-      icone: Icons.directions_run_rounded,
-    ),
-    PosteFootball(id: '4', nom: 'Piston', icone: Icons.swap_calls_rounded),
-    PosteFootball(id: '5', nom: 'Milieu défensif', icone: Icons.anchor_rounded),
-    PosteFootball(id: '6', nom: 'Milieu relayeur', icone: Icons.repeat_rounded),
-    PosteFootball(
-      id: '7',
-      nom: 'Milieu offensif',
-      icone: Icons.auto_awesome_rounded,
-    ),
-    PosteFootball(id: '8', nom: 'Ailier', icone: Icons.flash_on_rounded),
-    PosteFootball(
-      id: '9',
-      nom: 'Second attaquant',
-      icone: Icons.control_point_duplicate_rounded,
-    ),
-    PosteFootball(
-      id: '10',
-      nom: 'Avant-centre',
-      icone: Icons.sports_soccer_rounded,
-    ),
-  ];
+  // Donnees chargees dynamiquement depuis les referentiels
+  List<PosteFootball> _postes = [];
+  List<NiveauScolaire> _niveaux = [];
 
-  final List<NiveauScolaire> _niveaux = [
-    NiveauScolaire(id: '1', nom: 'CM1', ordre: 1),
-    NiveauScolaire(id: '2', nom: 'CM2', ordre: 2),
-    NiveauScolaire(id: '3', nom: '6ème', ordre: 3),
-    NiveauScolaire(id: '4', nom: '5ème', ordre: 4),
-    NiveauScolaire(id: '5', nom: '4ème', ordre: 5),
-    NiveauScolaire(id: '6', nom: '3ème', ordre: 6),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _chargerReferentiels();
+  }
+
+  Future<void> _chargerReferentiels() async {
+    final postes = await DependencyInjection.referentielService.getAllPostes();
+    final niveaux = await DependencyInjection.referentielService
+        .getAllNiveaux();
+    if (mounted) {
+      setState(() {
+        _postes = postes;
+        _niveaux = niveaux;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -615,7 +594,7 @@ class _AcademicienRegistrationPageState
                 .map(
                   (p) => _buildChoiceChip(
                     label: p.nom,
-                    icon: p.icone ?? Icons.sports_soccer_rounded,
+                    icon: Icons.sports_soccer_rounded,
                     isSelected: _selectedPosteId == p.id,
                     onSelected: (selected) {
                       setState(() => _selectedPosteId = selected ? p.id : null);

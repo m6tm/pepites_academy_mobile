@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../presentation/theme/app_colors.dart';
+import '../../referentiel/referentiel_hub_page.dart';
 import '../widgets/admin_internal_widgets.dart';
 
 /// Ecran Parametres du dashboard administrateur.
@@ -52,49 +53,63 @@ class AdminSettingsScreen extends StatelessWidget {
         SliverToBoxAdapter(child: _buildProfileCard(context, colorScheme)),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverToBoxAdapter(
-          child: _buildSettingsSection('General', [
-            SettingsItemData(
-              Icons.language_rounded,
-              'Langue',
-              'Francais',
-              const Color(0xFF3B82F6),
-            ),
-            SettingsItemData(
-              Icons.dark_mode_rounded,
-              'Theme',
-              'Systeme',
-              const Color(0xFF8B5CF6),
-            ),
-            SettingsItemData(
-              Icons.notifications_outlined,
-              'Notifications',
-              'Activees',
-              const Color(0xFFF59E0B),
-            ),
-          ], context, colorScheme),
+          child: _buildSettingsSection(
+            'General',
+            [
+              SettingsItemData(
+                Icons.language_rounded,
+                'Langue',
+                'Francais',
+                const Color(0xFF3B82F6),
+              ),
+              SettingsItemData(
+                Icons.dark_mode_rounded,
+                'Theme',
+                'Systeme',
+                const Color(0xFF8B5CF6),
+              ),
+              SettingsItemData(
+                Icons.notifications_outlined,
+                'Notifications',
+                'Activees',
+                const Color(0xFFF59E0B),
+              ),
+            ],
+            context,
+            colorScheme,
+          ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverToBoxAdapter(
-          child: _buildSettingsSection('Administration', [
-            SettingsItemData(
-              Icons.tune_rounded,
-              'Referentiels',
-              'Postes, Niveaux',
-              const Color(0xFF10B981),
-            ),
-            SettingsItemData(
-              Icons.backup_rounded,
-              'Sauvegarde',
-              'Derniere: Aujourd\'hui',
-              const Color(0xFF3B82F6),
-            ),
-            SettingsItemData(
-              Icons.info_outline_rounded,
-              'A propos',
-              'Version 1.0.0',
-              colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-          ], context, colorScheme),
+          child: _buildSettingsSection(
+            'Administration',
+            [
+              SettingsItemData(
+                Icons.tune_rounded,
+                'Referentiels',
+                'Postes, Niveaux',
+                const Color(0xFF10B981),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ReferentielHubPage()),
+                ),
+              ),
+              SettingsItemData(
+                Icons.backup_rounded,
+                'Sauvegarde',
+                'Derniere: Aujourd\'hui',
+                const Color(0xFF3B82F6),
+              ),
+              SettingsItemData(
+                Icons.info_outline_rounded,
+                'A propos',
+                'Version 1.0.0',
+                colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ],
+            context,
+            colorScheme,
+          ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverToBoxAdapter(
@@ -243,6 +258,7 @@ class AdminSettingsScreen extends StatelessWidget {
                 return Column(
                   children: [
                     ListTile(
+                      onTap: item.onTap,
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(

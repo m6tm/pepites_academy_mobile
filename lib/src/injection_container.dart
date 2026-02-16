@@ -6,6 +6,7 @@ import 'application/services/bulletin_service.dart';
 import 'application/services/qr_scanner_service.dart';
 import 'application/services/seance_service.dart';
 import 'application/services/search_service.dart';
+import 'application/services/referentiel_service.dart';
 import 'application/services/sms_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
@@ -13,6 +14,8 @@ import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
 import 'infrastructure/datasources/bulletin_local_datasource.dart';
 import 'infrastructure/datasources/encadreur_local_datasource.dart';
+import 'infrastructure/datasources/niveau_scolaire_local_datasource.dart';
+import 'infrastructure/datasources/poste_football_local_datasource.dart';
 import 'infrastructure/datasources/presence_local_datasource.dart';
 import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/datasources/sms_local_datasource.dart';
@@ -21,6 +24,8 @@ import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
 import 'infrastructure/repositories/bulletin_repository_impl.dart';
 import 'infrastructure/repositories/encadreur_repository_impl.dart';
+import 'infrastructure/repositories/niveau_scolaire_repository_impl.dart';
+import 'infrastructure/repositories/poste_football_repository_impl.dart';
 import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
 import 'infrastructure/repositories/seance_repository_impl.dart';
@@ -49,6 +54,7 @@ class DependencyInjection {
   static late final SmsState smsState;
   static late final SearchService searchService;
   static late final SearchState searchState;
+  static late final ReferentielService referentielService;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -138,5 +144,25 @@ class DependencyInjection {
       seanceRepository: seanceRepository,
     );
     searchState = SearchState(searchService: searchService, prefs: sharedPrefs);
+
+    // Initialisation du module Referentiels
+    final posteDatasource = PosteFootballLocalDatasource(sharedPrefs);
+    await posteDatasource.ensureInitialized();
+    final posteRepository = PosteFootballRepositoryImpl(
+      posteDatasource,
+      academicienDatasource,
+    );
+
+    final niveauDatasource = NiveauScolaireLocalDatasource(sharedPrefs);
+    await niveauDatasource.ensureInitialized();
+    final niveauRepository = NiveauScolaireRepositoryImpl(
+      niveauDatasource,
+      academicienDatasource,
+    );
+
+    referentielService = ReferentielService(
+      posteRepository: posteRepository,
+      niveauRepository: niveauRepository,
+    );
   }
 }

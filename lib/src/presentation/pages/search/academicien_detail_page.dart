@@ -26,6 +26,8 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
   List<Annotation> _annotations = [];
   List<Bulletin> _bulletins = [];
   bool _isLoading = true;
+  String _posteNom = '';
+  String _niveauNom = '';
 
   @override
   void initState() {
@@ -43,11 +45,29 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
       final bulletins = await DependencyInjection.bulletinRepository
           .getByAcademicien(widget.academicien.id);
 
+      // Resolution des noms depuis les referentiels
+      final postes = await DependencyInjection.referentielService
+          .getAllPostes();
+      final niveaux = await DependencyInjection.referentielService
+          .getAllNiveaux();
+      final posteMatch = postes.where(
+        (p) => p.id == widget.academicien.posteFootballId,
+      );
+      final niveauMatch = niveaux.where(
+        (n) => n.id == widget.academicien.niveauScolaireId,
+      );
+
       if (mounted) {
         setState(() {
           _presences = presences;
           _annotations = annotations;
           _bulletins = bulletins;
+          _posteNom = posteMatch.isNotEmpty
+              ? posteMatch.first.nom
+              : 'Non specifie';
+          _niveauNom = niveauMatch.isNotEmpty
+              ? niveauMatch.first.nom
+              : 'Non specifie';
           _isLoading = false;
         });
       }
@@ -79,7 +99,9 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
             Expanded(
               child: _isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     )
                   : TabBarView(
                       controller: _tabController,
@@ -323,8 +345,14 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
             'Informations sportives',
             Icons.sports_soccer_rounded,
             [
-              _InfoRow('Poste', acad.posteFootballId),
-              _InfoRow('Niveau scolaire', acad.niveauScolaireId),
+              _InfoRow(
+                'Poste',
+                _posteNom.isNotEmpty ? _posteNom : acad.posteFootballId,
+              ),
+              _InfoRow(
+                'Niveau scolaire',
+                _niveauNom.isNotEmpty ? _niveauNom : acad.niveauScolaireId,
+              ),
               _InfoRow('Code QR', acad.codeQrUnique),
             ],
           ),
@@ -546,7 +574,9 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
                           _formatDateTime(annotation.horodate),
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
-                            color: colorScheme.onSurface.withValues(alpha: 0.45),
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.45,
+                            ),
                           ),
                         ),
                         if (annotation.note != null)
