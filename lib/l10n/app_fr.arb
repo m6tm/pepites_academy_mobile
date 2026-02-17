@@ -722,5 +722,161 @@
         "type": "String"
       }
     }
+  },
+  "annotationPageTitle": "Annotations",
+  "tapToAnnotate": "Appuyez pour annoter",
+  "noAcademicianPresent": "Aucun academicien present",
+  "noAcademicianPresentDesc": "Les academiciens presents dans la seance\napparaitront ici pour etre annotes.",
+  "academiciansCount": "{count} academiciens",
+  "@academiciansCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "annotationsCount": "{count} annotations",
+  "@annotationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quickTags": "Tags rapides",
+  "tagPositif": "Positif",
+  "tagExcellent": "Excellent",
+  "tagEnProgres": "En progres",
+  "tagBonneAttitude": "Bonne attitude",
+  "tagCreatif": "Creatif",
+  "tagATravailler": "A travailler",
+  "tagInsuffisant": "Insuffisant",
+  "tagManqueEffort": "Manque d'effort",
+  "tagDistrait": "Distrait",
+  "tagTechnique": "Technique",
+  "tagDribble": "Dribble",
+  "tagPasse": "Passe",
+  "tagTir": "Tir",
+  "tagPlacement": "Placement",
+  "tagEndurance": "Endurance",
+  "detailedObservation": "Observation detaillee",
+  "observationHintAnnotation": "Ex: Bonne lecture du jeu, manque d'appui...",
+  "noteOptional": "Note (optionnel)",
+  "noteFormat": "{note}/10",
+  "@noteFormat": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "saving": "Enregistrement...",
+  "saveAnnotation": "Enregistrer l'annotation",
+  "historyCountLabel": "Historique ({count})",
+  "@historyCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPreviousAnnotation": "Aucune annotation precedente",
+  "communicationTitle": "Communication",
+  "sentLabel": "Envoyes",
+  "thisMonthLabel": "Ce mois",
+  "failedLabel": "En echec",
+  "composeAndSendSms": "Rediger et envoyer un SMS",
+  "historyActionLabel": "Historique",
+  "recipientsCount": "{count, plural, =1{1 destinataire} other{{count} destinataires}}",
+  "@recipientsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsTitle": "Seances",
+  "sessionsCountSubtitle": "{count} seance(s) - Historique et suivi",
+  "@sessionsCountSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterAll": "Toutes",
+  "filterInProgress": "En cours",
+  "filterCompleted": "Terminees",
+  "filterUpcoming": "A venir",
+  "sessionInProgressBanner": "SEANCE EN COURS",
+  "tapToViewDetail": "Appuyez pour consulter le detail",
+  "sessionsCreatedByCoaches": "Les seances creees par les encadreurs\napparaitront ici.",
+  "mySessionsTitle": "Mes seances",
+  "openSessionTooltip": "Ouvrir une seance",
+  "openFirstSession": "Ouvrez votre premiere seance\npour commencer l'entrainement.",
+  "openSession": "Ouvrir une seance",
+  "closeThisSession": "Fermer cette seance",
+  "fillInfoToStart": "Remplissez les informations pour demarrer.",
+  "sessionTitleLabel": "Titre de la seance",
+  "sessionTitleHint": "Ex: Entrainement Technique",
+  "startLabel": "Debut",
+  "endLabel": "Fin",
+  "startSession": "Demarrer la seance",
+  "pleaseEnterTitle": "Veuillez saisir un titre.",
+  "sessionInProgressDialogTitle": "Seance en cours",
+  "understoodButton": "Compris",
+  "closeSessionButton": "Fermer la seance",
+  "closeSessionDialogTitle": "Fermer la seance",
+  "closeSessionConfirmation": "Voulez-vous cloturer cette seance ?",
+  "dataFrozenNote": "Les donnees seront figees et la seance passera en lecture seule.",
+  "cancelButton": "Annuler",
+  "confirmButton": "Confirmer",
+  "sessionClosed": "Seance cloturee",
+  "presentsRecapLabel": "Presents",
+  "workshopsRecapLabel": "Ateliers",
+  "perfectButton": "Parfait",
+  "presentCount": "{count} present(s)",
+  "@presentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workshopCount": "{count} atelier(s)",
+  "@workshopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "meLabel": "Moi",
+  "annotationsScreenTitle": "Annotations",
+  "myObservationsSubtitle": "Mes observations et evaluations",
+  "positivesLabel": "Positives",
+  "toWorkOnLabel": "A travailler",
+  "allTagFilter": "Tous",
+  "inProgressTagFilter": "En progres",
+  "techniqueTagFilter": "Technique",
+  "encadreurSmsSubtitle": "Envoyez des SMS aux academiciens et parents",
+  "statusInProgress": "En cours",
+  "statusCompleted": "Terminee",
+  "statusUpcoming": "A venir",
+  "presentsInfoLabel": "{count} presents",
+  "@presentsInfoLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workshopsInfoLabel": "{count} ateliers",
+  "@workshopsInfoLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

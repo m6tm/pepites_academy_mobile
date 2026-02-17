@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart' as intl;
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../../../presentation/widgets/section_title.dart';
@@ -29,6 +31,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return ListenableBuilder(
       listenable: DependencyInjection.smsState,
@@ -46,7 +49,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Communication',
+                      l10n.communicationTitle,
                       style: GoogleFonts.montserrat(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -56,7 +59,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'SMS et notifications',
+                      l10n.smsAndNotifications,
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -74,7 +77,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                   children: [
                     Expanded(
                       child: MiniStatCard(
-                        label: 'Envoyes',
+                        label: l10n.sentLabel,
                         value: '${stats['totalEnvoyes'] ?? 0}',
                         icon: Icons.send_rounded,
                         color: const Color(0xFF10B981),
@@ -83,7 +86,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: MiniStatCard(
-                        label: 'Ce mois',
+                        label: l10n.thisMonthLabel,
                         value: '${stats['envoyesCeMois'] ?? 0}',
                         icon: Icons.calendar_month_rounded,
                         color: const Color(0xFF3B82F6),
@@ -92,7 +95,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: MiniStatCard(
-                        label: 'En echec',
+                        label: l10n.failedLabel,
                         value: '${stats['enEchec'] ?? 0}',
                         icon: Icons.error_outline_rounded,
                         color: AppColors.error,
@@ -110,8 +113,8 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                 child: Column(
                   children: [
                     CommunicationAction(
-                      title: 'Nouveau message',
-                      subtitle: 'Rediger et envoyer un SMS',
+                      title: l10n.newMessage,
+                      subtitle: l10n.composeAndSendSms,
                       icon: Icons.edit_rounded,
                       color: AppColors.primary,
                       onTap: () {
@@ -130,8 +133,8 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                     ),
                     const SizedBox(height: 12),
                     CommunicationAction(
-                      title: 'Message groupe',
-                      subtitle: 'Envoyer a un groupe filtre',
+                      title: l10n.groupMessage,
+                      subtitle: l10n.sendToFilteredGroup,
                       icon: Icons.group_rounded,
                       color: const Color(0xFF3B82F6),
                       onTap: () {
@@ -150,8 +153,8 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                     ),
                     const SizedBox(height: 12),
                     CommunicationAction(
-                      title: 'Historique SMS',
-                      subtitle: 'Consulter les messages envoyes',
+                      title: l10n.smsHistory,
+                      subtitle: l10n.viewSentMessages,
                       icon: Icons.history_rounded,
                       color: const Color(0xFF8B5CF6),
                       onTap: () {
@@ -173,8 +176,8 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
             ),
             SliverToBoxAdapter(
               child: SectionTitle(
-                title: 'Derniers messages',
-                actionLabel: 'Historique',
+                title: l10n.lastMessages,
+                actionLabel: l10n.historyActionLabel,
                 onAction: () {
                   Navigator.push(
                     context,
@@ -217,7 +220,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
                       sms.contenu.length > 40
                           ? '${sms.contenu.substring(0, 40)}...'
                           : sms.contenu,
-                      '${sms.destinataires.length} destinataire${sms.destinataires.length > 1 ? 's' : ''}',
+                      l10n.recipientsCount(sms.destinataires.length),
                       _formatDateCourte(sms.dateEnvoi),
                       isSuccess,
                     ),
@@ -233,20 +236,7 @@ class _AdminCommunicationScreenState extends State<AdminCommunicationScreen> {
   }
 
   String _formatDateCourte(DateTime date) {
-    const mois = [
-      'Jan',
-      'Fev',
-      'Mar',
-      'Avr',
-      'Mai',
-      'Juin',
-      'Juil',
-      'Aout',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${date.day} ${mois[date.month - 1]}';
+    final locale = Localizations.localeOf(context).languageCode;
+    return intl.DateFormat('d MMM', locale).format(date);
   }
 }

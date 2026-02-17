@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
@@ -90,7 +91,7 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Seances',
+            AppLocalizations.of(context)!.sessionsTitle,
             style: GoogleFonts.montserrat(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -100,7 +101,9 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            '${_seanceState.seances.length} seance(s) - Historique et suivi',
+            AppLocalizations.of(
+              context,
+            )!.sessionsCountSubtitle(_seanceState.seances.length),
             style: GoogleFonts.montserrat(
               fontSize: 13,
               color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -113,11 +116,16 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
 
   /// Filtres par statut
   Widget _buildFilterChips(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     final filters = [
-      (SeanceFilter.toutes, 'Toutes', Icons.list_rounded),
-      (SeanceFilter.enCours, 'En cours', Icons.play_circle_rounded),
-      (SeanceFilter.terminees, 'Terminees', Icons.check_circle_rounded),
-      (SeanceFilter.aVenir, 'A venir', Icons.schedule_rounded),
+      (SeanceFilter.toutes, l10n.filterAll, Icons.list_rounded),
+      (SeanceFilter.enCours, l10n.filterInProgress, Icons.play_circle_rounded),
+      (
+        SeanceFilter.terminees,
+        l10n.filterCompleted,
+        Icons.check_circle_rounded,
+      ),
+      (SeanceFilter.aVenir, l10n.filterUpcoming, Icons.schedule_rounded),
     ];
 
     return SizedBox(
@@ -232,7 +240,7 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'SEANCE EN COURS',
+                        AppLocalizations.of(context)!.sessionInProgressBanner,
                         style: GoogleFonts.montserrat(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -281,7 +289,7 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Appuyez pour consulter le detail',
+                  AppLocalizations.of(context)!.tapToViewDetail,
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -309,7 +317,7 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Aucune seance',
+            AppLocalizations.of(context)!.noSession,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -318,7 +326,7 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Les seances creees par les encadreurs\napparaitront ici.',
+            AppLocalizations.of(context)!.sessionsCreatedByCoaches,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 13,

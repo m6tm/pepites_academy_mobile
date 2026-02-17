@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../theme/app_colors.dart';
 
 /// Statut visuel d'une séance.
@@ -41,14 +42,15 @@ class SeanceCard extends StatelessWidget {
     }
   }
 
-  String get _statusLabel {
+  String _getStatusLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case SeanceCardStatus.enCours:
-        return 'En cours';
+        return l10n.statusInProgress;
       case SeanceCardStatus.terminee:
-        return 'Terminee';
+        return l10n.statusCompleted;
       case SeanceCardStatus.aVenir:
-        return 'A venir';
+        return l10n.statusUpcoming;
     }
   }
 
@@ -68,6 +70,7 @@ class SeanceCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: onTap,
@@ -114,7 +117,7 @@ class SeanceCard extends StatelessWidget {
                       Icon(_statusIcon, size: 14, color: _statusColor),
                       const SizedBox(width: 4),
                       Text(
-                        _statusLabel,
+                        _getStatusLabel(context),
                         style: GoogleFonts.montserrat(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -164,12 +167,12 @@ class SeanceCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 _InfoChip(
                   icon: Icons.people_outline_rounded,
-                  label: '$nbPresents presents',
+                  label: l10n.presentsInfoLabel(nbPresents),
                 ),
                 const SizedBox(width: 12),
                 _InfoChip(
                   icon: Icons.sports_soccer_rounded,
-                  label: '$nbAteliers ateliers',
+                  label: l10n.workshopsInfoLabel(nbAteliers),
                 ),
               ],
             ),

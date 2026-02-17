@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../application/services/seance_service.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../injection_container.dart';
@@ -76,7 +77,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                 date: seance.dateFormatee,
                 heureDebut: _formatHeure(seance.heureDebut),
                 heureFin: _formatHeure(seance.heureFin),
-                encadreur: 'Moi',
+                encadreur: AppLocalizations.of(context)!.meLabel,
                 nbPresents: seance.nbPresents,
                 nbAteliers: seance.nbAteliers,
                 status: _mapStatus(seance.statut),
@@ -100,7 +101,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mes seances',
+                  AppLocalizations.of(context)!.mySessionsTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -110,7 +111,9 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${_seanceState.seances.length} seance(s)',
+                  AppLocalizations.of(
+                    context,
+                  )!.sessionsCountSubtitle(_seanceState.seances.length),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -134,7 +137,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
             child: IconButton(
               onPressed: _showOuvrirSeanceDialog,
               icon: const Icon(Icons.play_arrow_rounded, color: Colors.white),
-              tooltip: 'Ouvrir une seance',
+              tooltip: AppLocalizations.of(context)!.openSessionTooltip,
             ),
           ),
         ],
@@ -143,11 +146,16 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
   }
 
   Widget _buildFilterChips(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     final filters = [
-      (SeanceFilter.toutes, 'Toutes', Icons.list_rounded),
-      (SeanceFilter.enCours, 'En cours', Icons.play_circle_rounded),
-      (SeanceFilter.terminees, 'Terminees', Icons.check_circle_rounded),
-      (SeanceFilter.aVenir, 'A venir', Icons.schedule_rounded),
+      (SeanceFilter.toutes, l10n.filterAll, Icons.list_rounded),
+      (SeanceFilter.enCours, l10n.filterInProgress, Icons.play_circle_rounded),
+      (
+        SeanceFilter.terminees,
+        l10n.filterCompleted,
+        Icons.check_circle_rounded,
+      ),
+      (SeanceFilter.aVenir, l10n.filterUpcoming, Icons.schedule_rounded),
     ];
 
     return SizedBox(
@@ -259,7 +267,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'SEANCE EN COURS',
+                      AppLocalizations.of(context)!.sessionInProgressBanner,
                       style: GoogleFonts.montserrat(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -297,7 +305,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
               onPressed: () => _showFermerSeanceDialog(seance),
               icon: const Icon(Icons.stop_rounded, size: 18),
               label: Text(
-                'Fermer cette seance',
+                AppLocalizations.of(context)!.closeThisSession,
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -331,7 +339,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Aucune seance',
+            AppLocalizations.of(context)!.noSession,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -340,7 +348,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ouvrez votre premiere seance\npour commencer l\'entrainement.',
+            AppLocalizations.of(context)!.openFirstSession,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 13,
@@ -353,7 +361,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
             onPressed: _showOuvrirSeanceDialog,
             icon: const Icon(Icons.play_arrow_rounded, size: 20),
             label: Text(
-              'Ouvrir une seance',
+              AppLocalizations.of(context)!.openSession,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -417,7 +425,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Ouvrir une seance',
+                      AppLocalizations.of(context)!.openSession,
                       style: GoogleFonts.montserrat(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
@@ -426,7 +434,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Remplissez les informations pour demarrer.',
+                      AppLocalizations.of(context)!.fillInfoToStart,
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -440,9 +448,13 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'Titre de la seance',
+                        labelText: AppLocalizations.of(
+                          context,
+                        )!.sessionTitleLabel,
                         labelStyle: GoogleFonts.montserrat(fontSize: 13),
-                        hintText: 'Ex: Entrainement Technique',
+                        hintText: AppLocalizations.of(
+                          context,
+                        )!.sessionTitleHint,
                         hintStyle: GoogleFonts.montserrat(
                           fontSize: 13,
                           color: colorScheme.onSurface.withValues(alpha: 0.3),
@@ -475,7 +487,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                       children: [
                         Expanded(
                           child: _TimePickerField(
-                            label: 'Debut',
+                            label: AppLocalizations.of(context)!.startLabel,
                             time: heureDebut,
                             onTap: () async {
                               final picked = await showTimePicker(
@@ -491,7 +503,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _TimePickerField(
-                            label: 'Fin',
+                            label: AppLocalizations.of(context)!.endLabel,
                             time: heureFin,
                             onTap: () async {
                               final picked = await showTimePicker(
@@ -514,7 +526,9 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                           if (titreController.text.trim().isEmpty) {
                             AcademyToast.show(
                               context,
-                              title: 'Veuillez saisir un titre.',
+                              title: AppLocalizations.of(
+                                context,
+                              )!.pleaseEnterTitle,
                               isError: true,
                             );
                             return;
@@ -560,7 +574,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                         },
                         icon: const Icon(Icons.play_arrow_rounded, size: 20),
                         label: Text(
-                          'Demarrer la seance',
+                          AppLocalizations.of(context)!.startSession,
                           style: GoogleFonts.montserrat(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -692,7 +706,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
               child: Text(
-                'Compris',
+                AppLocalizations.of(context)!.understoodButton,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -748,7 +762,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Fermer la seance',
+                  AppLocalizations.of(context)!.closeSessionDialogTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -762,7 +776,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Voulez-vous cloturer cette seance ?',
+                AppLocalizations.of(context)!.closeSessionConfirmation,
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -802,19 +816,23 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                     const SizedBox(height: 4),
                     _RecapRow(
                       icon: Icons.people_rounded,
-                      label: '${seance.nbPresents} present(s)',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.presentCount(seance.nbPresents),
                     ),
                     const SizedBox(height: 4),
                     _RecapRow(
                       icon: Icons.sports_soccer_rounded,
-                      label: '${seance.atelierIds.length} atelier(s)',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.workshopCount(seance.atelierIds.length),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                'Les donnees seront figees et la seance passera en lecture seule.',
+                AppLocalizations.of(context)!.dataFrozenNote,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -827,7 +845,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
               child: Text(
-                'Annuler',
+                AppLocalizations.of(context)!.cancelButton,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -856,7 +874,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                 ),
               ),
               child: Text(
-                'Confirmer',
+                AppLocalizations.of(context)!.confirmButton,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -894,7 +912,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Seance cloturee',
+                AppLocalizations.of(context)!.sessionClosed,
                 style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -916,13 +934,13 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                 children: [
                   _RecapStat(
                     value: '${result.nbPresents}',
-                    label: 'Presents',
+                    label: AppLocalizations.of(context)!.presentsRecapLabel,
                     icon: Icons.people_rounded,
                     color: const Color(0xFF3B82F6),
                   ),
                   _RecapStat(
                     value: '${result.nbAteliers}',
-                    label: 'Ateliers',
+                    label: AppLocalizations.of(context)!.workshopsRecapLabel,
                     icon: Icons.sports_soccer_rounded,
                     color: const Color(0xFF8B5CF6),
                   ),
@@ -944,7 +962,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: Text(
-                  'Parfait',
+                  AppLocalizations.of(context)!.perfectButton,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

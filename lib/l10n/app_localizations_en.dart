@@ -1473,4 +1473,292 @@ class AppLocalizationsEn extends AppLocalizations {
   String exportError(String error) {
     return 'Export error: $error';
   }
+
+  @override
+  String get annotationPageTitle => 'Annotations';
+
+  @override
+  String get tapToAnnotate => 'Tap to annotate';
+
+  @override
+  String get noAcademicianPresent => 'No academician present';
+
+  @override
+  String get noAcademicianPresentDesc =>
+      'Academicians present in the session\nwill appear here for annotation.';
+
+  @override
+  String academiciansCount(int count) {
+    return '$count academicians';
+  }
+
+  @override
+  String annotationsCount(int count) {
+    return '$count annotations';
+  }
+
+  @override
+  String get quickTags => 'Quick tags';
+
+  @override
+  String get tagPositif => 'Positive';
+
+  @override
+  String get tagExcellent => 'Excellent';
+
+  @override
+  String get tagEnProgres => 'In progress';
+
+  @override
+  String get tagBonneAttitude => 'Good attitude';
+
+  @override
+  String get tagCreatif => 'Creative';
+
+  @override
+  String get tagATravailler => 'Needs work';
+
+  @override
+  String get tagInsuffisant => 'Insufficient';
+
+  @override
+  String get tagManqueEffort => 'Lack of effort';
+
+  @override
+  String get tagDistrait => 'Distracted';
+
+  @override
+  String get tagTechnique => 'Technical';
+
+  @override
+  String get tagDribble => 'Dribble';
+
+  @override
+  String get tagPasse => 'Pass';
+
+  @override
+  String get tagTir => 'Shot';
+
+  @override
+  String get tagPlacement => 'Positioning';
+
+  @override
+  String get tagEndurance => 'Endurance';
+
+  @override
+  String get detailedObservation => 'Detailed observation';
+
+  @override
+  String get observationHintAnnotation =>
+      'E.g.: Good game reading, lack of support...';
+
+  @override
+  String get noteOptional => 'Rating (optional)';
+
+  @override
+  String noteFormat(String note) {
+    return '$note/10';
+  }
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get saveAnnotation => 'Save annotation';
+
+  @override
+  String historyCountLabel(int count) {
+    return 'History ($count)';
+  }
+
+  @override
+  String get noPreviousAnnotation => 'No previous annotation';
+
+  @override
+  String get communicationTitle => 'Communication';
+
+  @override
+  String get sentLabel => 'Sent';
+
+  @override
+  String get thisMonthLabel => 'This month';
+
+  @override
+  String get failedLabel => 'Failed';
+
+  @override
+  String get composeAndSendSms => 'Compose and send an SMS';
+
+  @override
+  String get historyActionLabel => 'History';
+
+  @override
+  String recipientsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recipients',
+      one: '1 recipient',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionsTitle => 'Sessions';
+
+  @override
+  String sessionsCountSubtitle(int count) {
+    return '$count session(s) - History and tracking';
+  }
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterInProgress => 'In progress';
+
+  @override
+  String get filterCompleted => 'Completed';
+
+  @override
+  String get filterUpcoming => 'Upcoming';
+
+  @override
+  String get sessionInProgressBanner => 'SESSION IN PROGRESS';
+
+  @override
+  String get tapToViewDetail => 'Tap to view details';
+
+  @override
+  String get sessionsCreatedByCoaches =>
+      'Sessions created by coaches\nwill appear here.';
+
+  @override
+  String get mySessionsTitle => 'My sessions';
+
+  @override
+  String get openSessionTooltip => 'Open a session';
+
+  @override
+  String get openFirstSession => 'Open your first session\nto start training.';
+
+  @override
+  String get openSession => 'Open a session';
+
+  @override
+  String get closeThisSession => 'Close this session';
+
+  @override
+  String get fillInfoToStart => 'Fill in the information to start.';
+
+  @override
+  String get sessionTitleLabel => 'Session title';
+
+  @override
+  String get sessionTitleHint => 'E.g.: Technical Training';
+
+  @override
+  String get startLabel => 'Start';
+
+  @override
+  String get endLabel => 'End';
+
+  @override
+  String get startSession => 'Start session';
+
+  @override
+  String get pleaseEnterTitle => 'Please enter a title.';
+
+  @override
+  String get sessionInProgressDialogTitle => 'Session in progress';
+
+  @override
+  String get understoodButton => 'Got it';
+
+  @override
+  String get closeSessionButton => 'Close session';
+
+  @override
+  String get closeSessionDialogTitle => 'Close session';
+
+  @override
+  String get closeSessionConfirmation => 'Do you want to close this session?';
+
+  @override
+  String get dataFrozenNote =>
+      'Data will be frozen and the session will become read-only.';
+
+  @override
+  String get cancelButton => 'Cancel';
+
+  @override
+  String get confirmButton => 'Confirm';
+
+  @override
+  String get sessionClosed => 'Session closed';
+
+  @override
+  String get presentsRecapLabel => 'Present';
+
+  @override
+  String get workshopsRecapLabel => 'Workshops';
+
+  @override
+  String get perfectButton => 'Perfect';
+
+  @override
+  String presentCount(int count) {
+    return '$count present';
+  }
+
+  @override
+  String workshopCount(int count) {
+    return '$count workshop(s)';
+  }
+
+  @override
+  String get meLabel => 'Me';
+
+  @override
+  String get annotationsScreenTitle => 'Annotations';
+
+  @override
+  String get myObservationsSubtitle => 'My observations and evaluations';
+
+  @override
+  String get positivesLabel => 'Positive';
+
+  @override
+  String get toWorkOnLabel => 'Needs work';
+
+  @override
+  String get allTagFilter => 'All';
+
+  @override
+  String get inProgressTagFilter => 'In progress';
+
+  @override
+  String get techniqueTagFilter => 'Technical';
+
+  @override
+  String get encadreurSmsSubtitle => 'Send SMS to academicians and parents';
+
+  @override
+  String get statusInProgress => 'In progress';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get statusUpcoming => 'Upcoming';
+
+  @override
+  String presentsInfoLabel(int count) {
+    return '$count present';
+  }
+
+  @override
+  String workshopsInfoLabel(int count) {
+    return '$count workshops';
+  }
 }

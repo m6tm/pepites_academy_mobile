@@ -656,5 +656,161 @@
         "type": "String"
       }
     }
+  },
+  "annotationPageTitle": "Annotations",
+  "tapToAnnotate": "Tap to annotate",
+  "noAcademicianPresent": "No academician present",
+  "noAcademicianPresentDesc": "Academicians present in the session\nwill appear here for annotation.",
+  "academiciansCount": "{count} academicians",
+  "@academiciansCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "annotationsCount": "{count} annotations",
+  "@annotationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quickTags": "Quick tags",
+  "tagPositif": "Positive",
+  "tagExcellent": "Excellent",
+  "tagEnProgres": "In progress",
+  "tagBonneAttitude": "Good attitude",
+  "tagCreatif": "Creative",
+  "tagATravailler": "Needs work",
+  "tagInsuffisant": "Insufficient",
+  "tagManqueEffort": "Lack of effort",
+  "tagDistrait": "Distracted",
+  "tagTechnique": "Technical",
+  "tagDribble": "Dribble",
+  "tagPasse": "Pass",
+  "tagTir": "Shot",
+  "tagPlacement": "Positioning",
+  "tagEndurance": "Endurance",
+  "detailedObservation": "Detailed observation",
+  "observationHintAnnotation": "E.g.: Good game reading, lack of support...",
+  "noteOptional": "Rating (optional)",
+  "noteFormat": "{note}/10",
+  "@noteFormat": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "saving": "Saving...",
+  "saveAnnotation": "Save annotation",
+  "historyCountLabel": "History ({count})",
+  "@historyCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPreviousAnnotation": "No previous annotation",
+  "communicationTitle": "Communication",
+  "sentLabel": "Sent",
+  "thisMonthLabel": "This month",
+  "failedLabel": "Failed",
+  "composeAndSendSms": "Compose and send an SMS",
+  "historyActionLabel": "History",
+  "recipientsCount": "{count, plural, =1{1 recipient} other{{count} recipients}}",
+  "@recipientsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsTitle": "Sessions",
+  "sessionsCountSubtitle": "{count} session(s) - History and tracking",
+  "@sessionsCountSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterAll": "All",
+  "filterInProgress": "In progress",
+  "filterCompleted": "Completed",
+  "filterUpcoming": "Upcoming",
+  "sessionInProgressBanner": "SESSION IN PROGRESS",
+  "tapToViewDetail": "Tap to view details",
+  "sessionsCreatedByCoaches": "Sessions created by coaches\nwill appear here.",
+  "mySessionsTitle": "My sessions",
+  "openSessionTooltip": "Open a session",
+  "openFirstSession": "Open your first session\nto start training.",
+  "openSession": "Open a session",
+  "closeThisSession": "Close this session",
+  "fillInfoToStart": "Fill in the information to start.",
+  "sessionTitleLabel": "Session title",
+  "sessionTitleHint": "E.g.: Technical Training",
+  "startLabel": "Start",
+  "endLabel": "End",
+  "startSession": "Start session",
+  "pleaseEnterTitle": "Please enter a title.",
+  "sessionInProgressDialogTitle": "Session in progress",
+  "understoodButton": "Got it",
+  "closeSessionButton": "Close session",
+  "closeSessionDialogTitle": "Close session",
+  "closeSessionConfirmation": "Do you want to close this session?",
+  "dataFrozenNote": "Data will be frozen and the session will become read-only.",
+  "cancelButton": "Cancel",
+  "confirmButton": "Confirm",
+  "sessionClosed": "Session closed",
+  "presentsRecapLabel": "Present",
+  "workshopsRecapLabel": "Workshops",
+  "perfectButton": "Perfect",
+  "presentCount": "{count} present",
+  "@presentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workshopCount": "{count} workshop(s)",
+  "@workshopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "meLabel": "Me",
+  "annotationsScreenTitle": "Annotations",
+  "myObservationsSubtitle": "My observations and evaluations",
+  "positivesLabel": "Positive",
+  "toWorkOnLabel": "Needs work",
+  "allTagFilter": "All",
+  "inProgressTagFilter": "In progress",
+  "techniqueTagFilter": "Technical",
+  "encadreurSmsSubtitle": "Send SMS to academicians and parents",
+  "statusInProgress": "In progress",
+  "statusCompleted": "Completed",
+  "statusUpcoming": "Upcoming",
+  "presentsInfoLabel": "{count} present",
+  "@presentsInfoLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workshopsInfoLabel": "{count} workshops",
+  "@workshopsInfoLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

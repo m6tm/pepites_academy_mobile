@@ -24,22 +24,22 @@ Liste des pages et composants à migrer vers `AppLocalizations` pour supporter l
 
 ## 📝 Module Annotations
 
-- [ ] `lib/src/presentation/pages/annotation/annotation_page.dart`
-- [ ] `lib/src/presentation/pages/annotation/widgets/academicien_annotation_tile.dart`
-- [ ] `lib/src/presentation/pages/annotation/widgets/annotation_side_panel.dart`
+- [x] `lib/src/presentation/pages/annotation/annotation_page.dart`
+- [x] `lib/src/presentation/pages/annotation/widgets/academicien_annotation_tile.dart`
+- [x] `lib/src/presentation/pages/annotation/widgets/annotation_side_panel.dart`
 
 ## 🏠 Tableaux de Bord (Dashboard)
 
-- [ ] `lib/src/presentation/pages/dashboard/screens/admin_academy_screen.dart`
-- [ ] `lib/src/presentation/pages/dashboard/screens/admin_communication_screen.dart`
-- [ ] `lib/src/presentation/pages/dashboard/screens/admin_seances_screen.dart`
-- [ ] `lib/src/presentation/pages/dashboard/widgets/admin_internal_widgets.dart`
-- [ ] `lib/src/presentation/pages/dashboard/screens/encadreur_annotations_screen.dart`
-- [ ] `lib/src/presentation/pages/dashboard/screens/encadreur_communication_screen.dart`
-- [ ] `lib/src/presentation/pages/dashboard/screens/encadreur_seances_screen.dart`
-- [ ] `lib/src/presentation/pages/dashboard/widgets/encadreur_internal_widgets.dart`
-- [ ] `lib/src/presentation/pages/dashboard/widgets/dashboard_header.dart`
-- [ ] `lib/src/presentation/pages/dashboard/widgets/seance_card.dart`
+- [x] `lib/src/presentation/pages/dashboard/screens/admin_academy_screen.dart`
+- [x] `lib/src/presentation/pages/dashboard/screens/admin_communication_screen.dart`
+- [x] `lib/src/presentation/pages/dashboard/screens/admin_seances_screen.dart`
+- [x] `lib/src/presentation/pages/dashboard/widgets/admin_internal_widgets.dart`
+- [x] `lib/src/presentation/pages/dashboard/screens/encadreur_annotations_screen.dart`
+- [x] `lib/src/presentation/pages/dashboard/screens/encadreur_communication_screen.dart`
+- [x] `lib/src/presentation/pages/dashboard/screens/encadreur_seances_screen.dart`
+- [x] `lib/src/presentation/pages/dashboard/widgets/encadreur_internal_widgets.dart`
+- [x] `lib/src/presentation/pages/dashboard/widgets/dashboard_header.dart`
+- [x] `lib/src/presentation/pages/dashboard/widgets/seance_card.dart`
 
 ## 🏃 Module Séances & Ateliers
 

@@ -2797,6 +2797,522 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur lors de l\'export : {error}'**
   String exportError(String error);
+
+  /// No description provided for @annotationPageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annotations'**
+  String get annotationPageTitle;
+
+  /// No description provided for @tapToAnnotate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez pour annoter'**
+  String get tapToAnnotate;
+
+  /// No description provided for @noAcademicianPresent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun academicien present'**
+  String get noAcademicianPresent;
+
+  /// No description provided for @noAcademicianPresentDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les academiciens presents dans la seance\napparaitront ici pour etre annotes.'**
+  String get noAcademicianPresentDesc;
+
+  /// No description provided for @academiciansCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} academiciens'**
+  String academiciansCount(int count);
+
+  /// No description provided for @annotationsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} annotations'**
+  String annotationsCount(int count);
+
+  /// No description provided for @quickTags.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tags rapides'**
+  String get quickTags;
+
+  /// No description provided for @tagPositif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Positif'**
+  String get tagPositif;
+
+  /// No description provided for @tagExcellent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellent'**
+  String get tagExcellent;
+
+  /// No description provided for @tagEnProgres.
+  ///
+  /// In fr, this message translates to:
+  /// **'En progres'**
+  String get tagEnProgres;
+
+  /// No description provided for @tagBonneAttitude.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne attitude'**
+  String get tagBonneAttitude;
+
+  /// No description provided for @tagCreatif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Creatif'**
+  String get tagCreatif;
+
+  /// No description provided for @tagATravailler.
+  ///
+  /// In fr, this message translates to:
+  /// **'A travailler'**
+  String get tagATravailler;
+
+  /// No description provided for @tagInsuffisant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Insuffisant'**
+  String get tagInsuffisant;
+
+  /// No description provided for @tagManqueEffort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manque d\'effort'**
+  String get tagManqueEffort;
+
+  /// No description provided for @tagDistrait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distrait'**
+  String get tagDistrait;
+
+  /// No description provided for @tagTechnique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique'**
+  String get tagTechnique;
+
+  /// No description provided for @tagDribble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dribble'**
+  String get tagDribble;
+
+  /// No description provided for @tagPasse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passe'**
+  String get tagPasse;
+
+  /// No description provided for @tagTir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tir'**
+  String get tagTir;
+
+  /// No description provided for @tagPlacement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placement'**
+  String get tagPlacement;
+
+  /// No description provided for @tagEndurance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Endurance'**
+  String get tagEndurance;
+
+  /// No description provided for @detailedObservation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Observation detaillee'**
+  String get detailedObservation;
+
+  /// No description provided for @observationHintAnnotation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Bonne lecture du jeu, manque d\'appui...'**
+  String get observationHintAnnotation;
+
+  /// No description provided for @noteOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note (optionnel)'**
+  String get noteOptional;
+
+  /// No description provided for @noteFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'{note}/10'**
+  String noteFormat(String note);
+
+  /// No description provided for @saving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement...'**
+  String get saving;
+
+  /// No description provided for @saveAnnotation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer l\'annotation'**
+  String get saveAnnotation;
+
+  /// No description provided for @historyCountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique ({count})'**
+  String historyCountLabel(int count);
+
+  /// No description provided for @noPreviousAnnotation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune annotation precedente'**
+  String get noPreviousAnnotation;
+
+  /// No description provided for @communicationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Communication'**
+  String get communicationTitle;
+
+  /// No description provided for @sentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyes'**
+  String get sentLabel;
+
+  /// No description provided for @thisMonthLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce mois'**
+  String get thisMonthLabel;
+
+  /// No description provided for @failedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'En echec'**
+  String get failedLabel;
+
+  /// No description provided for @composeAndSendSms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rediger et envoyer un SMS'**
+  String get composeAndSendSms;
+
+  /// No description provided for @historyActionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get historyActionLabel;
+
+  /// No description provided for @recipientsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 destinataire} other{{count} destinataires}}'**
+  String recipientsCount(int count);
+
+  /// No description provided for @sessionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seances'**
+  String get sessionsTitle;
+
+  /// No description provided for @sessionsCountSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} seance(s) - Historique et suivi'**
+  String sessionsCountSubtitle(int count);
+
+  /// No description provided for @filterAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes'**
+  String get filterAll;
+
+  /// No description provided for @filterInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get filterInProgress;
+
+  /// No description provided for @filterCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminees'**
+  String get filterCompleted;
+
+  /// No description provided for @filterUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'A venir'**
+  String get filterUpcoming;
+
+  /// No description provided for @sessionInProgressBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'SEANCE EN COURS'**
+  String get sessionInProgressBanner;
+
+  /// No description provided for @tapToViewDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez pour consulter le detail'**
+  String get tapToViewDetail;
+
+  /// No description provided for @sessionsCreatedByCoaches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les seances creees par les encadreurs\napparaitront ici.'**
+  String get sessionsCreatedByCoaches;
+
+  /// No description provided for @mySessionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes seances'**
+  String get mySessionsTitle;
+
+  /// No description provided for @openSessionTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir une seance'**
+  String get openSessionTooltip;
+
+  /// No description provided for @openFirstSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrez votre premiere seance\npour commencer l\'entrainement.'**
+  String get openFirstSession;
+
+  /// No description provided for @openSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir une seance'**
+  String get openSession;
+
+  /// No description provided for @closeThisSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer cette seance'**
+  String get closeThisSession;
+
+  /// No description provided for @fillInfoToStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplissez les informations pour demarrer.'**
+  String get fillInfoToStart;
+
+  /// No description provided for @sessionTitleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre de la seance'**
+  String get sessionTitleLabel;
+
+  /// No description provided for @sessionTitleHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Entrainement Technique'**
+  String get sessionTitleHint;
+
+  /// No description provided for @startLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Debut'**
+  String get startLabel;
+
+  /// No description provided for @endLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin'**
+  String get endLabel;
+
+  /// No description provided for @startSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demarrer la seance'**
+  String get startSession;
+
+  /// No description provided for @pleaseEnterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir un titre.'**
+  String get pleaseEnterTitle;
+
+  /// No description provided for @sessionInProgressDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance en cours'**
+  String get sessionInProgressDialogTitle;
+
+  /// No description provided for @understoodButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris'**
+  String get understoodButton;
+
+  /// No description provided for @closeSessionButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer la seance'**
+  String get closeSessionButton;
+
+  /// No description provided for @closeSessionDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer la seance'**
+  String get closeSessionDialogTitle;
+
+  /// No description provided for @closeSessionConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous cloturer cette seance ?'**
+  String get closeSessionConfirmation;
+
+  /// No description provided for @dataFrozenNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les donnees seront figees et la seance passera en lecture seule.'**
+  String get dataFrozenNote;
+
+  /// No description provided for @cancelButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get cancelButton;
+
+  /// No description provided for @confirmButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get confirmButton;
+
+  /// No description provided for @sessionClosed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance cloturee'**
+  String get sessionClosed;
+
+  /// No description provided for @presentsRecapLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presents'**
+  String get presentsRecapLabel;
+
+  /// No description provided for @workshopsRecapLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ateliers'**
+  String get workshopsRecapLabel;
+
+  /// No description provided for @perfectButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parfait'**
+  String get perfectButton;
+
+  /// No description provided for @presentCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} present(s)'**
+  String presentCount(int count);
+
+  /// No description provided for @workshopCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} atelier(s)'**
+  String workshopCount(int count);
+
+  /// No description provided for @meLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moi'**
+  String get meLabel;
+
+  /// No description provided for @annotationsScreenTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annotations'**
+  String get annotationsScreenTitle;
+
+  /// No description provided for @myObservationsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes observations et evaluations'**
+  String get myObservationsSubtitle;
+
+  /// No description provided for @positivesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Positives'**
+  String get positivesLabel;
+
+  /// No description provided for @toWorkOnLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'A travailler'**
+  String get toWorkOnLabel;
+
+  /// No description provided for @allTagFilter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get allTagFilter;
+
+  /// No description provided for @inProgressTagFilter.
+  ///
+  /// In fr, this message translates to:
+  /// **'En progres'**
+  String get inProgressTagFilter;
+
+  /// No description provided for @techniqueTagFilter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique'**
+  String get techniqueTagFilter;
+
+  /// No description provided for @encadreurSmsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyez des SMS aux academiciens et parents'**
+  String get encadreurSmsSubtitle;
+
+  /// No description provided for @statusInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get statusInProgress;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminee'**
+  String get statusCompleted;
+
+  /// No description provided for @statusUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'A venir'**
+  String get statusUpcoming;
+
+  /// No description provided for @presentsInfoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} presents'**
+  String presentsInfoLabel(int count);
+
+  /// No description provided for @workshopsInfoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} ateliers'**
+  String workshopsInfoLabel(int count);
 }
 
 class _AppLocalizationsDelegate

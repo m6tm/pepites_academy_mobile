@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
 /// Ecran Annotations du dashboard encadreur.
@@ -11,6 +12,7 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -22,7 +24,7 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Annotations',
+                  l10n.annotationsScreenTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -32,7 +34,7 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Mes observations et evaluations',
+                  l10n.myObservationsSubtitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -49,7 +51,7 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: MiniAnnotCard(
-                    label: 'Total',
+                    label: l10n.totalLabel,
                     value: '127',
                     icon: Icons.edit_note_rounded,
                     color: const Color(0xFF8B5CF6),
@@ -59,7 +61,7 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: MiniAnnotCard(
-                    label: 'Positives',
+                    label: l10n.positivesLabel,
                     value: '89',
                     icon: Icons.thumb_up_rounded,
                     color: const Color(0xFF10B981),
@@ -69,7 +71,7 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: MiniAnnotCard(
-                    label: 'A travailler',
+                    label: l10n.toWorkOnLabel,
                     value: '38',
                     icon: Icons.warning_rounded,
                     color: const Color(0xFFF59E0B),
@@ -81,7 +83,7 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        SliverToBoxAdapter(child: _buildAnnotationTags(colorScheme)),
+        SliverToBoxAdapter(child: _buildAnnotationTags(context, colorScheme)),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
@@ -124,13 +126,14 @@ class EncadreurAnnotationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAnnotationTags(ColorScheme colorScheme) {
+  Widget _buildAnnotationTags(BuildContext context, ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     final tags = [
-      ('Tous', true),
-      ('Positif', false),
-      ('En progres', false),
-      ('A travailler', false),
-      ('Technique', false),
+      (l10n.allTagFilter, true),
+      (l10n.tagPositif, false),
+      (l10n.inProgressTagFilter, false),
+      (l10n.toWorkOnLabel, false),
+      (l10n.techniqueTagFilter, false),
     ];
 
     return SizedBox(
