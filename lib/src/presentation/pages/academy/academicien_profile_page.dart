@@ -9,6 +9,7 @@ import '../../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../bulletin/bulletin_page.dart';
+import 'academicien_edit_page.dart';
 
 /// Page de consultation du profil d'un academicien (joueur).
 /// Affiche les informations completes, le badge QR et les statistiques.
@@ -129,6 +130,24 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
         builder: (_) => BulletinPage(academicien: _academicien),
       ),
     );
+  }
+
+  void _ouvrirEdition() {
+    Navigator.push<Academicien>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AcademicienEditPage(
+          academicien: _academicien,
+          repository: widget.repository,
+          postesMap: widget.postesMap,
+          niveauxMap: widget.niveauxMap,
+        ),
+      ),
+    ).then((updated) {
+      if (updated != null && mounted) {
+        setState(() => _academicien = updated);
+      }
+    });
   }
 
   void _showQrFullScreen() {
@@ -901,6 +920,15 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             onTap: () {
               Navigator.pop(context);
               _ouvrirBulletin();
+            },
+          ),
+          _OptionItem(
+            icon: Icons.edit_rounded,
+            label: 'Modifier le profil',
+            color: const Color(0xFFF59E0B),
+            onTap: () {
+              Navigator.pop(context);
+              _ouvrirEdition();
             },
           ),
           _OptionItem(

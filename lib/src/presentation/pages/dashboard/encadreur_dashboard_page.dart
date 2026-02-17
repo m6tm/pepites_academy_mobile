@@ -79,6 +79,8 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
                       userName: widget.userName,
                       greeting: _getGreeting(),
                       onSmsTap: () => setState(() => _selectedNavIndex = 4),
+                      onNavigateToTab: (index) =>
+                          setState(() => _selectedNavIndex = index),
                     ),
                     const EncadreurSeancesScreen(),
                     const SizedBox(),

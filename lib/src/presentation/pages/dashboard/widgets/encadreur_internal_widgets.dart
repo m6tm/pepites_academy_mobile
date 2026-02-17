@@ -461,6 +461,7 @@ class SettingsTile extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
+  final VoidCallback? onTap;
 
   const SettingsTile({
     super.key,
@@ -468,6 +469,7 @@ class SettingsTile extends StatelessWidget {
     required this.label,
     required this.value,
     required this.color,
+    this.onTap,
   });
 
   @override
@@ -475,6 +477,7 @@ class SettingsTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ListTile(
+      onTap: onTap,
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(

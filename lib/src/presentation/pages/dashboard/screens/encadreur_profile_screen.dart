@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../presentation/theme/app_colors.dart';
+import '../../notification/notification_settings_page.dart';
+import '../../settings/about_page.dart';
+import '../../settings/theme_settings_page.dart';
+import '../../../../injection_container.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
 /// Ecran Profil du dashboard encadreur.
@@ -131,18 +135,16 @@ class EncadreurProfileScreen extends StatelessWidget {
             child: Row(
               children: [
                 ProfileStat(value: '16', label: 'Seances', isDark: isDark),
-                ProfileStat(
-                  value: '127',
-                  label: 'Annotations',
-                  isDark: isDark,
-                ),
+                ProfileStat(value: '127', label: 'Annotations', isDark: isDark),
                 ProfileStat(value: '48', label: 'Ateliers', isDark: isDark),
               ],
             ),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        SliverToBoxAdapter(child: _buildCoachSettings(colorScheme, isDark)),
+        SliverToBoxAdapter(
+          child: _buildCoachSettings(context, colorScheme, isDark),
+        ),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         SliverToBoxAdapter(
           child: Padding(
@@ -170,7 +172,11 @@ class EncadreurProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCoachSettings(ColorScheme colorScheme, bool isDark) {
+  Widget _buildCoachSettings(
+    BuildContext context,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
@@ -183,22 +189,36 @@ class EncadreurProfileScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            const SettingsTile(
+            SettingsTile(
               icon: Icons.dark_mode_rounded,
               label: 'Theme',
-              value: 'Systeme',
-              color: Color(0xFF8B5CF6),
+              value: DependencyInjection.themeState.label,
+              color: const Color(0xFF8B5CF6),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ThemeSettingsPage(
+                    themeState: DependencyInjection.themeState,
+                  ),
+                ),
+              ),
             ),
             Divider(
               height: 1,
               indent: 60,
               color: colorScheme.onSurface.withValues(alpha: 0.05),
             ),
-            const SettingsTile(
+            SettingsTile(
               icon: Icons.notifications_outlined,
               label: 'Notifications',
               value: 'Activees',
-              color: Color(0xFFF59E0B),
+              color: const Color(0xFFF59E0B),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const NotificationSettingsPage(),
+                ),
+              ),
             ),
             Divider(
               height: 1,
@@ -208,8 +228,12 @@ class EncadreurProfileScreen extends StatelessWidget {
             SettingsTile(
               icon: Icons.info_outline_rounded,
               label: 'A propos',
-              value: 'Version 1.0.0',
+              value: 'Version 1.3.0',
               color: colorScheme.onSurface.withValues(alpha: 0.5),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AboutPage()),
+              ),
             ),
           ],
         ),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../presentation/theme/app_colors.dart';
+import '../../notification/notification_settings_page.dart';
 import '../../referentiel/referentiel_hub_page.dart';
+import '../../settings/about_page.dart';
+import '../../settings/theme_settings_page.dart';
+import '../../../../injection_container.dart';
 import '../widgets/admin_internal_widgets.dart';
 
 /// Ecran Parametres du dashboard administrateur.
@@ -65,14 +69,28 @@ class AdminSettingsScreen extends StatelessWidget {
               SettingsItemData(
                 Icons.dark_mode_rounded,
                 'Theme',
-                'Systeme',
+                DependencyInjection.themeState.label,
                 const Color(0xFF8B5CF6),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ThemeSettingsPage(
+                      themeState: DependencyInjection.themeState,
+                    ),
+                  ),
+                ),
               ),
               SettingsItemData(
                 Icons.notifications_outlined,
                 'Notifications',
                 'Activees',
                 const Color(0xFFF59E0B),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationSettingsPage(),
+                  ),
+                ),
               ),
             ],
             context,
@@ -95,16 +113,14 @@ class AdminSettingsScreen extends StatelessWidget {
                 ),
               ),
               SettingsItemData(
-                Icons.backup_rounded,
-                'Sauvegarde',
-                'Derniere: Aujourd\'hui',
-                const Color(0xFF3B82F6),
-              ),
-              SettingsItemData(
                 Icons.info_outline_rounded,
                 'A propos',
-                'Version 1.0.0',
+                'Version 1.3.0',
                 colorScheme.onSurface.withValues(alpha: 0.5),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutPage()),
+                ),
               ),
             ],
             context,

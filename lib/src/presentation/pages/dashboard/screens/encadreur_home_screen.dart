@@ -15,6 +15,8 @@ import '../../notification/notifications_page.dart';
 import '../../search/search_page.dart';
 import '../../../widgets/academy_toast.dart';
 import '../../seance/seance_detail_page.dart';
+import '../../seance/atelier_composition_page.dart';
+import '../../../state/atelier_state.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
@@ -24,12 +26,14 @@ class EncadreurHomeScreen extends StatefulWidget {
   final String userName;
   final String greeting;
   final VoidCallback? onSmsTap;
+  final void Function(int)? onNavigateToTab;
 
   const EncadreurHomeScreen({
     super.key,
     required this.userName,
     required this.greeting,
     this.onSmsTap,
+    this.onNavigateToTab,
   });
 
   @override
@@ -50,6 +54,40 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
 
   void _onStateChanged() {
     if (mounted) setState(() {});
+  }
+
+  /// Verifie qu'une seance est ouverte avant d'ouvrir les ateliers.
+  Future<void> _ouvrirAteliers() async {
+    final seanceOuverte = await DependencyInjection.seanceRepository
+        .getSeanceOuverte();
+    if (!mounted) return;
+
+    if (seanceOuverte == null) {
+      AcademyToast.show(
+        context,
+        title: 'Aucune seance en cours',
+        description: 'Veuillez ouvrir une seance avant de gerer les ateliers.',
+        icon: Icons.warning_amber_rounded,
+        isError: true,
+      );
+      return;
+    }
+
+    final atelierState = AtelierState(DependencyInjection.atelierService);
+    await atelierState.chargerAteliers(seanceOuverte.id);
+
+    if (!mounted) return;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AtelierCompositionPage(
+          seance: seanceOuverte,
+          atelierState: atelierState,
+        ),
+      ),
+    );
+    _seanceState.chargerSeances();
   }
 
   /// Verifie qu'une seance est ouverte avant de lancer le scanner.
@@ -551,18 +589,18 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             },
           ),
           QuickActionTile(
-            title: 'Annoter',
+            title: 'Mes annotations',
             description: 'Evaluer un academicien',
             icon: Icons.edit_note_rounded,
             color: const Color(0xFF8B5CF6),
-            onTap: () {},
+            onTap: () => widget.onNavigateToTab?.call(3),
           ),
           QuickActionTile(
             title: 'Mes ateliers',
             description: 'Gerer les exercices',
             icon: Icons.fitness_center_rounded,
             color: const Color(0xFFF59E0B),
-            onTap: () {},
+            onTap: _ouvrirAteliers,
           ),
           QuickActionTile(
             title: 'Presences',
