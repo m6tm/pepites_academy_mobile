@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
@@ -35,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
+      final l10n = AppLocalizations.of(context)!;
 
       // Simulation de latence réseau
       await Future.delayed(const Duration(seconds: 2));
@@ -61,8 +63,8 @@ class _LoginPageState extends State<LoginPage> {
 
           AcademyToast.show(
             context,
-            title: 'Bienvenue !',
-            description: 'Connecte en tant que ${role.id}',
+            title: l10n.welcomeBack,
+            description: l10n.connectedAs(role.id),
             isSuccess: true,
           );
 
@@ -81,9 +83,8 @@ class _LoginPageState extends State<LoginPage> {
           setState(() => _isLoading = false);
           AcademyToast.show(
             context,
-            title: 'Échec de connexion',
-            description:
-                'Identifiants incorrects. Utilisez les comptes de test.',
+            title: l10n.loginFailed,
+            description: l10n.loginFailedDescription,
             isError: true,
           );
         }
@@ -95,6 +96,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Container(
@@ -155,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Connexion',
+                        l10n.login,
                         style: theme.textTheme.headlineLarge?.copyWith(
                           color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
@@ -163,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Accédez à votre espace encadreur ou administrateur',
+                        l10n.loginSubtitle,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
@@ -179,13 +181,13 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       _buildTextField(
                         controller: _emailController,
-                        label: 'Email',
-                        hint: 'votre@email.com',
+                        label: l10n.email,
+                        hint: l10n.emailHint,
                         prefixIcon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Veuillez saisir votre email';
+                            return l10n.emailRequired;
                           }
                           return null;
                         },
@@ -193,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 20),
                       _buildTextField(
                         controller: _passwordController,
-                        label: 'Mot de passe',
+                        label: l10n.password,
                         hint: '••••••••',
                         prefixIcon: Icons.lock_outline,
                         obscureText: _obscurePassword,
@@ -210,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Veuillez saisir votre mot de passe';
+                            return l10n.passwordRequired;
                           }
                           return null;
                         },
@@ -230,7 +232,7 @@ class _LoginPageState extends State<LoginPage> {
                             );
                           },
                           child: Text(
-                            'Mot de passe oublié ?',
+                            l10n.forgotPassword,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.primary,
                               fontWeight: FontWeight.w600,
@@ -268,7 +270,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 )
                               : Text(
-                                  'Se connecter',
+                                  l10n.signIn,
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -282,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Vous n'avez pas de compte ?",
+                            l10n.noAccount,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurface.withValues(
                                 alpha: 0.6,
@@ -299,7 +301,7 @@ class _LoginPageState extends State<LoginPage> {
                               );
                             },
                             child: Text(
-                              'Créer un compte',
+                              l10n.createAccount,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: colorScheme.primary,
                                 fontWeight: FontWeight.bold,

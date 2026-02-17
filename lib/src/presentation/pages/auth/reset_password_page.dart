@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../widgets/academy_toast.dart';
 
 /// Page de réinitialisation du mot de passe pour Pépites Academy.
@@ -58,16 +59,17 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     return Colors.green;
   }
 
-  String _getStrengthText() {
-    if (_passwordStrength <= 0.25) return 'Faible';
-    if (_passwordStrength <= 0.5) return 'Moyen';
-    if (_passwordStrength <= 0.75) return 'Fort';
-    return 'Excellent';
+  String _getStrengthText(AppLocalizations l10n) {
+    if (_passwordStrength <= 0.25) return l10n.passwordStrengthWeak;
+    if (_passwordStrength <= 0.5) return l10n.passwordStrengthMedium;
+    if (_passwordStrength <= 0.75) return l10n.passwordStrengthStrong;
+    return l10n.passwordStrengthExcellent;
   }
 
   void _handleReset() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
+      final l10n = AppLocalizations.of(context)!;
       // Simulation de réinitialisation
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) {
@@ -75,7 +77,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         // Retour à la connexion ou message de succès
         AcademyToast.show(
           context,
-          title: 'Mot de passe reinitialise avec succes',
+          title: l10n.passwordResetSuccess,
           isSuccess: true,
         );
         Navigator.of(context).popUntil((route) => route.isFirst);
@@ -87,6 +89,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -108,7 +111,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Nouveau mot de passe',
+                l10n.newPasswordTitle,
                 style: theme.textTheme.headlineLarge?.copyWith(
                   color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
@@ -116,7 +119,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Créez un nouveau mot de passe sécurisé pour votre compte.',
+                l10n.newPasswordSubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
@@ -128,7 +131,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   children: [
                     _buildTextField(
                       controller: _passwordController,
-                      label: 'Nouveau mot de passe',
+                      label: l10n.newPasswordLabel,
                       hint: '••••••••',
                       prefixIcon: Icons.lock_outline,
                       obscureText: _obscurePassword,
@@ -145,10 +148,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez saisir un mot de passe';
+                          return l10n.newPasswordRequired;
                         }
                         if (_passwordStrength < 0.75) {
-                          return 'Le mot de passe doit être plus fort';
+                          return l10n.passwordMustBeStronger;
                         }
                         return null;
                       },
@@ -176,7 +179,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                _getStrengthText(),
+                                _getStrengthText(l10n),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: _getStrengthColor(),
                                   fontWeight: FontWeight.bold,
@@ -186,19 +189,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                           const SizedBox(height: 12),
                           _buildRequirementItem(
-                            'Au moins 8 caractères',
+                            l10n.passwordMinChars,
                             _passwordController.text.length >= 8,
                           ),
                           _buildRequirementItem(
-                            'Une majuscule',
+                            l10n.passwordUppercase,
                             _passwordController.text.contains(RegExp(r'[A-Z]')),
                           ),
                           _buildRequirementItem(
-                            'Un chiffre',
+                            l10n.passwordDigit,
                             _passwordController.text.contains(RegExp(r'[0-9]')),
                           ),
                           _buildRequirementItem(
-                            'Un caractère spécial',
+                            l10n.passwordSpecialChar,
                             _passwordController.text.contains(
                               RegExp(r'[!@#$%^&*(),.?":{}|<>]'),
                             ),
@@ -208,13 +211,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     const SizedBox(height: 20),
                     _buildTextField(
                       controller: _confirmPasswordController,
-                      label: 'Confirmer le mot de passe',
+                      label: l10n.confirmPassword,
                       hint: '••••••••',
                       prefixIcon: Icons.lock_reset_outlined,
                       obscureText: _obscurePassword,
                       validator: (value) {
                         if (value != _passwordController.text) {
-                          return 'Les mots de passe ne correspondent pas';
+                          return l10n.passwordsDoNotMatch;
                         }
                         return null;
                       },
@@ -248,7 +251,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                 ),
                               )
                             : Text(
-                                'Réinitialiser',
+                                l10n.resetPasswordButton,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

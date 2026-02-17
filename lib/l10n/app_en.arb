@@ -21,8 +21,51 @@
   "logout": "Log out",
 
   "register": "Register",
+  "registerSubtitle": "Join the elite of sports training",
+  "lastName": "Last name",
+  "lastNameHint": "Your last name",
+  "lastNameRequired": "Please enter your last name",
+  "firstName": "First name",
+  "firstNameHint": "Your first name",
+  "firstNameRequired": "Please enter your first name",
+  "createMyAccount": "Create my account",
+  "alreadyHaveAccount": "Already have an account?",
+  "passwordStrengthWeak": "Weak",
+  "passwordStrengthMedium": "Medium",
+  "passwordStrengthStrong": "Strong",
+  "passwordStrengthExcellent": "Excellent",
+  "passwordMinChars": "At least 8 characters",
+  "passwordUppercase": "One uppercase letter",
+  "passwordDigit": "One digit",
+  "passwordSpecialChar": "One special character",
+  "confirmPassword": "Confirm password",
+  "passwordsDoNotMatch": "Passwords do not match",
+
   "resetPassword": "Reset password",
+  "forgotPasswordTitle": "Forgot password",
+  "forgotPasswordDescription": "Enter your email to receive a 6-digit verification code.",
+  "sendCode": "Send code",
+  "backToLogin": "Back to login",
+
   "otpVerification": "OTP Verification",
+  "otpTitle": "Verification",
+  "otpDescription": "Enter the 6-digit code sent to\n{email}",
+  "@otpDescription": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "verifyCode": "Verify code",
+  "noCodeReceived": "Didn't receive a code? ",
+  "resend": "Resend",
+
+  "newPasswordTitle": "New password",
+  "newPasswordSubtitle": "Create a new secure password for your account.",
+  "newPasswordLabel": "New password",
+  "newPasswordRequired": "Please enter a password",
+  "passwordMustBeStronger": "Password must be stronger",
+  "resetPasswordButton": "Reset",
+  "passwordResetSuccess": "Password reset successfully",
 
   "settings": "Settings",
   "settingsSubtitle": "Application configuration",
@@ -204,6 +247,103 @@
   "sessionsFromCoaches": "Sessions created by coaches\nwill appear here.",
 
   "noPositionAvailable": "No position available",
+
+  "splashTagline": "The excellence of football",
+  "defaultUser": "User",
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingStart": "Get started",
+  "onboardingTitle1": "Welcome to Excellence",
+  "onboardingDesc1": "Manage your football academy with modern, precise tools designed for high-level performance.",
+  "onboardingTitle2": "QR Code Attendance",
+  "onboardingDesc2": "Scan, validate and record access in seconds with a fast and secure system.",
+  "onboardingTitle3": "Master Every Session",
+  "onboardingDesc3": "Open, configure and close your training sessions while maintaining full control over every activity.",
+  "onboardingTitle4": "Performance Tracking",
+  "onboardingDesc4": "Add structured annotations and track each academician's progress with precision.",
+  "onboardingTitle5": "Data at the Service of Talent",
+  "onboardingDesc5": "Generate professional reports, visualize progress and optimize your players' development.",
+
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+
+  "logoutTitle": "Logout",
+  "logoutConfirmation": "Are you sure you want to log out?",
+  "logoutButton": "Log out",
+
+  "scanLabel": "SCAN",
+  "badgeNew": "New",
+  "badgeGo": "Go",
+
+  "activitySessionOpened": "Session opened",
+  "activitySessionClosed": "Session closed",
+  "activitySessionClosedDesc": "{title} - {count} present",
+  "@activitySessionClosedDesc": {
+    "placeholders": {
+      "title": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "activitySessionScheduled": "Session scheduled",
+  "activityNewAcademician": "New academician",
+  "activityAcademicianRegistered": "{name} registered successfully",
+  "@activityAcademicianRegistered": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "activityAcademicianRemoved": "Academician removed",
+  "activityAcademicianRemovedDesc": "{name} removed from system",
+  "@activityAcademicianRemovedDesc": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "activityNewCoach": "New coach",
+  "activityAttendanceRecorded": "Attendance recorded",
+  "activityAttendanceDesc": "{type}: {name}",
+  "@activityAttendanceDesc": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "name": { "type": "String" }
+    }
+  },
+  "activitySmsSent": "SMS sent",
+  "activitySmsSentDesc": "{count} recipients - {preview}",
+  "@activitySmsSentDesc": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "preview": { "type": "String" }
+    }
+  },
+  "activitySmsFailed": "SMS failed",
+  "activitySmsFailedDesc": "Failed to send message",
+  "activityReportGenerated": "Report generated",
+  "activityReferentialUpdated": "Referential updated",
+  "activityNewPosition": "New position: {name}",
+  "@activityNewPosition": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "activityPositionModified": "Position modified: {name}",
+  "@activityPositionModified": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "activityPositionRemoved": "Position removed: {name}",
+  "@activityPositionRemoved": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "activityNewLevel": "New level: {name}",
+  "@activityNewLevel": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "activityLevelModified": "Level modified: {name}",
+  "@activityLevelModified": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "activityLevelRemoved": "Level removed: {name}",
+  "@activityLevelRemoved": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "profileAcademician": "Academician",
+  "profileCoach": "Coach",
 
   "search": "Search",
   "save": "Save",

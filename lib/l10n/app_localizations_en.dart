@@ -66,10 +66,119 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register => 'Register';
 
   @override
+  String get registerSubtitle => 'Join the elite of sports training';
+
+  @override
+  String get lastName => 'Last name';
+
+  @override
+  String get lastNameHint => 'Your last name';
+
+  @override
+  String get lastNameRequired => 'Please enter your last name';
+
+  @override
+  String get firstName => 'First name';
+
+  @override
+  String get firstNameHint => 'Your first name';
+
+  @override
+  String get firstNameRequired => 'Please enter your first name';
+
+  @override
+  String get createMyAccount => 'Create my account';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get passwordStrengthWeak => 'Weak';
+
+  @override
+  String get passwordStrengthMedium => 'Medium';
+
+  @override
+  String get passwordStrengthStrong => 'Strong';
+
+  @override
+  String get passwordStrengthExcellent => 'Excellent';
+
+  @override
+  String get passwordMinChars => 'At least 8 characters';
+
+  @override
+  String get passwordUppercase => 'One uppercase letter';
+
+  @override
+  String get passwordDigit => 'One digit';
+
+  @override
+  String get passwordSpecialChar => 'One special character';
+
+  @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
   String get resetPassword => 'Reset password';
 
   @override
+  String get forgotPasswordTitle => 'Forgot password';
+
+  @override
+  String get forgotPasswordDescription =>
+      'Enter your email to receive a 6-digit verification code.';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String get backToLogin => 'Back to login';
+
+  @override
   String get otpVerification => 'OTP Verification';
+
+  @override
+  String get otpTitle => 'Verification';
+
+  @override
+  String otpDescription(String email) {
+    return 'Enter the 6-digit code sent to\n$email';
+  }
+
+  @override
+  String get verifyCode => 'Verify code';
+
+  @override
+  String get noCodeReceived => 'Didn\'t receive a code? ';
+
+  @override
+  String get resend => 'Resend';
+
+  @override
+  String get newPasswordTitle => 'New password';
+
+  @override
+  String get newPasswordSubtitle =>
+      'Create a new secure password for your account.';
+
+  @override
+  String get newPasswordLabel => 'New password';
+
+  @override
+  String get newPasswordRequired => 'Please enter a password';
+
+  @override
+  String get passwordMustBeStronger => 'Password must be stronger';
+
+  @override
+  String get resetPasswordButton => 'Reset';
+
+  @override
+  String get passwordResetSuccess => 'Password reset successfully';
 
   @override
   String get settings => 'Settings';
@@ -565,6 +674,180 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPositionAvailable => 'No position available';
+
+  @override
+  String get splashTagline => 'The excellence of football';
+
+  @override
+  String get defaultUser => 'User';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
+  String get onboardingTitle1 => 'Welcome to Excellence';
+
+  @override
+  String get onboardingDesc1 =>
+      'Manage your football academy with modern, precise tools designed for high-level performance.';
+
+  @override
+  String get onboardingTitle2 => 'QR Code Attendance';
+
+  @override
+  String get onboardingDesc2 =>
+      'Scan, validate and record access in seconds with a fast and secure system.';
+
+  @override
+  String get onboardingTitle3 => 'Master Every Session';
+
+  @override
+  String get onboardingDesc3 =>
+      'Open, configure and close your training sessions while maintaining full control over every activity.';
+
+  @override
+  String get onboardingTitle4 => 'Performance Tracking';
+
+  @override
+  String get onboardingDesc4 =>
+      'Add structured annotations and track each academician\'s progress with precision.';
+
+  @override
+  String get onboardingTitle5 => 'Data at the Service of Talent';
+
+  @override
+  String get onboardingDesc5 =>
+      'Generate professional reports, visualize progress and optimize your players\' development.';
+
+  @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get logoutTitle => 'Logout';
+
+  @override
+  String get logoutConfirmation => 'Are you sure you want to log out?';
+
+  @override
+  String get logoutButton => 'Log out';
+
+  @override
+  String get scanLabel => 'SCAN';
+
+  @override
+  String get badgeNew => 'New';
+
+  @override
+  String get badgeGo => 'Go';
+
+  @override
+  String get activitySessionOpened => 'Session opened';
+
+  @override
+  String get activitySessionClosed => 'Session closed';
+
+  @override
+  String activitySessionClosedDesc(String title, int count) {
+    return '$title - $count present';
+  }
+
+  @override
+  String get activitySessionScheduled => 'Session scheduled';
+
+  @override
+  String get activityNewAcademician => 'New academician';
+
+  @override
+  String activityAcademicianRegistered(String name) {
+    return '$name registered successfully';
+  }
+
+  @override
+  String get activityAcademicianRemoved => 'Academician removed';
+
+  @override
+  String activityAcademicianRemovedDesc(String name) {
+    return '$name removed from system';
+  }
+
+  @override
+  String get activityNewCoach => 'New coach';
+
+  @override
+  String get activityAttendanceRecorded => 'Attendance recorded';
+
+  @override
+  String activityAttendanceDesc(String type, String name) {
+    return '$type: $name';
+  }
+
+  @override
+  String get activitySmsSent => 'SMS sent';
+
+  @override
+  String activitySmsSentDesc(int count, String preview) {
+    return '$count recipients - $preview';
+  }
+
+  @override
+  String get activitySmsFailed => 'SMS failed';
+
+  @override
+  String get activitySmsFailedDesc => 'Failed to send message';
+
+  @override
+  String get activityReportGenerated => 'Report generated';
+
+  @override
+  String get activityReferentialUpdated => 'Referential updated';
+
+  @override
+  String activityNewPosition(String name) {
+    return 'New position: $name';
+  }
+
+  @override
+  String activityPositionModified(String name) {
+    return 'Position modified: $name';
+  }
+
+  @override
+  String activityPositionRemoved(String name) {
+    return 'Position removed: $name';
+  }
+
+  @override
+  String activityNewLevel(String name) {
+    return 'New level: $name';
+  }
+
+  @override
+  String activityLevelModified(String name) {
+    return 'Level modified: $name';
+  }
+
+  @override
+  String activityLevelRemoved(String name) {
+    return 'Level removed: $name';
+  }
+
+  @override
+  String get profileAcademician => 'Academician';
+
+  @override
+  String get profileCoach => 'Coach';
 
   @override
   String get search => 'Search';

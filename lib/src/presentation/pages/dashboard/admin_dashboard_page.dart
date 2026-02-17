@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../widgets/sync_notification_banner.dart';
 import '../auth/login_page.dart';
@@ -50,10 +51,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   }
 
   String _getGreeting() {
+    final l10n = AppLocalizations.of(context)!;
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon apres-midi';
-    return 'Bonsoir';
+    if (hour < 12) return l10n.greetingMorning;
+    if (hour < 18) return l10n.greetingAfternoon;
+    return l10n.greetingEvening;
   }
 
   @override
@@ -98,28 +100,32 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(colorScheme),
+      bottomNavigationBar: _buildBottomNav(
+        colorScheme,
+        AppLocalizations.of(context)!,
+      ),
     );
   }
 
   /// Gestion de la deconnexion avec confirmation
   void _handleLogout() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(
-            'Deconnexion',
+            l10n.logoutTitle,
             style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
           ),
           content: Text(
-            'Etes-vous sur de vouloir vous deconnecter ?',
+            l10n.logoutConfirmation,
             style: GoogleFonts.montserrat(),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Annuler', style: GoogleFonts.montserrat()),
+              child: Text(l10n.cancel, style: GoogleFonts.montserrat()),
             ),
             TextButton(
               onPressed: () async {
@@ -137,7 +143,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
               child: Text(
-                'Deconnecter',
+                l10n.logoutButton,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -148,7 +154,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   }
 
   /// Barre de navigation inferieure
-  Widget _buildBottomNav(ColorScheme colorScheme) {
+  Widget _buildBottomNav(ColorScheme colorScheme, AppLocalizations l10n) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -172,13 +178,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
             children: [
               AdminNavItem(
                 icon: Icons.dashboard_rounded,
-                label: 'Accueil',
+                label: l10n.home,
                 isSelected: _selectedNavIndex == 0,
                 onTap: () => setState(() => _selectedNavIndex = 0),
               ),
               AdminNavItem(
                 icon: Icons.school_rounded,
-                label: 'Academie',
+                label: l10n.academy,
                 isSelected: _selectedNavIndex == 1,
                 onTap: () {
                   setState(() => _selectedNavIndex = 1);
@@ -187,19 +193,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               ),
               AdminNavItem(
                 icon: Icons.sports_soccer_rounded,
-                label: 'Seances',
+                label: l10n.sessions,
                 isSelected: _selectedNavIndex == 2,
                 onTap: () => setState(() => _selectedNavIndex = 2),
               ),
               AdminNavItem(
                 icon: Icons.sms_rounded,
-                label: 'SMS',
+                label: l10n.communication,
                 isSelected: _selectedNavIndex == 3,
                 onTap: () => setState(() => _selectedNavIndex = 3),
               ),
               AdminNavItem(
                 icon: Icons.settings_rounded,
-                label: 'Reglages',
+                label: l10n.settings,
                 isSelected: _selectedNavIndex == 4,
                 onTap: () => setState(() => _selectedNavIndex = 4),
               ),

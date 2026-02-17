@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
@@ -63,10 +64,11 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     if (!mounted) return;
 
     if (seanceOuverte == null) {
+      final l10n = AppLocalizations.of(context)!;
       AcademyToast.show(
         context,
-        title: 'Aucune seance en cours',
-        description: 'Veuillez ouvrir une seance avant de gerer les ateliers.',
+        title: l10n.noSessionInProgress,
+        description: l10n.openSessionBeforeWorkshops,
         icon: Icons.warning_amber_rounded,
         isError: true,
       );
@@ -97,10 +99,11 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     if (!mounted) return;
 
     if (seanceOuverte == null) {
+      final l10n = AppLocalizations.of(context)!;
       AcademyToast.show(
         context,
-        title: 'Aucune seance en cours',
-        description: 'Veuillez ouvrir une seance avant de scanner.',
+        title: l10n.noSessionInProgress,
+        description: l10n.openSessionBeforeScan,
         icon: Icons.warning_amber_rounded,
         isError: true,
       );
@@ -126,6 +129,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -133,7 +137,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         SliverToBoxAdapter(
           child: DashboardHeader(
             userName: widget.userName,
-            role: 'Encadreur',
+            role: l10n.coach,
             greeting: widget.greeting,
             notificationCount:
                 DependencyInjection.notificationState.nonLuesCount,
@@ -161,23 +165,25 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
           )
         else
           SliverToBoxAdapter(child: _buildNoSeanceCard(context, colorScheme)),
-        const SliverToBoxAdapter(child: SectionTitle(title: 'Mon activite')),
-        SliverToBoxAdapter(child: _buildCoachStats()),
-        const SliverToBoxAdapter(child: SectionTitle(title: 'Actions terrain')),
-        SliverToBoxAdapter(child: _buildCoachQuickActions(context)),
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(child: SectionTitle(title: l10n.myActivity)),
+        SliverToBoxAdapter(child: _buildCoachStats(l10n)),
+        SliverToBoxAdapter(child: SectionTitle(title: l10n.fieldActions)),
+        SliverToBoxAdapter(child: _buildCoachQuickActions(context, l10n)),
+        SliverToBoxAdapter(
           child: SectionTitle(
-            title: 'Mes academiciens',
-            actionLabel: 'Tout voir',
+            title: l10n.myAcademicians,
+            actionLabel: l10n.viewAll,
           ),
         ),
         SliverToBoxAdapter(child: _buildAcademiciensList(colorScheme)),
-        const SliverToBoxAdapter(child: SectionTitle(title: 'Mes indicateurs')),
-        SliverToBoxAdapter(child: _buildCoachPerformance(context, colorScheme)),
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(child: SectionTitle(title: l10n.myIndicators)),
+        SliverToBoxAdapter(
+          child: _buildCoachPerformance(context, colorScheme, l10n),
+        ),
+        SliverToBoxAdapter(
           child: SectionTitle(
-            title: 'Mes dernieres annotations',
-            actionLabel: 'Tout voir',
+            title: l10n.myRecentAnnotations,
+            actionLabel: l10n.viewAll,
           ),
         ),
         SliverToBoxAdapter(child: _buildRecentAnnotations()),
@@ -233,7 +239,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'SEANCE EN COURS',
+                        AppLocalizations.of(context)!.sessionInProgress,
                         style: GoogleFonts.montserrat(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -246,7 +252,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Pret pour le terrain',
+                  AppLocalizations.of(context)!.readyForField,
                   style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -256,7 +262,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Gerez vos seances, evaluez vos joueurs et suivez leur progression.',
+                  AppLocalizations.of(context)!.manageSessionsDescription,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -341,7 +347,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'En cours',
+                        AppLocalizations.of(context)!.inProgress,
                         style: GoogleFonts.montserrat(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -377,21 +383,21 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                 SeanceStatChip(
                   icon: Icons.people_rounded,
                   value: '${seance.nbPresents}',
-                  label: 'Presents',
+                  label: AppLocalizations.of(context)!.present,
                   color: const Color(0xFF3B82F6),
                 ),
                 const SizedBox(width: 12),
                 SeanceStatChip(
                   icon: Icons.sports_soccer_rounded,
                   value: '${seance.atelierIds.length}',
-                  label: 'Ateliers',
+                  label: AppLocalizations.of(context)!.workshops,
                   color: const Color(0xFF8B5CF6),
                 ),
                 const SizedBox(width: 12),
                 SeanceStatChip(
                   icon: Icons.edit_note_rounded,
                   value: '0',
-                  label: 'Annotations',
+                  label: AppLocalizations.of(context)!.annotations,
                   color: const Color(0xFFF59E0B),
                 ),
               ],
@@ -404,7 +410,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                     onPressed: () {},
                     icon: const Icon(Icons.add_rounded, size: 18),
                     label: Text(
-                      'Ajouter atelier',
+                      AppLocalizations.of(context)!.addWorkshop,
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -427,7 +433,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                     onPressed: () => _handleFermerSeance(seance),
                     icon: const Icon(Icons.stop_rounded, size: 18),
                     label: Text(
-                      'Fermer seance',
+                      AppLocalizations.of(context)!.closeSession,
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -482,7 +488,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Aucune seance en cours',
+            AppLocalizations.of(context)!.noCurrentSession,
             style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -491,7 +497,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Ouvrez une seance pour commencer.',
+            AppLocalizations.of(context)!.openSessionToStart,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               color: colorScheme.onSurface.withValues(alpha: 0.35),
@@ -514,7 +520,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     }
   }
 
-  Widget _buildCoachStats() {
+  Widget _buildCoachStats(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -524,9 +530,9 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         childAspectRatio: 1.0,
-        children: const [
+        children: [
           StatCard(
-            label: 'Seances dirigees',
+            label: l10n.sessionsConducted,
             value: '16',
             icon: Icons.sports_soccer_rounded,
             color: Color(0xFF3B82F6),
@@ -534,7 +540,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             trendUp: true,
           ),
           StatCard(
-            label: 'Annotations',
+            label: l10n.annotations,
             value: '127',
             icon: Icons.edit_note_rounded,
             color: Color(0xFF8B5CF6),
@@ -542,7 +548,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             trendUp: true,
           ),
           StatCard(
-            label: 'Ateliers crees',
+            label: l10n.workshopsCreated,
             value: '48',
             icon: Icons.fitness_center_rounded,
             color: Color(0xFFF59E0B),
@@ -550,7 +556,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             trendUp: true,
           ),
           StatCard(
-            label: 'Presence moy.',
+            label: l10n.averageAttendanceShort,
             value: '89%',
             icon: Icons.check_circle_rounded,
             color: Color(0xFF10B981),
@@ -562,7 +568,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     );
   }
 
-  Widget _buildCoachQuickActions(BuildContext context) {
+  Widget _buildCoachQuickActions(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -574,11 +580,11 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         childAspectRatio: 1.15,
         children: [
           QuickActionTile(
-            title: 'Inscrire',
-            description: 'Nouvel academicien',
+            title: l10n.register_action,
+            description: l10n.newAcademician,
             icon: Icons.person_add_rounded,
             color: const Color(0xFF10B981),
-            badge: 'Go',
+            badge: l10n.badgeGo,
             onTap: () {
               Navigator.push(
                 context,
@@ -589,22 +595,22 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             },
           ),
           QuickActionTile(
-            title: 'Mes annotations',
-            description: 'Evaluer un academicien',
+            title: l10n.myAnnotations,
+            description: l10n.evaluateAcademician,
             icon: Icons.edit_note_rounded,
             color: const Color(0xFF8B5CF6),
             onTap: () => widget.onNavigateToTab?.call(3),
           ),
           QuickActionTile(
-            title: 'Mes ateliers',
-            description: 'Gerer les exercices',
+            title: l10n.myWorkshops,
+            description: l10n.manageExercises,
             icon: Icons.fitness_center_rounded,
             color: const Color(0xFFF59E0B),
             onTap: _ouvrirAteliers,
           ),
           QuickActionTile(
-            title: 'Presences',
-            description: 'Scanner les arrivees',
+            title: l10n.attendance,
+            description: l10n.scanArrivals,
             icon: Icons.qr_code_scanner_rounded,
             color: AppColors.primary,
             onTap: _ouvrirScanner,
@@ -639,7 +645,11 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     );
   }
 
-  Widget _buildCoachPerformance(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildCoachPerformance(
+    BuildContext context,
+    ColorScheme colorScheme,
+    AppLocalizations l10n,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -663,10 +673,10 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
+            children: [
               CircularProgressWidget(
                 progress: 0.89,
-                label: 'Taux de\npresence',
+                label: l10n.attendanceRateLabel,
                 centerText: '89%',
                 color: Color(0xFF10B981),
                 size: 80,
@@ -674,7 +684,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
               ),
               CircularProgressWidget(
                 progress: 0.76,
-                label: 'Annotations\npar seance',
+                label: l10n.annotationsPerSession,
                 centerText: '7.6',
                 color: Color(0xFF8B5CF6),
                 size: 80,
@@ -682,7 +692,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
               ),
               CircularProgressWidget(
                 progress: 0.95,
-                label: 'Seances\ncloturees',
+                label: l10n.closedSessions,
                 centerText: '95%',
                 color: Color(0xFF3B82F6),
                 size: 80,
@@ -691,13 +701,13 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildExpBar(colorScheme),
+          _buildExpBar(colorScheme, l10n),
         ],
       ),
     );
   }
 
-  Widget _buildExpBar(ColorScheme colorScheme) {
+  Widget _buildExpBar(ColorScheme colorScheme, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -705,7 +715,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Niveau d\'activite',
+              l10n.activityLevel,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -719,7 +729,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'Expert',
+                l10n.expert,
                 style: GoogleFonts.montserrat(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
@@ -741,7 +751,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          '78% vers le niveau suivant',
+          l10n.toNextLevel(78),
           style: GoogleFonts.montserrat(
             fontSize: 10,
             color: colorScheme.onSurface.withValues(alpha: 0.35),
@@ -752,38 +762,39 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
   }
 
   Widget _buildRecentAnnotations() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: const [
+        children: [
           ActivityCard(
             title: 'Amadou Keita - Dribbles',
             subtitle: 'Excellent controle de balle, progres constants.',
-            time: 'Il y a 1h',
+            time: l10n.hoursAgo(1),
             icon: Icons.star_rounded,
-            iconColor: Color(0xFFF59E0B),
+            iconColor: const Color(0xFFF59E0B),
           ),
           ActivityCard(
             title: 'Ibrahim Traore - Passes',
             subtitle:
                 'Bonne vision du jeu, precis sur les transmissions longues.',
-            time: 'Il y a 1h',
+            time: l10n.hoursAgo(1),
             icon: Icons.thumb_up_rounded,
-            iconColor: Color(0xFF10B981),
+            iconColor: const Color(0xFF10B981),
           ),
           ActivityCard(
             title: 'Sekou Coulibaly - Defense',
             subtitle: 'Positionnement a travailler dans les duels aeriens.',
-            time: 'Il y a 2h',
+            time: l10n.hoursAgo(2),
             icon: Icons.warning_rounded,
-            iconColor: Color(0xFFF59E0B),
+            iconColor: const Color(0xFFF59E0B),
           ),
           ActivityCard(
             title: 'Moussa Diaby - Finition',
             subtitle: 'En net progres devant le but, frappe puissante.',
-            time: 'Hier',
+            time: l10n.yesterday,
             icon: Icons.sports_soccer_rounded,
-            iconColor: Color(0xFF3B82F6),
+            iconColor: const Color(0xFF3B82F6),
             isLast: true,
           ),
         ],

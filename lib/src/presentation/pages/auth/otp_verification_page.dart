@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'reset_password_page.dart';
 
 /// Page de vérification OTP pour Pépites Academy.
@@ -76,6 +77,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -102,7 +104,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Vérification',
+                        l10n.otpTitle,
                         style: theme.textTheme.headlineLarge?.copyWith(
                           color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
@@ -110,7 +112,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Saisissez le code à 6 chiffres envoyé à\n${widget.email}',
+                        l10n.otpDescription(widget.email),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
@@ -152,7 +154,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   ),
                                 )
                               : Text(
-                                  'Vérifier le code',
+                                  l10n.verifyCode,
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -168,7 +170,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           },
                           child: RichText(
                             text: TextSpan(
-                              text: "Vous n'avez pas reçu de code ? ",
+                              text: l10n.noCodeReceived,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: colorScheme.onSurface.withValues(
                                   alpha: 0.6,
@@ -176,7 +178,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                               ),
                               children: [
                                 TextSpan(
-                                  text: "Renvoyer",
+                                  text: l10n.resend,
                                   style: TextStyle(
                                     color: colorScheme.primary,
                                     fontWeight: FontWeight.bold,

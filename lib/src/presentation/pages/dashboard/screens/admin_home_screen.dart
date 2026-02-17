@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../../presentation/theme/app_colors.dart';
+import '../../../helpers/activity_l10n_helper.dart';
 import '../../../../presentation/widgets/stat_card.dart';
 import '../../../../presentation/widgets/quick_action_tile.dart';
 import '../../../../presentation/widgets/activity_card.dart';
@@ -93,6 +95,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -100,7 +103,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         SliverToBoxAdapter(
           child: DashboardHeader(
             userName: widget.userName,
-            role: 'Administrateur',
+            role: l10n.administrator,
             greeting: widget.greeting,
             notificationCount:
                 DependencyInjection.notificationState.nonLuesCount,
@@ -119,28 +122,26 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             onProfileTap: () {},
           ),
         ),
-        SliverToBoxAdapter(child: _buildWelcomeBanner(colorScheme)),
-        const SliverToBoxAdapter(child: SectionTitle(title: 'Vue d\'ensemble')),
-        SliverToBoxAdapter(child: _buildStatsGrid()),
-        const SliverToBoxAdapter(child: SectionTitle(title: 'Actions rapides')),
-        SliverToBoxAdapter(child: _buildQuickActions(context)),
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(child: _buildWelcomeBanner(colorScheme, l10n)),
+        SliverToBoxAdapter(child: SectionTitle(title: l10n.overview)),
+        SliverToBoxAdapter(child: _buildStatsGrid(l10n)),
+        SliverToBoxAdapter(child: SectionTitle(title: l10n.quickActions)),
+        SliverToBoxAdapter(child: _buildQuickActions(context, l10n)),
+        SliverToBoxAdapter(
           child: SectionTitle(
-            title: 'Seance du jour',
-            actionLabel: 'Historique',
+            title: l10n.sessionOfTheDay,
+            actionLabel: l10n.history,
           ),
         ),
         SliverToBoxAdapter(child: _buildSeanceDuJour(context)),
-        const SliverToBoxAdapter(
-          child: SectionTitle(title: 'Performance globale'),
+        SliverToBoxAdapter(child: SectionTitle(title: l10n.globalPerformance)),
+        SliverToBoxAdapter(
+          child: _buildPerformanceSection(context, colorScheme, l10n),
         ),
         SliverToBoxAdapter(
-          child: _buildPerformanceSection(context, colorScheme),
-        ),
-        const SliverToBoxAdapter(
           child: SectionTitle(
-            title: 'Activite recente',
-            actionLabel: 'Tout voir',
+            title: l10n.recentActivity,
+            actionLabel: l10n.viewAll,
           ),
         ),
         SliverToBoxAdapter(child: _buildRecentActivity()),
@@ -149,7 +150,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  Widget _buildWelcomeBanner(ColorScheme colorScheme) {
+  Widget _buildWelcomeBanner(ColorScheme colorScheme, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(20),
@@ -184,7 +185,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'ADMINISTRATEUR',
+                    l10n.administrator.toUpperCase(),
                     style: GoogleFonts.montserrat(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -205,7 +206,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Gerez l\'ensemble de votre academie depuis cet espace centralise.',
+                  l10n.manageAcademy,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -237,7 +238,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -247,9 +248,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
         childAspectRatio: 1.0,
-        children: const [
+        children: [
           StatCard(
-            label: 'Academiciens',
+            label: l10n.academicians,
             value: '47',
             icon: Icons.school_rounded,
             color: Color(0xFF3B82F6),
@@ -257,7 +258,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             trendUp: true,
           ),
           StatCard(
-            label: 'Encadreurs',
+            label: l10n.coaches,
             value: '8',
             icon: Icons.sports_rounded,
             color: Color(0xFF8B5CF6),
@@ -265,7 +266,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             trendUp: true,
           ),
           StatCard(
-            label: 'Seances (mois)',
+            label: l10n.sessionsMonth,
             value: '24',
             icon: Icons.calendar_today_rounded,
             color: AppColors.primary,
@@ -273,7 +274,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             trendUp: true,
           ),
           StatCard(
-            label: 'Taux presence',
+            label: l10n.attendanceRate,
             value: '87%',
             icon: Icons.check_circle_rounded,
             color: Color(0xFF10B981),
@@ -285,7 +286,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -297,11 +298,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         childAspectRatio: 1.15,
         children: [
           QuickActionTile(
-            title: 'Inscrire',
-            description: 'Nouvel academicien',
+            title: l10n.register_action,
+            description: l10n.newAcademician,
             icon: Icons.person_add_rounded,
             color: const Color(0xFF3B82F6),
-            badge: 'Nouveau',
+            badge: l10n.badgeNew,
             onTap: () {
               Navigator.push(
                 context,
@@ -312,15 +313,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             },
           ),
           QuickActionTile(
-            title: 'Scanner QR',
-            description: 'Controle d\'acces',
+            title: l10n.scanQr,
+            description: l10n.accessControl,
             icon: Icons.qr_code_scanner_rounded,
             color: AppColors.primary,
             onTap: () => _ouvrirScanner(context),
           ),
           QuickActionTile(
-            title: 'Joueurs',
-            description: 'Liste des academiciens',
+            title: l10n.players,
+            description: l10n.academiciansList,
             icon: Icons.sports_soccer_rounded,
             color: const Color(0xFF10B981),
             onTap: () {
@@ -328,8 +329,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             },
           ),
           QuickActionTile(
-            title: 'Encadreurs',
-            description: 'Gestion des coachs',
+            title: l10n.coaches,
+            description: l10n.coachManagement,
             icon: Icons.sports_rounded,
             color: const Color(0xFF8B5CF6),
             onTap: () {
@@ -351,6 +352,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget _buildPerformanceSection(
     BuildContext context,
     ColorScheme colorScheme,
+    AppLocalizations l10n,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -375,10 +377,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
+            children: [
               CircularProgressWidget(
                 progress: 0.87,
-                label: 'Presence\nmoyenne',
+                label: l10n.averageAttendance,
                 centerText: '87%',
                 color: Color(0xFF10B981),
                 size: 80,
@@ -386,7 +388,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ),
               CircularProgressWidget(
                 progress: 0.74,
-                label: 'Objectifs\natteints',
+                label: l10n.goalsAchieved,
                 centerText: '74%',
                 color: Color(0xFF3B82F6),
                 size: 80,
@@ -394,7 +396,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ),
               CircularProgressWidget(
                 progress: 0.92,
-                label: 'Satisfaction\nencadreurs',
+                label: l10n.coachSatisfaction,
                 centerText: '92%',
                 color: Color(0xFF8B5CF6),
                 size: 80,
@@ -419,7 +421,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Tendance positive : +8% de presence en Fevrier par rapport a Janvier.',
+                    l10n.positiveTrend,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -467,7 +469,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Text(
-          'Aucune activite recente.',
+          AppLocalizations.of(context)!.noRecentActivity,
           style: GoogleFonts.montserrat(
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -479,14 +481,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       );
     }
 
+    final activityHelper = ActivityL10nHelper(AppLocalizations.of(context)!);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: List.generate(_activites.length, (index) {
           final item = _activites[index];
           return ActivityCard(
-            title: item.titre,
-            subtitle: item.description,
+            title: activityHelper.titre(item),
+            subtitle: activityHelper.description(item),
             time: _formatTempsRelatif(item.date),
             icon: _iconeParType(item.type),
             iconColor: _couleurParType(item.type),
@@ -561,14 +564,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   /// Formate une date en temps relatif (ex: "Il y a 2h", "Hier", "3 jours").
   String _formatTempsRelatif(DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
     final maintenant = DateTime.now();
     final difference = maintenant.difference(date);
 
-    if (difference.inMinutes < 1) return 'A l\'instant';
-    if (difference.inMinutes < 60) return 'Il y a ${difference.inMinutes} min';
-    if (difference.inHours < 24) return 'Il y a ${difference.inHours}h';
-    if (difference.inDays == 1) return 'Hier';
-    if (difference.inDays < 7) return 'Il y a ${difference.inDays} jours';
+    if (difference.inMinutes < 1) return l10n.justNow;
+    if (difference.inMinutes < 60) return l10n.minutesAgo(difference.inMinutes);
+    if (difference.inHours < 24) return l10n.hoursAgo(difference.inHours);
+    if (difference.inDays == 1) return l10n.yesterday;
+    if (difference.inDays < 7) return l10n.daysAgo(difference.inDays);
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
@@ -597,7 +601,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Text(
-          'Aucune seance enregistree.',
+          AppLocalizations.of(context)!.noSessionRecorded,
           style: GoogleFonts.montserrat(
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -617,7 +621,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           '${seance.heureDebut.hour.toString().padLeft(2, '0')}:${seance.heureDebut.minute.toString().padLeft(2, '0')}',
       heureFin:
           '${seance.heureFin.hour.toString().padLeft(2, '0')}:${seance.heureFin.minute.toString().padLeft(2, '0')}',
-      encadreur: 'Encadreur',
+      encadreur: AppLocalizations.of(context)!.coach,
       nbPresents: seance.nbPresents,
       nbAteliers: seance.nbAteliers,
       status: _mapSeanceStatus(seance.statut),
@@ -637,10 +641,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     if (!context.mounted) return;
 
     if (seanceOuverte == null) {
+      final l10n = AppLocalizations.of(context)!;
       AcademyToast.show(
         context,
-        title: 'Aucune seance en cours',
-        description: 'Veuillez ouvrir une seance avant de scanner.',
+        title: l10n.noSessionInProgress,
+        description: l10n.openSessionBeforeScan,
         icon: Icons.warning_amber_rounded,
         isError: true,
       );

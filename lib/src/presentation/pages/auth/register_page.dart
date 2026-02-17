@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Page d'inscription pour Pépites Academy.
 class RegisterPage extends StatefulWidget {
@@ -62,11 +63,11 @@ class _RegisterPageState extends State<RegisterPage> {
     return Colors.green;
   }
 
-  String _getStrengthText() {
-    if (_passwordStrength <= 0.25) return 'Faible';
-    if (_passwordStrength <= 0.5) return 'Moyen';
-    if (_passwordStrength <= 0.75) return 'Fort';
-    return 'Excellent';
+  String _getStrengthText(AppLocalizations l10n) {
+    if (_passwordStrength <= 0.25) return l10n.passwordStrengthWeak;
+    if (_passwordStrength <= 0.5) return l10n.passwordStrengthMedium;
+    if (_passwordStrength <= 0.75) return l10n.passwordStrengthStrong;
+    return l10n.passwordStrengthExcellent;
   }
 
   void _handleRegister() async {
@@ -84,6 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -105,7 +107,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Créer un compte',
+                l10n.createAccount,
                 style: theme.textTheme.headlineLarge?.copyWith(
                   color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
@@ -113,7 +115,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Rejoignez l\'élite de la formation sportive',
+                l10n.registerSubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
@@ -125,12 +127,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     _buildTextField(
                       controller: _lastNameController,
-                      label: 'Nom',
-                      hint: 'Votre nom',
+                      label: l10n.lastName,
+                      hint: l10n.lastNameHint,
                       prefixIcon: Icons.person_outline,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez saisir votre nom';
+                          return l10n.lastNameRequired;
                         }
                         return null;
                       },
@@ -138,12 +140,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
                     _buildTextField(
                       controller: _firstNameController,
-                      label: 'Prénom',
-                      hint: 'Votre prénom',
+                      label: l10n.firstName,
+                      hint: l10n.firstNameHint,
                       prefixIcon: Icons.person_outline,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez saisir votre prénom';
+                          return l10n.firstNameRequired;
                         }
                         return null;
                       },
@@ -151,13 +153,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
                     _buildTextField(
                       controller: _emailController,
-                      label: 'Email',
-                      hint: 'votre@email.com',
+                      label: l10n.email,
+                      hint: l10n.emailHint,
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez saisir votre email';
+                          return l10n.emailRequired;
                         }
                         return null;
                       },
@@ -165,7 +167,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
                     _buildTextField(
                       controller: _passwordController,
-                      label: 'Mot de passe',
+                      label: l10n.password,
                       hint: '••••••••',
                       prefixIcon: Icons.lock_outline,
                       obscureText: _obscurePassword,
@@ -182,7 +184,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez saisir votre mot de passe';
+                          return l10n.passwordRequired;
                         }
                         return null;
                       },
@@ -210,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                _getStrengthText(),
+                                _getStrengthText(l10n),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: _getStrengthColor(),
                                   fontWeight: FontWeight.bold,
@@ -229,23 +231,23 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Column(
                           children: [
                             _buildRequirementItem(
-                              'Au moins 8 caractères',
+                              l10n.passwordMinChars,
                               _passwordController.text.length >= 8,
                             ),
                             _buildRequirementItem(
-                              'Une majuscule',
+                              l10n.passwordUppercase,
                               _passwordController.text.contains(
                                 RegExp(r'[A-Z]'),
                               ),
                             ),
                             _buildRequirementItem(
-                              'Un chiffre',
+                              l10n.passwordDigit,
                               _passwordController.text.contains(
                                 RegExp(r'[0-9]'),
                               ),
                             ),
                             _buildRequirementItem(
-                              'Un caractère spécial',
+                              l10n.passwordSpecialChar,
                               _passwordController.text.contains(
                                 RegExp(r'[!@#$%^&*(),.?":{}|<>]'),
                               ),
@@ -257,13 +259,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
                     _buildTextField(
                       controller: _confirmPasswordController,
-                      label: 'Confirmer le mot de passe',
+                      label: l10n.confirmPassword,
                       hint: '••••••••',
                       prefixIcon: Icons.lock_reset_outlined,
                       obscureText: _obscurePassword,
                       validator: (value) {
                         if (value != _passwordController.text) {
-                          return 'Les mots de passe ne correspondent pas';
+                          return l10n.passwordsDoNotMatch;
                         }
                         return null;
                       },
@@ -297,7 +299,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                               )
                             : Text(
-                                'Créer mon compte',
+                                l10n.createMyAccount,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -310,7 +312,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Déjà un compte ?',
+                          l10n.alreadyHaveAccount,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
@@ -318,7 +320,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: Text(
-                            'Se connecter',
+                            l10n.signIn,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.primary,
                               fontWeight: FontWeight.bold,

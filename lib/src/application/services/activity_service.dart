@@ -60,7 +60,7 @@ class ActivityService {
   Future<void> enregistrerSeanceOuverte(String titre, String seanceId) async {
     await enregistrer(
       type: ActivityType.seanceOuverte,
-      titre: 'Seance ouverte',
+      titre: 'seanceOuverte',
       description: titre,
       referenceId: seanceId,
     );
@@ -74,8 +74,8 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.seanceCloturee,
-      titre: 'Seance cloturee',
-      description: '$titre - $nbPresents presents',
+      titre: 'seanceCloturee',
+      description: '$titre|$nbPresents',
       referenceId: seanceId,
     );
   }
@@ -87,7 +87,7 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.seanceProgrammee,
-      titre: 'Seance programmee',
+      titre: 'seanceProgrammee',
       description: titre,
       referenceId: seanceId,
     );
@@ -100,8 +100,8 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.academicienInscrit,
-      titre: 'Nouvel academicien',
-      description: '$nomComplet inscrit avec succes',
+      titre: 'academicienInscrit',
+      description: nomComplet,
       referenceId: academicienId,
     );
   }
@@ -113,8 +113,8 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.academicienSupprime,
-      titre: 'Academicien supprime',
-      description: '$nomComplet supprime du systeme',
+      titre: 'academicienSupprime',
+      description: nomComplet,
       referenceId: academicienId,
     );
   }
@@ -127,8 +127,8 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.encadreurInscrit,
-      titre: 'Nouvel encadreur',
-      description: '$nomComplet - $specialite',
+      titre: 'encadreurInscrit',
+      description: '$nomComplet|$specialite',
       referenceId: encadreurId,
     );
   }
@@ -141,8 +141,8 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.presenceEnregistree,
-      titre: 'Presence enregistree',
-      description: '$typeProfil : $nomComplet',
+      titre: 'presenceEnregistree',
+      description: '$typeProfil|$nomComplet',
       referenceId: presenceId,
     );
   }
@@ -155,8 +155,8 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.smsEnvoye,
-      titre: 'SMS envoye',
-      description: '$nbDestinataires destinataires - $apercu',
+      titre: 'smsEnvoye',
+      description: '$nbDestinataires|$apercu',
       referenceId: smsId,
     );
   }
@@ -165,8 +165,8 @@ class ActivityService {
   Future<void> enregistrerSmsEchec(String smsId) async {
     await enregistrer(
       type: ActivityType.smsEchec,
-      titre: 'SMS en echec',
-      description: 'Echec de l\'envoi du message',
+      titre: 'smsEchec',
+      description: '',
       referenceId: smsId,
     );
   }
@@ -179,8 +179,8 @@ class ActivityService {
   ) async {
     await enregistrer(
       type: ActivityType.bulletinGenere,
-      titre: 'Bulletin genere',
-      description: '$periodeLabel - $academicienNom',
+      titre: 'bulletinGenere',
+      description: '$periodeLabel|$academicienNom',
       referenceId: bulletinId,
     );
   }
@@ -189,8 +189,8 @@ class ActivityService {
   Future<void> enregistrerPosteAjoute(String nom) async {
     await enregistrer(
       type: ActivityType.referentielPosteAjoute,
-      titre: 'Referentiel mis a jour',
-      description: 'Nouveau poste : $nom',
+      titre: 'referentielPosteAjoute',
+      description: nom,
     );
   }
 
@@ -198,8 +198,8 @@ class ActivityService {
   Future<void> enregistrerPosteModifie(String nom) async {
     await enregistrer(
       type: ActivityType.referentielPosteModifie,
-      titre: 'Referentiel mis a jour',
-      description: 'Poste modifie : $nom',
+      titre: 'referentielPosteModifie',
+      description: nom,
     );
   }
 
@@ -207,8 +207,8 @@ class ActivityService {
   Future<void> enregistrerPosteSupprime(String nom) async {
     await enregistrer(
       type: ActivityType.referentielPosteSupprime,
-      titre: 'Referentiel mis a jour',
-      description: 'Poste supprime : $nom',
+      titre: 'referentielPosteSupprime',
+      description: nom,
     );
   }
 
@@ -216,8 +216,8 @@ class ActivityService {
   Future<void> enregistrerNiveauAjoute(String nom) async {
     await enregistrer(
       type: ActivityType.referentielNiveauAjoute,
-      titre: 'Referentiel mis a jour',
-      description: 'Nouveau niveau : $nom',
+      titre: 'referentielNiveauAjoute',
+      description: nom,
     );
   }
 
@@ -225,8 +225,8 @@ class ActivityService {
   Future<void> enregistrerNiveauModifie(String nom) async {
     await enregistrer(
       type: ActivityType.referentielNiveauModifie,
-      titre: 'Referentiel mis a jour',
-      description: 'Niveau modifie : $nom',
+      titre: 'referentielNiveauModifie',
+      description: nom,
     );
   }
 
@@ -234,8 +234,8 @@ class ActivityService {
   Future<void> enregistrerNiveauSupprime(String nom) async {
     await enregistrer(
       type: ActivityType.referentielNiveauSupprime,
-      titre: 'Referentiel mis a jour',
-      description: 'Niveau supprime : $nom',
+      titre: 'referentielNiveauSupprime',
+      description: nom,
     );
   }
 }

@@ -206,17 +206,227 @@ abstract class AppLocalizations {
   /// **'Inscription'**
   String get register;
 
+  /// No description provided for @registerSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoignez l\'elite de la formation sportive'**
+  String get registerSubtitle;
+
+  /// No description provided for @lastName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get lastName;
+
+  /// No description provided for @lastNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre nom'**
+  String get lastNameHint;
+
+  /// No description provided for @lastNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir votre nom'**
+  String get lastNameRequired;
+
+  /// No description provided for @firstName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prenom'**
+  String get firstName;
+
+  /// No description provided for @firstNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre prenom'**
+  String get firstNameHint;
+
+  /// No description provided for @firstNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir votre prenom'**
+  String get firstNameRequired;
+
+  /// No description provided for @createMyAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Creer mon compte'**
+  String get createMyAccount;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deja un compte ?'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @passwordStrengthWeak.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible'**
+  String get passwordStrengthWeak;
+
+  /// No description provided for @passwordStrengthMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen'**
+  String get passwordStrengthMedium;
+
+  /// No description provided for @passwordStrengthStrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fort'**
+  String get passwordStrengthStrong;
+
+  /// No description provided for @passwordStrengthExcellent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellent'**
+  String get passwordStrengthExcellent;
+
+  /// No description provided for @passwordMinChars.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au moins 8 caracteres'**
+  String get passwordMinChars;
+
+  /// No description provided for @passwordUppercase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une majuscule'**
+  String get passwordUppercase;
+
+  /// No description provided for @passwordDigit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un chiffre'**
+  String get passwordDigit;
+
+  /// No description provided for @passwordSpecialChar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un caractere special'**
+  String get passwordSpecialChar;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les mots de passe ne correspondent pas'**
+  String get passwordsDoNotMatch;
+
   /// No description provided for @resetPassword.
   ///
   /// In fr, this message translates to:
   /// **'Reinitialiser le mot de passe'**
   String get resetPassword;
 
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublie'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez votre email pour recevoir un code de verification a 6 chiffres.'**
+  String get forgotPasswordDescription;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le code'**
+  String get sendCode;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour a la connexion'**
+  String get backToLogin;
+
   /// No description provided for @otpVerification.
   ///
   /// In fr, this message translates to:
   /// **'Verification OTP'**
   String get otpVerification;
+
+  /// No description provided for @otpTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verification'**
+  String get otpTitle;
+
+  /// No description provided for @otpDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez le code a 6 chiffres envoye a\n{email}'**
+  String otpDescription(String email);
+
+  /// No description provided for @verifyCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verifier le code'**
+  String get verifyCode;
+
+  /// No description provided for @noCodeReceived.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n\'avez pas recu de code ? '**
+  String get noCodeReceived;
+
+  /// No description provided for @resend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer'**
+  String get resend;
+
+  /// No description provided for @newPasswordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get newPasswordTitle;
+
+  /// No description provided for @newPasswordSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Creez un nouveau mot de passe securise pour votre compte.'**
+  String get newPasswordSubtitle;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get newPasswordLabel;
+
+  /// No description provided for @newPasswordRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir un mot de passe'**
+  String get newPasswordRequired;
+
+  /// No description provided for @passwordMustBeStronger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mot de passe doit etre plus fort'**
+  String get passwordMustBeStronger;
+
+  /// No description provided for @resetPasswordButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reinitialiser'**
+  String get resetPasswordButton;
+
+  /// No description provided for @passwordResetSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe reinitialise avec succes'**
+  String get passwordResetSuccess;
 
   /// No description provided for @settings.
   ///
@@ -1153,6 +1363,300 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun poste disponible'**
   String get noPositionAvailable;
+
+  /// No description provided for @splashTagline.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'excellence du football'**
+  String get splashTagline;
+
+  /// No description provided for @defaultUser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur'**
+  String get defaultUser;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingTitle1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans l\'Excellence'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingDesc1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gerez votre academie de football avec des outils modernes, precis et concus pour la performance de haut niveau.'**
+  String get onboardingDesc1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presence par QR Code'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingDesc2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scannez, validez et enregistrez les acces en quelques secondes grace a un systeme rapide et securise.'**
+  String get onboardingDesc2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maitrisez Chaque Seance'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingDesc3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrez, configurez et cloturez vos entrainements tout en gardant un controle total sur chaque activite.'**
+  String get onboardingDesc3;
+
+  /// No description provided for @onboardingTitle4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi des Performances'**
+  String get onboardingTitle4;
+
+  /// No description provided for @onboardingDesc4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez des annotations structurees et suivez la progression de chaque academicien avec precision.'**
+  String get onboardingDesc4;
+
+  /// No description provided for @onboardingTitle5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des Donnees au Service du Talent'**
+  String get onboardingTitle5;
+
+  /// No description provided for @onboardingDesc5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Generez des bulletins professionnels, visualisez l\'evolution et optimisez le developpement de vos joueurs.'**
+  String get onboardingDesc5;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon apres-midi'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonsoir'**
+  String get greetingEvening;
+
+  /// No description provided for @logoutTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deconnexion'**
+  String get logoutTitle;
+
+  /// No description provided for @logoutConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Etes-vous sur de vouloir vous deconnecter ?'**
+  String get logoutConfirmation;
+
+  /// No description provided for @logoutButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deconnecter'**
+  String get logoutButton;
+
+  /// No description provided for @scanLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'SCAN'**
+  String get scanLabel;
+
+  /// No description provided for @badgeNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau'**
+  String get badgeNew;
+
+  /// No description provided for @badgeGo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Go'**
+  String get badgeGo;
+
+  /// No description provided for @activitySessionOpened.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance ouverte'**
+  String get activitySessionOpened;
+
+  /// No description provided for @activitySessionClosed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance cloturee'**
+  String get activitySessionClosed;
+
+  /// No description provided for @activitySessionClosedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} - {count} presents'**
+  String activitySessionClosedDesc(String title, int count);
+
+  /// No description provided for @activitySessionScheduled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance programmee'**
+  String get activitySessionScheduled;
+
+  /// No description provided for @activityNewAcademician.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel academicien'**
+  String get activityNewAcademician;
+
+  /// No description provided for @activityAcademicianRegistered.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} inscrit avec succes'**
+  String activityAcademicianRegistered(String name);
+
+  /// No description provided for @activityAcademicianRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Academicien supprime'**
+  String get activityAcademicianRemoved;
+
+  /// No description provided for @activityAcademicianRemovedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} supprime du systeme'**
+  String activityAcademicianRemovedDesc(String name);
+
+  /// No description provided for @activityNewCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel encadreur'**
+  String get activityNewCoach;
+
+  /// No description provided for @activityAttendanceRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presence enregistree'**
+  String get activityAttendanceRecorded;
+
+  /// No description provided for @activityAttendanceDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'{type} : {name}'**
+  String activityAttendanceDesc(String type, String name);
+
+  /// No description provided for @activitySmsSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'SMS envoye'**
+  String get activitySmsSent;
+
+  /// No description provided for @activitySmsSentDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} destinataires - {preview}'**
+  String activitySmsSentDesc(int count, String preview);
+
+  /// No description provided for @activitySmsFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'SMS en echec'**
+  String get activitySmsFailed;
+
+  /// No description provided for @activitySmsFailedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Echec de l\'envoi du message'**
+  String get activitySmsFailedDesc;
+
+  /// No description provided for @activityReportGenerated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin genere'**
+  String get activityReportGenerated;
+
+  /// No description provided for @activityReferentialUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Referentiel mis a jour'**
+  String get activityReferentialUpdated;
+
+  /// No description provided for @activityNewPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau poste : {name}'**
+  String activityNewPosition(String name);
+
+  /// No description provided for @activityPositionModified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste modifie : {name}'**
+  String activityPositionModified(String name);
+
+  /// No description provided for @activityPositionRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste supprime : {name}'**
+  String activityPositionRemoved(String name);
+
+  /// No description provided for @activityNewLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau niveau : {name}'**
+  String activityNewLevel(String name);
+
+  /// No description provided for @activityLevelModified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau modifie : {name}'**
+  String activityLevelModified(String name);
+
+  /// No description provided for @activityLevelRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau supprime : {name}'**
+  String activityLevelRemoved(String name);
+
+  /// No description provided for @profileAcademician.
+  ///
+  /// In fr, this message translates to:
+  /// **'Academicien'**
+  String get profileAcademician;
+
+  /// No description provided for @profileCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur'**
+  String get profileCoach;
 
   /// No description provided for @search.
   ///

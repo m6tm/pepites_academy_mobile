@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../../presentation/theme/app_colors.dart';
 import '../../widgets/sync_notification_banner.dart';
@@ -51,10 +52,11 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
   }
 
   String _getGreeting() {
+    final l10n = AppLocalizations.of(context)!;
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon apres-midi';
-    return 'Bonsoir';
+    if (hour < 12) return l10n.greetingMorning;
+    if (hour < 18) return l10n.greetingAfternoon;
+    return l10n.greetingEvening;
   }
 
   @override
@@ -97,7 +99,10 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(colorScheme),
+      bottomNavigationBar: _buildBottomNav(
+        colorScheme,
+        AppLocalizations.of(context)!,
+      ),
       floatingActionButton: _buildScanFAB(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
@@ -110,10 +115,11 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
     if (!mounted) return;
 
     if (seanceOuverte == null) {
+      final l10n = AppLocalizations.of(context)!;
       AcademyToast.show(
         context,
-        title: 'Aucune seance en cours',
-        description: 'Veuillez ouvrir une seance avant de scanner.',
+        title: l10n.noSessionInProgress,
+        description: l10n.openSessionBeforeScan,
         icon: Icons.warning_amber_rounded,
         isError: true,
       );
@@ -147,7 +153,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
             ),
             const SizedBox(height: 2),
             Text(
-              'SCAN',
+              AppLocalizations.of(context)!.scanLabel,
               style: GoogleFonts.montserrat(
                 fontSize: 8,
                 fontWeight: FontWeight.w700,
@@ -163,22 +169,23 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
 
   /// Gestion de la deconnexion avec confirmation
   void _handleLogout() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(
-            'Deconnexion',
+            l10n.logoutTitle,
             style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
           ),
           content: Text(
-            'Etes-vous sur de vouloir vous deconnecter ?',
+            l10n.logoutConfirmation,
             style: GoogleFonts.montserrat(),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Annuler', style: GoogleFonts.montserrat()),
+              child: Text(l10n.cancel, style: GoogleFonts.montserrat()),
             ),
             TextButton(
               onPressed: () async {
@@ -196,7 +203,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
               child: Text(
-                'Deconnecter',
+                l10n.logoutButton,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -207,7 +214,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
   }
 
   /// Barre de navigation inferieure encadreur
-  Widget _buildBottomNav(ColorScheme colorScheme) {
+  Widget _buildBottomNav(ColorScheme colorScheme, AppLocalizations l10n) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -231,26 +238,26 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
             children: [
               CoachNavItem(
                 icon: Icons.dashboard_rounded,
-                label: 'Accueil',
+                label: l10n.home,
                 isSelected: _selectedNavIndex == 0,
                 onTap: () => setState(() => _selectedNavIndex = 0),
               ),
               CoachNavItem(
                 icon: Icons.sports_soccer_rounded,
-                label: 'Seances',
+                label: l10n.sessions,
                 isSelected: _selectedNavIndex == 1,
                 onTap: () => setState(() => _selectedNavIndex = 1),
               ),
               const Expanded(child: SizedBox()),
               CoachNavItem(
                 icon: Icons.edit_note_rounded,
-                label: 'Notes',
+                label: l10n.annotations,
                 isSelected: _selectedNavIndex == 3,
                 onTap: () => setState(() => _selectedNavIndex = 3),
               ),
               CoachNavItem(
                 icon: Icons.person_rounded,
-                label: 'Profil',
+                label: l10n.profile,
                 isSelected: _selectedNavIndex == 5,
                 onTap: () => setState(() => _selectedNavIndex = 5),
               ),

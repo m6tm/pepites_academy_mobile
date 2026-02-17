@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../../presentation/theme/app_colors.dart';
 import '../auth/login_page.dart';
@@ -31,38 +32,36 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingSlide> _slides = const [
-    OnboardingSlide(
-      title: "Bienvenue dans l’Excellence",
-      description:
-          "Gérez votre académie de football avec des outils modernes, précis et conçus pour la performance de haut niveau.",
-      imagePath: "assets/tours/tour_element_1.png",
-    ),
-    OnboardingSlide(
-      title: "Présence par QR Code",
-      description:
-          "Scannez, validez et enregistrez les accès en quelques secondes grâce à un système rapide et sécurisé.",
-      imagePath: "assets/tours/tour_element_2.png",
-    ),
-    OnboardingSlide(
-      title: "Maîtrisez Chaque Séance",
-      description:
-          "Ouvrez, configurez et clôturez vos entraînements tout en gardant un contrôle total sur chaque activité.",
-      imagePath: "assets/tours/tour_element_3.png",
-    ),
-    OnboardingSlide(
-      title: "Suivi des Performances",
-      description:
-          "Ajoutez des annotations structurées et suivez la progression de chaque académicien avec précision.",
-      imagePath: "assets/tours/tour_element_4.png",
-    ),
-    OnboardingSlide(
-      title: "Des Données au Service du Talent",
-      description:
-          "Générez des bulletins professionnels, visualisez l’évolution et optimisez le développement de vos joueurs.",
-      imagePath: "assets/tours/tour_element_5.png",
-    ),
-  ];
+  /// Construit la liste des slides avec les traductions.
+  List<OnboardingSlide> _buildSlides(AppLocalizations l10n) {
+    return [
+      OnboardingSlide(
+        title: l10n.onboardingTitle1,
+        description: l10n.onboardingDesc1,
+        imagePath: "assets/tours/tour_element_1.png",
+      ),
+      OnboardingSlide(
+        title: l10n.onboardingTitle2,
+        description: l10n.onboardingDesc2,
+        imagePath: "assets/tours/tour_element_2.png",
+      ),
+      OnboardingSlide(
+        title: l10n.onboardingTitle3,
+        description: l10n.onboardingDesc3,
+        imagePath: "assets/tours/tour_element_3.png",
+      ),
+      OnboardingSlide(
+        title: l10n.onboardingTitle4,
+        description: l10n.onboardingDesc4,
+        imagePath: "assets/tours/tour_element_4.png",
+      ),
+      OnboardingSlide(
+        title: l10n.onboardingTitle5,
+        description: l10n.onboardingDesc5,
+        imagePath: "assets/tours/tour_element_5.png",
+      ),
+    ];
+  }
 
   @override
   void dispose() {
@@ -71,7 +70,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _onNextPage() {
-    if (_currentPage < _slides.length - 1) {
+    if (_currentPage < 4) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOutCubic,
@@ -93,6 +92,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final slides = _buildSlides(l10n);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -102,7 +104,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             onPageChanged: (index) {
               setState(() => _currentPage = index);
             },
-            itemCount: _slides.length,
+            itemCount: slides.length,
             itemBuilder: (context, index) {
               return AnimatedBuilder(
                 animation: _pageController,
@@ -116,7 +118,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     opacity: value,
                     child: Transform.scale(
                       scale: 1.0 + (1.0 - value) * 0.1,
-                      child: _BackgroundSlide(slide: _slides[index]),
+                      child: _BackgroundSlide(slide: slides[index]),
                     ),
                   );
                 },
@@ -130,23 +132,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
             left: 20,
             right: 20,
             child: _ContentOverlay(
-              slide: _slides[_currentPage],
+              slide: slides[_currentPage],
               currentPage: _currentPage,
-              totalPages: _slides.length,
+              totalPages: slides.length,
               onNext: _onNextPage,
               onSkip: _finishOnboarding,
+              nextLabel: l10n.onboardingNext,
+              startLabel: l10n.onboardingStart,
             ),
           ),
 
           // Bouton "Passer" en haut à droite
-          if (_currentPage < _slides.length - 1)
+          if (_currentPage < slides.length - 1)
             Positioned(
               top: MediaQuery.of(context).padding.top + 10,
               right: 20,
               child: TextButton(
                 onPressed: _finishOnboarding,
                 child: Text(
-                  "Passer",
+                  l10n.onboardingSkip,
                   style: GoogleFonts.montserrat(
                     color: Colors.white70,
                     fontWeight: FontWeight.w600,
@@ -203,6 +207,8 @@ class _ContentOverlay extends StatelessWidget {
   final int totalPages;
   final VoidCallback onNext;
   final VoidCallback onSkip;
+  final String nextLabel;
+  final String startLabel;
 
   const _ContentOverlay({
     required this.slide,
@@ -210,6 +216,8 @@ class _ContentOverlay extends StatelessWidget {
     required this.totalPages,
     required this.onNext,
     required this.onSkip,
+    required this.nextLabel,
+    required this.startLabel,
   });
 
   @override
@@ -289,7 +297,7 @@ class _ContentOverlay extends StatelessWidget {
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: Text(
-                      isLastPage ? "Commencer" : "Suivant",
+                      isLastPage ? startLabel : nextLabel,
                       key: ValueKey(isLastPage),
                       style: GoogleFonts.montserrat(
                         fontSize: 17,

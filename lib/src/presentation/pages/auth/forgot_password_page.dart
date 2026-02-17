@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'otp_verification_page.dart';
 
 /// Page de récupération de mot de passe pour Pépites Academy.
@@ -43,6 +44,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -69,7 +71,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Mot de passe oublié',
+                        l10n.forgotPasswordTitle,
                         style: theme.textTheme.headlineLarge?.copyWith(
                           color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
@@ -77,7 +79,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Saisissez votre email pour recevoir un code de vérification à 6 chiffres.',
+                        l10n.forgotPasswordDescription,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
@@ -87,13 +89,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         key: _formKey,
                         child: _buildTextField(
                           controller: _emailController,
-                          label: 'Email',
-                          hint: 'votre@email.com',
+                          label: l10n.email,
+                          hint: l10n.emailHint,
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Veuillez saisir votre email';
+                              return l10n.emailRequired;
                             }
                             return null;
                           },
@@ -128,7 +130,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ),
                                 )
                               : Text(
-                                  'Envoyer le code',
+                                  l10n.sendCode,
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -141,7 +143,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         child: TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: Text(
-                            'Retour à la connexion',
+                            l10n.backToLogin,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.primary,
                               fontWeight: FontWeight.bold,

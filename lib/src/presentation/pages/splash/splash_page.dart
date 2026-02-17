@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../../domain/entities/user_role.dart';
 import '../onboarding/onboarding_page.dart';
@@ -55,9 +56,11 @@ class _SplashPageState extends State<SplashPage>
 
       if (isLoggedIn && mounted) {
         final roleId = await preferences.getUserRole();
-        final userName = await preferences.getUserName() ?? 'Utilisateur';
+        final savedName = await preferences.getUserName();
         // Protection contre un roleId null, retour au login si problème
         if (roleId != null && mounted) {
+          final l10n = AppLocalizations.of(context);
+          final userName = savedName ?? l10n?.defaultUser ?? 'Utilisateur';
           final role = UserRole.fromId(roleId);
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
@@ -241,7 +244,8 @@ class _SplashPageState extends State<SplashPage>
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: Text(
-                'L\'excellence du football',
+                AppLocalizations.of(context)?.splashTagline ??
+                    'L\'excellence du football',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   color: Colors.white.withValues(alpha: 0.4),
