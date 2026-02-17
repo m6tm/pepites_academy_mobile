@@ -297,7 +297,7 @@ class _AcademicienRegistrationPageState
             height: 6,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: colorScheme.onSurface.withOpacity(0.05),
+              color: colorScheme.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -315,7 +315,7 @@ class _AcademicienRegistrationPageState
               borderRadius: BorderRadius.circular(3),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -334,7 +334,7 @@ class _AcademicienRegistrationPageState
         color: isDark ? colorScheme.surface : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -370,11 +370,11 @@ class _AcademicienRegistrationPageState
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
         minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 4,
-        shadowColor: AppColors.primary.withOpacity(0.4),
+        shadowColor: AppColors.primary.withValues(alpha: 0.4),
       ),
       child: _isLoading
           ? const SizedBox(
@@ -412,7 +412,7 @@ class _AcademicienRegistrationPageState
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 48),
-          side: BorderSide(color: colorScheme.onSurface.withOpacity(0.1)),
+          side: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -445,15 +445,15 @@ class _AcademicienRegistrationPageState
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: baseColor.withOpacity(0.06),
+                      color: baseColor.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(60),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.4),
+                        color: AppColors.primary.withValues(alpha: 0.4),
                         width: 3,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.15),
+                          color: AppColors.primary.withValues(alpha: 0.15),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -466,7 +466,7 @@ class _AcademicienRegistrationPageState
                           : Icon(
                               Icons.person_outline_rounded,
                               size: 50,
-                              color: AppColors.primary.withOpacity(0.4),
+                              color: AppColors.primary.withValues(alpha: 0.4),
                             ),
                     ),
                   ),
@@ -484,7 +484,7 @@ class _AcademicienRegistrationPageState
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.4),
+                          color: AppColors.primary.withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -515,8 +515,8 @@ class _AcademicienRegistrationPageState
             l10n.optionalLabel,
             style: GoogleFonts.montserrat(
               color: isDark
-                  ? AppColors.textMutedDark.withOpacity(0.6)
-                  : AppColors.textMutedLight.withOpacity(0.6),
+                  ? AppColors.textMutedDark.withValues(alpha: 0.6)
+                  : AppColors.textMutedLight.withValues(alpha: 0.6),
               fontSize: 11,
             ),
           ),
@@ -604,7 +604,7 @@ class _AcademicienRegistrationPageState
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: colorScheme.onSurface.withOpacity(0.7),
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 12),
@@ -631,7 +631,7 @@ class _AcademicienRegistrationPageState
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: colorScheme.onSurface.withOpacity(0.7),
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 12),
@@ -701,13 +701,13 @@ class _AcademicienRegistrationPageState
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary.withOpacity(0.08)
+                        ? AppColors.primary.withValues(alpha: 0.08)
                         : colorScheme.surface,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isSelected
                           ? AppColors.primary
-                          : colorScheme.onSurface.withOpacity(0.1),
+                          : colorScheme.onSurface.withValues(alpha: 0.1),
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -717,7 +717,7 @@ class _AcademicienRegistrationPageState
                         Icons.school_outlined,
                         color: isSelected
                             ? AppColors.primary
-                            : colorScheme.onSurface.withOpacity(0.4),
+                            : colorScheme.onSurface.withValues(alpha: 0.4),
                       ),
                       const SizedBox(width: 16),
                       Text(
@@ -812,7 +812,7 @@ class _AcademicienRegistrationPageState
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withOpacity(0.1),
+                color: const Color(0xFF10B981).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -836,7 +836,7 @@ class _AcademicienRegistrationPageState
           Text(
             l10n.academicianQrBadgeSubtitle,
             style: GoogleFonts.montserrat(
-              color: colorScheme.onSurface.withOpacity(0.5),
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
               fontSize: 13,
               height: 1.5,
             ),
@@ -869,7 +869,7 @@ class _AcademicienRegistrationPageState
                       borderRadius: BorderRadius.circular(14),
                     ),
                     side: BorderSide(
-                      color: colorScheme.onSurface.withOpacity(0.1),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                   ),
                 ),
@@ -891,7 +891,7 @@ class _AcademicienRegistrationPageState
                       borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 4,
-                    shadowColor: const Color(0xFF10B981).withOpacity(0.3),
+                    shadowColor: const Color(0xFF10B981).withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -917,7 +917,7 @@ class _AcademicienRegistrationPageState
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),

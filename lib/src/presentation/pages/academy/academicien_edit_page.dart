@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
@@ -133,10 +134,11 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     } catch (e) {
       debugPrint('Erreur selection image: $e');
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         AcademyToast.show(
           context,
-          title: 'Erreur',
-          description: 'Impossible d\'ouvrir la galerie',
+          title: l10n.error,
+          description: l10n.galleryOpenError,
           isError: true,
         );
       }
@@ -145,12 +147,13 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
 
   Future<void> _enregistrerModifications() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context)!;
 
     if (_selectedPosteId == null || _selectedPiedFort == null) {
       AcademyToast.show(
         context,
-        title: 'Champs requis',
-        description: 'Veuillez selectionner un poste et un pied fort',
+        title: AppLocalizations.of(context)!.requiredFields,
+        description: AppLocalizations.of(context)!.selectPosteAndPiedError,
         isError: true,
       );
       return;
@@ -159,8 +162,8 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     if (_selectedNiveauId == null) {
       AcademyToast.show(
         context,
-        title: 'Champ requis',
-        description: 'Veuillez selectionner un niveau scolaire',
+        title: AppLocalizations.of(context)!.requiredField,
+        description: AppLocalizations.of(context)!.selectSchoolLevelError,
         isError: true,
       );
       return;
@@ -187,9 +190,10 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
       if (mounted) {
         AcademyToast.show(
           context,
-          title: 'Modifications enregistrees',
-          description:
-              '${updated.prenom} ${updated.nom} a ete mis a jour avec succes.',
+          title: l10n.modificationsSaved,
+          description: l10n.playerUpdatedSuccess(
+            '${updated.prenom} ${updated.nom}',
+          ),
         );
         Navigator.pop(context, updated);
       }
@@ -198,8 +202,8 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         setState(() => _isLoading = false);
         AcademyToast.show(
           context,
-          title: 'Erreur',
-          description: 'Impossible de mettre a jour : $e',
+          title: l10n.error,
+          description: l10n.updateError(e.toString()),
           isError: true,
         );
       }
@@ -222,7 +226,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Modifier le profil',
+          AppLocalizations.of(context)!.editProfile,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -259,22 +263,29 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             children: [
               _buildPhotoPicker(isDark),
               const SizedBox(height: 32),
-              _buildSectionTitle('Identite', Icons.person_rounded),
+              _buildSectionTitle(
+                AppLocalizations.of(context)!.identityLabel,
+                Icons.person_rounded,
+              ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: _nomController,
-                label: 'Nom',
-                hint: 'Saisir le nom',
+                label: AppLocalizations.of(context)!.lastName,
+                hint: AppLocalizations.of(context)!.enterLastName,
                 icon: Icons.person_outline,
-                validator: (v) => v!.isEmpty ? 'Requis' : null,
+                validator: (v) => v!.isEmpty
+                    ? AppLocalizations.of(context)!.requiredLabel
+                    : null,
               ),
               const SizedBox(height: 20),
               _buildTextField(
                 controller: _prenomController,
-                label: 'Prenom',
-                hint: 'Saisir le prenom',
+                label: AppLocalizations.of(context)!.firstName,
+                hint: AppLocalizations.of(context)!.enterFirstName,
                 icon: Icons.person_outline,
-                validator: (v) => v!.isEmpty ? 'Requis' : null,
+                validator: (v) => v!.isEmpty
+                    ? AppLocalizations.of(context)!.requiredLabel
+                    : null,
               ),
               const SizedBox(height: 20),
               GestureDetector(
@@ -282,27 +293,34 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                 child: AbsorbPointer(
                   child: _buildTextField(
                     controller: _dateNaissanceController,
-                    label: 'Date de naissance',
-                    hint: 'JJ/MM/AAAA',
+                    label: AppLocalizations.of(context)!.birthDateLabel,
+                    hint: AppLocalizations.of(context)!.birthDateFormat,
                     icon: Icons.calendar_today_outlined,
-                    validator: (v) => v!.isEmpty ? 'Requis' : null,
+                    validator: (v) => v!.isEmpty
+                        ? AppLocalizations.of(context)!.requiredLabel
+                        : null,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               _buildTextField(
                 controller: _telephoneParentController,
-                label: 'Telephone Parent',
-                hint: '+221 -- --- -- --',
+                label: AppLocalizations.of(context)!.parentPhoneLabel,
+                hint: AppLocalizations.of(context)!.phoneHint,
                 icon: Icons.phone_android_outlined,
                 keyboardType: TextInputType.phone,
-                validator: (v) => v!.isEmpty ? 'Requis' : null,
+                validator: (v) => v!.isEmpty
+                    ? AppLocalizations.of(context)!.requiredLabel
+                    : null,
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('Football', Icons.sports_soccer_rounded),
+              _buildSectionTitle(
+                AppLocalizations.of(context)!.footballLabel,
+                Icons.sports_soccer_rounded,
+              ),
               const SizedBox(height: 16),
               Text(
-                'Poste de predilection',
+                AppLocalizations.of(context)!.preferredPositionLabel,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
@@ -331,7 +349,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Pied fort',
+                AppLocalizations.of(context)!.strongFootLabel,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
@@ -344,7 +362,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                 runSpacing: 12,
                 children: [
                   _buildChoiceChip(
-                    label: 'Droitier',
+                    label: AppLocalizations.of(context)!.rightFooted,
                     isSelected: _selectedPiedFort == 'Droitier',
                     onSelected: (s) => setState(
                       () => _selectedPiedFort = s ? 'Droitier' : null,
@@ -352,7 +370,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                     colorScheme: colorScheme,
                   ),
                   _buildChoiceChip(
-                    label: 'Gaucher',
+                    label: AppLocalizations.of(context)!.leftFooted,
                     isSelected: _selectedPiedFort == 'Gaucher',
                     onSelected: (s) => setState(
                       () => _selectedPiedFort = s ? 'Gaucher' : null,
@@ -360,7 +378,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                     colorScheme: colorScheme,
                   ),
                   _buildChoiceChip(
-                    label: 'Ambidextre',
+                    label: AppLocalizations.of(context)!.ambidextrous,
                     isSelected: _selectedPiedFort == 'Ambidextre',
                     onSelected: (s) => setState(
                       () => _selectedPiedFort = s ? 'Ambidextre' : null,
@@ -370,7 +388,10 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                 ],
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('Scolarite', Icons.school_rounded),
+              _buildSectionTitle(
+                AppLocalizations.of(context)!.schoolingLabel,
+                Icons.school_rounded,
+              ),
               const SizedBox(height: 16),
               ListView.separated(
                 shrinkWrap: true,
@@ -457,7 +478,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                           ),
                         )
                       : Text(
-                          'Enregistrer les modifications',
+                          AppLocalizations.of(context)!.saveModifications,
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,

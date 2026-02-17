@@ -2311,6 +2311,174 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ateliers'**
   String get workshopsStat;
+
+  /// No description provided for @all_masculine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get all_masculine;
+
+  /// No description provided for @yearsOld.
+  ///
+  /// In fr, this message translates to:
+  /// **'{age} ans'**
+  String yearsOld(int age);
+
+  /// No description provided for @deletePlayer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le joueur'**
+  String get deletePlayer;
+
+  /// No description provided for @deletePlayerConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible.'**
+  String deletePlayerConfirmation(String name);
+
+  /// No description provided for @editProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le profil'**
+  String get editProfile;
+
+  /// No description provided for @saveModifications.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get saveModifications;
+
+  /// No description provided for @modificationsSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifications enregistrées'**
+  String get modificationsSaved;
+
+  /// No description provided for @playerUpdatedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a été mis à jour avec succès.'**
+  String playerUpdatedSuccess(String name);
+
+  /// No description provided for @academiciansRegisteredSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Académiciens inscrits à l\'académie'**
+  String get academiciansRegisteredSubtitle;
+
+  /// No description provided for @searchPlayerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un joueur...'**
+  String get searchPlayerHint;
+
+  /// No description provided for @totalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total'**
+  String get totalLabel;
+
+  /// No description provided for @gardiensLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gardiens'**
+  String get gardiensLabel;
+
+  /// No description provided for @defLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déf.'**
+  String get defLabel;
+
+  /// No description provided for @milLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mil.'**
+  String get milLabel;
+
+  /// No description provided for @attLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Att.'**
+  String get attLabel;
+
+  /// No description provided for @noPlayerFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun joueur'**
+  String get noPlayerFound;
+
+  /// No description provided for @noSearchResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat pour cette recherche.\nEssayez avec d\'autres critères.'**
+  String get noSearchResult;
+
+  /// No description provided for @startByRegistering.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencez par inscrire votre\npremier académicien pour démarrer.'**
+  String get startByRegistering;
+
+  /// No description provided for @registerPlayerAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscrire un joueur'**
+  String get registerPlayerAction;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations personnelles'**
+  String get personalInformation;
+
+  /// No description provided for @evaluations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluations'**
+  String get evaluations;
+
+  /// No description provided for @sportProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil sportif'**
+  String get sportProfile;
+
+  /// No description provided for @trainingReport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin de formation'**
+  String get trainingReport;
+
+  /// No description provided for @trainingReportDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consulter et générer le bulletin de formation périodique.'**
+  String get trainingReportDesc;
+
+  /// No description provided for @accessReport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accéder au bulletin'**
+  String get accessReport;
+
+  /// No description provided for @tapToEnlargeBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez sur le badge pour l\'agrandir'**
+  String get tapToEnlargeBadge;
+
+  /// No description provided for @downloadLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger'**
+  String get downloadLabel;
+
+  /// No description provided for @updateError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de mettre à jour : {error}'**
+  String updateError(String error);
 }
 
 class _AppLocalizationsDelegate

@@ -1,0 +1,73 @@
+# TODO : Internationalisation (i10n)
+
+Liste des pages et composants à migrer vers `AppLocalizations` pour supporter le multilingue.
+
+## ⚽ Module Académie & Inscriptions
+
+- [x] `lib/src/presentation/pages/academy/academicien_edit_page.dart`
+- [x] `lib/src/presentation/pages/academy/academicien_list_page.dart`
+- [x] `lib/src/presentation/pages/academy/academicien_profile_page.dart`
+- [ ] `lib/src/presentation/pages/academy/registration/registration_page.dart`
+- [ ] `lib/src/presentation/pages/academy/registration/registration_success_page.dart`
+- [ ] `lib/src/presentation/pages/academy/registration/steps/football_step.dart`
+- [ ] `lib/src/presentation/pages/academy/registration/steps/identity_step.dart`
+- [ ] `lib/src/presentation/pages/academy/registration/steps/recap_step.dart`
+- [ ] `lib/src/presentation/pages/academy/registration/steps/school_step.dart`
+
+## 📊 Module Bulletin & Évaluation
+
+- [ ] `lib/src/presentation/pages/bulletin/bulletin_page.dart`
+- [ ] `lib/src/presentation/pages/bulletin/bulletin_preview_page.dart`
+- [ ] `lib/src/presentation/pages/bulletin/widgets/competences_radar_widget.dart`
+- [ ] `lib/src/presentation/pages/bulletin/widgets/evolution_chart_widget.dart`
+- [ ] `lib/src/presentation/pages/bulletin/widgets/periode_selector_widget.dart`
+
+## 📝 Module Annotations
+
+- [ ] `lib/src/presentation/pages/annotation/annotation_page.dart`
+- [ ] `lib/src/presentation/pages/annotation/widgets/academicien_annotation_tile.dart`
+- [ ] `lib/src/presentation/pages/annotation/widgets/annotation_side_panel.dart`
+
+## 🏠 Tableaux de Bord (Dashboard)
+
+- [ ] `lib/src/presentation/pages/dashboard/screens/admin_academy_screen.dart`
+- [ ] `lib/src/presentation/pages/dashboard/screens/admin_communication_screen.dart`
+- [ ] `lib/src/presentation/pages/dashboard/screens/admin_seances_screen.dart`
+- [ ] `lib/src/presentation/pages/dashboard/widgets/admin_internal_widgets.dart`
+- [ ] `lib/src/presentation/pages/dashboard/screens/encadreur_annotations_screen.dart`
+- [ ] `lib/src/presentation/pages/dashboard/screens/encadreur_communication_screen.dart`
+- [ ] `lib/src/presentation/pages/dashboard/screens/encadreur_seances_screen.dart`
+- [ ] `lib/src/presentation/pages/dashboard/widgets/encadreur_internal_widgets.dart`
+- [ ] `lib/src/presentation/pages/dashboard/widgets/dashboard_header.dart`
+- [ ] `lib/src/presentation/pages/dashboard/widgets/seance_card.dart`
+
+## 🏃 Module Séances & Ateliers
+
+- [ ] `lib/src/presentation/pages/seance/atelier_composition_page.dart`
+- [ ] `lib/src/presentation/pages/seance/seance_detail_page.dart`
+
+## 🔍 Module Recherche & Détails
+
+- [ ] `lib/src/presentation/pages/search/search_page.dart`
+- [ ] `lib/src/presentation/pages/search/academicien_detail_page.dart`
+- [ ] `lib/src/presentation/pages/search/encadreur_detail_page.dart`
+- [ ] `lib/src/presentation/pages/search/seance_detail_consultation_page.dart`
+
+## 💬 Module SMS & Communication
+
+- [ ] `lib/src/presentation/pages/sms/sms_compose_page.dart`
+- [ ] `lib/src/presentation/pages/sms/sms_confirmation_page.dart`
+- [ ] `lib/src/presentation/pages/sms/sms_history_page.dart`
+- [ ] `lib/src/presentation/pages/sms/sms_recipient_selection_page.dart`
+
+## ⚙️ Module Référentiel & Paramètres
+
+- [ ] `lib/src/presentation/pages/referentiel/niveaux_scolaires_page.dart`
+- [ ] `lib/src/presentation/pages/referentiel/postes_football_page.dart`
+- [ ] `lib/src/presentation/pages/notification/notifications_page.dart`
+
+## 📷 Scanner
+
+- [ ] `lib/src/presentation/pages/scanner/qr_scanner_page.dart`
+- [ ] `lib/src/presentation/pages/scanner/widgets/scanner_overlay.dart`
+- [ ] `lib/src/presentation/pages/scanner/widgets/scan_result_badge.dart`

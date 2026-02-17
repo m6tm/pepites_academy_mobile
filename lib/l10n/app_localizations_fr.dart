@@ -1197,4 +1197,100 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get workshopsStat => 'Ateliers';
+
+  @override
+  String get all_masculine => 'Tous';
+
+  @override
+  String yearsOld(int age) {
+    return '$age ans';
+  }
+
+  @override
+  String get deletePlayer => 'Supprimer le joueur';
+
+  @override
+  String deletePlayerConfirmation(String name) {
+    return 'Êtes-vous sûr de vouloir supprimer $name ? Cette action est irréversible.';
+  }
+
+  @override
+  String get editProfile => 'Modifier le profil';
+
+  @override
+  String get saveModifications => 'Enregistrer les modifications';
+
+  @override
+  String get modificationsSaved => 'Modifications enregistrées';
+
+  @override
+  String playerUpdatedSuccess(String name) {
+    return '$name a été mis à jour avec succès.';
+  }
+
+  @override
+  String get academiciansRegisteredSubtitle =>
+      'Académiciens inscrits à l\'académie';
+
+  @override
+  String get searchPlayerHint => 'Rechercher un joueur...';
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get gardiensLabel => 'Gardiens';
+
+  @override
+  String get defLabel => 'Déf.';
+
+  @override
+  String get milLabel => 'Mil.';
+
+  @override
+  String get attLabel => 'Att.';
+
+  @override
+  String get noPlayerFound => 'Aucun joueur';
+
+  @override
+  String get noSearchResult =>
+      'Aucun résultat pour cette recherche.\nEssayez avec d\'autres critères.';
+
+  @override
+  String get startByRegistering =>
+      'Commencez par inscrire votre\npremier académicien pour démarrer.';
+
+  @override
+  String get registerPlayerAction => 'Inscrire un joueur';
+
+  @override
+  String get personalInformation => 'Informations personnelles';
+
+  @override
+  String get evaluations => 'Évaluations';
+
+  @override
+  String get sportProfile => 'Profil sportif';
+
+  @override
+  String get trainingReport => 'Bulletin de formation';
+
+  @override
+  String get trainingReportDesc =>
+      'Consulter et générer le bulletin de formation périodique.';
+
+  @override
+  String get accessReport => 'Accéder au bulletin';
+
+  @override
+  String get tapToEnlargeBadge => 'Appuyez sur le badge pour l\'agrandir';
+
+  @override
+  String get downloadLabel => 'Télécharger';
+
+  @override
+  String updateError(String error) {
+    return 'Impossible de mettre à jour : $error';
+  }
 }

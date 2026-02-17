@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/poste_football.dart';
@@ -51,12 +52,12 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
 
   String _getPosteName() {
     return widget.postesMap[_academicien.posteFootballId]?.nom ??
-        'Non specifie';
+        AppLocalizations.of(context)!.notSpecified;
   }
 
   String _getNiveauName() {
     return widget.niveauxMap[_academicien.niveauScolaireId]?.nom ??
-        'Non specifie';
+        AppLocalizations.of(context)!.notSpecified;
   }
 
   int _calculateAge() {
@@ -75,24 +76,26 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
   }
 
   void _showDeleteConfirmation() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'Supprimer le joueur',
+          l10n.deletePlayer,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'Etes-vous sur de vouloir supprimer ${_academicien.prenom} ${_academicien.nom} ? '
-          'Cette action est irreversible.',
+          l10n.deletePlayerConfirmation(
+            '${_academicien.prenom} ${_academicien.nom}',
+          ),
           style: GoogleFonts.montserrat(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Annuler',
+              l10n.cancel,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),
@@ -115,7 +118,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
               ),
             ),
             child: Text(
-              'Supprimer',
+              l10n.delete,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),
@@ -339,7 +342,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${_getPosteName()} - ${_calculateAge()} ans',
+                      '${_getPosteName()} - ${AppLocalizations.of(context)!.yearsOld(_calculateAge())}',
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -379,7 +382,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           Expanded(
             child: _InfoChip(
               icon: Icons.school_outlined,
-              label: 'Niveau',
+              label: AppLocalizations.of(context)!.schoolingLabel,
               value: _getNiveauName(),
               colorScheme: colorScheme,
             ),
@@ -392,8 +395,10 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           Expanded(
             child: _InfoChip(
               icon: Icons.directions_run_rounded,
-              label: 'Pied fort',
-              value: _academicien.piedFort ?? 'N/A',
+              label: AppLocalizations.of(context)!.strongFootLabel,
+              value:
+                  _academicien.piedFort ??
+                  AppLocalizations.of(context)!.notProvided,
               colorScheme: colorScheme,
             ),
           ),
@@ -405,8 +410,8 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           Expanded(
             child: _InfoChip(
               icon: Icons.cake_outlined,
-              label: 'Age',
-              value: '${_calculateAge()} ans',
+              label: AppLocalizations.of(context)!.birthDateLabel,
+              value: AppLocalizations.of(context)!.yearsOld(_calculateAge()),
               colorScheme: colorScheme,
             ),
           ),
@@ -416,6 +421,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
   }
 
   Widget _buildStatsRow(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
       child: Row(
@@ -423,7 +429,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           Expanded(
             child: _StatTile(
               value: '0',
-              label: 'Seances',
+              label: l10n.sessions,
               icon: Icons.event_rounded,
               color: const Color(0xFF3B82F6),
               isDark: isDark,
@@ -434,7 +440,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           Expanded(
             child: _StatTile(
               value: '0',
-              label: 'Evaluations',
+              label: l10n.evaluations,
               icon: Icons.star_rounded,
               color: const Color(0xFFF59E0B),
               isDark: isDark,
@@ -445,7 +451,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           Expanded(
             child: _StatTile(
               value: '0',
-              label: 'Presences',
+              label: l10n.attendance,
               icon: Icons.check_circle_rounded,
               color: const Color(0xFF10B981),
               isDark: isDark,
@@ -482,34 +488,38 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           fontSize: 13,
         ),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'Infos'),
-          Tab(text: 'Sport'),
-          Tab(text: 'Badge QR'),
+        tabs: [
+          Tab(text: AppLocalizations.of(context)!.identityLabel),
+          Tab(text: AppLocalizations.of(context)!.footballLabel),
+          Tab(text: AppLocalizations.of(context)!.academicianBadgeTitle),
         ],
       ),
     );
   }
 
   Widget _buildInfoTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoSection(
-            'Informations personnelles',
+            l10n.personalInformation,
             Icons.person_rounded,
             [
-              _InfoRowData(label: 'Nom', value: _academicien.nom),
-              _InfoRowData(label: 'Prenom', value: _academicien.prenom),
+              _InfoRowData(label: l10n.lastName, value: _academicien.nom),
+              _InfoRowData(label: l10n.firstName, value: _academicien.prenom),
               _InfoRowData(
-                label: 'Date de naissance',
+                label: l10n.birthDateLabel,
                 value: _formatDate(_academicien.dateNaissance),
               ),
-              _InfoRowData(label: 'Age', value: '${_calculateAge()} ans'),
               _InfoRowData(
-                label: 'Telephone parent',
+                label: l10n.birthDateLabel,
+                value: l10n.yearsOld(_calculateAge()),
+              ),
+              _InfoRowData(
+                label: l10n.parentPhoneLabel,
                 value: _academicien.telephoneParent,
               ),
             ],
@@ -518,11 +528,14 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           ),
           const SizedBox(height: 16),
           _buildInfoSection(
-            'Identifiants',
+            l10n.identityLabel,
             Icons.qr_code_rounded,
             [
               _InfoRowData(label: 'ID', value: _academicien.id),
-              _InfoRowData(label: 'Code QR', value: _academicien.codeQrUnique),
+              _InfoRowData(
+                label: l10n.scanQr,
+                value: _academicien.codeQrUnique,
+              ),
             ],
             colorScheme,
             isDark,
@@ -533,19 +546,20 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
   }
 
   Widget _buildSportTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoSection(
-            'Profil sportif',
+            l10n.sportProfile,
             Icons.sports_soccer_rounded,
             [
-              _InfoRowData(label: 'Poste', value: _getPosteName()),
+              _InfoRowData(label: l10n.posteLabel, value: _getPosteName()),
               _InfoRowData(
-                label: 'Pied fort',
-                value: _academicien.piedFort ?? 'Non specifie',
+                label: l10n.strongFootLabel,
+                value: _academicien.piedFort ?? l10n.notSpecified,
               ),
             ],
             colorScheme,
@@ -553,9 +567,9 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           ),
           const SizedBox(height: 16),
           _buildInfoSection(
-            'Scolarite',
+            l10n.schoolingLabel,
             Icons.school_rounded,
-            [_InfoRowData(label: 'Niveau', value: _getNiveauName())],
+            [_InfoRowData(label: l10n.posteLabel, value: _getNiveauName())],
             colorScheme,
             isDark,
           ),
@@ -588,7 +602,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Bulletin de formation',
+                    l10n.trainingReport,
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -597,7 +611,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Consulter et generer le bulletin\nde formation periodique.',
+                    l10n.trainingReportDesc,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
@@ -616,7 +630,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Acceder au bulletin',
+                      l10n.accessReport,
                       style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -700,7 +714,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'ACADEMICIEN',
+                      AppLocalizations.of(context)!.academicianBadgeType,
                       style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
@@ -765,7 +779,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           ),
           const SizedBox(height: 20),
           Text(
-            'Appuyez sur le badge pour l\'agrandir',
+            AppLocalizations.of(context)!.tapToEnlargeBadge,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -779,7 +793,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                   onPressed: () {},
                   icon: const Icon(Icons.share_rounded, size: 18),
                   label: Text(
-                    'Partager',
+                    AppLocalizations.of(context)!.shareLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: OutlinedButton.styleFrom(

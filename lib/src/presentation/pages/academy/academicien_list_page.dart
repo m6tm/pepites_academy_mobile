@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
@@ -26,10 +27,10 @@ class AcademicienListPageState extends State<AcademicienListPage> {
   List<Academicien> _filteredAcademiciens = [];
   bool _isLoading = true;
   final _searchController = TextEditingController();
-  String _selectedFilter = 'Tous';
+  String _selectedFilter = '';
 
   // Filtres dynamiques construits a partir des postes du referentiel
-  List<String> _filters = ['Tous'];
+  List<String> _filters = [];
 
   // Correspondance posteId -> PosteFootball chargee depuis le referentiel
   Map<String, PosteFootball> _postesMap = {};
@@ -49,8 +50,14 @@ class AcademicienListPageState extends State<AcademicienListPage> {
         .getAllNiveaux();
     _postesMap = {for (final p in postes) p.id: p};
     _niveauxMap = {for (final n in niveaux) n.id: n};
-    _filters = ['Tous', ...postes.map((p) => p.nom)];
-    await _loadAcademiciens();
+    if (mounted) {
+      _filters = [
+        AppLocalizations.of(context)!.all_masculine,
+        ...postes.map((p) => p.nom),
+      ];
+      _selectedFilter = AppLocalizations.of(context)!.all_masculine;
+      await _loadAcademiciens();
+    }
   }
 
   @override
@@ -77,18 +84,20 @@ class AcademicienListPageState extends State<AcademicienListPage> {
   }
 
   String _getPosteName(String posteId) {
-    return _postesMap[posteId]?.nom ?? 'Non specifie';
+    return _postesMap[posteId]?.nom ??
+        AppLocalizations.of(context)!.notSpecified;
   }
 
   String _getNiveauName(String niveauId) {
-    return _niveauxMap[niveauId]?.nom ?? 'Non specifie';
+    return _niveauxMap[niveauId]?.nom ??
+        AppLocalizations.of(context)!.notSpecified;
   }
 
   void _applyFilters() {
     List<Academicien> result = List.from(_academiciens);
 
     // Filtre par nom de poste
-    if (_selectedFilter != 'Tous') {
+    if (_selectedFilter != AppLocalizations.of(context)!.all_masculine) {
       result = result.where((a) {
         return _getPosteName(a.posteFootballId) == _selectedFilter;
       }).toList();
@@ -211,7 +220,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Joueurs',
+                    AppLocalizations.of(context)!.players,
                     style: GoogleFonts.montserrat(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
@@ -225,7 +234,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
               Padding(
                 padding: const EdgeInsets.only(left: 32),
                 child: Text(
-                  'Academiciens inscrits a l\'academie',
+                  AppLocalizations.of(context)!.academiciansRegisteredSubtitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -296,7 +305,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
                 controller: _searchController,
                 onChanged: (_) => _applyFilters(),
                 decoration: InputDecoration(
-                  hintText: 'Rechercher un joueur...',
+                  hintText: AppLocalizations.of(context)!.searchPlayerHint,
                   hintStyle: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.3),
@@ -395,13 +404,14 @@ class AcademicienListPageState extends State<AcademicienListPage> {
         .where((a) => ['8', '9', '10'].contains(a.posteFootballId))
         .length;
 
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
         children: [
           Expanded(
             child: _MiniStat(
-              label: 'Total',
+              label: l10n.totalLabel,
               value: '${_academiciens.length}',
               icon: Icons.people_rounded,
               color: const Color(0xFF3B82F6),
@@ -412,7 +422,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
           const SizedBox(width: 8),
           Expanded(
             child: _MiniStat(
-              label: 'Gardiens',
+              label: l10n.gardiensLabel,
               value: '$gardiens',
               icon: Icons.pan_tool_rounded,
               color: const Color(0xFFF59E0B),
@@ -423,7 +433,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
           const SizedBox(width: 8),
           Expanded(
             child: _MiniStat(
-              label: 'Def.',
+              label: l10n.defLabel,
               value: '$defenseurs',
               icon: Icons.security_rounded,
               color: const Color(0xFF10B981),
@@ -434,7 +444,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
           const SizedBox(width: 8),
           Expanded(
             child: _MiniStat(
-              label: 'Mil.',
+              label: l10n.milLabel,
               value: '$milieux',
               icon: Icons.repeat_rounded,
               color: const Color(0xFF8B5CF6),
@@ -445,7 +455,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
           const SizedBox(width: 8),
           Expanded(
             child: _MiniStat(
-              label: 'Att.',
+              label: l10n.attLabel,
               value: '$attaquants',
               icon: Icons.sports_soccer_rounded,
               color: AppColors.primary,
@@ -596,7 +606,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          '$age ans',
+                          AppLocalizations.of(context)!.yearsOld(age),
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
                             color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -640,7 +650,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun joueur',
+              AppLocalizations.of(context)!.noPlayerFound,
               style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -649,9 +659,11 @@ class AcademicienListPageState extends State<AcademicienListPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              _searchController.text.isNotEmpty || _selectedFilter != 'Tous'
-                  ? 'Aucun resultat pour cette recherche.\nEssayez avec d\'autres criteres.'
-                  : 'Commencez par inscrire votre\npremier academicien pour demarrer.',
+              _searchController.text.isNotEmpty ||
+                      _selectedFilter !=
+                          AppLocalizations.of(context)!.all_masculine
+                  ? AppLocalizations.of(context)!.noSearchResult
+                  : AppLocalizations.of(context)!.startByRegistering,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
@@ -660,12 +672,13 @@ class AcademicienListPageState extends State<AcademicienListPage> {
               ),
             ),
             const SizedBox(height: 32),
-            if (_searchController.text.isEmpty && _selectedFilter == 'Tous')
+            if (_searchController.text.isEmpty &&
+                _selectedFilter == AppLocalizations.of(context)!.all_masculine)
               ElevatedButton.icon(
                 onPressed: _navigateToRegistration,
                 icon: const Icon(Icons.person_add_rounded, size: 20),
                 label: Text(
-                  'Inscrire un joueur',
+                  AppLocalizations.of(context)!.registerPlayerAction,
                   style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -694,7 +707,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
       elevation: 6,
       icon: const Icon(Icons.person_add_rounded, size: 20),
       label: Text(
-        'Inscrire',
+        AppLocalizations.of(context)!.register_action,
         style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

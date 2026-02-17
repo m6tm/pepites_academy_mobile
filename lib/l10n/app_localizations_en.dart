@@ -1192,4 +1192,100 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workshopsStat => 'Workshops';
+
+  @override
+  String get all_masculine => 'All';
+
+  @override
+  String yearsOld(int age) {
+    return '$age years';
+  }
+
+  @override
+  String get deletePlayer => 'Delete player';
+
+  @override
+  String deletePlayerConfirmation(String name) {
+    return 'Are you sure you want to delete $name? This action is irreversible.';
+  }
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get saveModifications => 'Save modifications';
+
+  @override
+  String get modificationsSaved => 'Modifications saved';
+
+  @override
+  String playerUpdatedSuccess(String name) {
+    return '$name has been updated successfully.';
+  }
+
+  @override
+  String get academiciansRegisteredSubtitle =>
+      'Academicians registered in the academy';
+
+  @override
+  String get searchPlayerHint => 'Search for a player...';
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get gardiensLabel => 'GKs';
+
+  @override
+  String get defLabel => 'Def.';
+
+  @override
+  String get milLabel => 'Mid.';
+
+  @override
+  String get attLabel => 'Fwd.';
+
+  @override
+  String get noPlayerFound => 'No player found';
+
+  @override
+  String get noSearchResult =>
+      'No results found for this search.\nTry with other criteria.';
+
+  @override
+  String get startByRegistering =>
+      'Start by registering your\nfirst academician to begin.';
+
+  @override
+  String get registerPlayerAction => 'Register a player';
+
+  @override
+  String get personalInformation => 'Personal information';
+
+  @override
+  String get evaluations => 'Evaluations';
+
+  @override
+  String get sportProfile => 'Sports profile';
+
+  @override
+  String get trainingReport => 'Training report';
+
+  @override
+  String get trainingReportDesc =>
+      'View and generate the periodic training report.';
+
+  @override
+  String get accessReport => 'Access report';
+
+  @override
+  String get tapToEnlargeBadge => 'Tap on badge to enlarge';
+
+  @override
+  String get downloadLabel => 'Download';
+
+  @override
+  String updateError(String error) {
+    return 'Could not update: $error';
+  }
 }

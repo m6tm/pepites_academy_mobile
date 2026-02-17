@@ -499,5 +499,61 @@
   },
   "academiciansStat": "Academicians",
   "annotationsStat": "Annotations",
-  "workshopsStat": "Workshops"
+  "workshopsStat": "Workshops",
+  "all_masculine": "All",
+  "yearsOld": "{age} years",
+  "@yearsOld": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "deletePlayer": "Delete player",
+  "deletePlayerConfirmation": "Are you sure you want to delete {name}? This action is irreversible.",
+  "@deletePlayerConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editProfile": "Edit profile",
+  "saveModifications": "Save modifications",
+  "modificationsSaved": "Modifications saved",
+  "playerUpdatedSuccess": "{name} has been updated successfully.",
+  "@playerUpdatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "academiciansRegisteredSubtitle": "Academicians registered in the academy",
+  "searchPlayerHint": "Search for a player...",
+  "totalLabel": "Total",
+  "gardiensLabel": "GKs",
+  "defLabel": "Def.",
+  "milLabel": "Mid.",
+  "attLabel": "Fwd.",
+  "noPlayerFound": "No player found",
+  "noSearchResult": "No results found for this search.\nTry with other criteria.",
+  "startByRegistering": "Start by registering your\nfirst academician to begin.",
+  "registerPlayerAction": "Register a player",
+  "personalInformation": "Personal information",
+  "evaluations": "Evaluations",
+  "sportProfile": "Sports profile",
+  "trainingReport": "Training report",
+  "trainingReportDesc": "View and generate the periodic training report.",
+  "accessReport": "Access report",
+  "tapToEnlargeBadge": "Tap on badge to enlarge",
+  "downloadLabel": "Download",
+  "updateError": "Could not update: {error}",
+  "@updateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

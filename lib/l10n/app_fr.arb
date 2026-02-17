@@ -565,5 +565,61 @@
   },
   "academiciansStat": "Academiciens",
   "annotationsStat": "Annotations",
-  "workshopsStat": "Ateliers"
+  "workshopsStat": "Ateliers",
+  "all_masculine": "Tous",
+  "yearsOld": "{age} ans",
+  "@yearsOld": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "deletePlayer": "Supprimer le joueur",
+  "deletePlayerConfirmation": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible.",
+  "@deletePlayerConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editProfile": "Modifier le profil",
+  "saveModifications": "Enregistrer les modifications",
+  "modificationsSaved": "Modifications enregistrées",
+  "playerUpdatedSuccess": "{name} a été mis à jour avec succès.",
+  "@playerUpdatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "academiciansRegisteredSubtitle": "Académiciens inscrits à l'académie",
+  "searchPlayerHint": "Rechercher un joueur...",
+  "totalLabel": "Total",
+  "gardiensLabel": "Gardiens",
+  "defLabel": "Déf.",
+  "milLabel": "Mil.",
+  "attLabel": "Att.",
+  "noPlayerFound": "Aucun joueur",
+  "noSearchResult": "Aucun résultat pour cette recherche.\nEssayez avec d'autres critères.",
+  "startByRegistering": "Commencez par inscrire votre\npremier académicien pour démarrer.",
+  "registerPlayerAction": "Inscrire un joueur",
+  "personalInformation": "Informations personnelles",
+  "evaluations": "Évaluations",
+  "sportProfile": "Profil sportif",
+  "trainingReport": "Bulletin de formation",
+  "trainingReportDesc": "Consulter et générer le bulletin de formation périodique.",
+  "accessReport": "Accéder au bulletin",
+  "tapToEnlargeBadge": "Appuyez sur le badge pour l'agrandir",
+  "downloadLabel": "Télécharger",
+  "updateError": "Impossible de mettre à jour : {error}",
+  "@updateError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }
