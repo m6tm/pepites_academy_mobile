@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/bulletin.dart';
@@ -22,11 +23,20 @@ class CompetencesRadarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
+
+    final translatedLabels = [
+      l10n.competenceTechnique,
+      l10n.competencePhysique,
+      l10n.competenceTactique,
+      l10n.competenceMental,
+      l10n.competenceEspritEquipe,
+    ];
 
     return Column(
       children: [
         Text(
-          'Radar des competences',
+          l10n.radarChartTitle,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -43,28 +53,25 @@ class CompetencesRadarWidget extends StatelessWidget {
               competences: competences,
               competencesPrecedentes: competencesPrecedentes,
               isDark: isDark,
+              labels: translatedLabels,
             ),
           ),
         ),
         const SizedBox(height: 16),
-        _buildLegende(isDark),
+        _buildLegende(isDark, l10n),
       ],
     );
   }
 
-  Widget _buildLegende(bool isDark) {
+  Widget _buildLegende(bool isDark, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem(
-          'Actuel',
-          AppColors.primary,
-          isDark,
-        ),
+        _buildLegendItem(l10n.actualLabel, AppColors.primary, isDark),
         if (competencesPrecedentes != null) ...[
           const SizedBox(width: 24),
           _buildLegendItem(
-            'Precedent',
+            l10n.previousLabel,
             AppColors.primary.withValues(alpha: 0.3),
             isDark,
           ),
@@ -103,48 +110,80 @@ class _RadarPainter extends CustomPainter {
   final Competences competences;
   final Competences? competencesPrecedentes;
   final bool isDark;
+  final List<String> labels;
 
   _RadarPainter({
     required this.competences,
     this.competencesPrecedentes,
     required this.isDark,
+    required this.labels,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width * 0.35;
-    final labels = Competences.labels;
     final values = competences.toList();
     final nbAxes = labels.length;
     final angleStep = (2 * pi) / nbAxes;
     final startAngle = -pi / 2;
 
     _dessinerGrille(canvas, center, radius, nbAxes, angleStep, startAngle);
-    _dessinerLabels(canvas, center, radius, labels, nbAxes, angleStep, startAngle, size);
+    _dessinerLabels(
+      canvas,
+      center,
+      radius,
+      labels,
+      nbAxes,
+      angleStep,
+      startAngle,
+      size,
+    );
 
     if (competencesPrecedentes != null) {
       _dessinerZone(
-        canvas, center, radius, competencesPrecedentes!.toList(),
-        nbAxes, angleStep, startAngle,
+        canvas,
+        center,
+        radius,
+        competencesPrecedentes!.toList(),
+        nbAxes,
+        angleStep,
+        startAngle,
         AppColors.primary.withValues(alpha: 0.15),
         AppColors.primary.withValues(alpha: 0.3),
       );
     }
 
     _dessinerZone(
-      canvas, center, radius, values,
-      nbAxes, angleStep, startAngle,
+      canvas,
+      center,
+      radius,
+      values,
+      nbAxes,
+      angleStep,
+      startAngle,
       AppColors.primary.withValues(alpha: 0.25),
       AppColors.primary,
     );
 
-    _dessinerPoints(canvas, center, radius, values, nbAxes, angleStep, startAngle);
+    _dessinerPoints(
+      canvas,
+      center,
+      radius,
+      values,
+      nbAxes,
+      angleStep,
+      startAngle,
+    );
   }
 
   void _dessinerGrille(
-    Canvas canvas, Offset center, double radius,
-    int nbAxes, double angleStep, double startAngle,
+    Canvas canvas,
+    Offset center,
+    double radius,
+    int nbAxes,
+    double angleStep,
+    double startAngle,
   ) {
     final gridPaint = Paint()
       ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1)
@@ -186,8 +225,13 @@ class _RadarPainter extends CustomPainter {
   }
 
   void _dessinerLabels(
-    Canvas canvas, Offset center, double radius,
-    List<String> labels, int nbAxes, double angleStep, double startAngle,
+    Canvas canvas,
+    Offset center,
+    double radius,
+    List<String> labels,
+    int nbAxes,
+    double angleStep,
+    double startAngle,
     Size size,
   ) {
     for (int i = 0; i < nbAxes; i++) {
@@ -219,9 +263,15 @@ class _RadarPainter extends CustomPainter {
   }
 
   void _dessinerZone(
-    Canvas canvas, Offset center, double radius, List<double> values,
-    int nbAxes, double angleStep, double startAngle,
-    Color fillColor, Color strokeColor,
+    Canvas canvas,
+    Offset center,
+    double radius,
+    List<double> values,
+    int nbAxes,
+    double angleStep,
+    double startAngle,
+    Color fillColor,
+    Color strokeColor,
   ) {
     final path = Path();
     for (int i = 0; i <= nbAxes; i++) {
@@ -255,8 +305,13 @@ class _RadarPainter extends CustomPainter {
   }
 
   void _dessinerPoints(
-    Canvas canvas, Offset center, double radius, List<double> values,
-    int nbAxes, double angleStep, double startAngle,
+    Canvas canvas,
+    Offset center,
+    double radius,
+    List<double> values,
+    int nbAxes,
+    double angleStep,
+    double startAngle,
   ) {
     for (int i = 0; i < nbAxes; i++) {
       final angle = startAngle + angleStep * i;
@@ -287,6 +342,7 @@ class _RadarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _RadarPainter oldDelegate) {
     return oldDelegate.competences != competences ||
-        oldDelegate.competencesPrecedentes != competencesPrecedentes;
+        oldDelegate.competencesPrecedentes != competencesPrecedentes ||
+        oldDelegate.labels != labels;
   }
 }

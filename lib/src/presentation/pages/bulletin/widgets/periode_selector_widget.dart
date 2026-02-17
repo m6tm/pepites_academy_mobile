@@ -1,5 +1,7 @@
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../../../domain/entities/bulletin.dart';
 import '../../../theme/app_colors.dart';
 
@@ -23,12 +25,13 @@ class PeriodeSelectorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Periode du bulletin',
+          l10n.periodTitle,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -36,14 +39,14 @@ class PeriodeSelectorWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        _buildTypeSelector(isDark),
+        _buildTypeSelector(isDark, l10n),
         const SizedBox(height: 16),
-        _buildNavigateurPeriode(isDark),
+        _buildNavigateurPeriode(isDark, l10n),
       ],
     );
   }
 
-  Widget _buildTypeSelector(bool isDark) {
+  Widget _buildTypeSelector(bool isDark, AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
@@ -68,7 +71,7 @@ class PeriodeSelectorWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(11),
                 ),
                 child: Text(
-                  _typeLabel(type),
+                  _typeLabel(type, l10n),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
@@ -88,8 +91,8 @@ class PeriodeSelectorWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildNavigateurPeriode(bool isDark) {
-    final label = _periodeLabel();
+  Widget _buildNavigateurPeriode(bool isDark, AppLocalizations l10n) {
+    final label = _periodeLabel(l10n);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -152,44 +155,29 @@ class PeriodeSelectorWidget extends StatelessWidget {
     );
   }
 
-  String _typeLabel(PeriodeType type) {
+  String _typeLabel(PeriodeType type, AppLocalizations l10n) {
     switch (type) {
       case PeriodeType.mois:
-        return 'Mois';
+        return l10n.periodMonth;
       case PeriodeType.trimestre:
-        return 'Trimestre';
+        return l10n.periodQuarter;
       case PeriodeType.saison:
-        return 'Saison';
+        return l10n.periodSeason;
     }
   }
 
-  String _periodeLabel() {
-    const mois = [
-      'Janvier',
-      'Fevrier',
-      'Mars',
-      'Avril',
-      'Mai',
-      'Juin',
-      'Juillet',
-      'Aout',
-      'Septembre',
-      'Octobre',
-      'Novembre',
-      'Decembre',
-    ];
-
+  String _periodeLabel(AppLocalizations l10n) {
     switch (typePeriode) {
       case PeriodeType.mois:
-        return '${mois[dateReference.month - 1]} ${dateReference.year}';
+        return DateFormat('MMMM yyyy', l10n.localeName).format(dateReference);
       case PeriodeType.trimestre:
         final t = ((dateReference.month - 1) ~/ 3) + 1;
-        return 'Trimestre $t - ${dateReference.year}';
+        return l10n.quarterLabel(t, dateReference.year);
       case PeriodeType.saison:
         final annee = dateReference.month >= 9
             ? dateReference.year
             : dateReference.year - 1;
-        return 'Saison $annee-${annee + 1}';
+        return l10n.seasonLabel(annee, annee + 1);
     }
   }
 
@@ -199,7 +187,7 @@ class PeriodeSelectorWidget extends StatelessWidget {
   }
 
   String _formatDate(DateTime d) {
-    return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+    return DateFormat('dd/MM/yyyy').format(d);
   }
 
   (DateTime, DateTime) _calculerDates() {

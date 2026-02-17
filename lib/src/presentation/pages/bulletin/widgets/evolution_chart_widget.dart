@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/bulletin.dart';
@@ -20,21 +21,24 @@ class EvolutionChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     if (bulletins.isEmpty) {
-      return _buildEmptyState(isDark);
+      return _buildEmptyState(isDark, l10n);
     }
 
     final sorted = List<Bulletin>.from(bulletins)
       ..sort((a, b) => a.dateDebutPeriode.compareTo(b.dateDebutPeriode));
 
-    final maxBulletins = sorted.length > 6 ? sorted.sublist(sorted.length - 6) : sorted;
+    final maxBulletins = sorted.length > 6
+        ? sorted.sublist(sorted.length - 6)
+        : sorted;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Evolution des competences',
+          l10n.evolutionChartTitle,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -46,24 +50,21 @@ class EvolutionChartWidget extends StatelessWidget {
           height: height,
           child: CustomPaint(
             size: Size(double.infinity, height),
-            painter: _EvolutionPainter(
-              bulletins: maxBulletins,
-              isDark: isDark,
-            ),
+            painter: _EvolutionPainter(bulletins: maxBulletins, isDark: isDark),
           ),
         ),
         const SizedBox(height: 12),
-        _buildLegende(isDark),
+        _buildLegende(isDark, l10n),
       ],
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState(bool isDark, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       child: Center(
         child: Text(
-          'Pas assez de donnees pour afficher l\'evolution.\nGenerez plusieurs bulletins pour voir les courbes.',
+          l10n.notEnoughDataEvolution,
           textAlign: TextAlign.center,
           style: GoogleFonts.montserrat(
             fontSize: 13,
@@ -74,13 +75,13 @@ class EvolutionChartWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildLegende(bool isDark) {
+  Widget _buildLegende(bool isDark, AppLocalizations l10n) {
     final items = [
-      ('Technique', const Color(0xFFC8102E)),
-      ('Physique', const Color(0xFF2196F3)),
-      ('Tactique', const Color(0xFF4CAF50)),
-      ('Mental', const Color(0xFFFF9800)),
-      ('Esprit eq.', const Color(0xFF9C27B0)),
+      (l10n.competenceTechnique, const Color(0xFFC8102E)),
+      (l10n.competencePhysique, const Color(0xFF2196F3)),
+      (l10n.competenceTactique, const Color(0xFF4CAF50)),
+      (l10n.competenceMental, const Color(0xFFFF9800)),
+      (l10n.competenceEspritEquipe, const Color(0xFF9C27B0)),
     ];
 
     return Wrap(
@@ -128,10 +129,7 @@ class _EvolutionPainter extends CustomPainter {
     Color(0xFF9C27B0),
   ];
 
-  _EvolutionPainter({
-    required this.bulletins,
-    required this.isDark,
-  });
+  _EvolutionPainter({required this.bulletins, required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -145,22 +143,46 @@ class _EvolutionPainter extends CustomPainter {
     final chartWidth = size.width - paddingLeft - paddingRight;
     final chartHeight = size.height - paddingBottom - paddingTop;
 
-    _dessinerAxes(canvas, size, paddingLeft, paddingBottom, paddingTop, chartWidth, chartHeight);
+    _dessinerAxes(
+      canvas,
+      size,
+      paddingLeft,
+      paddingBottom,
+      paddingTop,
+      chartWidth,
+      chartHeight,
+    );
     _dessinerLabelsX(canvas, size, paddingLeft, paddingBottom, chartWidth);
-    _dessinerLabelsY(canvas, size, paddingLeft, paddingBottom, paddingTop, chartHeight);
+    _dessinerLabelsY(
+      canvas,
+      size,
+      paddingLeft,
+      paddingBottom,
+      paddingTop,
+      chartHeight,
+    );
 
     for (int domaine = 0; domaine < 5; domaine++) {
       _dessinerCourbe(
-        canvas, paddingLeft, paddingTop, chartWidth, chartHeight,
-        domaine, _lineColors[domaine],
+        canvas,
+        paddingLeft,
+        paddingTop,
+        chartWidth,
+        chartHeight,
+        domaine,
+        _lineColors[domaine],
       );
     }
   }
 
   void _dessinerAxes(
-    Canvas canvas, Size size,
-    double paddingLeft, double paddingBottom, double paddingTop,
-    double chartWidth, double chartHeight,
+    Canvas canvas,
+    Size size,
+    double paddingLeft,
+    double paddingBottom,
+    double paddingTop,
+    double chartWidth,
+    double chartHeight,
   ) {
     final axisPaint = Paint()
       ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.15)
@@ -192,8 +214,11 @@ class _EvolutionPainter extends CustomPainter {
   }
 
   void _dessinerLabelsX(
-    Canvas canvas, Size size,
-    double paddingLeft, double paddingBottom, double chartWidth,
+    Canvas canvas,
+    Size size,
+    double paddingLeft,
+    double paddingBottom,
+    double chartWidth,
   ) {
     for (int i = 0; i < bulletins.length; i++) {
       final x = paddingLeft + (chartWidth * i / max(1, bulletins.length - 1));
@@ -219,8 +244,11 @@ class _EvolutionPainter extends CustomPainter {
   }
 
   void _dessinerLabelsY(
-    Canvas canvas, Size size,
-    double paddingLeft, double paddingBottom, double paddingTop,
+    Canvas canvas,
+    Size size,
+    double paddingLeft,
+    double paddingBottom,
+    double paddingTop,
     double chartHeight,
   ) {
     for (int i = 0; i <= 5; i++) {
@@ -241,19 +269,19 @@ class _EvolutionPainter extends CustomPainter {
   }
 
   void _dessinerCourbe(
-    Canvas canvas, double paddingLeft, double paddingTop,
-    double chartWidth, double chartHeight,
-    int domaineIndex, Color color,
+    Canvas canvas,
+    double paddingLeft,
+    double paddingTop,
+    double chartWidth,
+    double chartHeight,
+    int domaineIndex,
+    Color color,
   ) {
     if (bulletins.length < 2) {
       final value = _getValeurDomaine(bulletins[0], domaineIndex);
       final x = paddingLeft + chartWidth / 2;
       final y = paddingTop + chartHeight * (1 - value / 10);
-      canvas.drawCircle(
-        Offset(x, y),
-        4,
-        Paint()..color = color,
-      );
+      canvas.drawCircle(Offset(x, y), 4, Paint()..color = color);
       return;
     }
 

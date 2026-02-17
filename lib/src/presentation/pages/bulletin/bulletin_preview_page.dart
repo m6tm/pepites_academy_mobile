@@ -1,7 +1,9 @@
 import 'dart:ui' as ui;
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/bulletin.dart';
 import '../../../domain/entities/encadreur.dart';
@@ -36,7 +38,8 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
   final TextEditingController _observationsController = TextEditingController();
   bool _isEditing = false;
 
-  Bulletin get bulletin => widget.bulletinState.bulletinCourant ?? widget.bulletin;
+  Bulletin get bulletin =>
+      widget.bulletinState.bulletinCourant ?? widget.bulletin;
   Academicien get academicien => widget.academicien;
 
   @override
@@ -57,23 +60,22 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     if (mounted) setState(() {});
   }
 
-  Future<void> _exporterImage() async {
+  Future<void> _exporterImage(AppLocalizations l10n) async {
     try {
-      final boundary = _bulletinKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
+      final boundary =
+          _bulletinKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) return;
 
       final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) return;
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Bulletin capture. Fonctionnalite de partage disponible prochainement.',
+              l10n.bulletinCaptured,
               style: GoogleFonts.montserrat(fontSize: 13),
             ),
             backgroundColor: AppColors.success,
@@ -85,7 +87,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Erreur lors de l\'export : $e',
+              l10n.exportError(e.toString()),
               style: GoogleFonts.montserrat(fontSize: 13),
             ),
             backgroundColor: AppColors.error,
@@ -98,6 +100,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
     final precedent = widget.bulletinState.getBulletinPrecedent(bulletin);
 
     return Scaffold(
@@ -107,7 +110,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          _buildAppBar(context),
+          _buildAppBar(context, l10n),
           SliverToBoxAdapter(
             child: RepaintBoundary(
               key: _bulletinKey,
@@ -117,9 +120,9 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
                     : AppColors.backgroundLight,
                 child: Column(
                   children: [
-                    _buildEnTete(isDark),
-                    _buildIdentiteEleve(isDark),
-                    _buildStatistiques(isDark),
+                    _buildEnTete(isDark, l10n),
+                    _buildIdentiteEleve(isDark, l10n),
+                    _buildStatistiques(isDark, l10n),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: CompetencesRadarWidget(
@@ -128,9 +131,9 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildTableauAppreciations(isDark),
-                    _buildObservationsGenerales(isDark),
-                    _buildPiedDePage(isDark),
+                    _buildTableauAppreciations(isDark, l10n),
+                    _buildObservationsGenerales(isDark, l10n),
+                    _buildPiedDePage(isDark, l10n),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -139,11 +142,11 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomBar(isDark),
+      bottomNavigationBar: _buildBottomBar(isDark, l10n),
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, AppLocalizations l10n) {
     return SliverAppBar(
       expandedHeight: 120,
       pinned: true,
@@ -156,13 +159,13 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
       actions: [
         IconButton(
           icon: const Icon(Icons.share_rounded),
-          onPressed: _exporterImage,
-          tooltip: 'Partager',
+          onPressed: () => _exporterImage(l10n),
+          tooltip: l10n.shareLabel,
         ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Bulletin de formation',
+          l10n.bulletinTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 16,
@@ -181,7 +184,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     );
   }
 
-  Widget _buildEnTete(bool isDark) {
+  Widget _buildEnTete(bool isDark, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -206,7 +209,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Bulletin de Formation Periodique',
+            l10n.bulletinSubtitle,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -234,7 +237,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     );
   }
 
-  Widget _buildIdentiteEleve(bool isDark) {
+  Widget _buildIdentiteEleve(bool isDark, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -253,7 +256,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
             radius: 30,
             backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             child: Text(
-              '${academicien.prenom[0]}${academicien.nom[0]}',
+              '${academicien.prenom.isNotEmpty ? academicien.prenom[0] : ""}${academicien.nom.isNotEmpty ? academicien.nom[0] : ""}',
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -278,7 +281,9 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ne(e) le ${_formatDate(academicien.dateNaissance)}',
+                  l10n.bornOn(
+                    DateFormat('dd/MM/yyyy').format(academicien.dateNaissance),
+                  ),
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     color: isDark
@@ -294,13 +299,13 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     );
   }
 
-  Widget _buildStatistiques(bool isDark) {
+  Widget _buildStatistiques(bool isDark, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           _buildStatCard(
-            'Presence',
+            l10n.presenceLabel,
             '${bulletin.tauxPresence.toStringAsFixed(0)}%',
             Icons.check_circle_rounded,
             AppColors.success,
@@ -308,7 +313,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
           ),
           const SizedBox(width: 12),
           _buildStatCard(
-            'Seances',
+            l10n.sessionsLabel,
             '${bulletin.nbSeancesPresent}/${bulletin.nbSeancesTotal}',
             Icons.calendar_today_rounded,
             AppColors.primary,
@@ -316,7 +321,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
           ),
           const SizedBox(width: 12),
           _buildStatCard(
-            'Annotations',
+            l10n.annotationsLabel,
             '${bulletin.nbAnnotationsTotal}',
             Icons.edit_note_rounded,
             const Color(0xFF2196F3),
@@ -328,7 +333,11 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
   }
 
   Widget _buildStatCard(
-    String label, String value, IconData icon, Color color, bool isDark,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+    bool isDark,
   ) {
     return Expanded(
       child: Container(
@@ -336,9 +345,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withValues(alpha: 0.2),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
@@ -368,7 +375,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     );
   }
 
-  Widget _buildTableauAppreciations(bool isDark) {
+  Widget _buildTableauAppreciations(bool isDark, AppLocalizations l10n) {
     if (bulletin.appreciations.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -395,7 +402,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Aucune appreciation disponible',
+                l10n.noAppreciation,
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   color: isDark
@@ -405,7 +412,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Les appreciations seront generees a partir des annotations.',
+                l10n.appreciationGenerationNote,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
@@ -430,9 +437,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: isDark
-                  ? AppColors.textMainDark
-                  : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
           const SizedBox(height: 12),
@@ -548,7 +553,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     );
   }
 
-  Widget _buildObservationsGenerales(bool isDark) {
+  Widget _buildObservationsGenerales(bool isDark, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -568,7 +573,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Observations generales',
+                l10n.observationsLabel,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -599,7 +604,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
                     : AppColors.textMainLight,
               ),
               decoration: InputDecoration(
-                hintText: 'Redigez vos observations...',
+                hintText: l10n.observationsHint,
                 hintStyle: GoogleFonts.montserrat(
                   fontSize: 13,
                   color: isDark
@@ -614,9 +619,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: AppColors.primary,
-                  ),
+                  borderSide: const BorderSide(color: AppColors.primary),
                 ),
               ),
             )
@@ -624,7 +627,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
             Text(
               bulletin.observationsGenerales.isNotEmpty
                   ? bulletin.observationsGenerales
-                  : 'Aucune observation redigee.',
+                  : l10n.noObservation,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
                 fontStyle: bulletin.observationsGenerales.isEmpty
@@ -632,11 +635,11 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
                     : FontStyle.normal,
                 color: bulletin.observationsGenerales.isEmpty
                     ? (isDark
-                        ? AppColors.textMutedDark
-                        : AppColors.textMutedLight)
+                          ? AppColors.textMutedDark
+                          : AppColors.textMutedLight)
                     : (isDark
-                        ? AppColors.textMainDark
-                        : AppColors.textMainLight),
+                          ? AppColors.textMainDark
+                          : AppColors.textMainLight),
               ),
             ),
           if (widget.encadreur != null) ...[
@@ -652,7 +655,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Encadreur : ${widget.encadreur!.nomComplet}',
+                  '${l10n.encadreurLabel} : ${widget.encadreur!.nomComplet}',
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     color: isDark
@@ -668,7 +671,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     );
   }
 
-  Widget _buildPiedDePage(bool isDark) {
+  Widget _buildPiedDePage(bool isDark, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -680,7 +683,9 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Genere le ${_formatDate(bulletin.dateGeneration)}',
+            l10n.generatedOn(
+              DateFormat('dd/MM/yyyy').format(bulletin.dateGeneration),
+            ),
             style: GoogleFonts.montserrat(
               fontSize: 10,
               color: isDark
@@ -702,7 +707,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     );
   }
 
-  Widget _buildBottomBar(bool isDark) {
+  Widget _buildBottomBar(bool isDark, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -720,10 +725,10 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: _exporterImage,
+                onPressed: () => _exporterImage(l10n),
                 icon: const Icon(Icons.image_rounded, size: 18),
                 label: Text(
-                  'Exporter image',
+                  l10n.exportImage,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -742,10 +747,10 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: _exporterImage,
+                onPressed: () => _exporterImage(l10n),
                 icon: const Icon(Icons.share_rounded, size: 18),
                 label: Text(
-                  'Partager',
+                  l10n.shareLabel,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -780,11 +785,5 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     if (note >= 7) return AppColors.success;
     if (note >= 5) return AppColors.warning;
     return AppColors.error;
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/'
-        '${date.month.toString().padLeft(2, '0')}/'
-        '${date.year}';
   }
 }

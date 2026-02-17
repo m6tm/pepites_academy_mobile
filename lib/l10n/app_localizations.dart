@@ -2587,6 +2587,216 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ces informations permettent de filtrer les communications SMS et d\'adapter les rapports.'**
   String get academicStepInfo;
+
+  /// No description provided for @bulletinTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin de formation'**
+  String get bulletinTitle;
+
+  /// No description provided for @bulletinSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin de Formation Périodique'**
+  String get bulletinSubtitle;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des bulletins'**
+  String get historyTitle;
+
+  /// No description provided for @observationsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Observations générales'**
+  String get observationsLabel;
+
+  /// No description provided for @observationsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rédigez vos observations pour cette période...'**
+  String get observationsHint;
+
+  /// No description provided for @encadreurLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur'**
+  String get encadreurLabel;
+
+  /// No description provided for @sessionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances'**
+  String get sessionsLabel;
+
+  /// No description provided for @presenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présence'**
+  String get presenceLabel;
+
+  /// No description provided for @annotationsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annotations'**
+  String get annotationsLabel;
+
+  /// No description provided for @bornOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Né(e) le {date}'**
+  String bornOn(String date);
+
+  /// No description provided for @generatedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Généré le {date}'**
+  String generatedOn(String date);
+
+  /// No description provided for @generateBulletin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer le bulletin'**
+  String get generateBulletin;
+
+  /// No description provided for @generatingInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération en cours...'**
+  String get generatingInProgress;
+
+  /// No description provided for @exportImage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter image'**
+  String get exportImage;
+
+  /// No description provided for @noAppreciation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune appréciation disponible'**
+  String get noAppreciation;
+
+  /// No description provided for @appreciationGenerationNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les appréciations seront générées à partir des annotations.'**
+  String get appreciationGenerationNote;
+
+  /// No description provided for @noObservation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune observation rédigée.'**
+  String get noObservation;
+
+  /// No description provided for @bulletinsGeneratedCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun bulletin généré} =1{1 bulletin généré} other{{count} bulletins générés}}'**
+  String bulletinsGeneratedCount(num count);
+
+  /// No description provided for @notEnoughDataEvolution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas assez de données pour afficher l\'évolution.\nGénérez plusieurs bulletins pour voir les courbes.'**
+  String get notEnoughDataEvolution;
+
+  /// No description provided for @radarChartTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Radar des compétences'**
+  String get radarChartTitle;
+
+  /// No description provided for @evolutionChartTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évolution des compétences'**
+  String get evolutionChartTitle;
+
+  /// No description provided for @actualLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actuel'**
+  String get actualLabel;
+
+  /// No description provided for @competenceTechnique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique'**
+  String get competenceTechnique;
+
+  /// No description provided for @competencePhysique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Physique'**
+  String get competencePhysique;
+
+  /// No description provided for @competenceTactique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tactique'**
+  String get competenceTactique;
+
+  /// No description provided for @competenceMental.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mental'**
+  String get competenceMental;
+
+  /// No description provided for @competenceEspritEquipe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Esprit d\'équipe'**
+  String get competenceEspritEquipe;
+
+  /// No description provided for @periodTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période du bulletin'**
+  String get periodTitle;
+
+  /// No description provided for @periodMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois'**
+  String get periodMonth;
+
+  /// No description provided for @periodQuarter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trimestre'**
+  String get periodQuarter;
+
+  /// No description provided for @periodSeason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saison'**
+  String get periodSeason;
+
+  /// No description provided for @quarterLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trimestre {count} - {year}'**
+  String quarterLabel(int count, int year);
+
+  /// No description provided for @seasonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saison {start}-{end}'**
+  String seasonLabel(int start, int end);
+
+  /// No description provided for @bulletinCaptured.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin capturé. Fonctionnalité de partage disponible prochainement.'**
+  String get bulletinCaptured;
+
+  /// No description provided for @exportError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'export : {error}'**
+  String exportError(String error);
 }
 
 class _AppLocalizationsDelegate

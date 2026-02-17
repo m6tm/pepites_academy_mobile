@@ -580,5 +580,81 @@
   "academicLevelTitle": "Academic Level",
   "academicStepDesc": "Follow-up of the academician''s schooling.",
   "selectSchoolLevelHint": "Select the level",
-  "academicStepInfo": "This information allows filtering SMS communications and adapting reports."
+  "academicStepInfo": "This information allows filtering SMS communications and adapting reports.",
+  "bulletinTitle": "Training Bulletin",
+  "bulletinSubtitle": "Periodic Training Bulletin",
+  "historyTitle": "Bulletin History",
+  "observationsLabel": "General Remarks",
+  "observationsHint": "Write your remarks for this period...",
+  "encadreurLabel": "Coach",
+  "sessionsLabel": "Sessions",
+  "presenceLabel": "Attendance",
+  "annotationsLabel": "Annotations",
+  "bornOn": "Born on {date}",
+  "@bornOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "generatedOn": "Generated on {date}",
+  "@generatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "generateBulletin": "Generate Bulletin",
+  "generatingInProgress": "Generating...",
+  "exportImage": "Export image",
+  "noAppreciation": "No assessment available",
+  "appreciationGenerationNote": "Assessments will be generated from annotations.",
+  "noObservation": "No remarks written.",
+  "bulletinsGeneratedCount": "{count, plural, =0{No bulletin generated} =1{1 bulletin generated} other{{count} bulletins generated}}",
+  "notEnoughDataEvolution": "Not enough data to display evolution.\nGenerate several bulletins to see the curves.",
+  "radarChartTitle": "Competencies Radar",
+  "evolutionChartTitle": "Competencies Evolution",
+  "actualLabel": "Current",
+  "competenceTechnique": "Technical",
+  "competencePhysique": "Physical",
+  "competenceTactique": "Tactical",
+  "competenceMental": "Mental",
+  "competenceEspritEquipe": "Team Spirit",
+  "periodTitle": "Bulletin Period",
+  "periodMonth": "Month",
+  "periodQuarter": "Quarter",
+  "periodSeason": "Season",
+  "quarterLabel": "Quarter {count} - {year}",
+  "@quarterLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "seasonLabel": "Season {start}-{end}",
+  "@seasonLabel": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "bulletinCaptured": "Bulletin captured. Sharing feature available soon.",
+  "exportError": "Export error: {error}",
+  "@exportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

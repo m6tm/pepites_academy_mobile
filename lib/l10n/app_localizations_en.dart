@@ -1346,4 +1346,131 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get academicStepInfo =>
       'This information allows filtering SMS communications and adapting reports.';
+
+  @override
+  String get bulletinTitle => 'Training Bulletin';
+
+  @override
+  String get bulletinSubtitle => 'Periodic Training Bulletin';
+
+  @override
+  String get historyTitle => 'Bulletin History';
+
+  @override
+  String get observationsLabel => 'General Remarks';
+
+  @override
+  String get observationsHint => 'Write your remarks for this period...';
+
+  @override
+  String get encadreurLabel => 'Coach';
+
+  @override
+  String get sessionsLabel => 'Sessions';
+
+  @override
+  String get presenceLabel => 'Attendance';
+
+  @override
+  String get annotationsLabel => 'Annotations';
+
+  @override
+  String bornOn(String date) {
+    return 'Born on $date';
+  }
+
+  @override
+  String generatedOn(String date) {
+    return 'Generated on $date';
+  }
+
+  @override
+  String get generateBulletin => 'Generate Bulletin';
+
+  @override
+  String get generatingInProgress => 'Generating...';
+
+  @override
+  String get exportImage => 'Export image';
+
+  @override
+  String get noAppreciation => 'No assessment available';
+
+  @override
+  String get appreciationGenerationNote =>
+      'Assessments will be generated from annotations.';
+
+  @override
+  String get noObservation => 'No remarks written.';
+
+  @override
+  String bulletinsGeneratedCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bulletins generated',
+      one: '1 bulletin generated',
+      zero: 'No bulletin generated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notEnoughDataEvolution =>
+      'Not enough data to display evolution.\nGenerate several bulletins to see the curves.';
+
+  @override
+  String get radarChartTitle => 'Competencies Radar';
+
+  @override
+  String get evolutionChartTitle => 'Competencies Evolution';
+
+  @override
+  String get actualLabel => 'Current';
+
+  @override
+  String get competenceTechnique => 'Technical';
+
+  @override
+  String get competencePhysique => 'Physical';
+
+  @override
+  String get competenceTactique => 'Tactical';
+
+  @override
+  String get competenceMental => 'Mental';
+
+  @override
+  String get competenceEspritEquipe => 'Team Spirit';
+
+  @override
+  String get periodTitle => 'Bulletin Period';
+
+  @override
+  String get periodMonth => 'Month';
+
+  @override
+  String get periodQuarter => 'Quarter';
+
+  @override
+  String get periodSeason => 'Season';
+
+  @override
+  String quarterLabel(int count, int year) {
+    return 'Quarter $count - $year';
+  }
+
+  @override
+  String seasonLabel(int start, int end) {
+    return 'Season $start-$end';
+  }
+
+  @override
+  String get bulletinCaptured =>
+      'Bulletin captured. Sharing feature available soon.';
+
+  @override
+  String exportError(String error) {
+    return 'Export error: $error';
+  }
 }

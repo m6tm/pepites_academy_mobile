@@ -1,3 +1,4 @@
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
@@ -18,11 +19,7 @@ class BulletinPage extends StatefulWidget {
   final Academicien academicien;
   final Encadreur? encadreur;
 
-  const BulletinPage({
-    super.key,
-    required this.academicien,
-    this.encadreur,
-  });
+  const BulletinPage({super.key, required this.academicien, this.encadreur});
 
   @override
   State<BulletinPage> createState() => _BulletinPageState();
@@ -110,6 +107,7 @@ class _BulletinPageState extends State<BulletinPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: isDark
@@ -118,8 +116,8 @@ class _BulletinPageState extends State<BulletinPage> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          _buildAppBar(context),
-          SliverToBoxAdapter(child: _buildAcademicienHeader(isDark)),
+          _buildAppBar(context, l10n),
+          SliverToBoxAdapter(child: _buildAcademicienHeader(isDark, l10n)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -131,8 +129,8 @@ class _BulletinPageState extends State<BulletinPage> {
               ),
             ),
           ),
-          SliverToBoxAdapter(child: _buildObservationsInput(isDark)),
-          SliverToBoxAdapter(child: _buildGenererButton(isDark)),
+          SliverToBoxAdapter(child: _buildObservationsInput(isDark, l10n)),
+          SliverToBoxAdapter(child: _buildGenererButton(isDark, l10n)),
           if (_bulletinState.bulletins.isNotEmpty) ...[
             SliverToBoxAdapter(
               child: Padding(
@@ -142,8 +140,8 @@ class _BulletinPageState extends State<BulletinPage> {
                 ),
               ),
             ),
-            SliverToBoxAdapter(child: _buildHistoriqueHeader(isDark)),
-            _buildHistoriqueListe(isDark),
+            SliverToBoxAdapter(child: _buildHistoriqueHeader(isDark, l10n)),
+            _buildHistoriqueListe(isDark, l10n),
           ],
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
@@ -151,7 +149,7 @@ class _BulletinPageState extends State<BulletinPage> {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, AppLocalizations l10n) {
     return SliverAppBar(
       expandedHeight: 120,
       pinned: true,
@@ -163,7 +161,7 @@ class _BulletinPageState extends State<BulletinPage> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Bulletin de formation',
+          l10n.bulletinTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 16,
@@ -182,7 +180,7 @@ class _BulletinPageState extends State<BulletinPage> {
     );
   }
 
-  Widget _buildAcademicienHeader(bool isDark) {
+  Widget _buildAcademicienHeader(bool isDark, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -201,7 +199,7 @@ class _BulletinPageState extends State<BulletinPage> {
             radius: 24,
             backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             child: Text(
-              '${academicien.prenom[0]}${academicien.nom[0]}',
+              '${academicien.prenom.isNotEmpty ? academicien.prenom[0] : ""}${academicien.nom.isNotEmpty ? academicien.nom[0] : ""}',
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -226,7 +224,7 @@ class _BulletinPageState extends State<BulletinPage> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${_bulletinState.bulletins.length} bulletin(s) genere(s)',
+                  l10n.bulletinsGeneratedCount(_bulletinState.bulletins.length),
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     color: isDark
@@ -254,20 +252,18 @@ class _BulletinPageState extends State<BulletinPage> {
     );
   }
 
-  Widget _buildObservationsInput(bool isDark) {
+  Widget _buildObservationsInput(bool isDark, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Observations generales',
+            l10n.observationsLabel,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDark
-                  ? AppColors.textMainDark
-                  : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
           const SizedBox(height: 8),
@@ -276,12 +272,10 @@ class _BulletinPageState extends State<BulletinPage> {
             maxLines: 4,
             style: GoogleFonts.montserrat(
               fontSize: 13,
-              color: isDark
-                  ? AppColors.textMainDark
-                  : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
             decoration: InputDecoration(
-              hintText: 'Redigez vos observations pour cette periode...',
+              hintText: l10n.observationsHint,
               hintStyle: GoogleFonts.montserrat(
                 fontSize: 13,
                 color: isDark
@@ -310,9 +304,7 @@ class _BulletinPageState extends State<BulletinPage> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
-                ),
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
             ),
           ),
@@ -321,7 +313,7 @@ class _BulletinPageState extends State<BulletinPage> {
     );
   }
 
-  Widget _buildGenererButton(bool isDark) {
+  Widget _buildGenererButton(bool isDark, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: SizedBox(
@@ -340,8 +332,8 @@ class _BulletinPageState extends State<BulletinPage> {
               : const Icon(Icons.auto_awesome_rounded, size: 20),
           label: Text(
             _bulletinState.isGenerating
-                ? 'Generation en cours...'
-                : 'Generer le bulletin',
+                ? l10n.generatingInProgress
+                : l10n.generateBulletin,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -363,7 +355,7 @@ class _BulletinPageState extends State<BulletinPage> {
     );
   }
 
-  Widget _buildHistoriqueHeader(bool isDark) {
+  Widget _buildHistoriqueHeader(bool isDark, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
       child: Row(
@@ -382,13 +374,11 @@ class _BulletinPageState extends State<BulletinPage> {
           ),
           const SizedBox(width: 10),
           Text(
-            'Historique des bulletins',
+            l10n.historyTitle,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: isDark
-                  ? AppColors.textMainDark
-                  : AppColors.textMainLight,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
         ],
@@ -396,22 +386,23 @@ class _BulletinPageState extends State<BulletinPage> {
     );
   }
 
-  Widget _buildHistoriqueListe(bool isDark) {
+  Widget _buildHistoriqueListe(bool isDark, AppLocalizations l10n) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final bulletin = _bulletinState.bulletins[index];
-            return _buildBulletinCard(bulletin, isDark);
-          },
-          childCount: _bulletinState.bulletins.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final bulletin = _bulletinState.bulletins[index];
+          return _buildBulletinCard(bulletin, isDark, l10n);
+        }, childCount: _bulletinState.bulletins.length),
       ),
     );
   }
 
-  Widget _buildBulletinCard(Bulletin bulletin, bool isDark) {
+  Widget _buildBulletinCard(
+    Bulletin bulletin,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return GestureDetector(
       onTap: () => _ouvrirBulletin(bulletin),
       child: Container(
@@ -508,9 +499,7 @@ class _BulletinPageState extends State<BulletinPage> {
           style: GoogleFonts.montserrat(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: isDark
-                ? AppColors.textMutedDark
-                : AppColors.textMutedLight,
+            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
           ),
         ),
       ],

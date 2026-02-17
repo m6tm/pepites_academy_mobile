@@ -16,11 +16,11 @@ Liste des pages et composants à migrer vers `AppLocalizations` pour supporter l
 
 ## 📊 Module Bulletin & Évaluation
 
-- [ ] `lib/src/presentation/pages/bulletin/bulletin_page.dart`
-- [ ] `lib/src/presentation/pages/bulletin/bulletin_preview_page.dart`
-- [ ] `lib/src/presentation/pages/bulletin/widgets/competences_radar_widget.dart`
-- [ ] `lib/src/presentation/pages/bulletin/widgets/evolution_chart_widget.dart`
-- [ ] `lib/src/presentation/pages/bulletin/widgets/periode_selector_widget.dart`
+- [x] `lib/src/presentation/pages/bulletin/bulletin_page.dart`
+- [x] `lib/src/presentation/pages/bulletin/bulletin_preview_page.dart`
+- [x] `lib/src/presentation/pages/bulletin/widgets/competences_radar_widget.dart`
+- [x] `lib/src/presentation/pages/bulletin/widgets/evolution_chart_widget.dart`
+- [x] `lib/src/presentation/pages/bulletin/widgets/periode_selector_widget.dart`
 
 ## 📝 Module Annotations
 

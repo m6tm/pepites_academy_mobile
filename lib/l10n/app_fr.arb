@@ -646,5 +646,81 @@
   "academicLevelTitle": "Niveau Académique",
   "academicStepDesc": "Suivi de la scolarité de l'académicien.",
   "selectSchoolLevelHint": "Sélectionnez le niveau",
-  "academicStepInfo": "Ces informations permettent de filtrer les communications SMS et d'adapter les rapports."
+  "academicStepInfo": "Ces informations permettent de filtrer les communications SMS et d'adapter les rapports.",
+  "bulletinTitle": "Bulletin de formation",
+  "bulletinSubtitle": "Bulletin de Formation Périodique",
+  "historyTitle": "Historique des bulletins",
+  "observationsLabel": "Observations générales",
+  "observationsHint": "Rédigez vos observations pour cette période...",
+  "encadreurLabel": "Encadreur",
+  "sessionsLabel": "Séances",
+  "presenceLabel": "Présence",
+  "annotationsLabel": "Annotations",
+  "bornOn": "Né(e) le {date}",
+  "@bornOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "generatedOn": "Généré le {date}",
+  "@generatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "generateBulletin": "Générer le bulletin",
+  "generatingInProgress": "Génération en cours...",
+  "exportImage": "Exporter image",
+  "noAppreciation": "Aucune appréciation disponible",
+  "appreciationGenerationNote": "Les appréciations seront générées à partir des annotations.",
+  "noObservation": "Aucune observation rédigée.",
+  "bulletinsGeneratedCount": "{count, plural, =0{Aucun bulletin généré} =1{1 bulletin généré} other{{count} bulletins générés}}",
+  "notEnoughDataEvolution": "Pas assez de données pour afficher l'évolution.\nGénérez plusieurs bulletins pour voir les courbes.",
+  "radarChartTitle": "Radar des compétences",
+  "evolutionChartTitle": "Évolution des compétences",
+  "actualLabel": "Actuel",
+  "competenceTechnique": "Technique",
+  "competencePhysique": "Physique",
+  "competenceTactique": "Tactique",
+  "competenceMental": "Mental",
+  "competenceEspritEquipe": "Esprit d'équipe",
+  "periodTitle": "Période du bulletin",
+  "periodMonth": "Mois",
+  "periodQuarter": "Trimestre",
+  "periodSeason": "Saison",
+  "quarterLabel": "Trimestre {count} - {year}",
+  "@quarterLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "seasonLabel": "Saison {start}-{end}",
+  "@seasonLabel": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "bulletinCaptured": "Bulletin capturé. Fonctionnalité de partage disponible prochainement.",
+  "exportError": "Erreur lors de l'export : {error}",
+  "@exportError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }
