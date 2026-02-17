@@ -1,3 +1,4 @@
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 // ListenableBuilder is used instead of provider
 import 'package:pepites_academy_mobile/src/domain/entities/niveau_scolaire.dart';
@@ -68,12 +69,13 @@ class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListenableBuilder(
       listenable: _state,
       builder: (context, child) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text("INSCRIPTION"),
+            title: Text(l10n.register.toUpperCase()),
             leading: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () => Navigator.of(context).pop(),
@@ -106,7 +108,7 @@ class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
                   ],
                 ),
               ),
-              _buildBottomBar(),
+              _buildBottomBar(l10n),
             ],
           ),
         );
@@ -114,7 +116,7 @@ class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(AppLocalizations l10n) {
     bool isLastStep = _state.currentStep == 3;
     bool canGoNext = true;
 
@@ -148,7 +150,7 @@ class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text("PRÉCÉDENT"),
+                child: Text(l10n.previousLabel.toUpperCase()),
               ),
             ),
           if (_state.currentStep > 0) const SizedBox(width: 16),
@@ -169,7 +171,11 @@ class _AcademyRegistrationPageState extends State<AcademyRegistrationPage> {
                 disabledBackgroundColor: Colors.grey.withValues(alpha: 0.2),
                 minimumSize: const Size(0, 56),
               ),
-              child: Text(isLastStep ? "CONFIRMER L'INSCRIPTION" : "CONTINUER"),
+              child: Text(
+                isLastStep
+                    ? l10n.confirmRegistration.toUpperCase()
+                    : l10n.continue_label.toUpperCase(),
+              ),
             ),
           ),
         ],

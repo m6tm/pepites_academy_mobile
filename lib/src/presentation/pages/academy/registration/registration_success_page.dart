@@ -1,3 +1,4 @@
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
@@ -19,6 +20,7 @@ class RegistrationSuccessPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Container(
@@ -36,11 +38,11 @@ class RegistrationSuccessPage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 40),
-              _buildSuccessHeader(),
+              _buildSuccessHeader(l10n),
               const Spacer(),
-              _buildBadgeCard(context),
+              _buildBadgeCard(context, l10n),
               const Spacer(),
-              _buildActionButtons(context),
+              _buildActionButtons(context, l10n),
               const SizedBox(height: 40),
             ],
           ),
@@ -49,7 +51,7 @@ class RegistrationSuccessPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSuccessHeader() {
+  Widget _buildSuccessHeader(AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -61,20 +63,20 @@ class RegistrationSuccessPage extends StatelessWidget {
           child: const Icon(Icons.check, color: Colors.white, size: 40),
         ),
         const SizedBox(height: 24),
-        const Text(
-          "Inscription Réussie !",
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        Text(
+          l10n.registrationSuccessTitle,
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
-          "Le badge de $academicienName est prêt.",
+          l10n.academicianBadgeReady(academicienName),
           style: const TextStyle(color: Colors.grey, fontSize: 16),
         ),
       ],
     );
   }
 
-  Widget _buildBadgeCard(BuildContext context) {
+  Widget _buildBadgeCard(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: GlassmorphismCard(
@@ -93,9 +95,12 @@ class RegistrationSuccessPage extends StatelessWidget {
                       const Icon(Icons.sports_soccer, color: AppColors.primary),
                 ),
                 const Spacer(),
-                const Text(
-                  "PÉPITES ACADEMY",
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                Text(
+                  l10n.appTitle.toUpperCase(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -121,9 +126,9 @@ class RegistrationSuccessPage extends StatelessWidget {
                 letterSpacing: 2,
               ),
             ),
-            const Text(
-              "BADGE OFFICIEL",
-              style: TextStyle(
+            Text(
+              l10n.officialBadge,
+              style: const TextStyle(
                 color: AppColors.primary,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
@@ -135,7 +140,7 @@ class RegistrationSuccessPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -145,20 +150,20 @@ class RegistrationSuccessPage extends StatelessWidget {
               // Implementation of sharing
               AcademyToast.show(
                 context,
-                title: 'Partage en cours...',
-                description: 'Fonctionnalite bientot disponible.',
+                title: l10n.sharingInProgress,
+                description: l10n.featureComingSoon,
                 icon: Icons.share_rounded,
               );
             },
             icon: const Icon(Icons.share),
-            label: const Text("PARTAGER LE BADGE"),
+            label: Text(l10n.shareBadgeAction),
           ),
           const SizedBox(height: 12),
           TextButton.icon(
             onPressed: () =>
                 Navigator.of(context).popUntil((route) => route.isFirst),
             icon: const Icon(Icons.home),
-            label: const Text("RETOUR AU DASHBOARD"),
+            label: Text(l10n.backToDashboard),
             style: TextButton.styleFrom(foregroundColor: Colors.grey),
           ),
         ],

@@ -2479,6 +2479,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible de mettre à jour : {error}'**
   String updateError(String error);
+
+  /// No description provided for @academicianBadgeReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le badge de {name} est prêt.'**
+  String academicianBadgeReady(String name);
+
+  /// No description provided for @officialBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'BADGE OFFICIEL'**
+  String get officialBadge;
+
+  /// No description provided for @shareBadgeAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'PARTAGER LE BADGE'**
+  String get shareBadgeAction;
+
+  /// No description provided for @backToDashboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'RETOUR AU DASHBOARD'**
+  String get backToDashboard;
+
+  /// No description provided for @sharingInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage en cours...'**
+  String get sharingInProgress;
+
+  /// No description provided for @featureComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctionnalité bientôt disponible.'**
+  String get featureComingSoon;
+
+  /// No description provided for @sportProfileDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définissez le rôle de l\'élève sur le terrain.'**
+  String get sportProfileDesc;
+
+  /// No description provided for @selectPositionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez un poste'**
+  String get selectPositionHint;
+
+  /// No description provided for @selectFootHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez le pied'**
+  String get selectFootHint;
+
+  /// No description provided for @confirmRegistration.
+  ///
+  /// In fr, this message translates to:
+  /// **'CONFIRMER L\'INSCRIPTION'**
+  String get confirmRegistration;
 }
 
 class _AppLocalizationsDelegate

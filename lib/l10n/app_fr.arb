@@ -621,5 +621,22 @@
         "type": "String"
       }
     }
-  }
+  },
+  "academicianBadgeReady": "Le badge de {name} est prêt.",
+  "@academicianBadgeReady": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "officialBadge": "BADGE OFFICIEL",
+  "shareBadgeAction": "PARTAGER LE BADGE",
+  "backToDashboard": "RETOUR AU DASHBOARD",
+  "sharingInProgress": "Partage en cours...",
+  "featureComingSoon": "Fonctionnalité bientôt disponible.",
+  "sportProfileDesc": "Définissez le rôle de l'élève sur le terrain.",
+  "selectPositionHint": "Sélectionnez un poste",
+  "selectFootHint": "Sélectionnez le pied",
+  "confirmRegistration": "CONFIRMER L'INSCRIPTION"
 }

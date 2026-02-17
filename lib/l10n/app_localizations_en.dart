@@ -1288,4 +1288,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String updateError(String error) {
     return 'Could not update: $error';
   }
+
+  @override
+  String academicianBadgeReady(String name) {
+    return '$name\'\'s badge is ready.';
+  }
+
+  @override
+  String get officialBadge => 'OFFICIAL BADGE';
+
+  @override
+  String get shareBadgeAction => 'SHARE BADGE';
+
+  @override
+  String get backToDashboard => 'BACK TO DASHBOARD';
+
+  @override
+  String get sharingInProgress => 'Sharing in progress...';
+
+  @override
+  String get featureComingSoon => 'Feature coming soon.';
+
+  @override
+  String get sportProfileDesc => 'Define the student\'s role on the field.';
+
+  @override
+  String get selectPositionHint => 'Select a position';
+
+  @override
+  String get selectFootHint => 'Select the foot';
+
+  @override
+  String get confirmRegistration => 'CONFIRM REGISTRATION';
 }
