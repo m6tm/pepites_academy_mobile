@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../domain/entities/poste_football.dart';
@@ -25,6 +26,7 @@ class AcademicienRegistrationPage extends StatefulWidget {
 class _AcademicienRegistrationPageState
     extends State<AcademicienRegistrationPage> {
   final PageController _pageController = PageController();
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
   int _currentStep = 0;
   final int _totalSteps = 4;
   bool _isLoading = false;
@@ -91,8 +93,8 @@ class _AcademicienRegistrationPageState
       if (_selectedPosteId == null || _selectedPiedFort == null) {
         AcademyToast.show(
           context,
-          title: 'Champs requis',
-          description: 'Veuillez sélectionner un poste et un pied fort',
+          title: l10n.requiredLabel,
+          description: l10n.selectPosteAndPiedError,
           isError: true,
         );
       } else {
@@ -102,8 +104,8 @@ class _AcademicienRegistrationPageState
       if (_selectedNiveauId == null) {
         AcademyToast.show(
           context,
-          title: 'Champ requis',
-          description: 'Veuillez sélectionner un niveau scolaire',
+          title: l10n.requiredLabel,
+          description: l10n.selectSchoolLevelError,
           isError: true,
         );
       } else {
@@ -161,8 +163,8 @@ class _AcademicienRegistrationPageState
         setState(() => _isLoading = false);
         AcademyToast.show(
           context,
-          title: 'Erreur',
-          description: 'Impossible d\'enregistrer l\'academicien : $e',
+          title: l10n.error,
+          description: l10n.academicianSaveError(e.toString()),
           isError: true,
         );
       }
@@ -192,8 +194,8 @@ class _AcademicienRegistrationPageState
       if (mounted) {
         AcademyToast.show(
           context,
-          title: 'Erreur',
-          description: 'Impossible d\'ouvrir la galerie',
+          title: l10n.error,
+          description: l10n.galleryOpenError,
           isError: true,
         );
       }
@@ -250,7 +252,7 @@ class _AcademicienRegistrationPageState
           },
         ),
         title: Text(
-          'Inscription Académicien',
+          l10n.academicianRegistrationTitle,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -295,7 +297,7 @@ class _AcademicienRegistrationPageState
             height: 6,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: colorScheme.onSurface.withValues(alpha: 0.05),
+              color: colorScheme.onSurface.withOpacity(0.05),
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -313,7 +315,7 @@ class _AcademicienRegistrationPageState
               borderRadius: BorderRadius.circular(3),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.3),
+                  color: AppColors.primary.withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -332,82 +334,97 @@ class _AcademicienRegistrationPageState
         color: isDark ? colorScheme.surface : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
         ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (_currentStep > 0)
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _prevStep,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
-                  side: BorderSide(
-                    color: colorScheme.onSurface.withValues(alpha: 0.1),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Précédent',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ),
-          if (_currentStep > 0) const SizedBox(width: 12),
+          if (_currentStep > 0 && _currentStep < _totalSteps - 1)
+            _buildSecondaryButton(l10n.previousLabel, _prevStep, colorScheme),
+          const SizedBox(width: 12),
           Expanded(
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _nextStep,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: AppColors.primary.withValues(
-                  alpha: 0.5,
-                ),
-                minimumSize: const Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 4,
-                shadowColor: AppColors.primary.withValues(alpha: 0.4),
-              ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _currentStep == _totalSteps - 2
-                              ? 'Confirmer'
-                              : 'Continuer',
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward_rounded, size: 18),
-                      ],
-                    ),
+            child: _buildPrimaryButton(
+              _currentStep == _totalSteps - 2
+                  ? l10n.confirm_label
+                  : l10n.continue_label,
+              _nextStep,
+              colorScheme,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton(
+    String text,
+    VoidCallback onPressed,
+    ColorScheme colorScheme,
+  ) {
+    return ElevatedButton(
+      onPressed: _isLoading ? null : onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+        minimumSize: const Size(double.infinity, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+        shadowColor: AppColors.primary.withOpacity(0.4),
+      ),
+      child: _isLoading
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  text,
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward_rounded, size: 18),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildSecondaryButton(
+    String text,
+    VoidCallback onPressed,
+    ColorScheme colorScheme,
+  ) {
+    return Expanded(
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 48),
+          side: BorderSide(color: colorScheme.onSurface.withOpacity(0.1)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: colorScheme.onSurface,
+          ),
+        ),
       ),
     );
   }
@@ -428,15 +445,15 @@ class _AcademicienRegistrationPageState
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: baseColor.withValues(alpha: 0.06),
+                      color: baseColor.withOpacity(0.06),
                       borderRadius: BorderRadius.circular(60),
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.4),
+                        color: AppColors.primary.withOpacity(0.4),
                         width: 3,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.15),
+                          color: AppColors.primary.withOpacity(0.15),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -449,7 +466,7 @@ class _AcademicienRegistrationPageState
                           : Icon(
                               Icons.person_outline_rounded,
                               size: 50,
-                              color: AppColors.primary.withValues(alpha: 0.4),
+                              color: AppColors.primary.withOpacity(0.4),
                             ),
                     ),
                   ),
@@ -467,7 +484,7 @@ class _AcademicienRegistrationPageState
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.4),
+                          color: AppColors.primary.withOpacity(0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -485,7 +502,7 @@ class _AcademicienRegistrationPageState
           ),
           const SizedBox(height: 12),
           Text(
-            'Photo de l\'academicien',
+            l10n.academicianPhotoLabel,
             style: GoogleFonts.montserrat(
               color: isDark
                   ? AppColors.textMutedDark
@@ -495,11 +512,11 @@ class _AcademicienRegistrationPageState
             ),
           ),
           Text(
-            '(Optionnel)',
+            l10n.optionalLabel,
             style: GoogleFonts.montserrat(
               color: isDark
-                  ? AppColors.textMutedDark.withValues(alpha: 0.6)
-                  : AppColors.textMutedLight.withValues(alpha: 0.6),
+                  ? AppColors.textMutedDark.withOpacity(0.6)
+                  : AppColors.textMutedLight.withOpacity(0.6),
               fontSize: 11,
             ),
           ),
@@ -518,8 +535,8 @@ class _AcademicienRegistrationPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader(
-              'Identité',
-              'Informations personnelles de l\'académicien',
+              l10n.identityLabel,
+              l10n.academicianPersonalDetails,
             ),
             const SizedBox(height: 32),
 
@@ -528,18 +545,20 @@ class _AcademicienRegistrationPageState
 
             _buildTextField(
               controller: _nomController,
-              label: 'Nom',
-              hint: 'Saisir le nom',
-              icon: Icons.person_outline,
-              validator: (v) => v!.isEmpty ? 'Requis' : null,
+              label: l10n.lastName,
+              hint: l10n.enterLastName,
+              icon: Icons.badge_outlined,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
             const SizedBox(height: 20),
             _buildTextField(
               controller: _prenomController,
-              label: 'Prénom',
-              hint: 'Saisir le prénom',
+              label: l10n.firstName,
+              hint: l10n.enterFirstName,
               icon: Icons.person_outline,
-              validator: (v) => v!.isEmpty ? 'Requis' : null,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
             const SizedBox(height: 20),
             GestureDetector(
@@ -547,21 +566,23 @@ class _AcademicienRegistrationPageState
               child: AbsorbPointer(
                 child: _buildTextField(
                   controller: _dateNaissanceController,
-                  label: 'Date de naissance',
-                  hint: 'JJ/MM/AAAA',
+                  label: l10n.birthDateLabel,
+                  hint: l10n.birthDateFormat,
                   icon: Icons.calendar_today_outlined,
-                  validator: (v) => v!.isEmpty ? 'Requis' : null,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? l10n.requiredField : null,
                 ),
               ),
             ),
             const SizedBox(height: 20),
             _buildTextField(
               controller: _telephoneParentController,
-              label: 'Téléphone Parent',
-              hint: '+221 -- --- -- --',
+              label: l10n.parentPhoneLabel,
+              hint: l10n.phoneHint,
               icon: Icons.phone_android_outlined,
               keyboardType: TextInputType.phone,
-              validator: (v) => v!.isEmpty ? 'Requis' : null,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
           ],
         ),
@@ -576,14 +597,14 @@ class _AcademicienRegistrationPageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Football', 'Profil sportif sur le terrain'),
+          _buildSectionHeader(l10n.footballLabel, l10n.sportsProfileSubtitle),
           const SizedBox(height: 32),
           Text(
-            'Poste de prédilection',
+            l10n.preferredPositionLabel,
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              color: colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 12),
@@ -606,37 +627,40 @@ class _AcademicienRegistrationPageState
           ),
           const SizedBox(height: 32),
           Text(
-            'Pied fort',
+            l10n.strongFootLabel,
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              color: colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               _buildChoiceChip(
-                label: 'Droitier',
-                isSelected: _selectedPiedFort == 'Droitier',
-                onSelected: (s) =>
-                    setState(() => _selectedPiedFort = s ? 'Droitier' : null),
+                label: l10n.rightFooted,
+                isSelected: _selectedPiedFort == l10n.rightFooted,
+                onSelected: (s) => setState(
+                  () => _selectedPiedFort = s ? l10n.rightFooted : null,
+                ),
                 colorScheme: colorScheme,
               ),
               const SizedBox(width: 12),
               _buildChoiceChip(
-                label: 'Gaucher',
-                isSelected: _selectedPiedFort == 'Gaucher',
-                onSelected: (s) =>
-                    setState(() => _selectedPiedFort = s ? 'Gaucher' : null),
+                label: l10n.leftFooted,
+                isSelected: _selectedPiedFort == l10n.leftFooted,
+                onSelected: (s) => setState(
+                  () => _selectedPiedFort = s ? l10n.leftFooted : null,
+                ),
                 colorScheme: colorScheme,
               ),
               const SizedBox(width: 12),
               _buildChoiceChip(
-                label: 'Ambidextre',
-                isSelected: _selectedPiedFort == 'Ambidextre',
-                onSelected: (s) =>
-                    setState(() => _selectedPiedFort = s ? 'Ambidextre' : null),
+                label: l10n.ambidextrous,
+                isSelected: _selectedPiedFort == l10n.ambidextrous,
+                onSelected: (s) => setState(
+                  () => _selectedPiedFort = s ? l10n.ambidextrous : null,
+                ),
                 colorScheme: colorScheme,
               ),
             ],
@@ -653,7 +677,10 @@ class _AcademicienRegistrationPageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Scolarité', 'Niveau académique actuel'),
+          _buildSectionHeader(
+            l10n.schoolingLabel,
+            l10n.currentAcademicLevelSubtitle,
+          ),
           const SizedBox(height: 32),
           ListView.separated(
             shrinkWrap: true,
@@ -674,13 +701,13 @@ class _AcademicienRegistrationPageState
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary.withValues(alpha: 0.08)
+                        ? AppColors.primary.withOpacity(0.08)
                         : colorScheme.surface,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: isSelected
                           ? AppColors.primary
-                          : colorScheme.onSurface.withValues(alpha: 0.1),
+                          : colorScheme.onSurface.withOpacity(0.1),
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -690,7 +717,7 @@ class _AcademicienRegistrationPageState
                         Icons.school_outlined,
                         color: isSelected
                             ? AppColors.primary
-                            : colorScheme.onSurface.withValues(alpha: 0.4),
+                            : colorScheme.onSurface.withOpacity(0.4),
                       ),
                       const SizedBox(width: 16),
                       Text(
@@ -736,21 +763,26 @@ class _AcademicienRegistrationPageState
   }
 
   String _getPosteName() {
-    if (_selectedPosteId == null) return 'Non specifie';
+    if (_selectedPosteId == null) {
+      return l10n.notSpecified;
+    }
     return _postes
         .firstWhere(
           (p) => p.id == _selectedPosteId,
-          orElse: () => PosteFootball(id: '', nom: 'Non specifie'),
+          orElse: () => PosteFootball(id: '', nom: l10n.notSpecified),
         )
         .nom;
   }
 
   String _getNiveauName() {
-    if (_selectedNiveauId == null) return 'Non specifie';
+    if (_selectedNiveauId == null) {
+      return l10n.notSpecified;
+    }
     return _niveaux
         .firstWhere(
           (n) => n.id == _selectedNiveauId,
-          orElse: () => NiveauScolaire(id: '', nom: 'Non specifie', ordre: 0),
+          orElse: () =>
+              NiveauScolaire(id: '', nom: l10n.notSpecified, ordre: 0),
         )
         .nom;
   }
@@ -780,7 +812,7 @@ class _AcademicienRegistrationPageState
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                color: const Color(0xFF10B981).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -792,7 +824,7 @@ class _AcademicienRegistrationPageState
           ),
           const SizedBox(height: 20),
           Text(
-            'Inscription reussie !',
+            l10n.registrationSuccessTitle,
             style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -802,9 +834,9 @@ class _AcademicienRegistrationPageState
           ),
           const SizedBox(height: 8),
           Text(
-            'Le badge QR unique de l\'academicien a ete genere\navec succes. Vous pouvez le partager ou le telecharger.',
+            l10n.academicianQrBadgeSubtitle,
             style: GoogleFonts.montserrat(
-              color: colorScheme.onSurface.withValues(alpha: 0.5),
+              color: colorScheme.onSurface.withOpacity(0.5),
               fontSize: 13,
               height: 1.5,
             ),
@@ -828,7 +860,7 @@ class _AcademicienRegistrationPageState
                   onPressed: () {},
                   icon: const Icon(Icons.share_rounded, size: 20),
                   label: Text(
-                    'Partager',
+                    l10n.shareLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -837,7 +869,7 @@ class _AcademicienRegistrationPageState
                       borderRadius: BorderRadius.circular(14),
                     ),
                     side: BorderSide(
-                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                      color: colorScheme.onSurface.withOpacity(0.1),
                     ),
                   ),
                 ),
@@ -848,7 +880,7 @@ class _AcademicienRegistrationPageState
                   onPressed: () => Navigator.pop(context, true),
                   icon: const Icon(Icons.check_rounded, size: 20),
                   label: Text(
-                    'Terminer',
+                    l10n.finishLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -859,7 +891,7 @@ class _AcademicienRegistrationPageState
                       borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 4,
-                    shadowColor: const Color(0xFF10B981).withValues(alpha: 0.3),
+                    shadowColor: const Color(0xFF10B981).withOpacity(0.3),
                   ),
                 ),
               ),
@@ -885,7 +917,7 @@ class _AcademicienRegistrationPageState
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -934,7 +966,7 @@ class _AcademicienRegistrationPageState
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'ACADEMICIEN',
+              l10n.academicianBadgeType,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w700,
                 fontSize: 10,
@@ -1032,7 +1064,7 @@ class _AcademicienRegistrationPageState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recapitulatif',
+            l10n.recapTitle,
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -1042,47 +1074,53 @@ class _AcademicienRegistrationPageState
           const SizedBox(height: 16),
           _buildRecapRow(
             Icons.person_outline,
-            'Nom complet',
+            l10n.fullNameLabel,
             nomComplet,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.cake_outlined,
-            'Date de naissance',
+            l10n.birthDateLabel,
             _dateNaissanceController.text.isNotEmpty
                 ? _dateNaissanceController.text
-                : 'Non renseignee',
+                : l10n.notProvided,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.phone_android_outlined,
-            'Telephone parent',
+            l10n.parentPhoneLabel,
             _telephoneParentController.text.isNotEmpty
                 ? _telephoneParentController.text
-                : 'Non renseigne',
+                : l10n.notProvided,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.sports_soccer_rounded,
-            'Poste',
+            l10n.posteLabel,
             _getPosteName(),
             colorScheme,
           ),
           _buildRecapRow(
             Icons.directions_run_rounded,
-            'Pied fort',
-            _selectedPiedFort ?? 'Non specifie',
+            l10n.strongFootLabel,
+            _selectedPiedFort ?? l10n.notSpecified,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.school_outlined,
-            'Niveau scolaire',
+            l10n.schoolLevels,
             _getNiveauName(),
             colorScheme,
           ),
           _buildRecapRow(
+            Icons.shield_outlined,
+            l10n.roleLabel,
+            l10n.profileAcademician,
+            colorScheme,
+          ),
+          _buildRecapRow(
             Icons.calendar_today_outlined,
-            'Date d\'inscription',
+            l10n.registrationDateLabel,
             dateStr,
             colorScheme,
             isLast: true,

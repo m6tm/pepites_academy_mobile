@@ -9,6 +9,7 @@ import '../../../domain/entities/user_role.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Page d'inscription pour un nouvel encadreur.
 /// Processus en 3 etapes : Infos personnelles, Infos sportives, Recapitulatif + QR.
@@ -25,6 +26,7 @@ class EncadreurRegistrationPage extends StatefulWidget {
 class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
     with TickerProviderStateMixin {
   final PageController _pageController = PageController();
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
   int _currentStep = 0;
   final int _totalSteps = 3;
   bool _isLoading = false;
@@ -46,42 +48,42 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  final List<Map<String, dynamic>> _specialites = [
+  List<Map<String, dynamic>> get _translatedSpecialites => [
     {
       'id': 'technique',
-      'nom': 'Technique',
+      'nom': l10n.specialityTechnique,
       'icon': Icons.sports_soccer_rounded,
-      'description': 'Dribbles, passes, tirs',
+      'description': l10n.specialityTechniqueDesc,
     },
     {
       'id': 'physique',
-      'nom': 'Physique',
+      'nom': l10n.specialityPhysique,
       'icon': Icons.fitness_center_rounded,
-      'description': 'Endurance, vitesse, force',
+      'description': l10n.specialityPhysiqueDesc,
     },
     {
       'id': 'tactique',
-      'nom': 'Tactique',
+      'nom': l10n.specialityTactique,
       'icon': Icons.psychology_rounded,
-      'description': 'Placement, strategie, jeu',
+      'description': l10n.specialityTactiqueDesc,
     },
     {
       'id': 'gardien',
-      'nom': 'Gardien',
+      'nom': l10n.specialityGardien,
       'icon': Icons.pan_tool_rounded,
-      'description': 'Arrets, relances, placement',
+      'description': l10n.specialityGardienDesc,
     },
     {
       'id': 'formation_jeunes',
-      'nom': 'Formation jeunes',
+      'nom': l10n.specialityFormationJeunes,
       'icon': Icons.child_care_rounded,
-      'description': 'Pedagogie, initiation',
+      'description': l10n.specialityFormationJeunesDesc,
     },
     {
       'id': 'preparation_mentale',
-      'nom': 'Preparation mentale',
+      'nom': l10n.specialityPreparationMentale,
       'icon': Icons.self_improvement_rounded,
-      'description': 'Concentration, motivation',
+      'description': l10n.specialityPreparationMentaleDesc,
     },
   ];
 
@@ -140,8 +142,8 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
       if (_selectedSpecialite == null) {
         AcademyToast.show(
           context,
-          title: 'Champ requis',
-          description: 'Veuillez selectionner une specialite',
+          title: l10n.requiredLabel,
+          description: l10n.specialtyRequiredError,
           isError: true,
         );
       } else {
@@ -207,8 +209,8 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
         setState(() => _isLoading = false);
         AcademyToast.show(
           context,
-          title: 'Erreur',
-          description: 'Impossible de creer l\'encadreur : $e',
+          title: l10n.error,
+          description: l10n.coachSaveError(e.toString()),
           isError: true,
         );
       }
@@ -237,7 +239,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           },
         ),
         title: Text(
-          'Nouvel Encadreur',
+          l10n.newCoachRegistrationTitle,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -358,7 +360,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
                   ),
                 ),
                 child: Text(
-                  'Precedent',
+                  l10n.previousLabel,
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -394,7 +396,9 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          _currentStep == 1 ? 'Confirmer' : 'Continuer',
+                          _currentStep == 1
+                              ? l10n.confirm_label
+                              : l10n.continue_label,
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -432,8 +436,8 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader(
-              'Identite',
-              'Informations personnelles de l\'encadreur',
+              l10n.identityLabel,
+              l10n.coachPersonalDetails,
               Icons.person_rounded,
               colorScheme,
             ),
@@ -446,11 +450,11 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
             // Nom
             _buildPremiumTextField(
               controller: _nomController,
-              label: 'Nom',
-              hint: 'Saisir le nom de famille',
+              label: l10n.lastName,
+              hint: l10n.enterCoachLastNameHint,
               icon: Icons.badge_outlined,
               validator: (v) =>
-                  v == null || v.isEmpty ? 'Le nom est requis' : null,
+                  v == null || v.isEmpty ? l10n.requiredField : null,
               colorScheme: colorScheme,
               isDark: isDark,
             ),
@@ -459,11 +463,11 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
             // Prenom
             _buildPremiumTextField(
               controller: _prenomController,
-              label: 'Prenom',
-              hint: 'Saisir le prenom',
+              label: l10n.firstName,
+              hint: l10n.enterCoachFirstNameHint,
               icon: Icons.person_outline,
               validator: (v) =>
-                  v == null || v.isEmpty ? 'Le prenom est requis' : null,
+                  v == null || v.isEmpty ? l10n.requiredField : null,
               colorScheme: colorScheme,
               isDark: isDark,
             ),
@@ -472,12 +476,12 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
             // Telephone
             _buildPremiumTextField(
               controller: _telephoneController,
-              label: 'Numero de telephone',
-              hint: '+221 -- --- -- --',
+              label: l10n.phoneNumberLabel,
+              hint: l10n.phoneHint,
               icon: Icons.phone_android_outlined,
               keyboardType: TextInputType.phone,
               validator: (v) =>
-                  v == null || v.isEmpty ? 'Le telephone est requis' : null,
+                  v == null || v.isEmpty ? l10n.phoneRequired : null,
               colorScheme: colorScheme,
               isDark: isDark,
             ),
@@ -502,15 +506,14 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader(
-            'Specialite',
-            'Domaine d\'expertise sportive',
+            l10n.specialtyLabel,
+            l10n.sportExpertiseSubtitle,
             Icons.sports_rounded,
             colorScheme,
           ),
           const SizedBox(height: 12),
           Text(
-            'Selectionnez la specialite principale de l\'encadreur. '
-            'Cela determinera les types d\'ateliers qu\'il pourra diriger.',
+            l10n.coachSpecialtyInstructions,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -523,10 +526,10 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _specialites.length,
+            itemCount: _translatedSpecialites.length,
             separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
-              final spec = _specialites[index];
+              final spec = _translatedSpecialites[index];
               final isSelected = _selectedSpecialite == spec['nom'];
               return _buildSpecialiteCard(
                 nom: spec['nom'] as String,
@@ -589,7 +592,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           ),
           const SizedBox(height: 20),
           Text(
-            'Encadreur enregistre !',
+            l10n.coachRegisteredSuccess,
             style: GoogleFonts.montserrat(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -598,7 +601,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           ),
           const SizedBox(height: 8),
           Text(
-            'Le badge QR a ete genere avec succes.',
+            l10n.qrBadgeGeneratedSuccess,
             style: GoogleFonts.montserrat(
               color: colorScheme.onSurface.withValues(alpha: 0.5),
               fontSize: 14,
@@ -623,7 +626,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
                   onPressed: () {},
                   icon: const Icon(Icons.share_rounded, size: 20),
                   label: Text(
-                    'Partager',
+                    l10n.shareLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -643,7 +646,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
                   onPressed: () => Navigator.pop(context, true),
                   icon: const Icon(Icons.check_rounded, size: 20),
                   label: Text(
-                    'Terminer',
+                    l10n.finishLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -788,7 +791,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           ),
           const SizedBox(height: 12),
           Text(
-            'Photo de l\'encadreur',
+            l10n.academicianPhotoLabel,
             style: GoogleFonts.montserrat(
               color: isDark
                   ? AppColors.textMutedDark
@@ -798,7 +801,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
             ),
           ),
           Text(
-            '(Optionnel)',
+            l10n.optionalLabel,
             style: GoogleFonts.montserrat(
               color: isDark
                   ? AppColors.textMutedDark.withValues(alpha: 0.6)
@@ -1044,7 +1047,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'ENCADREUR',
+              l10n.coachBadgeType,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w700,
                 fontSize: 10,
@@ -1134,7 +1137,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recapitulatif',
+            l10n.recapTitle,
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -1144,31 +1147,31 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           const SizedBox(height: 16),
           _buildRecapRow(
             Icons.person_outline,
-            'Nom complet',
+            l10n.fullNameLabel,
             enc.nomComplet,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.phone_android_outlined,
-            'Telephone',
+            l10n.phoneNumberLabel,
             enc.telephone,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.sports_rounded,
-            'Specialite',
+            l10n.specialtyLabel,
             enc.specialite,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.shield_outlined,
-            'Role',
-            'Encadreur',
+            l10n.roleLabel,
+            l10n.profileCoach,
             colorScheme,
           ),
           _buildRecapRow(
             Icons.calendar_today_outlined,
-            'Date d\'inscription',
+            l10n.registrationDateLabel,
             '${enc.createdAt.day.toString().padLeft(2, '0')}/${enc.createdAt.month.toString().padLeft(2, '0')}/${enc.createdAt.year}',
             colorScheme,
             isLast: true,

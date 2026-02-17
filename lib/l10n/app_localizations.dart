@@ -1735,6 +1735,420 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Non'**
   String get no;
+
+  /// No description provided for @academicianRegistrationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription Académicien'**
+  String get academicianRegistrationTitle;
+
+  /// No description provided for @academicianPhotoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de l\'académicien'**
+  String get academicianPhotoLabel;
+
+  /// No description provided for @optionalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'(Optionnel)'**
+  String get optionalLabel;
+
+  /// No description provided for @identityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité'**
+  String get identityLabel;
+
+  /// No description provided for @academicianPersonalDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations personnelles de l\'académicien'**
+  String get academicianPersonalDetails;
+
+  /// No description provided for @requiredFields.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champs requis'**
+  String get requiredFields;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champ requis'**
+  String get requiredField;
+
+  /// No description provided for @requiredLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Requis'**
+  String get requiredLabel;
+
+  /// No description provided for @registrationSuccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription réussie !'**
+  String get registrationSuccessTitle;
+
+  /// No description provided for @academicianQrBadgeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le badge QR unique de l\'académicien a été généré avec succès. Vous pouvez le partager ou le télécharger.'**
+  String get academicianQrBadgeSubtitle;
+
+  /// No description provided for @selectPosteAndPiedError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez sélectionner un poste et un pied fort'**
+  String get selectPosteAndPiedError;
+
+  /// No description provided for @selectSchoolLevelError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez sélectionner un niveau scolaire'**
+  String get selectSchoolLevelError;
+
+  /// No description provided for @galleryOpenError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir la galerie'**
+  String get galleryOpenError;
+
+  /// No description provided for @academicianSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer l\'académicien : {error}'**
+  String academicianSaveError(String error);
+
+  /// No description provided for @enterLastName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir le nom'**
+  String get enterLastName;
+
+  /// No description provided for @enterFirstName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir le prénom'**
+  String get enterFirstName;
+
+  /// No description provided for @birthDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de naissance'**
+  String get birthDateLabel;
+
+  /// No description provided for @birthDateFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'JJ/MM/AAAA'**
+  String get birthDateFormat;
+
+  /// No description provided for @parentPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone Parent'**
+  String get parentPhoneLabel;
+
+  /// No description provided for @phoneHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'+221 -- --- -- --'**
+  String get phoneHint;
+
+  /// No description provided for @footballLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Football'**
+  String get footballLabel;
+
+  /// No description provided for @sportsProfileSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil sportif sur le terrain'**
+  String get sportsProfileSubtitle;
+
+  /// No description provided for @preferredPositionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste de prédilection'**
+  String get preferredPositionLabel;
+
+  /// No description provided for @strongFootLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pied fort'**
+  String get strongFootLabel;
+
+  /// No description provided for @rightFooted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Droitier'**
+  String get rightFooted;
+
+  /// No description provided for @leftFooted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gaucher'**
+  String get leftFooted;
+
+  /// No description provided for @ambidextrous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ambidextre'**
+  String get ambidextrous;
+
+  /// No description provided for @schoolingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scolarité'**
+  String get schoolingLabel;
+
+  /// No description provided for @currentAcademicLevelSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau académique actuel'**
+  String get currentAcademicLevelSubtitle;
+
+  /// No description provided for @continue_label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get continue_label;
+
+  /// No description provided for @confirm_label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get confirm_label;
+
+  /// No description provided for @previousLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précédent'**
+  String get previousLabel;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non spécifié'**
+  String get notSpecified;
+
+  /// No description provided for @notProvided.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get notProvided;
+
+  /// No description provided for @academicianBadgeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Badge Académicien'**
+  String get academicianBadgeTitle;
+
+  /// No description provided for @recapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récapitulatif'**
+  String get recapTitle;
+
+  /// No description provided for @fullNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom complet'**
+  String get fullNameLabel;
+
+  /// No description provided for @roleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rôle'**
+  String get roleLabel;
+
+  /// No description provided for @posteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste'**
+  String get posteLabel;
+
+  /// No description provided for @registrationDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date d\'inscription'**
+  String get registrationDateLabel;
+
+  /// No description provided for @academicianBadgeType.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACADEMICIEN'**
+  String get academicianBadgeType;
+
+  /// No description provided for @coachBadgeType.
+  ///
+  /// In fr, this message translates to:
+  /// **'ENCADREUR'**
+  String get coachBadgeType;
+
+  /// No description provided for @newCoachRegistrationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel Encadreur'**
+  String get newCoachRegistrationTitle;
+
+  /// No description provided for @coachPersonalDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations personnelles de l\'encadreur'**
+  String get coachPersonalDetails;
+
+  /// No description provided for @enterCoachLastNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir le nom de famille'**
+  String get enterCoachLastNameHint;
+
+  /// No description provided for @enterCoachFirstNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisir le prénom'**
+  String get enterCoachFirstNameHint;
+
+  /// No description provided for @phoneNumberLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone'**
+  String get phoneNumberLabel;
+
+  /// No description provided for @phoneRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le téléphone est requis'**
+  String get phoneRequired;
+
+  /// No description provided for @specialtyLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spécialité'**
+  String get specialtyLabel;
+
+  /// No description provided for @sportExpertiseSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Domaine d\'expertise sportive'**
+  String get sportExpertiseSubtitle;
+
+  /// No description provided for @coachSpecialtyInstructions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez la spécialité principale de l\'encadreur. Cela déterminera les types d\'ateliers qu\'il pourra diriger.'**
+  String get coachSpecialtyInstructions;
+
+  /// No description provided for @coachRegisteredSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur enregistré !'**
+  String get coachRegisteredSuccess;
+
+  /// No description provided for @specialtyRequiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez sélectionner une spécialité'**
+  String get specialtyRequiredError;
+
+  /// No description provided for @coachSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de créer l\'encadreur : {error}'**
+  String coachSaveError(String error);
+
+  /// No description provided for @qrBadgeGeneratedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le badge QR a été généré avec succès.'**
+  String get qrBadgeGeneratedSuccess;
+
+  /// No description provided for @shareLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager'**
+  String get shareLabel;
+
+  /// No description provided for @finishLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer'**
+  String get finishLabel;
+
+  /// No description provided for @specialityTechnique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique'**
+  String get specialityTechnique;
+
+  /// No description provided for @specialityTechniqueDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dribbles, passes, tirs'**
+  String get specialityTechniqueDesc;
+
+  /// No description provided for @specialityPhysique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Physique'**
+  String get specialityPhysique;
+
+  /// No description provided for @specialityPhysiqueDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Endurance, vitesse, force'**
+  String get specialityPhysiqueDesc;
+
+  /// No description provided for @specialityTactique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tactique'**
+  String get specialityTactique;
+
+  /// No description provided for @specialityTactiqueDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placement, stratégie, jeu'**
+  String get specialityTactiqueDesc;
+
+  /// No description provided for @specialityGardien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gardien'**
+  String get specialityGardien;
+
+  /// No description provided for @specialityGardienDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêts, relances, placement'**
+  String get specialityGardienDesc;
+
+  /// No description provided for @specialityFormationJeunes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formation jeunes'**
+  String get specialityFormationJeunes;
+
+  /// No description provided for @specialityFormationJeunesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pédagogie, initiation'**
+  String get specialityFormationJeunesDesc;
+
+  /// No description provided for @specialityPreparationMentale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation mentale'**
+  String get specialityPreparationMentale;
+
+  /// No description provided for @specialityPreparationMentaleDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concentration, motivation'**
+  String get specialityPreparationMentaleDesc;
 }
 
 class _AppLocalizationsDelegate

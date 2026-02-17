@@ -1,8 +1,6 @@
 {
   "@@locale": "fr",
-
   "appTitle": "Pepites Academy",
-
   "login": "Connexion",
   "loginSubtitle": "Accedez a votre espace encadreur ou administrateur",
   "email": "Email",
@@ -18,13 +16,14 @@
   "connectedAs": "Connecte en tant que {role}",
   "@connectedAs": {
     "placeholders": {
-      "role": { "type": "String" }
+      "role": {
+        "type": "String"
+      }
     }
   },
   "loginFailed": "Echec de connexion",
   "loginFailedDescription": "Identifiants incorrects. Utilisez les comptes de test.",
   "logout": "Se deconnecter",
-
   "register": "Inscription",
   "registerSubtitle": "Rejoignez l'elite de la formation sportive",
   "lastName": "Nom",
@@ -45,25 +44,24 @@
   "passwordSpecialChar": "Un caractere special",
   "confirmPassword": "Confirmer le mot de passe",
   "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
-
   "resetPassword": "Reinitialiser le mot de passe",
   "forgotPasswordTitle": "Mot de passe oublie",
   "forgotPasswordDescription": "Saisissez votre email pour recevoir un code de verification a 6 chiffres.",
   "sendCode": "Envoyer le code",
   "backToLogin": "Retour a la connexion",
-
   "otpVerification": "Verification OTP",
   "otpTitle": "Verification",
   "otpDescription": "Saisissez le code a 6 chiffres envoye a\n{email}",
   "@otpDescription": {
     "placeholders": {
-      "email": { "type": "String" }
+      "email": {
+        "type": "String"
+      }
     }
   },
   "verifyCode": "Verifier le code",
   "noCodeReceived": "Vous n'avez pas recu de code ? ",
   "resend": "Renvoyer",
-
   "newPasswordTitle": "Nouveau mot de passe",
   "newPasswordSubtitle": "Creez un nouveau mot de passe securise pour votre compte.",
   "newPasswordLabel": "Nouveau mot de passe",
@@ -71,18 +69,15 @@
   "passwordMustBeStronger": "Le mot de passe doit etre plus fort",
   "resetPasswordButton": "Reinitialiser",
   "passwordResetSuccess": "Mot de passe reinitialise avec succes",
-
   "settings": "Parametres",
   "settingsSubtitle": "Configuration de l'application",
   "general": "General",
   "administration": "Administration",
-
   "language": "Langue",
   "languageActive": "Langue active",
   "languageInfo": "La langue est appliquee immediatement et sauvegardee pour les prochaines sessions.",
   "french": "Francais",
   "english": "English",
-
   "theme": "Theme",
   "themeLight": "Clair",
   "themeDark": "Sombre",
@@ -93,25 +88,26 @@
   "themeActiveLabel": "Theme actif : {label}",
   "@themeActiveLabel": {
     "placeholders": {
-      "label": { "type": "String" }
+      "label": {
+        "type": "String"
+      }
     }
   },
   "themeInfo": "Le theme est applique immediatement et sauvegarde pour les prochaines sessions.",
   "darkMode": "Mode sombre",
   "lightMode": "Mode clair",
   "appearance": "APPARENCE",
-
   "notifications": "Notifications",
   "notificationsEnabled": "Activees",
-
   "about": "A propos",
   "version": "Version {version}",
   "@version": {
     "placeholders": {
-      "version": { "type": "String" }
+      "version": {
+        "type": "String"
+      }
     }
   },
-
   "referentials": "Referentiels",
   "referentialsSubtitle": "Postes, Niveaux",
   "categories": "CATEGORIES",
@@ -121,17 +117,14 @@
   "schoolLevels": "Niveaux scolaires",
   "schoolLevelsSubtitle": "CP, CE1, 6eme, 3eme, Terminale...",
   "schoolLevelsDescription": "Gerez les niveaux scolaires des academiciens",
-
   "home": "Accueil",
   "academy": "Academie",
   "sessions": "Seances",
   "communication": "Communication",
   "profile": "Profil",
   "myProfile": "Mon profil",
-
   "administrator": "Administrateur",
   "coach": "Encadreur",
-
   "overview": "Vue d'ensemble",
   "quickActions": "Actions rapides",
   "sessionOfTheDay": "Seance du jour",
@@ -139,12 +132,10 @@
   "globalPerformance": "Performance globale",
   "recentActivity": "Activite recente",
   "viewAll": "Tout voir",
-
   "academicians": "Academiciens",
   "coaches": "Encadreurs",
   "sessionsMonth": "Seances (mois)",
   "attendanceRate": "Taux presence",
-
   "register_action": "Inscrire",
   "newAcademician": "Nouvel academicien",
   "scanQr": "Scanner QR",
@@ -152,7 +143,6 @@
   "players": "Joueurs",
   "academiciansList": "Liste des academiciens",
   "coachManagement": "Gestion des coachs",
-
   "manageAcademy": "Gerez l'ensemble de votre academie depuis cet espace centralise.",
   "averageAttendance": "Presence\nmoyenne",
   "goalsAchieved": "Objectifs\natteints",
@@ -160,32 +150,35 @@
   "positiveTrend": "Tendance positive : +8% de presence en Fevrier par rapport a Janvier.",
   "noRecentActivity": "Aucune activite recente.",
   "noSessionRecorded": "Aucune seance enregistree.",
-
   "justNow": "A l'instant",
   "minutesAgo": "Il y a {minutes} min",
   "@minutesAgo": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "hoursAgo": "Il y a {hours}h",
   "@hoursAgo": {
     "placeholders": {
-      "hours": { "type": "int" }
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "yesterday": "Hier",
   "daysAgo": "Il y a {days} jours",
   "@daysAgo": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
-
   "noSessionInProgress": "Aucune seance en cours",
   "openSessionBeforeScan": "Veuillez ouvrir une seance avant de scanner.",
   "openSessionBeforeWorkshops": "Veuillez ouvrir une seance avant de gerer les ateliers.",
-
   "readyForField": "Pret pour le terrain",
   "manageSessionsDescription": "Gerez vos seances, evaluez vos joueurs et suivez leur progression.",
   "sessionInProgress": "SEANCE EN COURS",
@@ -197,24 +190,20 @@
   "closeSession": "Fermer seance",
   "noCurrentSession": "Aucune seance en cours",
   "openSessionToStart": "Ouvrez une seance pour commencer.",
-
   "myActivity": "Mon activite",
   "fieldActions": "Actions terrain",
   "myAcademicians": "Mes academiciens",
   "myIndicators": "Mes indicateurs",
   "myRecentAnnotations": "Mes dernieres annotations",
-
   "sessionsConducted": "Seances dirigees",
   "workshopsCreated": "Ateliers crees",
   "averageAttendanceShort": "Presence moy.",
-
   "myAnnotations": "Mes annotations",
   "evaluateAcademician": "Evaluer un academicien",
   "myWorkshops": "Mes ateliers",
   "manageExercises": "Gerer les exercices",
   "attendance": "Presences",
   "scanArrivals": "Scanner les arrivees",
-
   "attendanceRateLabel": "Taux de\npresence",
   "annotationsPerSession": "Annotations\npar seance",
   "closedSessions": "Seances\ncloturees",
@@ -223,10 +212,11 @@
   "toNextLevel": "{percent}% vers le niveau suivant",
   "@toNextLevel": {
     "placeholders": {
-      "percent": { "type": "int" }
+      "percent": {
+        "type": "int"
+      }
     }
   },
-
   "smsAndNotifications": "SMS et notifications",
   "sent": "Envoyes",
   "thisMonth": "Ce mois",
@@ -241,7 +231,6 @@
   "noMessageSentYet": "Aucun message envoye pour le moment.",
   "destinataire": "destinataire",
   "destinataires": "destinataires",
-
   "newSms": "Nouveau SMS",
   "writeYourMessage": "Redigez votre message",
   "smsWillBeSent": "Le message sera envoye par SMS aux destinataires selectionnes.",
@@ -250,7 +239,6 @@
   "charactersPlural": "caracteres",
   "remaining": "restants",
   "chooseRecipients": "Choisir les destinataires",
-
   "confirmation": "Confirmation",
   "summary": "Recapitulatif",
   "verifyBeforeSending": "Verifiez les informations avant l'envoi.",
@@ -261,8 +249,12 @@
   "aboutToSend": "Vous etes sur le point d'envoyer ce message a {count} destinataire{plural}.\n\nCette action est irreversible.",
   "@aboutToSend": {
     "placeholders": {
-      "count": { "type": "int" },
-      "plural": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      }
     }
   },
   "cancel": "Annuler",
@@ -272,17 +264,17 @@
   "messageSentSuccess": "Le message a ete envoye avec succes.",
   "back": "Retour",
   "sendError": "Erreur lors de l'envoi.",
-
   "noSmsSent": "Aucun SMS envoye",
   "sentMessagesWillAppear": "Les messages envoyes apparaitront ici.",
   "deleteThisSms": "Supprimer ce SMS ?",
   "messageWillBeRemoved": "Ce message sera retire de l'historique.",
   "delete": "Supprimer",
-
   "sessionsCount": "{count} seance(s) - Historique et suivi",
   "@sessionsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "all": "Toutes",
@@ -291,12 +283,9 @@
   "tapToViewDetails": "Appuyez pour consulter le detail",
   "noSession": "Aucune seance",
   "sessionsFromCoaches": "Les seances creees par les encadreurs\napparaitront ici.",
-
   "noPositionAvailable": "Aucun poste disponible",
-
   "splashTagline": "L'excellence du football",
   "defaultUser": "Utilisateur",
-
   "onboardingSkip": "Passer",
   "onboardingNext": "Suivant",
   "onboardingStart": "Commencer",
@@ -310,54 +299,70 @@
   "onboardingDesc4": "Ajoutez des annotations structurees et suivez la progression de chaque academicien avec precision.",
   "onboardingTitle5": "Des Donnees au Service du Talent",
   "onboardingDesc5": "Generez des bulletins professionnels, visualisez l'evolution et optimisez le developpement de vos joueurs.",
-
   "greetingMorning": "Bonjour",
   "greetingAfternoon": "Bon apres-midi",
   "greetingEvening": "Bonsoir",
-
   "logoutTitle": "Deconnexion",
   "logoutConfirmation": "Etes-vous sur de vouloir vous deconnecter ?",
   "logoutButton": "Deconnecter",
-
   "scanLabel": "SCAN",
   "badgeNew": "Nouveau",
   "badgeGo": "Go",
-
   "activitySessionOpened": "Seance ouverte",
   "activitySessionClosed": "Seance cloturee",
   "activitySessionClosedDesc": "{title} - {count} presents",
   "@activitySessionClosedDesc": {
     "placeholders": {
-      "title": { "type": "String" },
-      "count": { "type": "int" }
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "activitySessionScheduled": "Seance programmee",
   "activityNewAcademician": "Nouvel academicien",
   "activityAcademicianRegistered": "{name} inscrit avec succes",
   "@activityAcademicianRegistered": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "activityAcademicianRemoved": "Academicien supprime",
   "activityAcademicianRemovedDesc": "{name} supprime du systeme",
   "@activityAcademicianRemovedDesc": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "activityNewCoach": "Nouvel encadreur",
   "activityAttendanceRecorded": "Presence enregistree",
   "activityAttendanceDesc": "{type} : {name}",
   "@activityAttendanceDesc": {
     "placeholders": {
-      "type": { "type": "String" },
-      "name": { "type": "String" }
+      "type": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "activitySmsSent": "SMS envoye",
   "activitySmsSentDesc": "{count} destinataires - {preview}",
   "@activitySmsSentDesc": {
     "placeholders": {
-      "count": { "type": "int" },
-      "preview": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "preview": {
+        "type": "String"
+      }
     }
   },
   "activitySmsFailed": "SMS en echec",
@@ -366,31 +371,54 @@
   "activityReferentialUpdated": "Referentiel mis a jour",
   "activityNewPosition": "Nouveau poste : {name}",
   "@activityNewPosition": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "activityPositionModified": "Poste modifie : {name}",
   "@activityPositionModified": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "activityPositionRemoved": "Poste supprime : {name}",
   "@activityPositionRemoved": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "activityNewLevel": "Nouveau niveau : {name}",
   "@activityNewLevel": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "activityLevelModified": "Niveau modifie : {name}",
   "@activityLevelModified": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "activityLevelRemoved": "Niveau supprime : {name}",
   "@activityLevelRemoved": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "profileAcademician": "Academicien",
   "profileCoach": "Encadreur",
-
   "search": "Rechercher",
   "save": "Enregistrer",
   "edit": "Modifier",
@@ -403,5 +431,88 @@
   "success": "Succes",
   "warning": "Attention",
   "yes": "Oui",
-  "no": "Non"
+  "no": "Non",
+  "academicianRegistrationTitle": "Inscription Académicien",
+  "academicianPhotoLabel": "Photo de l'académicien",
+  "optionalLabel": "(Optionnel)",
+  "identityLabel": "Identité",
+  "academicianPersonalDetails": "Informations personnelles de l'académicien",
+  "requiredFields": "Champs requis",
+  "requiredField": "Champ requis",
+  "requiredLabel": "Requis",
+  "registrationSuccessTitle": "Inscription réussie !",
+  "academicianQrBadgeSubtitle": "Le badge QR unique de l'académicien a été généré avec succès. Vous pouvez le partager ou le télécharger.",
+  "selectPosteAndPiedError": "Veuillez sélectionner un poste et un pied fort",
+  "selectSchoolLevelError": "Veuillez sélectionner un niveau scolaire",
+  "galleryOpenError": "Impossible d'ouvrir la galerie",
+  "academicianSaveError": "Impossible d'enregistrer l'académicien : {error}",
+  "@academicianSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "enterLastName": "Saisir le nom",
+  "enterFirstName": "Saisir le prénom",
+  "birthDateLabel": "Date de naissance",
+  "birthDateFormat": "JJ/MM/AAAA",
+  "parentPhoneLabel": "Téléphone Parent",
+  "phoneHint": "+221 -- --- -- --",
+  "footballLabel": "Football",
+  "sportsProfileSubtitle": "Profil sportif sur le terrain",
+  "preferredPositionLabel": "Poste de prédilection",
+  "strongFootLabel": "Pied fort",
+  "rightFooted": "Droitier",
+  "leftFooted": "Gaucher",
+  "ambidextrous": "Ambidextre",
+  "schoolingLabel": "Scolarité",
+  "currentAcademicLevelSubtitle": "Niveau académique actuel",
+  "continue_label": "Continuer",
+  "confirm_label": "Confirmer",
+  "previousLabel": "Précédent",
+  "notSpecified": "Non spécifié",
+  "notProvided": "Non renseigné",
+  "academicianBadgeTitle": "Badge Académicien",
+  "recapTitle": "Récapitulatif",
+  "fullNameLabel": "Nom complet",
+  "roleLabel": "Rôle",
+  "posteLabel": "Poste",
+  "registrationDateLabel": "Date d'inscription",
+  "academicianBadgeType": "ACADEMICIEN",
+  "coachBadgeType": "ENCADREUR",
+  "newCoachRegistrationTitle": "Nouvel Encadreur",
+  "coachPersonalDetails": "Informations personnelles de l'encadreur",
+  "enterCoachLastNameHint": "Saisir le nom de famille",
+  "enterCoachFirstNameHint": "Saisir le prénom",
+  "phoneNumberLabel": "Numéro de téléphone",
+  "phoneRequired": "Le téléphone est requis",
+  "specialtyLabel": "Spécialité",
+  "sportExpertiseSubtitle": "Domaine d'expertise sportive",
+  "coachSpecialtyInstructions": "Sélectionnez la spécialité principale de l'encadreur. Cela déterminera les types d'ateliers qu'il pourra diriger.",
+  "coachRegisteredSuccess": "Encadreur enregistré !",
+  "specialtyRequiredError": "Veuillez sélectionner une spécialité",
+  "coachSaveError": "Impossible de créer l'encadreur : {error}",
+  "@coachSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "qrBadgeGeneratedSuccess": "Le badge QR a été généré avec succès.",
+  "shareLabel": "Partager",
+  "finishLabel": "Terminer",
+  "specialityTechnique": "Technique",
+  "specialityTechniqueDesc": "Dribbles, passes, tirs",
+  "specialityPhysique": "Physique",
+  "specialityPhysiqueDesc": "Endurance, vitesse, force",
+  "specialityTactique": "Tactique",
+  "specialityTactiqueDesc": "Placement, stratégie, jeu",
+  "specialityGardien": "Gardien",
+  "specialityGardienDesc": "Arrêts, relances, placement",
+  "specialityFormationJeunes": "Formation jeunes",
+  "specialityFormationJeunesDesc": "Pédagogie, initiation",
+  "specialityPreparationMentale": "Préparation mentale",
+  "specialityPreparationMentaleDesc": "Concentration, motivation"
 }

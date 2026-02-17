@@ -890,4 +890,221 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get no => 'Non';
+
+  @override
+  String get academicianRegistrationTitle => 'Inscription Académicien';
+
+  @override
+  String get academicianPhotoLabel => 'Photo de l\'académicien';
+
+  @override
+  String get optionalLabel => '(Optionnel)';
+
+  @override
+  String get identityLabel => 'Identité';
+
+  @override
+  String get academicianPersonalDetails =>
+      'Informations personnelles de l\'académicien';
+
+  @override
+  String get requiredFields => 'Champs requis';
+
+  @override
+  String get requiredField => 'Champ requis';
+
+  @override
+  String get requiredLabel => 'Requis';
+
+  @override
+  String get registrationSuccessTitle => 'Inscription réussie !';
+
+  @override
+  String get academicianQrBadgeSubtitle =>
+      'Le badge QR unique de l\'académicien a été généré avec succès. Vous pouvez le partager ou le télécharger.';
+
+  @override
+  String get selectPosteAndPiedError =>
+      'Veuillez sélectionner un poste et un pied fort';
+
+  @override
+  String get selectSchoolLevelError =>
+      'Veuillez sélectionner un niveau scolaire';
+
+  @override
+  String get galleryOpenError => 'Impossible d\'ouvrir la galerie';
+
+  @override
+  String academicianSaveError(String error) {
+    return 'Impossible d\'enregistrer l\'académicien : $error';
+  }
+
+  @override
+  String get enterLastName => 'Saisir le nom';
+
+  @override
+  String get enterFirstName => 'Saisir le prénom';
+
+  @override
+  String get birthDateLabel => 'Date de naissance';
+
+  @override
+  String get birthDateFormat => 'JJ/MM/AAAA';
+
+  @override
+  String get parentPhoneLabel => 'Téléphone Parent';
+
+  @override
+  String get phoneHint => '+221 -- --- -- --';
+
+  @override
+  String get footballLabel => 'Football';
+
+  @override
+  String get sportsProfileSubtitle => 'Profil sportif sur le terrain';
+
+  @override
+  String get preferredPositionLabel => 'Poste de prédilection';
+
+  @override
+  String get strongFootLabel => 'Pied fort';
+
+  @override
+  String get rightFooted => 'Droitier';
+
+  @override
+  String get leftFooted => 'Gaucher';
+
+  @override
+  String get ambidextrous => 'Ambidextre';
+
+  @override
+  String get schoolingLabel => 'Scolarité';
+
+  @override
+  String get currentAcademicLevelSubtitle => 'Niveau académique actuel';
+
+  @override
+  String get continue_label => 'Continuer';
+
+  @override
+  String get confirm_label => 'Confirmer';
+
+  @override
+  String get previousLabel => 'Précédent';
+
+  @override
+  String get notSpecified => 'Non spécifié';
+
+  @override
+  String get notProvided => 'Non renseigné';
+
+  @override
+  String get academicianBadgeTitle => 'Badge Académicien';
+
+  @override
+  String get recapTitle => 'Récapitulatif';
+
+  @override
+  String get fullNameLabel => 'Nom complet';
+
+  @override
+  String get roleLabel => 'Rôle';
+
+  @override
+  String get posteLabel => 'Poste';
+
+  @override
+  String get registrationDateLabel => 'Date d\'inscription';
+
+  @override
+  String get academicianBadgeType => 'ACADEMICIEN';
+
+  @override
+  String get coachBadgeType => 'ENCADREUR';
+
+  @override
+  String get newCoachRegistrationTitle => 'Nouvel Encadreur';
+
+  @override
+  String get coachPersonalDetails =>
+      'Informations personnelles de l\'encadreur';
+
+  @override
+  String get enterCoachLastNameHint => 'Saisir le nom de famille';
+
+  @override
+  String get enterCoachFirstNameHint => 'Saisir le prénom';
+
+  @override
+  String get phoneNumberLabel => 'Numéro de téléphone';
+
+  @override
+  String get phoneRequired => 'Le téléphone est requis';
+
+  @override
+  String get specialtyLabel => 'Spécialité';
+
+  @override
+  String get sportExpertiseSubtitle => 'Domaine d\'expertise sportive';
+
+  @override
+  String get coachSpecialtyInstructions =>
+      'Sélectionnez la spécialité principale de l\'encadreur. Cela déterminera les types d\'ateliers qu\'il pourra diriger.';
+
+  @override
+  String get coachRegisteredSuccess => 'Encadreur enregistré !';
+
+  @override
+  String get specialtyRequiredError => 'Veuillez sélectionner une spécialité';
+
+  @override
+  String coachSaveError(String error) {
+    return 'Impossible de créer l\'encadreur : $error';
+  }
+
+  @override
+  String get qrBadgeGeneratedSuccess => 'Le badge QR a été généré avec succès.';
+
+  @override
+  String get shareLabel => 'Partager';
+
+  @override
+  String get finishLabel => 'Terminer';
+
+  @override
+  String get specialityTechnique => 'Technique';
+
+  @override
+  String get specialityTechniqueDesc => 'Dribbles, passes, tirs';
+
+  @override
+  String get specialityPhysique => 'Physique';
+
+  @override
+  String get specialityPhysiqueDesc => 'Endurance, vitesse, force';
+
+  @override
+  String get specialityTactique => 'Tactique';
+
+  @override
+  String get specialityTactiqueDesc => 'Placement, stratégie, jeu';
+
+  @override
+  String get specialityGardien => 'Gardien';
+
+  @override
+  String get specialityGardienDesc => 'Arrêts, relances, placement';
+
+  @override
+  String get specialityFormationJeunes => 'Formation jeunes';
+
+  @override
+  String get specialityFormationJeunesDesc => 'Pédagogie, initiation';
+
+  @override
+  String get specialityPreparationMentale => 'Préparation mentale';
+
+  @override
+  String get specialityPreparationMentaleDesc => 'Concentration, motivation';
 }
