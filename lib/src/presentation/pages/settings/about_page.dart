@@ -78,7 +78,7 @@ class AboutPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            l10n.version('1.3.0'),
+            l10n.version('1.5.0'),
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -119,7 +119,7 @@ class AboutPage extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.update_rounded,
             label: 'Version',
-            value: '1.3.0',
+            value: '1.5.0',
             color: const Color(0xFF3B82F6),
             colorScheme: colorScheme,
           ),

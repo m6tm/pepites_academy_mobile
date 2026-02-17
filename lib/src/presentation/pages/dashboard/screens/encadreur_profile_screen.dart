@@ -262,7 +262,7 @@ class EncadreurProfileScreen extends StatelessWidget {
             SettingsTile(
               icon: Icons.info_outline_rounded,
               label: l10n.about,
-              value: l10n.version('1.3.0'),
+              value: l10n.version('1.5.0'),
               color: colorScheme.onSurface.withValues(alpha: 0.5),
               onTap: () => Navigator.push(
                 context,
