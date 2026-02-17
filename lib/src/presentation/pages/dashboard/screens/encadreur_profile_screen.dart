@@ -4,6 +4,7 @@ import '../../../../presentation/theme/app_colors.dart';
 import '../../notification/notification_settings_page.dart';
 import '../../settings/about_page.dart';
 import '../../settings/theme_settings_page.dart';
+import '../../settings/language_settings_page.dart';
 import '../../../../injection_container.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
@@ -189,6 +190,25 @@ class EncadreurProfileScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
+            SettingsTile(
+              icon: Icons.language_rounded,
+              label: 'Langue',
+              value: DependencyInjection.languageState.label,
+              color: const Color(0xFF3B82F6),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => LanguageSettingsPage(
+                    languageState: DependencyInjection.languageState,
+                  ),
+                ),
+              ),
+            ),
+            Divider(
+              height: 1,
+              indent: 60,
+              color: colorScheme.onSurface.withValues(alpha: 0.05),
+            ),
             SettingsTile(
               icon: Icons.dark_mode_rounded,
               label: 'Theme',

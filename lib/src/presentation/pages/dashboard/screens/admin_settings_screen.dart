@@ -5,6 +5,7 @@ import '../../notification/notification_settings_page.dart';
 import '../../referentiel/referentiel_hub_page.dart';
 import '../../settings/about_page.dart';
 import '../../settings/theme_settings_page.dart';
+import '../../settings/language_settings_page.dart';
 import '../../../../injection_container.dart';
 import '../widgets/admin_internal_widgets.dart';
 
@@ -63,8 +64,16 @@ class AdminSettingsScreen extends StatelessWidget {
               SettingsItemData(
                 Icons.language_rounded,
                 'Langue',
-                'Francais',
+                DependencyInjection.languageState.label,
                 const Color(0xFF3B82F6),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => LanguageSettingsPage(
+                      languageState: DependencyInjection.languageState,
+                    ),
+                  ),
+                ),
               ),
               SettingsItemData(
                 Icons.dark_mode_rounded,

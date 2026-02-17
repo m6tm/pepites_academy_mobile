@@ -49,6 +49,7 @@ import 'presentation/state/sms_state.dart';
 import 'presentation/state/notification_state.dart';
 import 'presentation/state/sync_state.dart';
 import 'presentation/state/theme_state.dart';
+import 'presentation/state/language_state.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
@@ -81,6 +82,7 @@ class DependencyInjection {
   static late final NotificationService notificationService;
   static late final NotificationState notificationState;
   static late final ThemeState themeState;
+  static late final LanguageState languageState;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -219,6 +221,10 @@ class DependencyInjection {
     // Initialisation du ThemeState
     themeState = ThemeState();
     await themeState.charger();
+
+    // Initialisation du LanguageState
+    languageState = LanguageState();
+    await languageState.charger();
 
     // Initialisation du module Hors-ligne / Synchronisation
     final connectivityDatasource = ConnectivityDatasource();

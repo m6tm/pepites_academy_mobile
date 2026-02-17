@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'src/presentation/pages/splash/splash_page.dart';
 import 'src/presentation/theme/app_theme.dart';
@@ -30,16 +31,18 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    DependencyInjection.themeState.addListener(_onThemeChanged);
+    DependencyInjection.themeState.addListener(_onStateChanged);
+    DependencyInjection.languageState.addListener(_onStateChanged);
   }
 
-  void _onThemeChanged() {
+  void _onStateChanged() {
     if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    DependencyInjection.themeState.removeListener(_onThemeChanged);
+    DependencyInjection.themeState.removeListener(_onStateChanged);
+    DependencyInjection.languageState.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -51,6 +54,9 @@ class _MyAppState extends State<MyApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: DependencyInjection.themeState.themeMode,
+      locale: DependencyInjection.languageState.locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: const SplashPage(),
     );
   }

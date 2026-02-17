@@ -1,0 +1,267 @@
+{
+  "@@locale": "fr",
+
+  "appTitle": "Pepites Academy",
+
+  "login": "Connexion",
+  "loginSubtitle": "Accedez a votre espace encadreur ou administrateur",
+  "email": "Email",
+  "emailHint": "votre@email.com",
+  "emailRequired": "Veuillez saisir votre email",
+  "password": "Mot de passe",
+  "passwordRequired": "Veuillez saisir votre mot de passe",
+  "forgotPassword": "Mot de passe oublie ?",
+  "signIn": "Se connecter",
+  "noAccount": "Vous n'avez pas de compte ?",
+  "createAccount": "Creer un compte",
+  "welcomeBack": "Bienvenue !",
+  "connectedAs": "Connecte en tant que {role}",
+  "@connectedAs": {
+    "placeholders": {
+      "role": { "type": "String" }
+    }
+  },
+  "loginFailed": "Echec de connexion",
+  "loginFailedDescription": "Identifiants incorrects. Utilisez les comptes de test.",
+  "logout": "Se deconnecter",
+
+  "register": "Inscription",
+  "resetPassword": "Reinitialiser le mot de passe",
+  "otpVerification": "Verification OTP",
+
+  "settings": "Parametres",
+  "settingsSubtitle": "Configuration de l'application",
+  "general": "General",
+  "administration": "Administration",
+
+  "language": "Langue",
+  "languageActive": "Langue active",
+  "languageInfo": "La langue est appliquee immediatement et sauvegardee pour les prochaines sessions.",
+  "french": "Francais",
+  "english": "English",
+
+  "theme": "Theme",
+  "themeLight": "Clair",
+  "themeDark": "Sombre",
+  "themeSystem": "Systeme",
+  "themeLightDescription": "Apparence claire en permanence",
+  "themeDarkDescription": "Apparence sombre en permanence",
+  "themeSystemDescription": "Suit le reglage de l'appareil",
+  "themeActiveLabel": "Theme actif : {label}",
+  "@themeActiveLabel": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "themeInfo": "Le theme est applique immediatement et sauvegarde pour les prochaines sessions.",
+  "darkMode": "Mode sombre",
+  "lightMode": "Mode clair",
+  "appearance": "APPARENCE",
+
+  "notifications": "Notifications",
+  "notificationsEnabled": "Activees",
+
+  "about": "A propos",
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+
+  "referentials": "Referentiels",
+  "referentialsSubtitle": "Postes, Niveaux",
+  "categories": "CATEGORIES",
+  "footballPositions": "Postes de football",
+  "footballPositionsSubtitle": "Gardien, Defenseur, Milieu, Attaquant...",
+  "footballPositionsDescription": "Gerez les postes attribues aux academiciens",
+  "schoolLevels": "Niveaux scolaires",
+  "schoolLevelsSubtitle": "CP, CE1, 6eme, 3eme, Terminale...",
+  "schoolLevelsDescription": "Gerez les niveaux scolaires des academiciens",
+
+  "home": "Accueil",
+  "academy": "Academie",
+  "sessions": "Seances",
+  "communication": "Communication",
+  "profile": "Profil",
+  "myProfile": "Mon profil",
+
+  "administrator": "Administrateur",
+  "coach": "Encadreur",
+
+  "overview": "Vue d'ensemble",
+  "quickActions": "Actions rapides",
+  "sessionOfTheDay": "Seance du jour",
+  "history": "Historique",
+  "globalPerformance": "Performance globale",
+  "recentActivity": "Activite recente",
+  "viewAll": "Tout voir",
+
+  "academicians": "Academiciens",
+  "coaches": "Encadreurs",
+  "sessionsMonth": "Seances (mois)",
+  "attendanceRate": "Taux presence",
+
+  "register_action": "Inscrire",
+  "newAcademician": "Nouvel academicien",
+  "scanQr": "Scanner QR",
+  "accessControl": "Controle d'acces",
+  "players": "Joueurs",
+  "academiciansList": "Liste des academiciens",
+  "coachManagement": "Gestion des coachs",
+
+  "manageAcademy": "Gerez l'ensemble de votre academie depuis cet espace centralise.",
+  "averageAttendance": "Presence\nmoyenne",
+  "goalsAchieved": "Objectifs\natteints",
+  "coachSatisfaction": "Satisfaction\nencadreurs",
+  "positiveTrend": "Tendance positive : +8% de presence en Fevrier par rapport a Janvier.",
+  "noRecentActivity": "Aucune activite recente.",
+  "noSessionRecorded": "Aucune seance enregistree.",
+
+  "justNow": "A l'instant",
+  "minutesAgo": "Il y a {minutes} min",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "hoursAgo": "Il y a {hours}h",
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "yesterday": "Hier",
+  "daysAgo": "Il y a {days} jours",
+  "@daysAgo": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+
+  "noSessionInProgress": "Aucune seance en cours",
+  "openSessionBeforeScan": "Veuillez ouvrir une seance avant de scanner.",
+  "openSessionBeforeWorkshops": "Veuillez ouvrir une seance avant de gerer les ateliers.",
+
+  "readyForField": "Pret pour le terrain",
+  "manageSessionsDescription": "Gerez vos seances, evaluez vos joueurs et suivez leur progression.",
+  "sessionInProgress": "SEANCE EN COURS",
+  "inProgress": "En cours",
+  "present": "Presents",
+  "workshops": "Ateliers",
+  "annotations": "Annotations",
+  "addWorkshop": "Ajouter atelier",
+  "closeSession": "Fermer seance",
+  "noCurrentSession": "Aucune seance en cours",
+  "openSessionToStart": "Ouvrez une seance pour commencer.",
+
+  "myActivity": "Mon activite",
+  "fieldActions": "Actions terrain",
+  "myAcademicians": "Mes academiciens",
+  "myIndicators": "Mes indicateurs",
+  "myRecentAnnotations": "Mes dernieres annotations",
+
+  "sessionsConducted": "Seances dirigees",
+  "workshopsCreated": "Ateliers crees",
+  "averageAttendanceShort": "Presence moy.",
+
+  "myAnnotations": "Mes annotations",
+  "evaluateAcademician": "Evaluer un academicien",
+  "myWorkshops": "Mes ateliers",
+  "manageExercises": "Gerer les exercices",
+  "attendance": "Presences",
+  "scanArrivals": "Scanner les arrivees",
+
+  "attendanceRateLabel": "Taux de\npresence",
+  "annotationsPerSession": "Annotations\npar seance",
+  "closedSessions": "Seances\ncloturees",
+  "activityLevel": "Niveau d'activite",
+  "expert": "Expert",
+  "toNextLevel": "{percent}% vers le niveau suivant",
+  "@toNextLevel": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+
+  "smsAndNotifications": "SMS et notifications",
+  "sent": "Envoyes",
+  "thisMonth": "Ce mois",
+  "failed": "En echec",
+  "newMessage": "Nouveau message",
+  "writeAndSendSms": "Rediger et envoyer un SMS",
+  "groupMessage": "Message groupe",
+  "sendToFilteredGroup": "Envoyer a un groupe filtre",
+  "smsHistory": "Historique SMS",
+  "viewSentMessages": "Consulter les messages envoyes",
+  "lastMessages": "Derniers messages",
+  "noMessageSentYet": "Aucun message envoye pour le moment.",
+  "destinataire": "destinataire",
+  "destinataires": "destinataires",
+
+  "newSms": "Nouveau SMS",
+  "writeYourMessage": "Redigez votre message",
+  "smsWillBeSent": "Le message sera envoye par SMS aux destinataires selectionnes.",
+  "typeMessageHere": "Saisissez votre message ici...",
+  "characters": "caractere",
+  "charactersPlural": "caracteres",
+  "remaining": "restants",
+  "chooseRecipients": "Choisir les destinataires",
+
+  "confirmation": "Confirmation",
+  "summary": "Recapitulatif",
+  "verifyBeforeSending": "Verifiez les informations avant l'envoi.",
+  "smsPerPerson": "SMS / personne",
+  "totalSms": "SMS total",
+  "message": "Message",
+  "confirmSending": "Confirmer l'envoi",
+  "aboutToSend": "Vous etes sur le point d'envoyer ce message a {count} destinataire{plural}.\n\nCette action est irreversible.",
+  "@aboutToSend": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "plural": { "type": "String" }
+    }
+  },
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "sendSms": "Envoyer les SMS",
+  "smsSent": "SMS envoye !",
+  "messageSentSuccess": "Le message a ete envoye avec succes.",
+  "back": "Retour",
+  "sendError": "Erreur lors de l'envoi.",
+
+  "noSmsSent": "Aucun SMS envoye",
+  "sentMessagesWillAppear": "Les messages envoyes apparaitront ici.",
+  "deleteThisSms": "Supprimer ce SMS ?",
+  "messageWillBeRemoved": "Ce message sera retire de l'historique.",
+  "delete": "Supprimer",
+
+  "sessionsCount": "{count} seance(s) - Historique et suivi",
+  "@sessionsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "all": "Toutes",
+  "completed": "Terminees",
+  "upcoming": "A venir",
+  "tapToViewDetails": "Appuyez pour consulter le detail",
+  "noSession": "Aucune seance",
+  "sessionsFromCoaches": "Les seances creees par les encadreurs\napparaitront ici.",
+
+  "noPositionAvailable": "Aucun poste disponible",
+
+  "search": "Rechercher",
+  "save": "Enregistrer",
+  "edit": "Modifier",
+  "add": "Ajouter",
+  "close": "Fermer",
+  "next": "Suivant",
+  "previous": "Precedent",
+  "loading": "Chargement...",
+  "error": "Erreur",
+  "success": "Succes",
+  "warning": "Attention",
+  "yes": "Oui",
+  "no": "Non"
+}
