@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart' as intl;
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/annotation.dart';
 import '../../../../domain/entities/atelier.dart';
@@ -257,7 +259,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tags rapides',
+          AppLocalizations.of(context)!.quickTags,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 14,
@@ -342,7 +344,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Observation detaillee',
+          AppLocalizations.of(context)!.detailedObservation,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 14,
@@ -369,7 +371,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
             decoration: InputDecoration(
-              hintText: 'Ex: Bonne lecture du jeu, manque d\'appui...',
+              hintText: AppLocalizations.of(context)!.observationHintAnnotation,
               hintStyle: GoogleFonts.montserrat(
                 fontSize: 13,
                 color: isDark
@@ -392,7 +394,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
         Row(
           children: [
             Text(
-              'Note (optionnel)',
+              AppLocalizations.of(context)!.noteOptional,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
@@ -404,7 +406,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
             const Spacer(),
             if (_note != null)
               Text(
-                '${_note!.toStringAsFixed(0)}/10',
+                AppLocalizations.of(
+                  context,
+                )!.noteFormat(_note!.toStringAsFixed(0)),
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -468,7 +472,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
               )
             : const Icon(Icons.save_rounded, size: 20),
         label: Text(
-          _isSaving ? 'Enregistrement...' : 'Enregistrer l\'annotation',
+          _isSaving
+              ? AppLocalizations.of(context)!.saving
+              : AppLocalizations.of(context)!.saveAnnotation,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -495,7 +501,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
             ),
             const SizedBox(width: 8),
             Text(
-              'Historique (${historique.length})',
+              AppLocalizations.of(
+                context,
+              )!.historyCountLabel(historique.length),
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
@@ -524,7 +532,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
       ),
       child: Center(
         child: Text(
-          'Aucune annotation precedente',
+          AppLocalizations.of(context)!.noPreviousAnnotation,
           style: GoogleFonts.montserrat(
             fontSize: 13,
             color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
@@ -583,7 +591,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '${annotation.note!.toStringAsFixed(0)}/10',
+                    AppLocalizations.of(
+                      context,
+                    )!.noteFormat(annotation.note!.toStringAsFixed(0)),
                     style: GoogleFonts.montserrat(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -648,23 +658,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
   }
 
   String _formatDate(DateTime date) {
-    const mois = [
-      'Jan',
-      'Fev',
-      'Mar',
-      'Avr',
-      'Mai',
-      'Juin',
-      'Juil',
-      'Aout',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final heure =
-        '${date.hour.toString().padLeft(2, '0')}:'
-        '${date.minute.toString().padLeft(2, '0')}';
-    return '${date.day} ${mois[date.month - 1]} ${date.year} a $heure';
+    final locale = Localizations.localeOf(context).languageCode;
+    final dateStr = intl.DateFormat('d MMM yyyy', locale).format(date);
+    final heure = intl.DateFormat('HH:mm', locale).format(date);
+    return '$dateStr - $heure';
   }
 }

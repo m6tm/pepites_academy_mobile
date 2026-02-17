@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../theme/app_colors.dart';
 
@@ -41,7 +42,7 @@ class AcademicienAnnotationTile extends StatelessWidget {
             children: [
               _buildAvatar(),
               const SizedBox(width: 12),
-              Expanded(child: _buildInfos()),
+              Expanded(child: _buildInfos(context)),
               _buildAnnotationBadge(),
               const SizedBox(width: 8),
               Icon(
@@ -95,7 +96,7 @@ class AcademicienAnnotationTile extends StatelessWidget {
     );
   }
 
-  Widget _buildInfos() {
+  Widget _buildInfos(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -111,7 +112,7 @@ class AcademicienAnnotationTile extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          'Appuyez pour annoter',
+          AppLocalizations.of(context)!.tapToAnnotate,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,

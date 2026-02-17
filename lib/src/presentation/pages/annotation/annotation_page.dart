@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/atelier.dart';
@@ -153,7 +154,7 @@ class _AnnotationPageState extends State<AnnotationPage> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Annotations',
+          AppLocalizations.of(context)!.annotationPageTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -249,13 +250,17 @@ class _AnnotationPageState extends State<AnnotationPage> {
             children: [
               _buildInfoChip(
                 Icons.people_rounded,
-                '${_academiciens.length} academiciens',
+                AppLocalizations.of(
+                  context,
+                )!.academiciansCount(_academiciens.length),
                 isDark,
               ),
               const SizedBox(width: 12),
               _buildInfoChip(
                 Icons.note_alt_rounded,
-                '${annotationState.annotationsAtelier.length} annotations',
+                AppLocalizations.of(
+                  context,
+                )!.annotationsCount(annotationState.annotationsAtelier.length),
                 isDark,
               ),
             ],
@@ -302,7 +307,7 @@ class _AnnotationPageState extends State<AnnotationPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Aucun academicien present',
+            AppLocalizations.of(context)!.noAcademicianPresent,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -313,7 +318,7 @@ class _AnnotationPageState extends State<AnnotationPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Les academiciens presents dans la seance\napparaitront ici pour etre annotes.',
+            AppLocalizations.of(context)!.noAcademicianPresentDesc,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 13,
