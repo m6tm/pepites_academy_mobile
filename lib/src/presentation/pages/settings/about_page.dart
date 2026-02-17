@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
 
 /// Page A propos de l'application Pepites Academy.
@@ -12,6 +13,7 @@ class AboutPage extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -23,7 +25,7 @@ class AboutPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'A propos',
+          l10n.about,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -38,15 +40,15 @@ class AboutPage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 16),
-            _buildAppHeader(colorScheme),
+            _buildAppHeader(colorScheme, l10n),
             const SizedBox(height: 32),
-            _buildInfoSection(colorScheme, isDark),
+            _buildInfoSection(colorScheme, isDark, l10n),
             const SizedBox(height: 16),
-            _buildTeamSection(colorScheme, isDark),
+            _buildTeamSection(colorScheme, isDark, l10n),
             const SizedBox(height: 16),
-            _buildLegalSection(colorScheme, isDark),
+            _buildLegalSection(colorScheme, isDark, l10n),
             const SizedBox(height: 32),
-            _buildFooter(colorScheme),
+            _buildFooter(colorScheme, l10n),
             const SizedBox(height: 40),
           ],
         ),
@@ -54,7 +56,7 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppHeader(ColorScheme colorScheme) {
+  Widget _buildAppHeader(ColorScheme colorScheme, AppLocalizations l10n) {
     return Column(
       children: [
         Image.asset('assets/logo.png', width: 110, height: 110),
@@ -76,7 +78,7 @@ class AboutPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            'Version 1.3.0',
+            l10n.version('1.3.0'),
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -86,7 +88,7 @@ class AboutPage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Plateforme de gestion et de suivi\ndes academiciens de football',
+          l10n.appPlatformDesc,
           textAlign: TextAlign.center,
           style: GoogleFonts.montserrat(
             fontSize: 13,
@@ -98,7 +100,11 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection(ColorScheme colorScheme, bool isDark) {
+  Widget _buildInfoSection(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -128,16 +134,16 @@ class AboutPage extends StatelessWidget {
           _buildDivider(colorScheme),
           _buildInfoRow(
             icon: Icons.calendar_today_rounded,
-            label: 'Derniere mise a jour',
-            value: 'Fevrier 2026',
+            label: l10n.lastUpdate,
+            value: l10n.lastUpdateValue,
             color: const Color(0xFFF59E0B),
             colorScheme: colorScheme,
           ),
           _buildDivider(colorScheme),
           _buildInfoRow(
             icon: Icons.storage_rounded,
-            label: 'Stockage',
-            value: 'Local (hors-ligne)',
+            label: l10n.storage,
+            value: l10n.localStorage,
             color: const Color(0xFF8B5CF6),
             colorScheme: colorScheme,
           ),
@@ -146,14 +152,18 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTeamSection(ColorScheme colorScheme, bool isDark) {
+  Widget _buildTeamSection(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'EQUIPE',
+            l10n.team,
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -194,7 +204,7 @@ class AboutPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Developpe par',
+                          l10n.developedBy,
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -240,7 +250,7 @@ class AboutPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Concu pour',
+                          l10n.designedFor,
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -248,7 +258,7 @@ class AboutPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Pepites Academy',
+                          'Pépites Academy',
                           style: GoogleFonts.montserrat(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -267,14 +277,18 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLegalSection(ColorScheme colorScheme, bool isDark) {
+  Widget _buildLegalSection(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'INFORMATIONS LEGALES',
+            l10n.legalInformation,
             style: GoogleFonts.montserrat(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -297,7 +311,7 @@ class AboutPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Pepites Academy - Tous droits reserves.',
+                l10n.copyright('Pépites Academy'),
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -306,9 +320,7 @@ class AboutPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Cette application est destinee a un usage interne pour la gestion '
-                'des academiciens, des seances d\'entrainement, des ateliers et du '
-                'suivi de performance au sein de l\'academie de football Pepites Academy.',
+                l10n.legalUsageDesc('Pépites Academy'),
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -317,8 +329,7 @@ class AboutPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Les donnees sont stockees localement sur l\'appareil. '
-                'Aucune information personnelle n\'est transmise a des tiers.',
+                l10n.legalDataDesc,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -383,7 +394,7 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter(ColorScheme colorScheme) {
+  Widget _buildFooter(ColorScheme colorScheme, AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -396,11 +407,12 @@ class AboutPage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Fait avec passion pour le football',
+          l10n.madeWithPassion,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: colorScheme.onSurface.withValues(alpha: 0.3),
+            letterSpacing: 0.5,
           ),
         ),
       ],

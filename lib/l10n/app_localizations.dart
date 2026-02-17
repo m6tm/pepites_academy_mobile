@@ -500,29 +500,29 @@ abstract class AppLocalizations {
   /// **'Sombre'**
   String get themeDark;
 
-  /// No description provided for @themeSystem.
+  /// No description provided for @systemMode.
   ///
   /// In fr, this message translates to:
   /// **'Systeme'**
-  String get themeSystem;
+  String get systemMode;
 
-  /// No description provided for @themeLightDescription.
+  /// No description provided for @lightModeDesc.
   ///
   /// In fr, this message translates to:
   /// **'Apparence claire en permanence'**
-  String get themeLightDescription;
+  String get lightModeDesc;
 
-  /// No description provided for @themeDarkDescription.
+  /// No description provided for @darkModeDesc.
   ///
   /// In fr, this message translates to:
   /// **'Apparence sombre en permanence'**
-  String get themeDarkDescription;
+  String get darkModeDesc;
 
-  /// No description provided for @themeSystemDescription.
+  /// No description provided for @systemModeDesc.
   ///
   /// In fr, this message translates to:
   /// **'Suit le reglage de l\'appareil'**
-  String get themeSystemDescription;
+  String get systemModeDesc;
 
   /// No description provided for @themeActiveLabel.
   ///
@@ -608,11 +608,11 @@ abstract class AppLocalizations {
   /// **'Gardien, Defenseur, Milieu, Attaquant...'**
   String get footballPositionsSubtitle;
 
-  /// No description provided for @footballPositionsDescription.
+  /// No description provided for @footballPositionsDesc.
   ///
   /// In fr, this message translates to:
   /// **'Gerez les postes attribues aux academiciens'**
-  String get footballPositionsDescription;
+  String get footballPositionsDesc;
 
   /// No description provided for @schoolLevels.
   ///
@@ -626,11 +626,11 @@ abstract class AppLocalizations {
   /// **'CP, CE1, 6eme, 3eme, Terminale...'**
   String get schoolLevelsSubtitle;
 
-  /// No description provided for @schoolLevelsDescription.
+  /// No description provided for @schoolLevelsDesc.
   ///
   /// In fr, this message translates to:
   /// **'Gerez les niveaux scolaires des academiciens'**
-  String get schoolLevelsDescription;
+  String get schoolLevelsDesc;
 
   /// No description provided for @home.
   ///
@@ -2149,6 +2149,168 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Concentration, motivation'**
   String get specialityPreparationMentaleDesc;
+
+  /// No description provided for @notificationsDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Desactivees'**
+  String get notificationsDisabled;
+
+  /// No description provided for @notifSeancesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouverture et fermeture de seances'**
+  String get notifSeancesDesc;
+
+  /// No description provided for @notifPresencesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scans et pointages des academiciens'**
+  String get notifPresencesDesc;
+
+  /// No description provided for @notifAnnotationsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelles evaluations et observations'**
+  String get notifAnnotationsDesc;
+
+  /// No description provided for @notifMessagesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Communications et annonces'**
+  String get notifMessagesDesc;
+
+  /// No description provided for @notifRappels.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels'**
+  String get notifRappels;
+
+  /// No description provided for @notifRappelsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels de seances et echeances'**
+  String get notifRappelsDesc;
+
+  /// No description provided for @notifStorageInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les preferences de notifications sont enregistrees localement sur cet appareil.'**
+  String get notifStorageInfo;
+
+  /// No description provided for @appPlatformDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plateforme de gestion et de suivi\ndes academiciens de football'**
+  String get appPlatformDesc;
+
+  /// No description provided for @lastUpdate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Derniere mise a jour'**
+  String get lastUpdate;
+
+  /// No description provided for @lastUpdateValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fevrier 2026'**
+  String get lastUpdateValue;
+
+  /// No description provided for @storage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stockage'**
+  String get storage;
+
+  /// No description provided for @localStorage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Local (hors-ligne)'**
+  String get localStorage;
+
+  /// No description provided for @team.
+  ///
+  /// In fr, this message translates to:
+  /// **'EQUIPE'**
+  String get team;
+
+  /// No description provided for @developedBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Developpe par'**
+  String get developedBy;
+
+  /// No description provided for @designedFor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concu pour'**
+  String get designedFor;
+
+  /// No description provided for @legalInformation.
+  ///
+  /// In fr, this message translates to:
+  /// **'INFORMATIONS LEGALES'**
+  String get legalInformation;
+
+  /// No description provided for @copyright.
+  ///
+  /// In fr, this message translates to:
+  /// **'{app} - Tous droits reserves.'**
+  String copyright(String app);
+
+  /// No description provided for @legalUsageDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette application est destinee a un usage interne pour la gestion des academiciens, des seances d\'entrainement, des ateliers et du suivi de performance au sein de l\'academie de football {app}.'**
+  String legalUsageDesc(String app);
+
+  /// No description provided for @legalDataDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les donnees sont stockees localement sur l\'appareil. Aucune information personnelle n\'est transmise a des tiers.'**
+  String get legalDataDesc;
+
+  /// No description provided for @madeWithPassion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fait avec passion pour le football'**
+  String get madeWithPassion;
+
+  /// No description provided for @referentialsDataDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnees de base de l\'application'**
+  String get referentialsDataDesc;
+
+  /// No description provided for @referentialsUsageInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les referentiels alimentent les formulaires d\'inscription et les filtres de l\'application.'**
+  String get referentialsUsageInfo;
+
+  /// No description provided for @roleWithSpeciality.
+  ///
+  /// In fr, this message translates to:
+  /// **'{role} - {speciality}'**
+  String roleWithSpeciality(String role, String speciality);
+
+  /// No description provided for @academiciansStat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Academiciens'**
+  String get academiciansStat;
+
+  /// No description provided for @annotationsStat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annotations'**
+  String get annotationsStat;
+
+  /// No description provided for @workshopsStat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ateliers'**
+  String get workshopsStat;
 }
 
 class _AppLocalizationsDelegate

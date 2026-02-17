@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../state/theme_state.dart';
 
 /// Page de selection du theme de l'application.
@@ -35,6 +36,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -46,7 +48,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Theme',
+          l10n.theme,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -61,20 +63,24 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPreview(colorScheme, isDark),
+            _buildPreview(colorScheme, isDark, l10n),
             const SizedBox(height: 28),
-            _buildSectionLabel('APPARENCE', colorScheme),
+            _buildSectionLabel(l10n.appearance, colorScheme),
             const SizedBox(height: 12),
-            _buildThemeOptions(colorScheme, isDark),
+            _buildThemeOptions(colorScheme, isDark, l10n),
             const SizedBox(height: 24),
-            _buildInfoCard(colorScheme),
+            _buildInfoCard(colorScheme, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPreview(ColorScheme colorScheme, bool isDark) {
+  Widget _buildPreview(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -104,7 +110,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ),
           const SizedBox(height: 14),
           Text(
-            isDark ? 'Mode sombre' : 'Mode clair',
+            isDark ? l10n.darkMode : l10n.lightMode,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -113,7 +119,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Theme actif : ${widget.themeState.label}',
+            l10n.themeActiveLabel(widget.themeState.label),
             style: GoogleFonts.montserrat(
               fontSize: 13,
               color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -139,7 +145,11 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     );
   }
 
-  Widget _buildThemeOptions(ColorScheme colorScheme, bool isDark) {
+  Widget _buildThemeOptions(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? colorScheme.surface : Colors.white,
@@ -152,8 +162,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         children: [
           _buildThemeOption(
             icon: Icons.light_mode_rounded,
-            label: 'Clair',
-            description: 'Apparence claire en permanence',
+            label: l10n.lightMode,
+            description: l10n.lightModeDesc,
             color: const Color(0xFFF59E0B),
             mode: ThemeMode.light,
             colorScheme: colorScheme,
@@ -165,8 +175,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ),
           _buildThemeOption(
             icon: Icons.dark_mode_rounded,
-            label: 'Sombre',
-            description: 'Apparence sombre en permanence',
+            label: l10n.darkMode,
+            description: l10n.darkModeDesc,
             color: const Color(0xFF8B5CF6),
             mode: ThemeMode.dark,
             colorScheme: colorScheme,
@@ -178,8 +188,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ),
           _buildThemeOption(
             icon: Icons.settings_brightness_rounded,
-            label: 'Systeme',
-            description: 'Suit le reglage de l\'appareil',
+            label: l10n.systemMode,
+            description: l10n.systemModeDesc,
             color: const Color(0xFF3B82F6),
             mode: ThemeMode.system,
             colorScheme: colorScheme,
@@ -275,7 +285,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     );
   }
 
-  Widget _buildInfoCard(ColorScheme colorScheme) {
+  Widget _buildInfoCard(ColorScheme colorScheme, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -295,7 +305,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Le theme est applique immediatement et sauvegarde pour les prochaines sessions.',
+              l10n.themeInfo,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 color: colorScheme.onSurface.withValues(alpha: 0.5),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../state/language_state.dart';
 
 /// Page de selection de la langue de l'application.
@@ -35,6 +36,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -46,7 +48,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Langue',
+          l10n.language,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -61,20 +63,20 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPreview(colorScheme),
+            _buildPreview(colorScheme, l10n),
             const SizedBox(height: 28),
-            _buildSectionLabel('LANGUE', colorScheme),
+            _buildSectionLabel(l10n.language.toUpperCase(), colorScheme),
             const SizedBox(height: 12),
             _buildLanguageOptions(colorScheme, isDark),
             const SizedBox(height: 24),
-            _buildInfoCard(colorScheme),
+            _buildInfoCard(colorScheme, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPreview(ColorScheme colorScheme) {
+  Widget _buildPreview(ColorScheme colorScheme, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -91,11 +93,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.translate_rounded,
-            size: 48,
-            color: Colors.white,
-          ),
+          const Icon(Icons.translate_rounded, size: 48, color: Colors.white),
           const SizedBox(height: 14),
           Text(
             widget.languageState.label,
@@ -107,7 +105,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Langue active',
+            l10n.languageActive,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               color: Colors.white.withValues(alpha: 0.6),
@@ -150,10 +148,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
           final isLast = entry.key == langues.length - 1;
           return Column(
             children: [
-              _buildLanguageOption(
-                langue: langue,
-                colorScheme: colorScheme,
-              ),
+              _buildLanguageOption(langue: langue, colorScheme: colorScheme),
               if (!isLast)
                 Divider(
                   height: 1,
@@ -239,7 +234,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
     );
   }
 
-  Widget _buildInfoCard(ColorScheme colorScheme) {
+  Widget _buildInfoCard(ColorScheme colorScheme, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -259,7 +254,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'La langue est appliquee immediatement et sauvegardee pour les prochaines sessions.',
+              l10n.languageInfo,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 color: colorScheme.onSurface.withValues(alpha: 0.5),

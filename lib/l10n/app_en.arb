@@ -74,10 +74,10 @@
   "theme": "Theme",
   "themeLight": "Light",
   "themeDark": "Dark",
-  "themeSystem": "System",
-  "themeLightDescription": "Always light appearance",
-  "themeDarkDescription": "Always dark appearance",
-  "themeSystemDescription": "Follows device settings",
+  "systemMode": "System",
+  "lightModeDesc": "Always light appearance",
+  "darkModeDesc": "Always dark appearance",
+  "systemModeDesc": "Follows device settings",
   "themeActiveLabel": "Active theme: {label}",
   "themeInfo": "The theme is applied immediately and saved for future sessions.",
   "darkMode": "Dark mode",
@@ -92,10 +92,10 @@
   "categories": "CATEGORIES",
   "footballPositions": "Football positions",
   "footballPositionsSubtitle": "Goalkeeper, Defender, Midfielder, Forward...",
-  "footballPositionsDescription": "Manage positions assigned to academicians",
+  "footballPositionsDesc": "Manage positions assigned to academicians",
   "schoolLevels": "School levels",
-  "schoolLevelsSubtitle": "Grade 1, Grade 2, Grade 6...",
-  "schoolLevelsDescription": "Manage school levels of academicians",
+  "schoolLevelsSubtitle": "Primary, Secondary, High School...",
+  "schoolLevelsDesc": "Manage school levels of academicians",
   "home": "Home",
   "academy": "Academy",
   "sessions": "Sessions",
@@ -448,5 +448,56 @@
   "specialityFormationJeunes": "Youth training",
   "specialityFormationJeunesDesc": "Pedagogy, initiation",
   "specialityPreparationMentale": "Mental preparation",
-  "specialityPreparationMentaleDesc": "Concentration, motivation"
+  "specialityPreparationMentaleDesc": "Concentration, motivation",
+  "notificationsDisabled": "Disabled",
+  "notifSeancesDesc": "Opening and closing of sessions",
+  "notifPresencesDesc": "Academician scans and clock-ins",
+  "notifAnnotationsDesc": "New evaluations and observations",
+  "notifMessagesDesc": "Communications and announcements",
+  "notifRappels": "Reminders",
+  "notifRappelsDesc": "Session reminders and deadlines",
+  "notifStorageInfo": "Notification preferences are saved locally on this device.",
+  "appPlatformDesc": "Management and monitoring platform\nfor football academicians",
+  "lastUpdate": "Last update",
+  "lastUpdateValue": "February 2026",
+  "storage": "Storage",
+  "localStorage": "Local (offline)",
+  "team": "TEAM",
+  "developedBy": "Developed by",
+  "designedFor": "Designed for",
+  "legalInformation": "LEGAL INFORMATION",
+  "copyright": "{app} - All rights reserved.",
+  "@copyright": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "legalUsageDesc": "This application is intended for internal use for the management of academicians, training sessions, workshops and performance monitoring within the {app} football academy.",
+  "@legalUsageDesc": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "legalDataDesc": "Data is stored locally on the device. No personal information is transmitted to third parties.",
+  "madeWithPassion": "Made with passion for football",
+  "referentialsDataDesc": "Base application data",
+  "referentialsUsageInfo": "Referentials fuel registration forms and application filters.",
+  "roleWithSpeciality": "{role} - {speciality}",
+  "@roleWithSpeciality": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "speciality": {
+        "type": "String"
+      }
+    }
+  },
+  "academiciansStat": "Academicians",
+  "annotationsStat": "Annotations",
+  "workshopsStat": "Workshops"
 }

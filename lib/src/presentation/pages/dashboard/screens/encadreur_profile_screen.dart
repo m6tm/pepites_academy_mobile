@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../notification/notification_settings_page.dart';
 import '../../settings/about_page.dart';
@@ -24,6 +25,7 @@ class EncadreurProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -35,7 +37,7 @@ class EncadreurProfileScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Mon profil',
+                  l10n.myProfile,
                   style: GoogleFonts.montserrat(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -116,7 +118,10 @@ class EncadreurProfileScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'ENCADREUR - Technique',
+                    l10n.roleWithSpeciality(
+                      l10n.coach.toUpperCase(),
+                      l10n.specialityTechnique,
+                    ),
                     style: GoogleFonts.montserrat(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -135,16 +140,24 @@ class EncadreurProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                ProfileStat(value: '16', label: 'Seances', isDark: isDark),
-                ProfileStat(value: '127', label: 'Annotations', isDark: isDark),
-                ProfileStat(value: '48', label: 'Ateliers', isDark: isDark),
+                ProfileStat(value: '16', label: l10n.sessions, isDark: isDark),
+                ProfileStat(
+                  value: '127',
+                  label: l10n.annotationsStat,
+                  isDark: isDark,
+                ),
+                ProfileStat(
+                  value: '48',
+                  label: l10n.workshopsStat,
+                  isDark: isDark,
+                ),
               ],
             ),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         SliverToBoxAdapter(
-          child: _buildCoachSettings(context, colorScheme, isDark),
+          child: _buildCoachSettings(context, colorScheme, isDark, l10n),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         SliverToBoxAdapter(
@@ -154,7 +167,7 @@ class EncadreurProfileScreen extends StatelessWidget {
               onPressed: onLogout,
               icon: const Icon(Icons.logout_rounded),
               label: Text(
-                'Se deconnecter',
+                l10n.logout,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
               style: OutlinedButton.styleFrom(
@@ -177,6 +190,7 @@ class EncadreurProfileScreen extends StatelessWidget {
     BuildContext context,
     ColorScheme colorScheme,
     bool isDark,
+    AppLocalizations l10n,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -192,7 +206,7 @@ class EncadreurProfileScreen extends StatelessWidget {
           children: [
             SettingsTile(
               icon: Icons.language_rounded,
-              label: 'Langue',
+              label: l10n.language,
               value: DependencyInjection.languageState.label,
               color: const Color(0xFF3B82F6),
               onTap: () => Navigator.push(
@@ -211,7 +225,7 @@ class EncadreurProfileScreen extends StatelessWidget {
             ),
             SettingsTile(
               icon: Icons.dark_mode_rounded,
-              label: 'Theme',
+              label: l10n.theme,
               value: DependencyInjection.themeState.label,
               color: const Color(0xFF8B5CF6),
               onTap: () => Navigator.push(
@@ -230,8 +244,8 @@ class EncadreurProfileScreen extends StatelessWidget {
             ),
             SettingsTile(
               icon: Icons.notifications_outlined,
-              label: 'Notifications',
-              value: 'Activees',
+              label: l10n.notifications,
+              value: l10n.notificationsEnabled,
               color: const Color(0xFFF59E0B),
               onTap: () => Navigator.push(
                 context,
@@ -247,8 +261,8 @@ class EncadreurProfileScreen extends StatelessWidget {
             ),
             SettingsTile(
               icon: Icons.info_outline_rounded,
-              label: 'A propos',
-              value: 'Version 1.3.0',
+              label: l10n.about,
+              value: l10n.version('1.3.0'),
               color: colorScheme.onSurface.withValues(alpha: 0.5),
               onTap: () => Navigator.push(
                 context,

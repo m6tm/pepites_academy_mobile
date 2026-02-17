@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
 import 'postes_football_page.dart';
 import 'niveaux_scolaires_page.dart';
@@ -13,6 +14,7 @@ class ReferentielHubPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -20,13 +22,13 @@ class ReferentielHubPage extends StatelessWidget {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            SliverToBoxAdapter(child: _buildHeader(context, colorScheme)),
-            SliverToBoxAdapter(child: _buildDescription(colorScheme)),
+            SliverToBoxAdapter(child: _buildHeader(context, colorScheme, l10n)),
+            SliverToBoxAdapter(child: _buildDescription(colorScheme, l10n)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
                 child: Text(
-                  'CATEGORIES',
+                  l10n.categories,
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -43,14 +45,12 @@ class ReferentielHubPage extends StatelessWidget {
                 isDark: isDark,
                 icon: Icons.sports_soccer_rounded,
                 color: AppColors.primary,
-                title: 'Postes de football',
-                subtitle: 'Gardien, Defenseur, Milieu, Attaquant...',
-                description: 'Gerez les postes attribues aux academiciens',
+                title: l10n.footballPositions,
+                subtitle: l10n.footballPositionsSubtitle,
+                description: l10n.footballPositionsDesc,
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const PostesFootballPage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const PostesFootballPage()),
                 ),
               ),
             ),
@@ -62,9 +62,9 @@ class ReferentielHubPage extends StatelessWidget {
                 isDark: isDark,
                 icon: Icons.school_rounded,
                 color: const Color(0xFF3B82F6),
-                title: 'Niveaux scolaires',
-                subtitle: 'CP, CE1, 6eme, 3eme, Terminale...',
-                description: 'Gerez les niveaux scolaires des academiciens',
+                title: l10n.schoolLevels,
+                subtitle: l10n.schoolLevelsSubtitle,
+                description: l10n.schoolLevelsDesc,
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -80,7 +80,11 @@ class ReferentielHubPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildHeader(
+    BuildContext context,
+    ColorScheme colorScheme,
+    AppLocalizations l10n,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
@@ -101,7 +105,7 @@ class ReferentielHubPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Referentiels',
+                  l10n.referentials,
                   style: GoogleFonts.montserrat(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -111,7 +115,7 @@ class ReferentielHubPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Donnees de base de l\'application',
+                  l10n.referentialsDataDesc,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -137,7 +141,7 @@ class ReferentielHubPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDescription(ColorScheme colorScheme) {
+  Widget _buildDescription(ColorScheme colorScheme, AppLocalizations l10n) {
     final isDark = colorScheme.brightness == Brightness.dark;
 
     return Container(
@@ -173,7 +177,7 @@ class ReferentielHubPage extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Les referentiels alimentent les formulaires d\'inscription et les filtres de l\'application.',
+              l10n.referentialsUsageInfo,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -205,9 +209,7 @@ class ReferentielHubPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? colorScheme.surface : Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: color.withValues(alpha: 0.12),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.12)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),

@@ -81,10 +81,10 @@
   "theme": "Theme",
   "themeLight": "Clair",
   "themeDark": "Sombre",
-  "themeSystem": "Systeme",
-  "themeLightDescription": "Apparence claire en permanence",
-  "themeDarkDescription": "Apparence sombre en permanence",
-  "themeSystemDescription": "Suit le reglage de l'appareil",
+  "systemMode": "Systeme",
+  "lightModeDesc": "Apparence claire en permanence",
+  "darkModeDesc": "Apparence sombre en permanence",
+  "systemModeDesc": "Suit le reglage de l'appareil",
   "themeActiveLabel": "Theme actif : {label}",
   "@themeActiveLabel": {
     "placeholders": {
@@ -113,10 +113,10 @@
   "categories": "CATEGORIES",
   "footballPositions": "Postes de football",
   "footballPositionsSubtitle": "Gardien, Defenseur, Milieu, Attaquant...",
-  "footballPositionsDescription": "Gerez les postes attribues aux academiciens",
+  "footballPositionsDesc": "Gerez les postes attribues aux academiciens",
   "schoolLevels": "Niveaux scolaires",
   "schoolLevelsSubtitle": "CP, CE1, 6eme, 3eme, Terminale...",
-  "schoolLevelsDescription": "Gerez les niveaux scolaires des academiciens",
+  "schoolLevelsDesc": "Gerez les niveaux scolaires des academiciens",
   "home": "Accueil",
   "academy": "Academie",
   "sessions": "Seances",
@@ -514,5 +514,56 @@
   "specialityFormationJeunes": "Formation jeunes",
   "specialityFormationJeunesDesc": "Pédagogie, initiation",
   "specialityPreparationMentale": "Préparation mentale",
-  "specialityPreparationMentaleDesc": "Concentration, motivation"
+  "specialityPreparationMentaleDesc": "Concentration, motivation",
+  "notificationsDisabled": "Desactivees",
+  "notifSeancesDesc": "Ouverture et fermeture de seances",
+  "notifPresencesDesc": "Scans et pointages des academiciens",
+  "notifAnnotationsDesc": "Nouvelles evaluations et observations",
+  "notifMessagesDesc": "Communications et annonces",
+  "notifRappels": "Rappels",
+  "notifRappelsDesc": "Rappels de seances et echeances",
+  "notifStorageInfo": "Les preferences de notifications sont enregistrees localement sur cet appareil.",
+  "appPlatformDesc": "Plateforme de gestion et de suivi\ndes academiciens de football",
+  "lastUpdate": "Derniere mise a jour",
+  "lastUpdateValue": "Fevrier 2026",
+  "storage": "Stockage",
+  "localStorage": "Local (hors-ligne)",
+  "team": "EQUIPE",
+  "developedBy": "Developpe par",
+  "designedFor": "Concu pour",
+  "legalInformation": "INFORMATIONS LEGALES",
+  "copyright": "{app} - Tous droits reserves.",
+  "@copyright": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "legalUsageDesc": "Cette application est destinee a un usage interne pour la gestion des academiciens, des seances d'entrainement, des ateliers et du suivi de performance au sein de l'academie de football {app}.",
+  "@legalUsageDesc": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "legalDataDesc": "Les donnees sont stockees localement sur l'appareil. Aucune information personnelle n'est transmise a des tiers.",
+  "madeWithPassion": "Fait avec passion pour le football",
+  "referentialsDataDesc": "Donnees de base de l'application",
+  "referentialsUsageInfo": "Les referentiels alimentent les formulaires d'inscription et les filtres de l'application.",
+  "roleWithSpeciality": "{role} - {speciality}",
+  "@roleWithSpeciality": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "speciality": {
+        "type": "String"
+      }
+    }
+  },
+  "academiciansStat": "Academiciens",
+  "annotationsStat": "Annotations",
+  "workshopsStat": "Ateliers"
 }

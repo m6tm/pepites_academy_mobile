@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../notification/notification_settings_page.dart';
 import '../../referentiel/referentiel_hub_page.dart';
@@ -24,6 +25,7 @@ class AdminSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -35,7 +37,7 @@ class AdminSettingsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Parametres',
+                  l10n.settings,
                   style: GoogleFonts.montserrat(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -45,7 +47,7 @@ class AdminSettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Configuration de l\'application',
+                  l10n.settingsSubtitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -55,15 +57,17 @@ class AdminSettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-        SliverToBoxAdapter(child: _buildProfileCard(context, colorScheme)),
+        SliverToBoxAdapter(
+          child: _buildProfileCard(context, colorScheme, l10n),
+        ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
         SliverToBoxAdapter(
           child: _buildSettingsSection(
-            'General',
+            l10n.general,
             [
               SettingsItemData(
                 Icons.language_rounded,
-                'Langue',
+                l10n.language,
                 DependencyInjection.languageState.label,
                 const Color(0xFF3B82F6),
                 onTap: () => Navigator.push(
@@ -77,7 +81,7 @@ class AdminSettingsScreen extends StatelessWidget {
               ),
               SettingsItemData(
                 Icons.dark_mode_rounded,
-                'Theme',
+                l10n.theme,
                 DependencyInjection.themeState.label,
                 const Color(0xFF8B5CF6),
                 onTap: () => Navigator.push(
@@ -91,8 +95,8 @@ class AdminSettingsScreen extends StatelessWidget {
               ),
               SettingsItemData(
                 Icons.notifications_outlined,
-                'Notifications',
-                'Activees',
+                l10n.notifications,
+                l10n.notificationsEnabled,
                 const Color(0xFFF59E0B),
                 onTap: () => Navigator.push(
                   context,
@@ -109,12 +113,12 @@ class AdminSettingsScreen extends StatelessWidget {
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverToBoxAdapter(
           child: _buildSettingsSection(
-            'Administration',
+            l10n.administration,
             [
               SettingsItemData(
                 Icons.tune_rounded,
-                'Referentiels',
-                'Postes, Niveaux',
+                l10n.referentials,
+                l10n.referentialsSubtitle,
                 const Color(0xFF10B981),
                 onTap: () => Navigator.push(
                   context,
@@ -123,8 +127,8 @@ class AdminSettingsScreen extends StatelessWidget {
               ),
               SettingsItemData(
                 Icons.info_outline_rounded,
-                'A propos',
-                'Version 1.3.0',
+                l10n.about,
+                l10n.version('1.3.0'),
                 colorScheme.onSurface.withValues(alpha: 0.5),
                 onTap: () => Navigator.push(
                   context,
@@ -144,7 +148,7 @@ class AdminSettingsScreen extends StatelessWidget {
               onPressed: onLogout,
               icon: const Icon(Icons.logout_rounded),
               label: Text(
-                'Se deconnecter',
+                l10n.logout,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
               style: OutlinedButton.styleFrom(
@@ -163,7 +167,11 @@ class AdminSettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileCard(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildProfileCard(
+    BuildContext context,
+    ColorScheme colorScheme,
+    AppLocalizations l10n,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(16),
@@ -229,7 +237,7 @@ class AdminSettingsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'ADMIN',
+              l10n.administrator.toUpperCase(),
               style: GoogleFonts.montserrat(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,

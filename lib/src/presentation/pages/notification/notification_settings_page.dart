@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 
 /// Page de reglages des notifications.
 /// Permet d'activer/desactiver les differents types de notifications.
@@ -77,6 +78,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -88,7 +90,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Notifications',
+          l10n.notifications,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -105,20 +107,24 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildGlobalToggle(colorScheme, isDark),
+                  _buildGlobalToggle(colorScheme, isDark, l10n),
                   const SizedBox(height: 24),
-                  _buildSectionLabel('CATEGORIES', colorScheme),
+                  _buildSectionLabel(l10n.categories, colorScheme),
                   const SizedBox(height: 12),
-                  _buildCategoryCard(colorScheme, isDark),
+                  _buildCategoryCard(colorScheme, isDark, l10n),
                   const SizedBox(height: 24),
-                  _buildInfoCard(colorScheme, isDark),
+                  _buildInfoCard(colorScheme, isDark, l10n),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildGlobalToggle(ColorScheme colorScheme, bool isDark) {
+  Widget _buildGlobalToggle(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -163,7 +169,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Notifications',
+                  l10n.notifications,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -174,7 +180,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  _notificationsGlobales ? 'Activees' : 'Desactivees',
+                  _notificationsGlobales
+                      ? l10n.notificationsEnabled
+                      : l10n.notificationsDisabled,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     color: _notificationsGlobales
@@ -211,7 +219,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
-  Widget _buildCategoryCard(ColorScheme colorScheme, bool isDark) {
+  Widget _buildCategoryCard(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? colorScheme.surface : Colors.white,
@@ -224,8 +236,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         children: [
           _buildNotifToggle(
             icon: Icons.event_rounded,
-            label: 'Seances',
-            description: 'Ouverture et fermeture de seances',
+            label: l10n.sessions,
+            description: l10n.notifSeancesDesc,
             color: const Color(0xFF3B82F6),
             value: _notifSeances,
             onChanged: _notificationsGlobales
@@ -239,8 +251,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildDivider(colorScheme),
           _buildNotifToggle(
             icon: Icons.qr_code_scanner_rounded,
-            label: 'Presences',
-            description: 'Scans et pointages des academiciens',
+            label: l10n.attendance,
+            description: l10n.notifPresencesDesc,
             color: const Color(0xFF10B981),
             value: _notifPresences,
             onChanged: _notificationsGlobales
@@ -254,8 +266,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildDivider(colorScheme),
           _buildNotifToggle(
             icon: Icons.edit_note_rounded,
-            label: 'Annotations',
-            description: 'Nouvelles evaluations et observations',
+            label: l10n.annotations,
+            description: l10n.notifAnnotationsDesc,
             color: const Color(0xFF8B5CF6),
             value: _notifAnnotations,
             onChanged: _notificationsGlobales
@@ -269,8 +281,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildDivider(colorScheme),
           _buildNotifToggle(
             icon: Icons.message_rounded,
-            label: 'Messages',
-            description: 'Communications et annonces',
+            label: l10n.communication,
+            description: l10n.notifMessagesDesc,
             color: const Color(0xFFEC4899),
             value: _notifMessages,
             onChanged: _notificationsGlobales
@@ -284,8 +296,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildDivider(colorScheme),
           _buildNotifToggle(
             icon: Icons.alarm_rounded,
-            label: 'Rappels',
-            description: 'Rappels de seances et echeances',
+            label: l10n.notifRappels,
+            description: l10n.notifRappelsDesc,
             color: const Color(0xFFF59E0B),
             value: _notifRappels,
             onChanged: _notificationsGlobales
@@ -376,7 +388,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
-  Widget _buildInfoCard(ColorScheme colorScheme, bool isDark) {
+  Widget _buildInfoCard(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -396,7 +412,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Les preferences de notifications sont enregistrees localement sur cet appareil.',
+              l10n.notifStorageInfo,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 color: colorScheme.onSurface.withValues(alpha: 0.5),

@@ -218,16 +218,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
-  String get themeSystem => 'System';
+  String get systemMode => 'System';
 
   @override
-  String get themeLightDescription => 'Always light appearance';
+  String get lightModeDesc => 'Always light appearance';
 
   @override
-  String get themeDarkDescription => 'Always dark appearance';
+  String get darkModeDesc => 'Always dark appearance';
 
   @override
-  String get themeSystemDescription => 'Follows device settings';
+  String get systemModeDesc => 'Follows device settings';
 
   @override
   String themeActiveLabel(String label) {
@@ -278,17 +278,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Goalkeeper, Defender, Midfielder, Forward...';
 
   @override
-  String get footballPositionsDescription =>
+  String get footballPositionsDesc =>
       'Manage positions assigned to academicians';
 
   @override
   String get schoolLevels => 'School levels';
 
   @override
-  String get schoolLevelsSubtitle => 'Grade 1, Grade 2, Grade 6...';
+  String get schoolLevelsSubtitle => 'Primary, Secondary, High School...';
 
   @override
-  String get schoolLevelsDescription => 'Manage school levels of academicians';
+  String get schoolLevelsDesc => 'Manage school levels of academicians';
 
   @override
   String get home => 'Home';
@@ -1101,4 +1101,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get specialityPreparationMentaleDesc => 'Concentration, motivation';
+
+  @override
+  String get notificationsDisabled => 'Disabled';
+
+  @override
+  String get notifSeancesDesc => 'Opening and closing of sessions';
+
+  @override
+  String get notifPresencesDesc => 'Academician scans and clock-ins';
+
+  @override
+  String get notifAnnotationsDesc => 'New evaluations and observations';
+
+  @override
+  String get notifMessagesDesc => 'Communications and announcements';
+
+  @override
+  String get notifRappels => 'Reminders';
+
+  @override
+  String get notifRappelsDesc => 'Session reminders and deadlines';
+
+  @override
+  String get notifStorageInfo =>
+      'Notification preferences are saved locally on this device.';
+
+  @override
+  String get appPlatformDesc =>
+      'Management and monitoring platform\nfor football academicians';
+
+  @override
+  String get lastUpdate => 'Last update';
+
+  @override
+  String get lastUpdateValue => 'February 2026';
+
+  @override
+  String get storage => 'Storage';
+
+  @override
+  String get localStorage => 'Local (offline)';
+
+  @override
+  String get team => 'TEAM';
+
+  @override
+  String get developedBy => 'Developed by';
+
+  @override
+  String get designedFor => 'Designed for';
+
+  @override
+  String get legalInformation => 'LEGAL INFORMATION';
+
+  @override
+  String copyright(String app) {
+    return '$app - All rights reserved.';
+  }
+
+  @override
+  String legalUsageDesc(String app) {
+    return 'This application is intended for internal use for the management of academicians, training sessions, workshops and performance monitoring within the $app football academy.';
+  }
+
+  @override
+  String get legalDataDesc =>
+      'Data is stored locally on the device. No personal information is transmitted to third parties.';
+
+  @override
+  String get madeWithPassion => 'Made with passion for football';
+
+  @override
+  String get referentialsDataDesc => 'Base application data';
+
+  @override
+  String get referentialsUsageInfo =>
+      'Referentials fuel registration forms and application filters.';
+
+  @override
+  String roleWithSpeciality(String role, String speciality) {
+    return '$role - $speciality';
+  }
+
+  @override
+  String get academiciansStat => 'Academicians';
+
+  @override
+  String get annotationsStat => 'Annotations';
+
+  @override
+  String get workshopsStat => 'Workshops';
 }
