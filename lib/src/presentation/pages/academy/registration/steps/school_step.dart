@@ -1,3 +1,4 @@
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/niveau_scolaire.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/academy_registration_state.dart';
@@ -11,28 +12,29 @@ class SchoolStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Niveau Académique",
-            style: TextStyle(
+          Text(
+            l10n.academicLevelTitle,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.red,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            "Suivi de la scolarité de l'académicien.",
-            style: TextStyle(color: Colors.grey),
+          Text(
+            l10n.academicStepDesc,
+            style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 40),
           GlassDropdown<String>(
-            label: "Niveau Scolaire",
-            hint: "Sélectionnez le niveau",
+            label: l10n.schoolLevels,
+            hint: l10n.selectSchoolLevelHint,
             value: state.niveauScolaireId,
             prefixIcon: Icons.school_outlined,
             items: niveaux.map((n) {
@@ -53,10 +55,10 @@ class SchoolStep extends StatelessWidget {
               children: [
                 const Icon(Icons.info_outline, color: Colors.blue),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    "Ces informations permettent de filtrer les communications SMS et d'adapter les rapports.",
-                    style: TextStyle(fontSize: 13, color: Colors.blue),
+                    l10n.academicStepInfo,
+                    style: const TextStyle(fontSize: 13, color: Colors.blue),
                   ),
                 ),
               ],

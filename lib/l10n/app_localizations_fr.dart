@@ -1326,4 +1326,31 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get confirmRegistration => 'CONFIRMER L\'INSCRIPTION';
+
+  @override
+  String get selectDate => 'Sélectionner une date';
+
+  @override
+  String get recapSubtitle =>
+      'Vérifiez les informations avant la validation finale.';
+
+  @override
+  String get futureAcademician => 'Futur Académicien';
+
+  @override
+  String get qrBadgeValidationWarning =>
+      'La validation générera automatiquement un Badge QR unique pour cet élève.';
+
+  @override
+  String get academicLevelTitle => 'Niveau Académique';
+
+  @override
+  String get academicStepDesc => 'Suivi de la scolarité de l\'académicien.';
+
+  @override
+  String get selectSchoolLevelHint => 'Sélectionnez le niveau';
+
+  @override
+  String get academicStepInfo =>
+      'Ces informations permettent de filtrer les communications SMS et d\'adapter les rapports.';
 }

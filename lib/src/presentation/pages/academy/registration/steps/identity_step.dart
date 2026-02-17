@@ -1,7 +1,9 @@
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/academy_registration_state.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/glass_text_field.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/profile_image_picker.dart';
+import 'package:intl/intl.dart';
 
 class IdentityStep extends StatefulWidget {
   final AcademyRegistrationState state;
@@ -36,6 +38,7 @@ class _IdentityStepState extends State<IdentityStep> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -49,26 +52,26 @@ class _IdentityStepState extends State<IdentityStep> {
           ),
           const SizedBox(height: 32),
           GlassTextField(
-            label: "Nom",
-            hint: "Entrez le nom",
+            label: l10n.lastName,
+            hint: l10n.lastNameHint,
             controller: _nomController,
             prefixIcon: Icons.person_outline,
             onChanged: (val) => widget.state.setPersonalInfo(nom: val),
           ),
           const SizedBox(height: 20),
           GlassTextField(
-            label: "Prénom",
-            hint: "Entrez le prénom",
+            label: l10n.firstName,
+            hint: l10n.firstNameHint,
             controller: _prenomController,
             prefixIcon: Icons.person_outline,
             onChanged: (val) => widget.state.setPersonalInfo(prenom: val),
           ),
           const SizedBox(height: 20),
-          _buildDatePicker(context),
+          _buildDatePicker(context, l10n),
           const SizedBox(height: 20),
           GlassTextField(
-            label: "Téléphone Parent",
-            hint: "Ex: +237 6XX XXX XXX",
+            label: l10n.parentPhoneLabel,
+            hint: l10n.phoneHint,
             controller: _phoneController,
             keyboardType: TextInputType.phone,
             prefixIcon: Icons.phone_outlined,
@@ -80,7 +83,7 @@ class _IdentityStepState extends State<IdentityStep> {
     );
   }
 
-  Widget _buildDatePicker(BuildContext context) {
+  Widget _buildDatePicker(BuildContext context, AppLocalizations l10n) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final baseColor = isDark ? Colors.white : Colors.black;
 
@@ -100,7 +103,7 @@ class _IdentityStepState extends State<IdentityStep> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Date de naissance",
+            l10n.birthDateLabel,
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black,
               fontWeight: FontWeight.w600,
@@ -128,8 +131,10 @@ class _IdentityStepState extends State<IdentityStep> {
                 const SizedBox(width: 12),
                 Text(
                   widget.state.dateNaissance == null
-                      ? "Sélectionner une date"
-                      : "${widget.state.dateNaissance!.day}/${widget.state.dateNaissance!.month}/${widget.state.dateNaissance!.year}",
+                      ? l10n.selectDate
+                      : DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(widget.state.dateNaissance!),
                   style: TextStyle(
                     color: widget.state.dateNaissance == null
                         ? (isDark ? Colors.white54 : Colors.black54)

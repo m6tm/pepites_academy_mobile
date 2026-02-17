@@ -10,9 +10,9 @@ Liste des pages et composants à migrer vers `AppLocalizations` pour supporter l
 - [x] `lib/src/presentation/pages/academy/registration/registration_page.dart`
 - [x] `lib/src/presentation/pages/academy/registration/registration_success_page.dart`
 - [x] `lib/src/presentation/pages/academy/registration/steps/football_step.dart`
-- [ ] `lib/src/presentation/pages/academy/registration/steps/identity_step.dart`
-- [ ] `lib/src/presentation/pages/academy/registration/steps/recap_step.dart`
-- [ ] `lib/src/presentation/pages/academy/registration/steps/school_step.dart`
+- [x] `lib/src/presentation/pages/academy/registration/steps/identity_step.dart`
+- [x] `lib/src/presentation/pages/academy/registration/steps/recap_step.dart`
+- [x] `lib/src/presentation/pages/academy/registration/steps/school_step.dart`
 
 ## 📊 Module Bulletin & Évaluation
 

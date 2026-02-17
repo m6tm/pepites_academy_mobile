@@ -1320,4 +1320,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmRegistration => 'CONFIRM REGISTRATION';
+
+  @override
+  String get selectDate => 'Select a date';
+
+  @override
+  String get recapSubtitle => 'Verify information before final validation.';
+
+  @override
+  String get futureAcademician => 'Future Academician';
+
+  @override
+  String get qrBadgeValidationWarning =>
+      'Validation will automatically generate a unique QR Badge for this student.';
+
+  @override
+  String get academicLevelTitle => 'Academic Level';
+
+  @override
+  String get academicStepDesc => 'Follow-up of the academician\'\'s schooling.';
+
+  @override
+  String get selectSchoolLevelHint => 'Select the level';
+
+  @override
+  String get academicStepInfo =>
+      'This information allows filtering SMS communications and adapting reports.';
 }

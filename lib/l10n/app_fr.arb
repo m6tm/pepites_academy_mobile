@@ -638,5 +638,13 @@
   "sportProfileDesc": "Définissez le rôle de l'élève sur le terrain.",
   "selectPositionHint": "Sélectionnez un poste",
   "selectFootHint": "Sélectionnez le pied",
-  "confirmRegistration": "CONFIRMER L'INSCRIPTION"
+  "confirmRegistration": "CONFIRMER L'INSCRIPTION",
+  "selectDate": "Sélectionner une date",
+  "recapSubtitle": "Vérifiez les informations avant la validation finale.",
+  "futureAcademician": "Futur Académicien",
+  "qrBadgeValidationWarning": "La validation générera automatiquement un Badge QR unique pour cet élève.",
+  "academicLevelTitle": "Niveau Académique",
+  "academicStepDesc": "Suivi de la scolarité de l'académicien.",
+  "selectSchoolLevelHint": "Sélectionnez le niveau",
+  "academicStepInfo": "Ces informations permettent de filtrer les communications SMS et d'adapter les rapports."
 }

@@ -572,5 +572,13 @@
   "sportProfileDesc": "Define the student's role on the field.",
   "selectPositionHint": "Select a position",
   "selectFootHint": "Select the foot",
-  "confirmRegistration": "CONFIRM REGISTRATION"
+  "confirmRegistration": "CONFIRM REGISTRATION",
+  "selectDate": "Select a date",
+  "recapSubtitle": "Verify information before final validation.",
+  "futureAcademician": "Future Academician",
+  "qrBadgeValidationWarning": "Validation will automatically generate a unique QR Badge for this student.",
+  "academicLevelTitle": "Academic Level",
+  "academicStepDesc": "Follow-up of the academician''s schooling.",
+  "selectSchoolLevelHint": "Select the level",
+  "academicStepInfo": "This information allows filtering SMS communications and adapting reports."
 }

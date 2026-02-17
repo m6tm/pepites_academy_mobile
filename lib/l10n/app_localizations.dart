@@ -2539,6 +2539,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'CONFIRMER L\'INSCRIPTION'**
   String get confirmRegistration;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner une date'**
+  String get selectDate;
+
+  /// No description provided for @recapSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez les informations avant la validation finale.'**
+  String get recapSubtitle;
+
+  /// No description provided for @futureAcademician.
+  ///
+  /// In fr, this message translates to:
+  /// **'Futur Académicien'**
+  String get futureAcademician;
+
+  /// No description provided for @qrBadgeValidationWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'La validation générera automatiquement un Badge QR unique pour cet élève.'**
+  String get qrBadgeValidationWarning;
+
+  /// No description provided for @academicLevelTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau Académique'**
+  String get academicLevelTitle;
+
+  /// No description provided for @academicStepDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi de la scolarité de l\'académicien.'**
+  String get academicStepDesc;
+
+  /// No description provided for @selectSchoolLevelHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez le niveau'**
+  String get selectSchoolLevelHint;
+
+  /// No description provided for @academicStepInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces informations permettent de filtrer les communications SMS et d\'adapter les rapports.'**
+  String get academicStepInfo;
 }
 
 class _AppLocalizationsDelegate
