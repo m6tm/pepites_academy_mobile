@@ -4351,6 +4351,420 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Académicien'**
   String get academician;
+
+  /// No description provided for @loadingError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de chargement'**
+  String get loadingError;
+
+  /// No description provided for @deleteLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le niveau'**
+  String get deleteLevel;
+
+  /// No description provided for @deleteLevelConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer le niveau \"{name}\" ?'**
+  String deleteLevelConfirmation(String name);
+
+  /// No description provided for @editLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le niveau'**
+  String get editLevel;
+
+  /// No description provided for @newLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau niveau'**
+  String get newLevel;
+
+  /// No description provided for @levelName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du niveau'**
+  String get levelName;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom est obligatoire'**
+  String get nameRequired;
+
+  /// No description provided for @displayOrder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre d\'affichage'**
+  String get displayOrder;
+
+  /// No description provided for @orderRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'ordre est obligatoire'**
+  String get orderRequired;
+
+  /// No description provided for @enterNumberError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir un nombre'**
+  String get enterNumberError;
+
+  /// No description provided for @levelsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun niveau} =1{1 niveau} other{{count} niveaux}}'**
+  String levelsCount(int count);
+
+  /// No description provided for @manageAcademicLevels.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des niveaux académiques'**
+  String get manageAcademicLevels;
+
+  /// No description provided for @noLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun niveau'**
+  String get noLevel;
+
+  /// No description provided for @addFirstLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez votre premier niveau scolaire\npour commencer.'**
+  String get addFirstLevel;
+
+  /// No description provided for @deletePosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le poste'**
+  String get deletePosition;
+
+  /// No description provided for @deletePositionConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer le poste \"{name}\" ?'**
+  String deletePositionConfirmation(String name);
+
+  /// No description provided for @editPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le poste'**
+  String get editPosition;
+
+  /// No description provided for @newPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau poste'**
+  String get newPosition;
+
+  /// No description provided for @positionName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du poste'**
+  String get positionName;
+
+  /// No description provided for @descriptionOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description (optionnelle)'**
+  String get descriptionOptional;
+
+  /// No description provided for @positionsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun poste} =1{1 poste} other{{count} postes}}'**
+  String positionsCount(int count);
+
+  /// No description provided for @managePositions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des postes de jeu'**
+  String get managePositions;
+
+  /// No description provided for @noPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun poste'**
+  String get noPosition;
+
+  /// No description provided for @addFirstPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez votre premier poste de football\npour commencer.'**
+  String get addFirstPosition;
+
+  /// No description provided for @unreadCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune non lue} =1{1 non lue} other{{count} non lues}}'**
+  String unreadCount(int count);
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout marquer comme lu'**
+  String get markAllAsRead;
+
+  /// No description provided for @deleteRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer les lues'**
+  String get deleteRead;
+
+  /// No description provided for @registrations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscriptions'**
+  String get registrations;
+
+  /// No description provided for @smsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'SMS'**
+  String get smsLabel;
+
+  /// No description provided for @reminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels'**
+  String get reminders;
+
+  /// No description provided for @system.
+  ///
+  /// In fr, this message translates to:
+  /// **'Système'**
+  String get system;
+
+  /// No description provided for @unreadOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non lues uniquement'**
+  String get unreadOnly;
+
+  /// No description provided for @noNotification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune notification'**
+  String get noNotification;
+
+  /// No description provided for @notificationsUpToDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes à jour ! Les nouvelles notifications apparaîtront ici.'**
+  String get notificationsUpToDate;
+
+  /// No description provided for @deleteThisNotification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer cette notification'**
+  String get deleteThisNotification;
+
+  /// No description provided for @deleteReadConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous supprimer toutes les notifications déjà lues ?'**
+  String get deleteReadConfirmation;
+
+  /// No description provided for @placeQrInViewfinder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placez le code QR dans le viseur'**
+  String get placeQrInViewfinder;
+
+  /// No description provided for @rapidEntry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrée Rapide'**
+  String get rapidEntry;
+
+  /// No description provided for @rapidEntryDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enchaîner les scans automatiquement'**
+  String get rapidEntryDesc;
+
+  /// No description provided for @unknownError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur inconnue'**
+  String get unknownError;
+
+  /// No description provided for @attendanceRecordedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présence enregistrée'**
+  String get attendanceRecordedSuccess;
+
+  /// No description provided for @alreadyRegisteredForSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà enregistré pour cette séance'**
+  String get alreadyRegisteredForSession;
+
+  /// No description provided for @nextScan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner suivant'**
+  String get nextScan;
+
+  /// No description provided for @presences.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présences'**
+  String get presences;
+
+  /// No description provided for @bulletin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin'**
+  String get bulletin;
+
+  /// No description provided for @low.
+  ///
+  /// In fr, this message translates to:
+  /// **'BASSE'**
+  String get low;
+
+  /// No description provided for @normal.
+  ///
+  /// In fr, this message translates to:
+  /// **'NORMALE'**
+  String get normal;
+
+  /// No description provided for @high.
+  ///
+  /// In fr, this message translates to:
+  /// **'HAUTE'**
+  String get high;
+
+  /// No description provided for @urgent.
+  ///
+  /// In fr, this message translates to:
+  /// **'URGENTE'**
+  String get urgent;
+
+  /// No description provided for @monday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lundi'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mardi'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mercredi'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeudi'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vendredi'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Samedi'**
+  String get saturday;
+
+  /// No description provided for @sunday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dimanche'**
+  String get sunday;
+
+  /// No description provided for @january.
+  ///
+  /// In fr, this message translates to:
+  /// **'Janvier'**
+  String get january;
+
+  /// No description provided for @february.
+  ///
+  /// In fr, this message translates to:
+  /// **'Février'**
+  String get february;
+
+  /// No description provided for @march.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mars'**
+  String get march;
+
+  /// No description provided for @april.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avril'**
+  String get april;
+
+  /// No description provided for @may.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mai'**
+  String get may;
+
+  /// No description provided for @june.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juin'**
+  String get june;
+
+  /// No description provided for @july.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juillet'**
+  String get july;
+
+  /// No description provided for @august.
+  ///
+  /// In fr, this message translates to:
+  /// **'Août'**
+  String get august;
+
+  /// No description provided for @september.
+  ///
+  /// In fr, this message translates to:
+  /// **'Septembre'**
+  String get september;
+
+  /// No description provided for @october.
+  ///
+  /// In fr, this message translates to:
+  /// **'Octobre'**
+  String get october;
+
+  /// No description provided for @november.
+  ///
+  /// In fr, this message translates to:
+  /// **'Novembre'**
+  String get november;
+
+  /// No description provided for @december.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décembre'**
+  String get december;
+
+  /// No description provided for @qrScanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner QR'**
+  String get qrScanner;
 }
 
 class _AppLocalizationsDelegate

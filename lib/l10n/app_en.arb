@@ -1149,6 +1149,109 @@
   },
   "smsRecipientsRemoveAll": "Remove all",
   "smsRecipientsPreview": "Preview",
-  "workshops": "Workshops",
-  "academician": "Academician"
+  "academician": "Academician",
+  "loadingError": "Loading error",
+  "deleteLevel": "Delete level",
+  "deleteLevelConfirmation": "Are you sure you want to delete the level \"{name}\"?",
+  "@deleteLevelConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editLevel": "Edit level",
+  "newLevel": "New level",
+  "levelName": "Level name",
+  "nameRequired": "Name is required",
+  "displayOrder": "Display order",
+  "orderRequired": "Order is required",
+  "enterNumberError": "Please enter a number",
+  "levelsCount": "{count, plural, =0{No level} =1{1 level} other{{count} levels}}",
+  "@levelsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "manageAcademicLevels": "Management of academic levels",
+  "noLevel": "No level",
+  "addFirstLevel": "Add your first school level\nto start.",
+  "deletePosition": "Delete position",
+  "deletePositionConfirmation": "Are you sure you want to delete the position \"{name}\"?",
+  "@deletePositionConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editPosition": "Edit position",
+  "newPosition": "New position",
+  "positionName": "Position name",
+  "descriptionOptional": "Description (optional)",
+  "positionsCount": "{count, plural, =0{No position} =1{1 position} other{{count} positions}}",
+  "@positionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managePositions": "Management of game positions",
+  "noPosition": "No position",
+  "addFirstPosition": "Add your first football position\nto start.",
+  "unreadCount": "{count, plural, =0{No unread} =1{1 unread} other{{count} unread}}",
+  "@unreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "markAllAsRead": "Mark all as read",
+  "deleteRead": "Delete read",
+  "registrations": "Registrations",
+  "smsLabel": "SMS",
+  "reminders": "Reminders",
+  "system": "System",
+  "unreadOnly": "Unread only",
+  "noNotification": "No notification",
+  "notificationsUpToDate": "You're up to date! New notifications will appear here.",
+  "deleteThisNotification": "Delete this notification",
+  "deleteReadConfirmation": "Do you want to delete all already read notifications?",
+  "placeQrInViewfinder": "Place the QR code in the viewfinder",
+  "rapidEntry": "Rapid Entry",
+  "rapidEntryDesc": "Chain scans automatically",
+  "unknownError": "Unknown error",
+  "attendanceRecordedSuccess": "Attendance recorded",
+  "alreadyRegisteredForSession": "Already registered for this session",
+  "nextScan": "Next scan",
+  "presences": "Attendance",
+  "bulletin": "Bulletin",
+  "low": "LOW",
+  "normal": "NORMAL",
+  "high": "HIGH",
+  "urgent": "URGENT",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+  "january": "January",
+  "february": "February",
+  "march": "March",
+  "april": "April",
+  "may": "May",
+  "june": "June",
+  "july": "July",
+  "august": "August",
+  "september": "September",
+  "october": "October",
+  "november": "November",
+  "december": "December",
+  "qrScanner": "QR Scanner"
 }

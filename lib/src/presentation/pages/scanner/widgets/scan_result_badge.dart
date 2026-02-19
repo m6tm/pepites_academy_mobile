@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../application/services/qr_scanner_service.dart';
 import '../../../state/qr_scanner_state.dart';
 import '../../../theme/app_colors.dart';
+import '../../../../../l10n/app_localizations.dart';
+import '../../../../domain/entities/presence.dart';
 
 /// Badge affichant le resultat d'un scan QR.
 /// Montre la photo, le nom et le statut (Autorise/Refuse/Deja present).
@@ -118,7 +120,10 @@ class _ScanResultBadgeState extends State<ScanResultBadge>
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        widget.result!.typeProfil!.name.toUpperCase(),
+                        _getProfilTypeTranslated(
+                          widget.result!.typeProfil,
+                          AppLocalizations.of(context)!,
+                        ).toUpperCase(),
                         style: GoogleFonts.montserrat(
                           color: Colors.white70,
                           fontSize: 12,
@@ -130,7 +135,7 @@ class _ScanResultBadgeState extends State<ScanResultBadge>
                   const SizedBox(height: 12),
                   // Message de statut
                   Text(
-                    _getStatusMessage(),
+                    _getStatusMessage(AppLocalizations.of(context)!),
                     style: GoogleFonts.montserrat(
                       color: _getStatusColor(),
                       fontSize: 16,
@@ -155,7 +160,7 @@ class _ScanResultBadgeState extends State<ScanResultBadge>
                         ),
                       ),
                       child: Text(
-                        'Scanner suivant',
+                        AppLocalizations.of(context)!.nextScan,
                         style: GoogleFonts.montserrat(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -274,17 +279,27 @@ class _ScanResultBadgeState extends State<ScanResultBadge>
     }
   }
 
-  String _getStatusMessage() {
-    if (widget.result == null) return 'Erreur inconnue';
+  String _getStatusMessage(AppLocalizations l10n) {
+    if (widget.result == null) return l10n.unknownError;
     switch (widget.status) {
       case ScannerStatus.success:
-        return 'Presence enregistree';
+        return l10n.attendanceRecordedSuccess;
       case ScannerStatus.alreadyPresent:
-        return 'Deja enregistre pour cette seance';
+        return l10n.alreadyRegisteredForSession;
       case ScannerStatus.error:
         return widget.result!.message;
       default:
         return '';
+    }
+  }
+
+  String _getProfilTypeTranslated(ProfilType? type, AppLocalizations l10n) {
+    if (type == null) return '';
+    switch (type) {
+      case ProfilType.academicien:
+        return l10n.academician;
+      case ProfilType.encadreur:
+        return l10n.coach;
     }
   }
 }

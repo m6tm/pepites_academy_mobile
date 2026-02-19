@@ -2381,4 +2381,246 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get academician => 'Académicien';
+
+  @override
+  String get loadingError => 'Erreur de chargement';
+
+  @override
+  String get deleteLevel => 'Supprimer le niveau';
+
+  @override
+  String deleteLevelConfirmation(String name) {
+    return 'Voulez-vous vraiment supprimer le niveau \"$name\" ?';
+  }
+
+  @override
+  String get editLevel => 'Modifier le niveau';
+
+  @override
+  String get newLevel => 'Nouveau niveau';
+
+  @override
+  String get levelName => 'Nom du niveau';
+
+  @override
+  String get nameRequired => 'Le nom est obligatoire';
+
+  @override
+  String get displayOrder => 'Ordre d\'affichage';
+
+  @override
+  String get orderRequired => 'L\'ordre est obligatoire';
+
+  @override
+  String get enterNumberError => 'Veuillez saisir un nombre';
+
+  @override
+  String levelsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count niveaux',
+      one: '1 niveau',
+      zero: 'Aucun niveau',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get manageAcademicLevels => 'Gestion des niveaux académiques';
+
+  @override
+  String get noLevel => 'Aucun niveau';
+
+  @override
+  String get addFirstLevel =>
+      'Ajoutez votre premier niveau scolaire\npour commencer.';
+
+  @override
+  String get deletePosition => 'Supprimer le poste';
+
+  @override
+  String deletePositionConfirmation(String name) {
+    return 'Voulez-vous vraiment supprimer le poste \"$name\" ?';
+  }
+
+  @override
+  String get editPosition => 'Modifier le poste';
+
+  @override
+  String get newPosition => 'Nouveau poste';
+
+  @override
+  String get positionName => 'Nom du poste';
+
+  @override
+  String get descriptionOptional => 'Description (optionnelle)';
+
+  @override
+  String positionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count postes',
+      one: '1 poste',
+      zero: 'Aucun poste',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get managePositions => 'Gestion des postes de jeu';
+
+  @override
+  String get noPosition => 'Aucun poste';
+
+  @override
+  String get addFirstPosition =>
+      'Ajoutez votre premier poste de football\npour commencer.';
+
+  @override
+  String unreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count non lues',
+      one: '1 non lue',
+      zero: 'Aucune non lue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get markAllAsRead => 'Tout marquer comme lu';
+
+  @override
+  String get deleteRead => 'Supprimer les lues';
+
+  @override
+  String get registrations => 'Inscriptions';
+
+  @override
+  String get smsLabel => 'SMS';
+
+  @override
+  String get reminders => 'Rappels';
+
+  @override
+  String get system => 'Système';
+
+  @override
+  String get unreadOnly => 'Non lues uniquement';
+
+  @override
+  String get noNotification => 'Aucune notification';
+
+  @override
+  String get notificationsUpToDate =>
+      'Vous êtes à jour ! Les nouvelles notifications apparaîtront ici.';
+
+  @override
+  String get deleteThisNotification => 'Supprimer cette notification';
+
+  @override
+  String get deleteReadConfirmation =>
+      'Voulez-vous supprimer toutes les notifications déjà lues ?';
+
+  @override
+  String get placeQrInViewfinder => 'Placez le code QR dans le viseur';
+
+  @override
+  String get rapidEntry => 'Entrée Rapide';
+
+  @override
+  String get rapidEntryDesc => 'Enchaîner les scans automatiquement';
+
+  @override
+  String get unknownError => 'Erreur inconnue';
+
+  @override
+  String get attendanceRecordedSuccess => 'Présence enregistrée';
+
+  @override
+  String get alreadyRegisteredForSession => 'Déjà enregistré pour cette séance';
+
+  @override
+  String get nextScan => 'Scanner suivant';
+
+  @override
+  String get presences => 'Présences';
+
+  @override
+  String get bulletin => 'Bulletin';
+
+  @override
+  String get low => 'BASSE';
+
+  @override
+  String get normal => 'NORMALE';
+
+  @override
+  String get high => 'HAUTE';
+
+  @override
+  String get urgent => 'URGENTE';
+
+  @override
+  String get monday => 'Lundi';
+
+  @override
+  String get tuesday => 'Mardi';
+
+  @override
+  String get wednesday => 'Mercredi';
+
+  @override
+  String get thursday => 'Jeudi';
+
+  @override
+  String get friday => 'Vendredi';
+
+  @override
+  String get saturday => 'Samedi';
+
+  @override
+  String get sunday => 'Dimanche';
+
+  @override
+  String get january => 'Janvier';
+
+  @override
+  String get february => 'Février';
+
+  @override
+  String get march => 'Mars';
+
+  @override
+  String get april => 'Avril';
+
+  @override
+  String get may => 'Mai';
+
+  @override
+  String get june => 'Juin';
+
+  @override
+  String get july => 'Juillet';
+
+  @override
+  String get august => 'Août';
+
+  @override
+  String get september => 'Septembre';
+
+  @override
+  String get october => 'Octobre';
+
+  @override
+  String get november => 'Novembre';
+
+  @override
+  String get december => 'Décembre';
+
+  @override
+  String get qrScanner => 'Scanner QR';
 }

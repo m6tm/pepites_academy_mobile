@@ -1222,5 +1222,109 @@
   "smsRecipientsRemoveAll": "Tout retirer",
   "smsRecipientsPreview": "Prévisualiser",
   "workshops": "Ateliers",
-  "academician": "Académicien"
+  "academician": "Académicien",
+  "loadingError": "Erreur de chargement",
+  "deleteLevel": "Supprimer le niveau",
+  "deleteLevelConfirmation": "Voulez-vous vraiment supprimer le niveau \"{name}\" ?",
+  "@deleteLevelConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editLevel": "Modifier le niveau",
+  "newLevel": "Nouveau niveau",
+  "levelName": "Nom du niveau",
+  "nameRequired": "Le nom est obligatoire",
+  "displayOrder": "Ordre d'affichage",
+  "orderRequired": "L'ordre est obligatoire",
+  "enterNumberError": "Veuillez saisir un nombre",
+  "levelsCount": "{count, plural, =0{Aucun niveau} =1{1 niveau} other{{count} niveaux}}",
+  "@levelsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "manageAcademicLevels": "Gestion des niveaux académiques",
+  "noLevel": "Aucun niveau",
+  "addFirstLevel": "Ajoutez votre premier niveau scolaire\npour commencer.",
+  "deletePosition": "Supprimer le poste",
+  "deletePositionConfirmation": "Voulez-vous vraiment supprimer le poste \"{name}\" ?",
+  "@deletePositionConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editPosition": "Modifier le poste",
+  "newPosition": "Nouveau poste",
+  "positionName": "Nom du poste",
+  "descriptionOptional": "Description (optionnelle)",
+  "positionsCount": "{count, plural, =0{Aucun poste} =1{1 poste} other{{count} postes}}",
+  "@positionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managePositions": "Gestion des postes de jeu",
+  "noPosition": "Aucun poste",
+  "addFirstPosition": "Ajoutez votre premier poste de football\npour commencer.",
+  "unreadCount": "{count, plural, =0{Aucune non lue} =1{1 non lue} other{{count} non lues}}",
+  "@unreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "markAllAsRead": "Tout marquer comme lu",
+  "deleteRead": "Supprimer les lues",
+  "registrations": "Inscriptions",
+  "smsLabel": "SMS",
+  "reminders": "Rappels",
+  "system": "Système",
+  "unreadOnly": "Non lues uniquement",
+  "noNotification": "Aucune notification",
+  "notificationsUpToDate": "Vous êtes à jour ! Les nouvelles notifications apparaîtront ici.",
+  "deleteThisNotification": "Supprimer cette notification",
+  "deleteReadConfirmation": "Voulez-vous supprimer toutes les notifications déjà lues ?",
+  "placeQrInViewfinder": "Placez le code QR dans le viseur",
+  "rapidEntry": "Entrée Rapide",
+  "rapidEntryDesc": "Enchaîner les scans automatiquement",
+  "unknownError": "Erreur inconnue",
+  "attendanceRecordedSuccess": "Présence enregistrée",
+  "alreadyRegisteredForSession": "Déjà enregistré pour cette séance",
+  "nextScan": "Scanner suivant",
+  "presences": "Présences",
+  "bulletin": "Bulletin",
+  "low": "BASSE",
+  "normal": "NORMALE",
+  "high": "HAUTE",
+  "urgent": "URGENTE",
+  "monday": "Lundi",
+  "tuesday": "Mardi",
+  "wednesday": "Mercredi",
+  "thursday": "Jeudi",
+  "friday": "Vendredi",
+  "saturday": "Samedi",
+  "sunday": "Dimanche",
+  "january": "Janvier",
+  "february": "Février",
+  "march": "Mars",
+  "april": "Avril",
+  "may": "Mai",
+  "june": "Juin",
+  "july": "Juillet",
+  "august": "Août",
+  "september": "Septembre",
+  "october": "Octobre",
+  "november": "Novembre",
+  "december": "Décembre",
+  "qrScanner": "Scanner QR"
 }

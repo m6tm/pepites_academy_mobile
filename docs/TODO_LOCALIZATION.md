@@ -62,12 +62,12 @@ Liste des pages et composants à migrer vers `AppLocalizations` pour supporter l
 
 ## ⚙️ Module Référentiel & Paramètres
 
-- [ ] `lib/src/presentation/pages/referentiel/niveaux_scolaires_page.dart`
-- [ ] `lib/src/presentation/pages/referentiel/postes_football_page.dart`
-- [ ] `lib/src/presentation/pages/notification/notifications_page.dart`
+- [x] `lib/src/presentation/pages/referentiel/niveaux_scolaires_page.dart`
+- [x] `lib/src/presentation/pages/referentiel/postes_football_page.dart`
+- [x] `lib/src/presentation/pages/notification/notifications_page.dart`
 
 ## 📷 Scanner
 
-- [ ] `lib/src/presentation/pages/scanner/qr_scanner_page.dart`
-- [ ] `lib/src/presentation/pages/scanner/widgets/scanner_overlay.dart`
-- [ ] `lib/src/presentation/pages/scanner/widgets/scan_result_badge.dart`
+- [x] `lib/src/presentation/pages/scanner/qr_scanner_page.dart`
+- [x] `lib/src/presentation/pages/scanner/widgets/scanner_overlay.dart`
+- [x] `lib/src/presentation/pages/scanner/widgets/scan_result_badge.dart`

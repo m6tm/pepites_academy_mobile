@@ -4,6 +4,7 @@ import '../../../domain/entities/poste_football.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Page de gestion des postes de football.
 /// Permet de lister, ajouter, modifier et supprimer des postes.
@@ -38,7 +39,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
       if (mounted) {
         AcademyToast.show(
           context,
-          title: 'Erreur de chargement',
+          title: AppLocalizations.of(context)!.loadingError,
           isError: true,
         );
       }
@@ -60,27 +61,28 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
   }
 
   Future<void> _supprimerPoste(PosteFootball poste) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Supprimer le poste',
+          l10n.deletePosition,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'Voulez-vous vraiment supprimer le poste "${poste.nom}" ?',
+          l10n.deletePositionConfirmation(poste.nom),
           style: GoogleFonts.montserrat(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Annuler', style: GoogleFonts.montserrat()),
+            child: Text(l10n.cancel, style: GoogleFonts.montserrat()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: Text(
-              'Supprimer',
+              l10n.delete,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),
@@ -115,14 +117,14 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) {
-        final colorScheme = Theme.of(ctx).colorScheme;
+        final l10n = AppLocalizations.of(context)!;
 
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           title: Text(
-            isEdit ? 'Modifier le poste' : 'Nouveau poste',
+            isEdit ? l10n.editPosition : l10n.newPosition,
             style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
           ),
           content: Form(
@@ -133,7 +135,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 TextFormField(
                   controller: nomController,
                   decoration: InputDecoration(
-                    labelText: 'Nom du poste',
+                    labelText: l10n.positionName,
                     labelStyle: GoogleFonts.montserrat(fontSize: 13),
                     prefixIcon: const Icon(Icons.sports_soccer_rounded),
                     border: OutlineInputBorder(
@@ -150,7 +152,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                   style: GoogleFonts.montserrat(),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
-                      return 'Le nom est obligatoire';
+                      return l10n.nameRequired;
                     }
                     return null;
                   },
@@ -159,7 +161,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 TextFormField(
                   controller: descController,
                   decoration: InputDecoration(
-                    labelText: 'Description (optionnelle)',
+                    labelText: l10n.descriptionOptional,
                     labelStyle: GoogleFonts.montserrat(fontSize: 13),
                     prefixIcon: const Icon(Icons.description_outlined),
                     border: OutlineInputBorder(
@@ -183,9 +185,11 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(
-                'Annuler',
+                l10n.cancel,
                 style: GoogleFonts.montserrat(
-                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: Theme.of(
+                    ctx,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -237,7 +241,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 ),
               ),
               child: Text(
-                isEdit ? 'Modifier' : 'Ajouter',
+                isEdit ? l10n.edit : l10n.add,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -251,6 +255,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -274,7 +279,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        '${_postes.length} poste(s)',
+                        l10n.positionsCount(_postes.length),
                         style: GoogleFonts.montserrat(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -318,7 +323,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
         elevation: 6,
         icon: const Icon(Icons.add_rounded, size: 20),
         label: Text(
-          'Ajouter',
+          AppLocalizations.of(context)!.add,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -347,7 +352,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Postes de football',
+                  AppLocalizations.of(context)!.footballPositions,
                   style: GoogleFonts.montserrat(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -357,7 +362,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Gestion des postes de jeu',
+                  AppLocalizations.of(context)!.managePositions,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -470,7 +475,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 color: const Color(0xFF3B82F6).withValues(alpha: 0.7),
                 size: 20,
               ),
-              tooltip: 'Modifier',
+              tooltip: AppLocalizations.of(context)!.edit,
             ),
             IconButton(
               onPressed: () => _supprimerPoste(poste),
@@ -479,7 +484,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 color: AppColors.error.withValues(alpha: 0.7),
                 size: 20,
               ),
-              tooltip: 'Supprimer',
+              tooltip: AppLocalizations.of(context)!.delete,
             ),
           ],
         ),
@@ -509,7 +514,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun poste',
+              AppLocalizations.of(context)!.noPosition,
               style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -518,7 +523,7 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ajoutez votre premier poste de football\npour commencer.',
+              AppLocalizations.of(context)!.addFirstPosition,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 14,

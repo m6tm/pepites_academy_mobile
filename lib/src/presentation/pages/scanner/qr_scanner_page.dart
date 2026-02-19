@@ -7,6 +7,7 @@ import '../../state/qr_scanner_state.dart';
 import '../../theme/app_colors.dart';
 import 'widgets/scan_result_badge.dart';
 import 'widgets/scanner_overlay.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Page de scan QR plein ecran avec design Glassmorphism.
 /// Permet de scanner les codes QR des academiciens et encadreurs
@@ -193,7 +194,7 @@ class _QrScannerPageState extends State<QrScannerPage>
                     const Spacer(),
                     // Titre
                     Text(
-                      'Scanner QR',
+                      AppLocalizations.of(context)!.qrScanner,
                       style: GoogleFonts.montserrat(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -246,7 +247,7 @@ class _QrScannerPageState extends State<QrScannerPage>
                     );
                   },
                   child: Text(
-                    'Placez le code QR dans le viseur',
+                    AppLocalizations.of(context)!.placeQrInViewfinder,
                     style: GoogleFonts.montserrat(
                       color: Colors.white,
                       fontSize: 14,
@@ -284,7 +285,7 @@ class _QrScannerPageState extends State<QrScannerPage>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Entree Rapide',
+                                AppLocalizations.of(context)!.rapidEntry,
                                 style: GoogleFonts.montserrat(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -292,7 +293,7 @@ class _QrScannerPageState extends State<QrScannerPage>
                                 ),
                               ),
                               Text(
-                                'Enchainer les scans automatiquement',
+                                AppLocalizations.of(context)!.rapidEntryDesc,
                                 style: GoogleFonts.montserrat(
                                   color: Colors.white60,
                                   fontSize: 11,

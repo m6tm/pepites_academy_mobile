@@ -4,6 +4,7 @@ import '../../../domain/entities/notification_item.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/glassmorphism_card.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Page de notifications pour les administrateurs et encadreurs.
 /// Affiche la liste des notifications avec filtrage par type,
@@ -98,6 +99,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   /// En-tete de la page avec titre, compteur et actions.
   Widget _buildHeader(ColorScheme colorScheme, bool isDark) {
     final state = DependencyInjection.notificationState;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
@@ -130,7 +132,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Notifications',
+                      l10n.notifications,
                       style: GoogleFonts.montserrat(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
@@ -140,7 +142,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                     ),
                     if (state.nonLuesCount > 0)
                       Text(
-                        '${state.nonLuesCount} non lue${state.nonLuesCount > 1 ? 's' : ''}',
+                        l10n.unreadCount(state.nonLuesCount),
                         style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -152,7 +154,7 @@ class _NotificationsPageState extends State<NotificationsPage>
               ),
               _buildHeaderAction(
                 icon: Icons.done_all_rounded,
-                tooltip: 'Tout marquer comme lu',
+                tooltip: l10n.markAllAsRead,
                 colorScheme: colorScheme,
                 onTap: state.nonLuesCount > 0
                     ? () => state.marquerToutesCommeLues(widget.userRole)
@@ -161,7 +163,7 @@ class _NotificationsPageState extends State<NotificationsPage>
               const SizedBox(width: 8),
               _buildHeaderAction(
                 icon: Icons.delete_sweep_rounded,
-                tooltip: 'Supprimer les lues',
+                tooltip: l10n.deleteRead,
                 colorScheme: colorScheme,
                 onTap: () => _confirmerSuppression(),
               ),
@@ -208,15 +210,19 @@ class _NotificationsPageState extends State<NotificationsPage>
   /// Barre de filtres horizontale.
   Widget _buildFilters(ColorScheme colorScheme, bool isDark) {
     final state = DependencyInjection.notificationState;
+    final l10n = AppLocalizations.of(context)!;
 
     final filtres = <_FiltreOption>[
-      _FiltreOption(label: 'Toutes', type: null),
-      _FiltreOption(label: 'Seances', type: NotificationType.seance),
-      _FiltreOption(label: 'Presences', type: NotificationType.presence),
-      _FiltreOption(label: 'Inscriptions', type: NotificationType.inscription),
-      _FiltreOption(label: 'SMS', type: NotificationType.sms),
-      _FiltreOption(label: 'Rappels', type: NotificationType.rappel),
-      _FiltreOption(label: 'Systeme', type: NotificationType.systeme),
+      _FiltreOption(label: l10n.all, type: null),
+      _FiltreOption(label: l10n.sessions, type: NotificationType.seance),
+      _FiltreOption(label: l10n.presences, type: NotificationType.presence),
+      _FiltreOption(
+        label: l10n.registrations,
+        type: NotificationType.inscription,
+      ),
+      _FiltreOption(label: l10n.smsLabel, type: NotificationType.sms),
+      _FiltreOption(label: l10n.reminders, type: NotificationType.rappel),
+      _FiltreOption(label: l10n.system, type: NotificationType.systeme),
     ];
 
     return Column(
@@ -300,7 +306,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Non lues uniquement',
+                        l10n.unreadOnly,
                         style: GoogleFonts.montserrat(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -497,6 +503,7 @@ class _NotificationsPageState extends State<NotificationsPage>
 
   /// Etat vide lorsqu'aucune notification n'est disponible.
   Widget _buildEmptyState(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -517,7 +524,7 @@ class _NotificationsPageState extends State<NotificationsPage>
             ),
             const SizedBox(height: 20),
             Text(
-              'Aucune notification',
+              l10n.noNotification,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -526,7 +533,7 @@ class _NotificationsPageState extends State<NotificationsPage>
             ),
             const SizedBox(height: 8),
             Text(
-              'Vous etes a jour ! Les nouvelles notifications apparaitront ici.',
+              l10n.notificationsUpToDate,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
@@ -744,7 +751,9 @@ class _NotificationsPageState extends State<NotificationsPage>
                             size: 18,
                           ),
                           label: Text(
-                            'Supprimer cette notification',
+                            AppLocalizations.of(
+                              context,
+                            )!.deleteThisNotification,
                             style: GoogleFonts.montserrat(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -765,22 +774,23 @@ class _NotificationsPageState extends State<NotificationsPage>
 
   /// Dialogue de confirmation pour la suppression des notifications lues.
   void _confirmerSuppression() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(
-            'Supprimer les lues',
+            l10n.deleteRead,
             style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
           ),
           content: Text(
-            'Voulez-vous supprimer toutes les notifications deja lues ?',
+            l10n.deleteReadConfirmation,
             style: GoogleFonts.montserrat(),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Annuler', style: GoogleFonts.montserrat()),
+              child: Text(l10n.cancel, style: GoogleFonts.montserrat()),
             ),
             TextButton(
               onPressed: () {
@@ -791,7 +801,7 @@ class _NotificationsPageState extends State<NotificationsPage>
               },
               style: TextButton.styleFrom(foregroundColor: AppColors.error),
               child: Text(
-                'Supprimer',
+                l10n.delete,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -808,43 +818,43 @@ class _NotificationsPageState extends State<NotificationsPage>
         return _TypeInfo(
           icon: Icons.sports_soccer_rounded,
           color: const Color(0xFF10B981),
-          label: 'Seance',
+          label: AppLocalizations.of(context)!.sessions,
         );
       case NotificationType.presence:
         return _TypeInfo(
           icon: Icons.fact_check_rounded,
           color: const Color(0xFF3B82F6),
-          label: 'Presence',
+          label: AppLocalizations.of(context)!.presences,
         );
       case NotificationType.inscription:
         return _TypeInfo(
           icon: Icons.person_add_rounded,
           color: const Color(0xFF8B5CF6),
-          label: 'Inscription',
+          label: AppLocalizations.of(context)!.registrations,
         );
       case NotificationType.sms:
         return _TypeInfo(
           icon: Icons.sms_rounded,
           color: const Color(0xFFF59E0B),
-          label: 'SMS',
+          label: AppLocalizations.of(context)!.smsLabel,
         );
       case NotificationType.bulletin:
         return _TypeInfo(
           icon: Icons.description_rounded,
           color: const Color(0xFFEC4899),
-          label: 'Bulletin',
+          label: AppLocalizations.of(context)!.bulletin,
         );
       case NotificationType.systeme:
         return _TypeInfo(
           icon: Icons.settings_rounded,
           color: const Color(0xFF6B7280),
-          label: 'Systeme',
+          label: AppLocalizations.of(context)!.system,
         );
       case NotificationType.rappel:
         return _TypeInfo(
           icon: Icons.alarm_rounded,
           color: AppColors.primary,
-          label: 'Rappel',
+          label: AppLocalizations.of(context)!.reminders,
         );
     }
   }
@@ -865,15 +875,16 @@ class _NotificationsPageState extends State<NotificationsPage>
 
   /// Retourne le libelle d'une priorite.
   String _getPrioriteLabel(NotificationPriority priorite) {
+    final l10n = AppLocalizations.of(context)!;
     switch (priorite) {
       case NotificationPriority.basse:
-        return 'BASSE';
+        return l10n.low;
       case NotificationPriority.normale:
-        return 'NORMALE';
+        return l10n.normal;
       case NotificationPriority.haute:
-        return 'HAUTE';
+        return l10n.high;
       case NotificationPriority.urgente:
-        return 'URGENTE';
+        return l10n.urgent;
     }
   }
 
@@ -881,45 +892,47 @@ class _NotificationsPageState extends State<NotificationsPage>
   String _formatTempsRelatif(DateTime date) {
     final maintenant = DateTime.now();
     final difference = maintenant.difference(date);
+    final l10n = AppLocalizations.of(context)!;
 
-    if (difference.inMinutes < 1) return 'A l\'instant';
-    if (difference.inMinutes < 60) return 'Il y a ${difference.inMinutes} min';
-    if (difference.inHours < 24) return 'Il y a ${difference.inHours}h';
-    if (difference.inDays == 1) return 'Hier';
-    if (difference.inDays < 7) return 'Il y a ${difference.inDays} jours';
+    if (difference.inMinutes < 1) return l10n.justNow;
+    if (difference.inMinutes < 60) return l10n.minutesAgo(difference.inMinutes);
+    if (difference.inHours < 24) return l10n.hoursAgo(difference.inHours);
+    if (difference.inDays == 1) return l10n.yesterday;
+    if (difference.inDays < 7) return l10n.daysAgo(difference.inDays);
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   /// Formate une date complete (ex: "Lundi 15 Fevrier 2026 a 14h30").
   String _formatDateComplete(DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
     final jours = [
-      'Lundi',
-      'Mardi',
-      'Mercredi',
-      'Jeudi',
-      'Vendredi',
-      'Samedi',
-      'Dimanche',
+      l10n.monday,
+      l10n.tuesday,
+      l10n.wednesday,
+      l10n.thursday,
+      l10n.friday,
+      l10n.saturday,
+      l10n.sunday,
     ];
     final mois = [
-      'Janvier',
-      'Fevrier',
-      'Mars',
-      'Avril',
-      'Mai',
-      'Juin',
-      'Juillet',
-      'Aout',
-      'Septembre',
-      'Octobre',
-      'Novembre',
-      'Decembre',
+      l10n.january,
+      l10n.february,
+      l10n.march,
+      l10n.april,
+      l10n.may,
+      l10n.june,
+      l10n.july,
+      l10n.august,
+      l10n.september,
+      l10n.october,
+      l10n.november,
+      l10n.december,
     ];
     final jour = jours[date.weekday - 1];
     final nomMois = mois[date.month - 1];
     final heure = date.hour.toString().padLeft(2, '0');
     final minute = date.minute.toString().padLeft(2, '0');
-    return '$jour ${date.day} $nomMois ${date.year} a ${heure}h$minute';
+    return '$jour ${date.day} $nomMois ${date.year} ${l10n.at} ${heure}h$minute';
   }
 }
 

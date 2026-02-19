@@ -2369,4 +2369,245 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get academician => 'Academician';
+
+  @override
+  String get loadingError => 'Loading error';
+
+  @override
+  String get deleteLevel => 'Delete level';
+
+  @override
+  String deleteLevelConfirmation(String name) {
+    return 'Are you sure you want to delete the level \"$name\"?';
+  }
+
+  @override
+  String get editLevel => 'Edit level';
+
+  @override
+  String get newLevel => 'New level';
+
+  @override
+  String get levelName => 'Level name';
+
+  @override
+  String get nameRequired => 'Name is required';
+
+  @override
+  String get displayOrder => 'Display order';
+
+  @override
+  String get orderRequired => 'Order is required';
+
+  @override
+  String get enterNumberError => 'Please enter a number';
+
+  @override
+  String levelsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count levels',
+      one: '1 level',
+      zero: 'No level',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get manageAcademicLevels => 'Management of academic levels';
+
+  @override
+  String get noLevel => 'No level';
+
+  @override
+  String get addFirstLevel => 'Add your first school level\nto start.';
+
+  @override
+  String get deletePosition => 'Delete position';
+
+  @override
+  String deletePositionConfirmation(String name) {
+    return 'Are you sure you want to delete the position \"$name\"?';
+  }
+
+  @override
+  String get editPosition => 'Edit position';
+
+  @override
+  String get newPosition => 'New position';
+
+  @override
+  String get positionName => 'Position name';
+
+  @override
+  String get descriptionOptional => 'Description (optional)';
+
+  @override
+  String positionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count positions',
+      one: '1 position',
+      zero: 'No position',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get managePositions => 'Management of game positions';
+
+  @override
+  String get noPosition => 'No position';
+
+  @override
+  String get addFirstPosition => 'Add your first football position\nto start.';
+
+  @override
+  String unreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread',
+      one: '1 unread',
+      zero: 'No unread',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get markAllAsRead => 'Mark all as read';
+
+  @override
+  String get deleteRead => 'Delete read';
+
+  @override
+  String get registrations => 'Registrations';
+
+  @override
+  String get smsLabel => 'SMS';
+
+  @override
+  String get reminders => 'Reminders';
+
+  @override
+  String get system => 'System';
+
+  @override
+  String get unreadOnly => 'Unread only';
+
+  @override
+  String get noNotification => 'No notification';
+
+  @override
+  String get notificationsUpToDate =>
+      'You\'re up to date! New notifications will appear here.';
+
+  @override
+  String get deleteThisNotification => 'Delete this notification';
+
+  @override
+  String get deleteReadConfirmation =>
+      'Do you want to delete all already read notifications?';
+
+  @override
+  String get placeQrInViewfinder => 'Place the QR code in the viewfinder';
+
+  @override
+  String get rapidEntry => 'Rapid Entry';
+
+  @override
+  String get rapidEntryDesc => 'Chain scans automatically';
+
+  @override
+  String get unknownError => 'Unknown error';
+
+  @override
+  String get attendanceRecordedSuccess => 'Attendance recorded';
+
+  @override
+  String get alreadyRegisteredForSession =>
+      'Already registered for this session';
+
+  @override
+  String get nextScan => 'Next scan';
+
+  @override
+  String get presences => 'Attendance';
+
+  @override
+  String get bulletin => 'Bulletin';
+
+  @override
+  String get low => 'LOW';
+
+  @override
+  String get normal => 'NORMAL';
+
+  @override
+  String get high => 'HIGH';
+
+  @override
+  String get urgent => 'URGENT';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get january => 'January';
+
+  @override
+  String get february => 'February';
+
+  @override
+  String get march => 'March';
+
+  @override
+  String get april => 'April';
+
+  @override
+  String get may => 'May';
+
+  @override
+  String get june => 'June';
+
+  @override
+  String get july => 'July';
+
+  @override
+  String get august => 'August';
+
+  @override
+  String get september => 'September';
+
+  @override
+  String get october => 'October';
+
+  @override
+  String get november => 'November';
+
+  @override
+  String get december => 'December';
+
+  @override
+  String get qrScanner => 'QR Scanner';
 }

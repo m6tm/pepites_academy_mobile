@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
@@ -36,11 +37,8 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        AcademyToast.show(
-          context,
-          title: 'Erreur de chargement',
-          isError: true,
-        );
+        final l10n = AppLocalizations.of(context)!;
+        AcademyToast.show(context, title: l10n.loadingError, isError: true);
       }
     }
   }
@@ -60,27 +58,28 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
   }
 
   Future<void> _supprimerNiveau(NiveauScolaire niveau) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-          'Supprimer le niveau',
+          l10n.deleteLevel,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'Voulez-vous vraiment supprimer le niveau "${niveau.nom}" ?',
+          l10n.deleteLevelConfirmation(niveau.nom),
           style: GoogleFonts.montserrat(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Annuler', style: GoogleFonts.montserrat()),
+            child: Text(l10n.cancel, style: GoogleFonts.montserrat()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: Text(
-              'Supprimer',
+              l10n.delete,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),
@@ -116,13 +115,14 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
       context: context,
       builder: (ctx) {
         final colorScheme = Theme.of(ctx).colorScheme;
+        final l10n = AppLocalizations.of(ctx)!;
 
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           title: Text(
-            isEdit ? 'Modifier le niveau' : 'Nouveau niveau',
+            isEdit ? l10n.editLevel : l10n.newLevel,
             style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
           ),
           content: Form(
@@ -133,7 +133,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                 TextFormField(
                   controller: nomController,
                   decoration: InputDecoration(
-                    labelText: 'Nom du niveau',
+                    labelText: l10n.levelName,
                     labelStyle: GoogleFonts.montserrat(fontSize: 13),
                     prefixIcon: const Icon(Icons.school_rounded),
                     border: OutlineInputBorder(
@@ -150,7 +150,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                   style: GoogleFonts.montserrat(),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
-                      return 'Le nom est obligatoire';
+                      return l10n.nameRequired;
                     }
                     return null;
                   },
@@ -160,7 +160,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                   controller: ordreController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Ordre d\'affichage',
+                    labelText: l10n.displayOrder,
                     labelStyle: GoogleFonts.montserrat(fontSize: 13),
                     prefixIcon: const Icon(Icons.sort_rounded),
                     border: OutlineInputBorder(
@@ -177,10 +177,10 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                   style: GoogleFonts.montserrat(),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
-                      return 'L\'ordre est obligatoire';
+                      return l10n.orderRequired;
                     }
                     if (int.tryParse(v.trim()) == null) {
-                      return 'Veuillez saisir un nombre';
+                      return l10n.enterNumberError;
                     }
                     return null;
                   },
@@ -192,7 +192,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(
-                'Annuler',
+                l10n.cancel,
                 style: GoogleFonts.montserrat(
                   color: colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
@@ -243,7 +243,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                 ),
               ),
               child: Text(
-                isEdit ? 'Modifier' : 'Ajouter',
+                isEdit ? l10n.edit : l10n.add,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             ),
@@ -257,6 +257,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -280,7 +281,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        '${_niveaux.length} niveau(x)',
+                        l10n.levelsCount(_niveaux.length),
                         style: GoogleFonts.montserrat(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -324,7 +325,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
         elevation: 6,
         icon: const Icon(Icons.add_rounded, size: 20),
         label: Text(
-          'Ajouter',
+          l10n.add,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -333,6 +334,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
   }
 
   Widget _buildHeader(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
@@ -353,7 +355,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Niveaux scolaires',
+                  l10n.schoolLevels,
                   style: GoogleFonts.montserrat(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -363,7 +365,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Gestion des niveaux academiques',
+                  l10n.manageAcademicLevels,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -395,6 +397,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
     bool isDark,
     int index,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 300 + (index * 60)),
@@ -459,7 +462,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                     ),
                   ),
                   Text(
-                    'Ordre : ${niveau.ordre}',
+                    '${l10n.displayOrder} : ${niveau.ordre}',
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -475,7 +478,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                 color: const Color(0xFF3B82F6).withValues(alpha: 0.7),
                 size: 20,
               ),
-              tooltip: 'Modifier',
+              tooltip: l10n.edit,
             ),
             IconButton(
               onPressed: () => _supprimerNiveau(niveau),
@@ -484,7 +487,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                 color: AppColors.error.withValues(alpha: 0.7),
                 size: 20,
               ),
-              tooltip: 'Supprimer',
+              tooltip: l10n.delete,
             ),
           ],
         ),
@@ -493,6 +496,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
   }
 
   Widget _buildEmptyState(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -514,7 +518,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun niveau',
+              l10n.noLevel,
               style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -523,7 +527,7 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ajoutez votre premier niveau scolaire\npour commencer.',
+              l10n.addFirstLevel,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
