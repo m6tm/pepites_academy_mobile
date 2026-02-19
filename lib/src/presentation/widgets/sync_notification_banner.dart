@@ -3,6 +3,7 @@ import '../state/connectivity_state.dart';
 import '../state/sync_state.dart';
 import '../theme/app_colors.dart';
 import '../../domain/entities/connectivity_status.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Banniere de notification affichee en haut de l'ecran lors des
 /// changements de connectivite ou apres une synchronisation.
@@ -22,6 +23,7 @@ class SyncNotificationBanner extends StatelessWidget {
     return ListenableBuilder(
       listenable: Listenable.merge([connectivityState, syncState]),
       builder: (context, _) {
+        final l10n = AppLocalizations.of(context)!;
         final showOfflineBanner = connectivityState.isDisconnected;
         final syncMessage = syncState.lastSyncMessage;
 
@@ -33,10 +35,10 @@ class SyncNotificationBanner extends StatelessWidget {
           return _buildBanner(
             context,
             icon: Icons.wifi_off,
-            message: 'Mode hors-ligne actif',
+            message: l10n.offlineModeActive,
             subtitle: syncState.hasPendingOperations
-                ? '${syncState.pendingCount} operation(s) en attente'
-                : 'Les donnees seront synchronisees au retour du reseau',
+                ? l10n.pendingOperationsCount(syncState.pendingCount)
+                : l10n.syncOnReconnect,
             color: AppColors.error,
           );
         }
@@ -70,10 +72,7 @@ class SyncNotificationBanner extends StatelessWidget {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           border: Border(
-            bottom: BorderSide(
-              color: color.withValues(alpha: 0.3),
-              width: 1,
-            ),
+            bottom: BorderSide(color: color.withValues(alpha: 0.3), width: 1),
           ),
         ),
         child: SafeArea(
@@ -109,8 +108,10 @@ class SyncNotificationBanner extends StatelessWidget {
               if (connectivityState.status == ConnectivityStatus.disconnected &&
                   syncState.hasPendingOperations)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(10),

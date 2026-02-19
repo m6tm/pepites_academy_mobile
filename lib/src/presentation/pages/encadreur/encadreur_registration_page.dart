@@ -125,8 +125,8 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
       if (mounted) {
         AcademyToast.show(
           context,
-          title: 'Erreur',
-          description: 'Impossible d\'ouvrir la galerie.',
+          title: l10n.error,
+          description: l10n.galleryOpenError,
           isError: true,
         );
       }

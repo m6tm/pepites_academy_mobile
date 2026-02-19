@@ -4765,6 +4765,192 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Scanner QR'**
   String get qrScanner;
+
+  /// No description provided for @encadreursPageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreurs'**
+  String get encadreursPageTitle;
+
+  /// No description provided for @coachTeamManagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion de l\'equipe d\'encadrement'**
+  String get coachTeamManagement;
+
+  /// No description provided for @searchCoachHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un encadreur...'**
+  String get searchCoachHint;
+
+  /// No description provided for @statActifs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actifs'**
+  String get statActifs;
+
+  /// No description provided for @noCoachFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun encadreur'**
+  String get noCoachFound;
+
+  /// No description provided for @addCoachAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un encadreur'**
+  String get addCoachAction;
+
+  /// No description provided for @startByRegisteringCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencez par enregistrer votre\npremier encadreur pour demarrer.'**
+  String get startByRegisteringCoach;
+
+  /// No description provided for @deleteCoachTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer l\'encadreur'**
+  String get deleteCoachTitle;
+
+  /// No description provided for @deleteCoachConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Etes-vous sur de vouloir supprimer {name} ? Cette action est irreversible.'**
+  String deleteCoachConfirmation(String name);
+
+  /// No description provided for @tabBadgeQr.
+  ///
+  /// In fr, this message translates to:
+  /// **'Badge QR'**
+  String get tabBadgeQr;
+
+  /// No description provided for @identifiantsSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiants'**
+  String get identifiantsSection;
+
+  /// No description provided for @noSessionConductedHist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune seance dirigee'**
+  String get noSessionConductedHist;
+
+  /// No description provided for @sessionHistoryWillAppear.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'historique des seances apparaitra ici\nune fois que l\'encadreur aura dirige des seances.'**
+  String get sessionHistoryWillAppear;
+
+  /// No description provided for @sessionNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance #{num}'**
+  String sessionNumber(int num);
+
+  /// No description provided for @sessionTrainingType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrainement {specialty}'**
+  String sessionTrainingType(String specialty);
+
+  /// No description provided for @viewQrBadgeOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le badge QR'**
+  String get viewQrBadgeOption;
+
+  /// No description provided for @shareProfileOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager le profil'**
+  String get shareProfileOption;
+
+  /// No description provided for @badgeEncadreurLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'BADGE ENCADREUR'**
+  String get badgeEncadreurLabel;
+
+  /// No description provided for @statusConnected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte'**
+  String get statusConnected;
+
+  /// No description provided for @statusOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors-ligne'**
+  String get statusOffline;
+
+  /// No description provided for @statusSyncing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation...'**
+  String get statusSyncing;
+
+  /// No description provided for @syncStatusTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut de synchronisation'**
+  String get syncStatusTitle;
+
+  /// No description provided for @connectionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion'**
+  String get connectionLabel;
+
+  /// No description provided for @pendingOperationsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Operations en attente'**
+  String get pendingOperationsLabel;
+
+  /// No description provided for @lastSyncLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Derniere synchronisation'**
+  String get lastSyncLabel;
+
+  /// No description provided for @syncSuccessResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'{success} reussie(s), {failures} echec(s)'**
+  String syncSuccessResult(int success, int failures);
+
+  /// No description provided for @syncNowLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchroniser maintenant'**
+  String get syncNowLabel;
+
+  /// No description provided for @syncInProgressLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation en cours...'**
+  String get syncInProgressLabel;
+
+  /// No description provided for @offlineModeActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode hors-ligne actif'**
+  String get offlineModeActive;
+
+  /// No description provided for @pendingOperationsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} operation(s) en attente'**
+  String pendingOperationsCount(int count);
+
+  /// No description provided for @syncOnReconnect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les donnees seront synchronisees au retour du reseau'**
+  String get syncOnReconnect;
 }
 
 class _AppLocalizationsDelegate

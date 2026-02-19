@@ -1326,5 +1326,74 @@
   "october": "Octobre",
   "november": "Novembre",
   "december": "Décembre",
-  "qrScanner": "Scanner QR"
+  "qrScanner": "Scanner QR",
+  "encadreursPageTitle": "Encadreurs",
+  "coachTeamManagement": "Gestion de l'equipe d'encadrement",
+  "searchCoachHint": "Rechercher un encadreur...",
+  "statActifs": "Actifs",
+  "noCoachFound": "Aucun encadreur",
+  "addCoachAction": "Ajouter un encadreur",
+  "startByRegisteringCoach": "Commencez par enregistrer votre\npremier encadreur pour demarrer.",
+  "deleteCoachTitle": "Supprimer l'encadreur",
+  "deleteCoachConfirmation": "Etes-vous sur de vouloir supprimer {name} ? Cette action est irreversible.",
+  "@deleteCoachConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tabBadgeQr": "Badge QR",
+  "identifiantsSection": "Identifiants",
+  "noSessionConductedHist": "Aucune seance dirigee",
+  "sessionHistoryWillAppear": "L'historique des seances apparaitra ici\nune fois que l'encadreur aura dirige des seances.",
+  "sessionNumber": "Seance #{num}",
+  "@sessionNumber": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionTrainingType": "Entrainement {specialty}",
+  "@sessionTrainingType": {
+    "placeholders": {
+      "specialty": {
+        "type": "String"
+      }
+    }
+  },
+  "viewQrBadgeOption": "Voir le badge QR",
+  "shareProfileOption": "Partager le profil",
+  "badgeEncadreurLabel": "BADGE ENCADREUR",
+  "statusConnected": "Connecte",
+  "statusOffline": "Hors-ligne",
+  "statusSyncing": "Synchronisation...",
+  "syncStatusTitle": "Statut de synchronisation",
+  "connectionLabel": "Connexion",
+  "pendingOperationsLabel": "Operations en attente",
+  "lastSyncLabel": "Derniere synchronisation",
+  "syncSuccessResult": "{success} reussie(s), {failures} echec(s)",
+  "@syncSuccessResult": {
+    "placeholders": {
+      "success": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "syncNowLabel": "Synchroniser maintenant",
+  "syncInProgressLabel": "Synchronisation en cours...",
+  "offlineModeActive": "Mode hors-ligne actif",
+  "pendingOperationsCount": "{count} operation(s) en attente",
+  "@pendingOperationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncOnReconnect": "Les donnees seront synchronisees au retour du reseau"
 }

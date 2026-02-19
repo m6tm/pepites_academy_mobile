@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
 import '../../theme/app_colors.dart';
@@ -41,24 +42,24 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
   }
 
   void _showDeleteConfirmation() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'Supprimer l\'encadreur',
+          l10n.deleteCoachTitle,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'Etes-vous sur de vouloir supprimer ${_encadreur.nomComplet} ? '
-          'Cette action est irreversible.',
+          l10n.deleteCoachConfirmation(_encadreur.nomComplet),
           style: GoogleFonts.montserrat(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Annuler',
+              l10n.cancel,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),
@@ -77,7 +78,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
               ),
             ),
             child: Text(
-              'Supprimer',
+              l10n.delete,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),
@@ -299,6 +300,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
   }
 
   Widget _buildIdentityCard(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     final dateInscription =
         '${_encadreur.createdAt.day.toString().padLeft(2, '0')}/${_encadreur.createdAt.month.toString().padLeft(2, '0')}/${_encadreur.createdAt.year}';
 
@@ -324,7 +326,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           Expanded(
             child: _InfoChip(
               icon: Icons.phone_android_outlined,
-              label: 'Telephone',
+              label: l10n.phoneLabel,
               value: _encadreur.telephone,
               colorScheme: colorScheme,
             ),
@@ -337,7 +339,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           Expanded(
             child: _InfoChip(
               icon: Icons.calendar_today_outlined,
-              label: 'Inscrit le',
+              label: l10n.registeredOnLabel,
               value: dateInscription,
               colorScheme: colorScheme,
             ),
@@ -350,8 +352,8 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           Expanded(
             child: _InfoChip(
               icon: Icons.shield_outlined,
-              label: 'Role',
-              value: 'Encadreur',
+              label: l10n.roleLabel,
+              value: l10n.profileCoach,
               colorScheme: colorScheme,
             ),
           ),
@@ -361,6 +363,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
   }
 
   Widget _buildStatsRow(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
       child: Row(
@@ -368,7 +371,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           Expanded(
             child: _StatTile(
               value: '${_encadreur.nbSeancesDirigees}',
-              label: 'Seances dirigees',
+              label: l10n.conductedSessions,
               icon: Icons.event_rounded,
               color: const Color(0xFF3B82F6),
               isDark: isDark,
@@ -379,7 +382,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           Expanded(
             child: _StatTile(
               value: '${_encadreur.nbAnnotations}',
-              label: 'Annotations',
+              label: l10n.annotationsStat,
               icon: Icons.edit_note_rounded,
               color: const Color(0xFF10B981),
               isDark: isDark,
@@ -390,7 +393,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           Expanded(
             child: _StatTile(
               value: '0',
-              label: 'Ateliers',
+              label: l10n.workshopsStat,
               icon: Icons.grid_view_rounded,
               color: const Color(0xFFF59E0B),
               isDark: isDark,
@@ -403,6 +406,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
   }
 
   Widget _buildTabBar(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       decoration: BoxDecoration(
@@ -427,10 +431,10 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           fontSize: 13,
         ),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'Infos'),
-          Tab(text: 'Historique'),
-          Tab(text: 'Badge QR'),
+        tabs: [
+          Tab(text: l10n.infosTab),
+          Tab(text: l10n.history),
+          Tab(text: l10n.tabBadgeQr),
         ],
       ),
     );
@@ -438,40 +442,44 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
 
   // Onglet Informations
   Widget _buildInfoTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoSection(
-            'Informations personnelles',
+            l10n.personalInformation,
             Icons.person_rounded,
             [
-              _InfoRow(label: 'Nom', value: _encadreur.nom),
-              _InfoRow(label: 'Prenom', value: _encadreur.prenom),
-              _InfoRow(label: 'Telephone', value: _encadreur.telephone),
+              _InfoRow(label: l10n.lastName, value: _encadreur.nom),
+              _InfoRow(label: l10n.firstName, value: _encadreur.prenom),
+              _InfoRow(label: l10n.phoneLabel, value: _encadreur.telephone),
             ],
             colorScheme,
             isDark,
           ),
           const SizedBox(height: 16),
           _buildInfoSection(
-            'Informations sportives',
+            l10n.sportInfos,
             Icons.sports_rounded,
             [
-              _InfoRow(label: 'Specialite', value: _encadreur.specialite),
-              _InfoRow(label: 'Role', value: 'Encadreur'),
+              _InfoRow(
+                label: l10n.specialtyLabel,
+                value: _encadreur.specialite,
+              ),
+              _InfoRow(label: l10n.roleLabel, value: l10n.profileCoach),
             ],
             colorScheme,
             isDark,
           ),
           const SizedBox(height: 16),
           _buildInfoSection(
-            'Identifiants',
+            l10n.identifiantsSection,
             Icons.qr_code_rounded,
             [
               _InfoRow(label: 'ID', value: _encadreur.id),
-              _InfoRow(label: 'Code QR', value: _encadreur.codeQrUnique),
+              _InfoRow(label: l10n.qrCodeLabel, value: _encadreur.codeQrUnique),
             ],
             colorScheme,
             isDark,
@@ -552,6 +560,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
 
   // Onglet Historique
   Widget _buildHistoriqueTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     if (_encadreur.nbSeancesDirigees == 0) {
       return Center(
         child: Column(
@@ -571,7 +580,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
             ),
             const SizedBox(height: 20),
             Text(
-              'Aucune seance dirigee',
+              l10n.noSessionConductedHist,
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -580,7 +589,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
             ),
             const SizedBox(height: 8),
             Text(
-              'L\'historique des seances apparaitra ici\nune fois que l\'encadreur aura dirige des seances.',
+              l10n.sessionHistoryWillAppear,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
@@ -627,7 +636,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Seance #${index + 1}',
+                      l10n.sessionNumber(index + 1),
                       style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -636,7 +645,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Entrainement ${_encadreur.specialite}',
+                      l10n.sessionTrainingType(_encadreur.specialite),
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -655,7 +664,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Terminee',
+                  l10n.statusCompleted,
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -672,12 +681,12 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
 
   // Onglet Badge QR
   Widget _buildQrTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           const SizedBox(height: 16),
-          // Badge QR
           GestureDetector(
             onTap: _showQrFullScreen,
             child: Container(
@@ -739,7 +748,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'ENCADREUR',
+                      l10n.badgeEncadreurLabel,
                       style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
@@ -804,14 +813,13 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           ),
           const SizedBox(height: 20),
           Text(
-            'Appuyez sur le badge pour l\'agrandir',
+            l10n.tapToEnlargeBadge,
             style: GoogleFonts.montserrat(
               fontSize: 12,
               color: colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ),
           const SizedBox(height: 24),
-          // Boutons d'action
           Row(
             children: [
               Expanded(
@@ -819,7 +827,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                   onPressed: () {},
                   icon: const Icon(Icons.share_rounded, size: 18),
                   label: Text(
-                    'Partager',
+                    l10n.shareLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -839,7 +847,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                   onPressed: () {},
                   icon: const Icon(Icons.download_rounded, size: 18),
                   label: Text(
-                    'Telecharger',
+                    l10n.downloadLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -861,6 +869,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
   }
 
   Widget _buildOptionsSheet(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -877,7 +886,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           const SizedBox(height: 24),
           _OptionItem(
             icon: Icons.qr_code_rounded,
-            label: 'Voir le badge QR',
+            label: l10n.viewQrBadgeOption,
             color: const Color(0xFF8B5CF6),
             onTap: () {
               Navigator.pop(context);
@@ -886,14 +895,14 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           ),
           _OptionItem(
             icon: Icons.share_rounded,
-            label: 'Partager le profil',
+            label: l10n.shareProfileOption,
             color: const Color(0xFF10B981),
             onTap: () => Navigator.pop(context),
           ),
           const SizedBox(height: 8),
           _OptionItem(
             icon: Icons.delete_outline_rounded,
-            label: 'Supprimer l\'encadreur',
+            label: l10n.deleteCoachTitle,
             color: AppColors.error,
             onTap: () {
               Navigator.pop(context);
@@ -950,7 +959,7 @@ class _QrFullScreenSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'BADGE ENCADREUR',
+              AppLocalizations.of(context)!.badgeEncadreurLabel,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w700,
                 fontSize: 11,

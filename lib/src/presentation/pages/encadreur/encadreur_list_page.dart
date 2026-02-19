@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
 import '../../theme/app_colors.dart';
@@ -24,12 +25,15 @@ class _EncadreurListPageState extends State<EncadreurListPage>
   List<Encadreur> _filteredEncadreurs = [];
   bool _isLoading = true;
   final _searchController = TextEditingController();
-  String _selectedFilter = 'Tous';
+
+  /// Index du filtre actuellement selectionne (0 = Tous).
+  int _selectedFilterIndex = 0;
 
   late AnimationController _fadeController;
 
-  final List<String> _filters = [
-    'Tous',
+  /// Cles de specialite pour le filtrage (valeurs brutes en base).
+  static const List<String> _specialityKeys = [
+    '',
     'Technique',
     'Physique',
     'Tactique',
@@ -37,6 +41,9 @@ class _EncadreurListPageState extends State<EncadreurListPage>
     'Formation jeunes',
     'Preparation mentale',
   ];
+
+  /// Labels traduits, initialises dans [didChangeDependencies].
+  late List<String> _filterLabels;
 
   @override
   void initState() {
@@ -46,6 +53,21 @@ class _EncadreurListPageState extends State<EncadreurListPage>
       duration: const Duration(milliseconds: 600),
     );
     _loadEncadreurs();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final l10n = AppLocalizations.of(context)!;
+    _filterLabels = [
+      l10n.all_masculine,
+      l10n.specialityTechnique,
+      l10n.specialityPhysique,
+      l10n.specialityTactique,
+      l10n.specialityGardien,
+      l10n.specialityFormationJeunes,
+      l10n.specialityPreparationMentale,
+    ];
   }
 
   @override
@@ -73,12 +95,13 @@ class _EncadreurListPageState extends State<EncadreurListPage>
   void _applyFilters() {
     List<Encadreur> result = List.from(_encadreurs);
 
-    // Filtre par specialite
-    if (_selectedFilter != 'Tous') {
-      result = result.where((e) => e.specialite == _selectedFilter).toList();
+    // Filtre par specialite (index 0 = pas de filtre)
+    if (_selectedFilterIndex != 0) {
+      final key = _specialityKeys[_selectedFilterIndex];
+      result = result.where((e) => e.specialite == key).toList();
     }
 
-    // Filtre par recherche
+    // Filtre par recherche textuelle
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
       result = result.where((e) {
@@ -129,16 +152,11 @@ class _EncadreurListPageState extends State<EncadreurListPage>
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // En-tete
             SliverToBoxAdapter(child: _buildHeader(colorScheme, isDark)),
-            // Barre de recherche
             SliverToBoxAdapter(child: _buildSearchBar(colorScheme, isDark)),
-            // Filtres horizontaux
             SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
-            // Statistiques rapides
             SliverToBoxAdapter(child: _buildQuickStats(colorScheme, isDark)),
             const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            // Liste ou etat vide
             _isLoading
                 ? const SliverFillRemaining(
                     child: Center(child: CircularProgressIndicator()),
@@ -168,6 +186,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
   }
 
   Widget _buildHeader(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
@@ -190,7 +209,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Encadreurs',
+                    l10n.encadreursPageTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
@@ -204,7 +223,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
               Padding(
                 padding: const EdgeInsets.only(left: 32),
                 child: Text(
-                  'Gestion de l\'equipe d\'encadrement',
+                  l10n.coachTeamManagement,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -245,6 +264,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
   }
 
   Widget _buildSearchBar(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
       child: Container(
@@ -275,7 +295,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
                 controller: _searchController,
                 onChanged: (_) => _applyFilters(),
                 decoration: InputDecoration(
-                  hintText: 'Rechercher un encadreur...',
+                  hintText: l10n.searchCoachHint,
                   hintStyle: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.3),
@@ -311,14 +331,14 @@ class _EncadreurListPageState extends State<EncadreurListPage>
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          itemCount: _filters.length,
+          itemCount: _filterLabels.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
-            final filter = _filters[index];
-            final isSelected = _selectedFilter == filter;
+            final label = _filterLabels[index];
+            final isSelected = _selectedFilterIndex == index;
             return GestureDetector(
               onTap: () {
-                setState(() => _selectedFilter = filter);
+                setState(() => _selectedFilterIndex = index);
                 _applyFilters();
               },
               child: AnimatedContainer(
@@ -340,7 +360,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
                 ),
                 child: Center(
                   child: Text(
-                    filter,
+                    label,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight: isSelected
@@ -361,6 +381,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
   }
 
   Widget _buildQuickStats(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     final totalSeances = _encadreurs.fold<int>(
       0,
       (sum, e) => sum + e.nbSeancesDirigees,
@@ -372,7 +393,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
         children: [
           Expanded(
             child: _MiniStat(
-              label: 'Total',
+              label: l10n.totalLabel,
               value: '${_encadreurs.length}',
               icon: Icons.people_rounded,
               color: const Color(0xFF8B5CF6),
@@ -383,7 +404,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
           const SizedBox(width: 12),
           Expanded(
             child: _MiniStat(
-              label: 'Seances',
+              label: l10n.sessions,
               value: '$totalSeances',
               icon: Icons.event_rounded,
               color: const Color(0xFF3B82F6),
@@ -394,7 +415,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
           const SizedBox(width: 12),
           Expanded(
             child: _MiniStat(
-              label: 'Actifs',
+              label: l10n.statActifs,
               value: '${_encadreurs.length}',
               icon: Icons.check_circle_rounded,
               color: const Color(0xFF10B981),
@@ -534,7 +555,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
                   ],
                 ),
               ),
-              // Fleche
+              // Fleche de navigation
               Icon(
                 Icons.chevron_right_rounded,
                 color: colorScheme.onSurface.withValues(alpha: 0.2),
@@ -547,6 +568,10 @@ class _EncadreurListPageState extends State<EncadreurListPage>
   }
 
   Widget _buildEmptyState(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
+    final hasActiveFilter =
+        _searchController.text.isNotEmpty || _selectedFilterIndex != 0;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -567,7 +592,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun encadreur',
+              l10n.noCoachFound,
               style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -576,9 +601,9 @@ class _EncadreurListPageState extends State<EncadreurListPage>
             ),
             const SizedBox(height: 8),
             Text(
-              _searchController.text.isNotEmpty || _selectedFilter != 'Tous'
-                  ? 'Aucun resultat pour cette recherche.\nEssayez avec d\'autres criteres.'
-                  : 'Commencez par enregistrer votre\npremier encadreur pour demarrer.',
+              hasActiveFilter
+                  ? l10n.noSearchResult
+                  : l10n.startByRegisteringCoach,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
@@ -587,12 +612,12 @@ class _EncadreurListPageState extends State<EncadreurListPage>
               ),
             ),
             const SizedBox(height: 32),
-            if (_searchController.text.isEmpty && _selectedFilter == 'Tous')
+            if (!hasActiveFilter)
               ElevatedButton.icon(
                 onPressed: _navigateToRegistration,
                 icon: const Icon(Icons.person_add_rounded, size: 20),
                 label: Text(
-                  'Ajouter un encadreur',
+                  l10n.addCoachAction,
                   style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -614,6 +639,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
   }
 
   Widget _buildFab() {
+    final l10n = AppLocalizations.of(context)!;
     return FloatingActionButton.extended(
       onPressed: _navigateToRegistration,
       backgroundColor: AppColors.primary,
@@ -621,7 +647,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
       elevation: 6,
       icon: const Icon(Icons.person_add_rounded, size: 20),
       label: Text(
-        'Ajouter',
+        l10n.add,
         style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

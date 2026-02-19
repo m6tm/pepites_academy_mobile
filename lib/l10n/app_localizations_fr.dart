@@ -2623,4 +2623,110 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get qrScanner => 'Scanner QR';
+
+  @override
+  String get encadreursPageTitle => 'Encadreurs';
+
+  @override
+  String get coachTeamManagement => 'Gestion de l\'equipe d\'encadrement';
+
+  @override
+  String get searchCoachHint => 'Rechercher un encadreur...';
+
+  @override
+  String get statActifs => 'Actifs';
+
+  @override
+  String get noCoachFound => 'Aucun encadreur';
+
+  @override
+  String get addCoachAction => 'Ajouter un encadreur';
+
+  @override
+  String get startByRegisteringCoach =>
+      'Commencez par enregistrer votre\npremier encadreur pour demarrer.';
+
+  @override
+  String get deleteCoachTitle => 'Supprimer l\'encadreur';
+
+  @override
+  String deleteCoachConfirmation(String name) {
+    return 'Etes-vous sur de vouloir supprimer $name ? Cette action est irreversible.';
+  }
+
+  @override
+  String get tabBadgeQr => 'Badge QR';
+
+  @override
+  String get identifiantsSection => 'Identifiants';
+
+  @override
+  String get noSessionConductedHist => 'Aucune seance dirigee';
+
+  @override
+  String get sessionHistoryWillAppear =>
+      'L\'historique des seances apparaitra ici\nune fois que l\'encadreur aura dirige des seances.';
+
+  @override
+  String sessionNumber(int num) {
+    return 'Seance #$num';
+  }
+
+  @override
+  String sessionTrainingType(String specialty) {
+    return 'Entrainement $specialty';
+  }
+
+  @override
+  String get viewQrBadgeOption => 'Voir le badge QR';
+
+  @override
+  String get shareProfileOption => 'Partager le profil';
+
+  @override
+  String get badgeEncadreurLabel => 'BADGE ENCADREUR';
+
+  @override
+  String get statusConnected => 'Connecte';
+
+  @override
+  String get statusOffline => 'Hors-ligne';
+
+  @override
+  String get statusSyncing => 'Synchronisation...';
+
+  @override
+  String get syncStatusTitle => 'Statut de synchronisation';
+
+  @override
+  String get connectionLabel => 'Connexion';
+
+  @override
+  String get pendingOperationsLabel => 'Operations en attente';
+
+  @override
+  String get lastSyncLabel => 'Derniere synchronisation';
+
+  @override
+  String syncSuccessResult(int success, int failures) {
+    return '$success reussie(s), $failures echec(s)';
+  }
+
+  @override
+  String get syncNowLabel => 'Synchroniser maintenant';
+
+  @override
+  String get syncInProgressLabel => 'Synchronisation en cours...';
+
+  @override
+  String get offlineModeActive => 'Mode hors-ligne actif';
+
+  @override
+  String pendingOperationsCount(int count) {
+    return '$count operation(s) en attente';
+  }
+
+  @override
+  String get syncOnReconnect =>
+      'Les donnees seront synchronisees au retour du reseau';
 }

@@ -3,6 +3,7 @@ import '../state/connectivity_state.dart';
 import '../state/sync_state.dart';
 import '../theme/app_colors.dart';
 import '../../domain/entities/connectivity_status.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Indicateur visuel permanent du statut reseau dans la barre d'application.
 /// Affiche l'etat de la connexion (connecte / hors-ligne / synchronisation)
@@ -62,10 +63,7 @@ class ConnectivityIndicator extends StatelessWidget {
                 color: AppColors.warning,
                 shape: BoxShape.circle,
               ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 pendingCount > 99 ? '99+' : '$pendingCount',
                 style: const TextStyle(
@@ -97,7 +95,10 @@ class ConnectivityIndicator extends StatelessWidget {
           color: _getBackgroundColor(status, isSyncing).withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _getBackgroundColor(status, isSyncing).withValues(alpha: 0.3),
+            color: _getBackgroundColor(
+              status,
+              isSyncing,
+            ).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -107,11 +108,13 @@ class ConnectivityIndicator extends StatelessWidget {
             _buildStatusIcon(status, isSyncing),
             const SizedBox(width: 6),
             Text(
-              _getStatusLabel(status, isSyncing),
+              _getStatusLabel(context, status, isSyncing),
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+                color: isDark
+                    ? AppColors.textMainDark
+                    : AppColors.textMainLight,
               ),
             ),
             if (pendingCount > 0) ...[
@@ -150,11 +153,7 @@ class ConnectivityIndicator extends StatelessWidget {
       );
     }
 
-    return Icon(
-      _getStatusIcon(status),
-      size: 16,
-      color: _getIconColor(status),
-    );
+    return Icon(_getStatusIcon(status), size: 16, color: _getIconColor(status));
   }
 
   IconData _getStatusIcon(ConnectivityStatus status) {
@@ -191,15 +190,21 @@ class ConnectivityIndicator extends StatelessWidget {
     }
   }
 
-  String _getStatusLabel(ConnectivityStatus status, bool isSyncing) {
-    if (isSyncing) return 'Synchronisation...';
+  /// Retourne le label traduit correspondant au statut reseau courant.
+  String _getStatusLabel(
+    BuildContext context,
+    ConnectivityStatus status,
+    bool isSyncing,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    if (isSyncing) return l10n.statusSyncing;
     switch (status) {
       case ConnectivityStatus.connected:
-        return 'Connecte';
+        return l10n.statusConnected;
       case ConnectivityStatus.disconnected:
-        return 'Hors-ligne';
+        return l10n.statusOffline;
       case ConnectivityStatus.syncing:
-        return 'Synchronisation...';
+        return l10n.statusSyncing;
     }
   }
 
@@ -230,6 +235,7 @@ class _SyncDetailsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return ListenableBuilder(
       listenable: Listenable.merge([connectivityState, syncState]),
@@ -254,7 +260,7 @@ class _SyncDetailsSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Statut de synchronisation',
+                l10n.syncStatusTitle,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -268,10 +274,10 @@ class _SyncDetailsSheet extends StatelessWidget {
                 icon: connectivityState.isConnected
                     ? Icons.wifi
                     : Icons.wifi_off,
-                label: 'Connexion',
+                label: l10n.connectionLabel,
                 value: connectivityState.isConnected
-                    ? 'Connecte'
-                    : 'Hors-ligne',
+                    ? l10n.statusConnected
+                    : l10n.statusOffline,
                 color: connectivityState.isConnected
                     ? AppColors.success
                     : AppColors.error,
@@ -279,7 +285,7 @@ class _SyncDetailsSheet extends StatelessWidget {
               const SizedBox(height: 12),
               _buildStatusRow(
                 icon: Icons.pending_actions,
-                label: 'Operations en attente',
+                label: l10n.pendingOperationsLabel,
                 value: '${syncState.pendingCount}',
                 color: syncState.hasPendingOperations
                     ? AppColors.warning
@@ -289,10 +295,11 @@ class _SyncDetailsSheet extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildStatusRow(
                   icon: Icons.check_circle_outline,
-                  label: 'Derniere synchronisation',
-                  value:
-                      '${syncState.lastSyncResult!.successCount} reussie(s), '
-                      '${syncState.lastSyncResult!.failureCount} echec(s)',
+                  label: l10n.lastSyncLabel,
+                  value: l10n.syncSuccessResult(
+                    syncState.lastSyncResult!.successCount,
+                    syncState.lastSyncResult!.failureCount,
+                  ),
                   color: syncState.lastSyncResult!.failureCount > 0
                       ? AppColors.warning
                       : AppColors.success,
@@ -317,8 +324,8 @@ class _SyncDetailsSheet extends StatelessWidget {
                         : const Icon(Icons.sync),
                     label: Text(
                       syncState.isSyncing
-                          ? 'Synchronisation en cours...'
-                          : 'Synchroniser maintenant',
+                          ? l10n.syncInProgressLabel
+                          : l10n.syncNowLabel,
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -348,12 +355,7 @@ class _SyncDetailsSheet extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: color),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 14),
-          ),
-        ),
+        Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
         Text(
           value,
           style: TextStyle(

@@ -1253,5 +1253,74 @@
   "october": "October",
   "november": "November",
   "december": "December",
-  "qrScanner": "QR Scanner"
+  "qrScanner": "QR Scanner",
+  "encadreursPageTitle": "Coaches",
+  "coachTeamManagement": "Coach team management",
+  "searchCoachHint": "Search for a coach...",
+  "statActifs": "Active",
+  "noCoachFound": "No coach",
+  "addCoachAction": "Add a coach",
+  "startByRegisteringCoach": "Start by registering your\nfirst coach to begin.",
+  "deleteCoachTitle": "Delete coach",
+  "deleteCoachConfirmation": "Are you sure you want to delete {name}? This action is irreversible.",
+  "@deleteCoachConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tabBadgeQr": "QR Badge",
+  "identifiantsSection": "Identifiers",
+  "noSessionConductedHist": "No session conducted",
+  "sessionHistoryWillAppear": "Session history will appear here\nonce the coach has led sessions.",
+  "sessionNumber": "Session #{num}",
+  "@sessionNumber": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionTrainingType": "{specialty} training",
+  "@sessionTrainingType": {
+    "placeholders": {
+      "specialty": {
+        "type": "String"
+      }
+    }
+  },
+  "viewQrBadgeOption": "View QR badge",
+  "shareProfileOption": "Share profile",
+  "badgeEncadreurLabel": "COACH BADGE",
+  "statusConnected": "Connected",
+  "statusOffline": "Offline",
+  "statusSyncing": "Syncing...",
+  "syncStatusTitle": "Sync status",
+  "connectionLabel": "Connection",
+  "pendingOperationsLabel": "Pending operations",
+  "lastSyncLabel": "Last sync",
+  "syncSuccessResult": "{success} succeeded, {failures} failed",
+  "@syncSuccessResult": {
+    "placeholders": {
+      "success": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "syncNowLabel": "Sync now",
+  "syncInProgressLabel": "Syncing...",
+  "offlineModeActive": "Offline mode active",
+  "pendingOperationsCount": "{count} pending operation(s)",
+  "@pendingOperationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncOnReconnect": "Data will be synced when connection is restored"
 }

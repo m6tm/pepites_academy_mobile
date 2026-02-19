@@ -2610,4 +2610,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrScanner => 'QR Scanner';
+
+  @override
+  String get encadreursPageTitle => 'Coaches';
+
+  @override
+  String get coachTeamManagement => 'Coach team management';
+
+  @override
+  String get searchCoachHint => 'Search for a coach...';
+
+  @override
+  String get statActifs => 'Active';
+
+  @override
+  String get noCoachFound => 'No coach';
+
+  @override
+  String get addCoachAction => 'Add a coach';
+
+  @override
+  String get startByRegisteringCoach =>
+      'Start by registering your\nfirst coach to begin.';
+
+  @override
+  String get deleteCoachTitle => 'Delete coach';
+
+  @override
+  String deleteCoachConfirmation(String name) {
+    return 'Are you sure you want to delete $name? This action is irreversible.';
+  }
+
+  @override
+  String get tabBadgeQr => 'QR Badge';
+
+  @override
+  String get identifiantsSection => 'Identifiers';
+
+  @override
+  String get noSessionConductedHist => 'No session conducted';
+
+  @override
+  String get sessionHistoryWillAppear =>
+      'Session history will appear here\nonce the coach has led sessions.';
+
+  @override
+  String sessionNumber(int num) {
+    return 'Session #$num';
+  }
+
+  @override
+  String sessionTrainingType(String specialty) {
+    return '$specialty training';
+  }
+
+  @override
+  String get viewQrBadgeOption => 'View QR badge';
+
+  @override
+  String get shareProfileOption => 'Share profile';
+
+  @override
+  String get badgeEncadreurLabel => 'COACH BADGE';
+
+  @override
+  String get statusConnected => 'Connected';
+
+  @override
+  String get statusOffline => 'Offline';
+
+  @override
+  String get statusSyncing => 'Syncing...';
+
+  @override
+  String get syncStatusTitle => 'Sync status';
+
+  @override
+  String get connectionLabel => 'Connection';
+
+  @override
+  String get pendingOperationsLabel => 'Pending operations';
+
+  @override
+  String get lastSyncLabel => 'Last sync';
+
+  @override
+  String syncSuccessResult(int success, int failures) {
+    return '$success succeeded, $failures failed';
+  }
+
+  @override
+  String get syncNowLabel => 'Sync now';
+
+  @override
+  String get syncInProgressLabel => 'Syncing...';
+
+  @override
+  String get offlineModeActive => 'Offline mode active';
+
+  @override
+  String pendingOperationsCount(int count) {
+    return '$count pending operation(s)';
+  }
+
+  @override
+  String get syncOnReconnect =>
+      'Data will be synced when connection is restored';
 }
