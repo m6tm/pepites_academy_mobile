@@ -441,9 +441,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get present => 'Presents';
 
   @override
-  String get workshops => 'Ateliers';
-
-  @override
   String get annotations => 'Annotations';
 
   @override
@@ -1412,7 +1409,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noObservation => 'Aucune observation rédigée.';
 
   @override
-  String bulletinsGeneratedCount(num count) {
+  String bulletinsGeneratedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -1771,4 +1768,617 @@ class AppLocalizationsFr extends AppLocalizations {
   String workshopsInfoLabel(int count) {
     return '$count ateliers';
   }
+
+  @override
+  String get workshopCompositionTitle => 'Ateliers';
+
+  @override
+  String workshopProgrammed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'programmes',
+      one: 'programme',
+    );
+    return '$count atelier$_temp0 $_temp1';
+  }
+
+  @override
+  String get noWorkshopProgrammed => 'Aucun atelier programme';
+
+  @override
+  String get workshopCompositionSubtitle =>
+      'Composez votre seance en ajoutant des ateliers.\nChaque atelier represente un bloc d\'activite.';
+
+  @override
+  String get addWorkshopTitle => 'Ajouter un atelier';
+
+  @override
+  String get editWorkshopTitle => 'Modifier l\'atelier';
+
+  @override
+  String get deleteWorkshopTitle => 'Supprimer l\'atelier ?';
+
+  @override
+  String deleteWorkshopConfirmation(String name) {
+    return 'L\'atelier \"$name\" sera definitivement supprime.';
+  }
+
+  @override
+  String get selectExerciseType => 'Selectionnez un type d\'exercice';
+
+  @override
+  String get workshopNameLabel => 'Nom de l\'atelier';
+
+  @override
+  String get workshopNameHint => 'Ex: Dribble en slalom';
+
+  @override
+  String get workshopNameRequired => 'Le nom est requis';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get descriptionHint => 'Ex: Travail des appuis et conduite de balle';
+
+  @override
+  String get saveWorkshop => 'Ajouter cet atelier';
+
+  @override
+  String get annotateAction => 'Annoter';
+
+  @override
+  String get workshopTypeDribble => 'Dribble';
+
+  @override
+  String get workshopTypePasses => 'Passes';
+
+  @override
+  String get workshopTypeFinition => 'Finition';
+
+  @override
+  String get workshopTypePhysique => 'Condition physique';
+
+  @override
+  String get workshopTypeJeuEnSituation => 'Jeu en situation';
+
+  @override
+  String get workshopTypeTactique => 'Tactique';
+
+  @override
+  String get workshopTypeGardien => 'Gardien';
+
+  @override
+  String get workshopTypeEchauffement => 'Echauffement';
+
+  @override
+  String get workshopTypePersonnalise => 'Personnalise';
+
+  @override
+  String get sessionAddAtLeastOneWorkshop =>
+      'Ajoutez au moins un atelier pour pouvoir annoter.';
+
+  @override
+  String get presentCoaches => 'Encadreurs presents';
+
+  @override
+  String get responsibleLabel => 'Responsable';
+
+  @override
+  String get horaireLabel => 'Horaire';
+
+  @override
+  String get manageAction => 'Gerer';
+
+  @override
+  String get noCoachRegistered => 'Aucun encadreur enregistre';
+
+  @override
+  String get noAcademicianRegistered => 'Aucun academicien enregistre';
+
+  @override
+  String get searchHint => 'Rechercher un academicien, encadreur, seance...';
+
+  @override
+  String get recentSearches => 'Recherches recentes';
+
+  @override
+  String get clearAll => 'Tout effacer';
+
+  @override
+  String get universalSearch => 'Recherche universelle';
+
+  @override
+  String get universalSearchDesc =>
+      'Trouvez rapidement un academicien, un encadreur ou une seance.';
+
+  @override
+  String get noResultsFound => 'Aucun resultat';
+
+  @override
+  String get noResultsDesc => 'Essayez avec d\'autres termes de recherche.';
+
+  @override
+  String get playerLabel => 'Joueur';
+
+  @override
+  String get academicianFile => 'Fiche Academicien';
+
+  @override
+  String get infosTab => 'Infos';
+
+  @override
+  String get presencesTab => 'Presences';
+
+  @override
+  String get notesTab => 'Notes';
+
+  @override
+  String get bulletinsTab => 'Bulletins';
+
+  @override
+  String get personalInfos => 'Informations personnelles';
+
+  @override
+  String get sportInfos => 'Informations sportives';
+
+  @override
+  String get ageLabel => 'Age';
+
+  @override
+  String get noPresenceRecorded => 'Aucune presence enregistree';
+
+  @override
+  String get noAnnotationRecorded => 'Aucune annotation enregistree';
+
+  @override
+  String get noBulletinGenerated => 'Aucun bulletin genere';
+
+  @override
+  String get coachFile => 'Fiche Encadreur';
+
+  @override
+  String get statsTab => 'Stats';
+
+  @override
+  String get activityLabel => 'Activite';
+
+  @override
+  String get conductedSessions => 'Seances dirigees';
+
+  @override
+  String get conductedAnnotations => 'Annotations realisees';
+
+  @override
+  String get recordedPresences => 'Presences enregistrees';
+
+  @override
+  String get noConductedSession => 'Aucune seance dirigee';
+
+  @override
+  String get closedSessionsStat => 'Seances cloturees';
+
+  @override
+  String get avgPresents => 'Moy. presents';
+
+  @override
+  String get totalWorkshops => 'Total ateliers';
+
+  @override
+  String get closureRate => 'Taux de cloture';
+
+  @override
+  String get keyFigures => 'Chiffres cles';
+
+  @override
+  String get scannedPresences => 'Presences scannees';
+
+  @override
+  String get teamTab => 'Equipe';
+
+  @override
+  String get recapTab => 'Recap';
+
+  @override
+  String get sessionDetailTitle => 'Detail Seance';
+
+  @override
+  String get cancelAction => 'Annuler';
+
+  @override
+  String get deleteAction => 'Supprimer';
+
+  @override
+  String get saveAction => 'Enregistrer';
+
+  @override
+  String get addAction => 'Ajouter';
+
+  @override
+  String get editAction => 'Modifier';
+
+  @override
+  String get sessionStatusOpen => 'En cours';
+
+  @override
+  String get sessionStatusClosed => 'Fermee';
+
+  @override
+  String get sessionStatusUpcoming => 'A venir';
+
+  @override
+  String lastUpdateWithDate(String date) {
+    return 'Mis a jour le $date';
+  }
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get positionLabel => 'Poste';
+
+  @override
+  String get schoolLevelLabel => 'Niveau scolaire';
+
+  @override
+  String get qrCodeLabel => 'Code QR';
+
+  @override
+  String noteLabel(String note) {
+    return 'Note : $note/10';
+  }
+
+  @override
+  String get phoneLabel => 'Telephone';
+
+  @override
+  String get registeredOnLabel => 'Inscrit le';
+
+  @override
+  String get sessionLabel => 'Seance';
+
+  @override
+  String get coachLabel => 'Coach';
+
+  @override
+  String presentCountLabel(String count) {
+    return '$count present(s)';
+  }
+
+  @override
+  String workshopCountLabel(String count) {
+    return '$count atelier(s)';
+  }
+
+  @override
+  String coachWithNumber(int number) {
+    return 'Encadreur $number';
+  }
+
+  @override
+  String academicianWithNumber(int number) {
+    return 'Academicien $number';
+  }
+
+  @override
+  String get academicianProfileTitle => 'Fiche Academicien';
+
+  @override
+  String get academicianBadgeTypeMention => 'ACADEMICIEN';
+
+  @override
+  String get coachProfileTitle => 'Fiche Encadreur';
+
+  @override
+  String get coachBadgeTypeMention => 'ENCADREUR';
+
+  @override
+  String get recapLabel => 'Recapitulatif';
+
+  @override
+  String get statsLabel => 'Statistiques';
+
+  @override
+  String get sessionsTab => 'Séances';
+
+  @override
+  String get presentLabel => 'Présent';
+
+  @override
+  String sessionWithIdLabel(String id) {
+    return 'Seance $id...';
+  }
+
+  @override
+  String get statusLabel => 'Statut';
+
+  @override
+  String get generalInformation => 'Informations générales';
+
+  @override
+  String get presentAcademicians => 'Académiciens présents';
+
+  @override
+  String get completedWorkshops => 'Ateliers réalisés';
+
+  @override
+  String get noCoachRecorded => 'Aucun encadreur enregistré';
+
+  @override
+  String get noAcademicianRecorded => 'Aucun académicien enregistré';
+
+  @override
+  String get noWorkshopRecorded => 'Aucun atelier enregistré';
+
+  @override
+  String get at => ' à ';
+
+  @override
+  String notesInfoLabel(int count) {
+    return '$count notes';
+  }
+
+  @override
+  String get smsComposeTitle => 'Nouveau SMS';
+
+  @override
+  String get smsComposeHeader => 'Rédigez votre message';
+
+  @override
+  String get smsComposeSubHeader =>
+      'Le message sera envoyé par SMS aux destinataires sélectionnés.';
+
+  @override
+  String get smsComposeHint => 'Saisissez votre message ici...';
+
+  @override
+  String smsComposeCharCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count caractères',
+      one: '$count caractère',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String smsComposeSmsCount(int count) {
+    return '$count SMS';
+  }
+
+  @override
+  String smsComposeRemainingChars(int count) {
+    return '$count restants';
+  }
+
+  @override
+  String get smsComposeChooseRecipients => 'Choisir les destinataires';
+
+  @override
+  String get smsConfirmationTitle => 'Confirmation';
+
+  @override
+  String get smsConfirmationSummary => 'Récapitulatif';
+
+  @override
+  String get smsConfirmationCheckInfo =>
+      'Vérifiez les informations avant l\'envoi.';
+
+  @override
+  String smsConfirmationRecipient(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Destinataires',
+      one: 'Destinataire',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get smsConfirmationSmsPerPerson => 'SMS / personne';
+
+  @override
+  String get smsConfirmationTotalSms => 'SMS total';
+
+  @override
+  String get smsConfirmationMessage => 'Message';
+
+  @override
+  String smsConfirmationMessageInfo(int length, int count) {
+    return '$length caractères - $count SMS';
+  }
+
+  @override
+  String smsConfirmationRecipientsCount(int count) {
+    return 'Destinataires ($count)';
+  }
+
+  @override
+  String get smsConfirmationSendSms => 'Envoyer les SMS';
+
+  @override
+  String get smsConfirmationConfirmSend => 'Confirmer l\'envoi';
+
+  @override
+  String smsConfirmationDialogBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'destinataires',
+      one: 'destinataire',
+    );
+    return 'Vous êtes sur le point d\'envoyer ce message à $count $_temp0.\n\nCette action est irréversible.';
+  }
+
+  @override
+  String get smsConfirmationCancel => 'Annuler';
+
+  @override
+  String get smsConfirmationConfirm => 'Confirmer';
+
+  @override
+  String get smsConfirmationSuccessTitle => 'SMS envoyé !';
+
+  @override
+  String get smsConfirmationSuccessBody =>
+      'Le message a été envoyé avec succès.';
+
+  @override
+  String get smsConfirmationBack => 'Retour';
+
+  @override
+  String get smsConfirmationError => 'Erreur lors de l\'envoi.';
+
+  @override
+  String get smsHistoryTitle => 'Historique SMS';
+
+  @override
+  String get smsHistoryNoSms => 'Aucun SMS envoyé';
+
+  @override
+  String get smsHistoryNoSmsDescription =>
+      'Les messages envoyés apparaîtront ici.';
+
+  @override
+  String get smsStatusSent => 'Envoyé';
+
+  @override
+  String get smsStatusFailed => 'Échec';
+
+  @override
+  String get smsStatusPending => 'En attente';
+
+  @override
+  String get dateTimeJustNow => 'À l\'instant';
+
+  @override
+  String dateTimeMinutesAgo(int minutes) {
+    return 'Il y a $minutes min';
+  }
+
+  @override
+  String dateTimeHoursAgo(int hours) {
+    return 'Il y a ${hours}h';
+  }
+
+  @override
+  String get dateTimeYesterday => 'Hier';
+
+  @override
+  String dateTimeDaysAgo(int days) {
+    return 'Il y a $days jours';
+  }
+
+  @override
+  String smsHistoryMoreRecipients(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get smsHistoryMessage => 'Message';
+
+  @override
+  String smsHistoryRecipients(int count) {
+    return 'Destinataires ($count)';
+  }
+
+  @override
+  String get smsHistoryDeleteTitle => 'Supprimer ce SMS ?';
+
+  @override
+  String get smsHistoryDeleteBody => 'Ce message sera retiré de l\'historique.';
+
+  @override
+  String get smsHistoryDeleteCancel => 'Annuler';
+
+  @override
+  String get smsHistoryDeleteConfirm => 'Supprimer';
+
+  @override
+  String get smsRecipientsTitle => 'Destinataires';
+
+  @override
+  String get smsRecipientsTabIndividual => 'Individuel';
+
+  @override
+  String get smsRecipientsTabFilters => 'Filtres';
+
+  @override
+  String get smsRecipientsTabSelection => 'Sélection';
+
+  @override
+  String get smsRecipientsSearchHint => 'Rechercher par nom...';
+
+  @override
+  String get smsRecipientsAcademiciens => 'Académiciens';
+
+  @override
+  String get smsRecipientsNoAcademiciens => 'Aucun académicien trouvé';
+
+  @override
+  String get smsRecipientsEncadreurs => 'Encadreurs';
+
+  @override
+  String get smsRecipientsNoEncadreurs => 'Aucun encadreur trouvé';
+
+  @override
+  String get smsRecipientsQuickSelection => 'Sélection rapide';
+
+  @override
+  String get smsRecipientsAllAcademiciens => 'Tous les académiciens';
+
+  @override
+  String get smsRecipientsAllEncadreurs => 'Tous les encadreurs';
+
+  @override
+  String get smsRecipientsByFootballPoste => 'Par poste de football';
+
+  @override
+  String get smsRecipientsNoPosteAvailable => 'Aucun poste disponible';
+
+  @override
+  String get smsRecipientsBySchoolLevel => 'Par niveau scolaire';
+
+  @override
+  String get smsRecipientsNoLevelAvailable => 'Aucun niveau disponible';
+
+  @override
+  String get smsRecipientsNoRecipientSelected =>
+      'Aucun destinataire sélectionné';
+
+  @override
+  String get smsRecipientsNoRecipientSelectedDesc =>
+      'Utilisez les onglets Individuel ou Filtres\npour ajouter des destinataires.';
+
+  @override
+  String smsRecipientsSelectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sélectionnés',
+      one: '$count sélectionné',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get smsRecipientsRemoveAll => 'Tout retirer';
+
+  @override
+  String get smsRecipientsPreview => 'Prévisualiser';
+
+  @override
+  String get workshops => 'Ateliers';
+
+  @override
+  String get academician => 'Académicien';
 }

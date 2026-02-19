@@ -8,6 +8,7 @@ import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../annotation/annotation_page.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Ecran de composition des ateliers rattache a une seance.
 /// Permet d'ajouter, modifier, supprimer et reorganiser les ateliers
@@ -21,6 +22,30 @@ class AtelierCompositionPage extends StatefulWidget {
     required this.seance,
     required this.atelierState,
   });
+
+  static String getTypeLabel(BuildContext context, AtelierType type) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (type) {
+      case AtelierType.dribble:
+        return l10n.workshopTypeDribble;
+      case AtelierType.passes:
+        return l10n.workshopTypePasses;
+      case AtelierType.finition:
+        return l10n.workshopTypeFinition;
+      case AtelierType.physique:
+        return l10n.workshopTypePhysique;
+      case AtelierType.jeuEnSituation:
+        return l10n.workshopTypeJeuEnSituation;
+      case AtelierType.tactique:
+        return l10n.workshopTypeTactique;
+      case AtelierType.gardien:
+        return l10n.workshopTypeGardien;
+      case AtelierType.echauffement:
+        return l10n.workshopTypeEchauffement;
+      case AtelierType.personnalise:
+        return l10n.workshopTypePersonnalise;
+    }
+  }
 
   @override
   State<AtelierCompositionPage> createState() => _AtelierCompositionPageState();
@@ -86,7 +111,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add_rounded),
               label: Text(
-                'Ajouter',
+                AppLocalizations.of(context)!.addAction,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
             )
@@ -106,7 +131,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Ateliers',
+          AppLocalizations.of(context)!.workshopCompositionTitle,
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -180,7 +205,9 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${state.ateliers.length} atelier${state.ateliers.length > 1 ? 's' : ''} programme${state.ateliers.length > 1 ? 's' : ''}',
+                  AppLocalizations.of(
+                    context,
+                  )!.workshopProgrammed(state.ateliers.length),
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -198,7 +225,9 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              widget.seance.estOuverte ? 'En cours' : 'Fermee',
+              widget.seance.estOuverte
+                  ? AppLocalizations.of(context)!.sessionStatusOpen
+                  : AppLocalizations.of(context)!.sessionStatusClosed,
               style: GoogleFonts.montserrat(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -235,7 +264,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun atelier programme',
+              AppLocalizations.of(context)!.noWorkshopProgrammed,
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -244,8 +273,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Composez votre seance en ajoutant des ateliers.\n'
-              'Chaque atelier represente un bloc d\'activite.',
+              AppLocalizations.of(context)!.workshopCompositionSubtitle,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
@@ -385,18 +413,18 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'Supprimer l\'atelier ?',
+          AppLocalizations.of(context)!.deleteWorkshopTitle,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
         ),
         content: Text(
-          'L\'atelier "${atelier.nom}" sera definitivement supprime.',
+          AppLocalizations.of(context)!.deleteWorkshopConfirmation(atelier.nom),
           style: GoogleFonts.montserrat(fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(
-              'Annuler',
+              AppLocalizations.of(context)!.cancelAction,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textMutedLight,
@@ -416,7 +444,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
               ),
             ),
             child: Text(
-              'Supprimer',
+              AppLocalizations.of(context)!.deleteAction,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),
@@ -514,7 +542,10 @@ class _AtelierCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              atelier.typeLabel,
+                              AtelierCompositionPage.getTypeLabel(
+                                context,
+                                atelier.type,
+                              ),
                               style: GoogleFonts.montserrat(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -663,7 +694,8 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
     _isCustomName =
         widget.atelier?.type == AtelierType.personnalise ||
         (widget.atelier != null &&
-            widget.atelier!.nom != _getDefaultName(widget.atelier!.type));
+            widget.atelier!.nom !=
+                _getDefaultName(context, widget.atelier!.type));
   }
 
   @override
@@ -673,27 +705,8 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
     super.dispose();
   }
 
-  String _getDefaultName(AtelierType type) {
-    switch (type) {
-      case AtelierType.dribble:
-        return 'Dribble';
-      case AtelierType.passes:
-        return 'Passes';
-      case AtelierType.finition:
-        return 'Finition';
-      case AtelierType.physique:
-        return 'Condition physique';
-      case AtelierType.jeuEnSituation:
-        return 'Jeu en situation';
-      case AtelierType.tactique:
-        return 'Tactique';
-      case AtelierType.gardien:
-        return 'Gardien';
-      case AtelierType.echauffement:
-        return 'Echauffement';
-      case AtelierType.personnalise:
-        return '';
-    }
+  String _getDefaultName(BuildContext context, AtelierType type) {
+    return AtelierCompositionPage.getTypeLabel(context, type);
   }
 
   void _onTypeSelected(AtelierType type) {
@@ -703,7 +716,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
         _isCustomName = true;
         _nomController.text = '';
       } else if (!_isCustomName) {
-        _nomController.text = _getDefaultName(type);
+        _nomController.text = _getDefaultName(context, type);
       }
     });
   }
@@ -741,7 +754,9 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
               ),
               const SizedBox(height: 20),
               Text(
-                isEditing ? 'Modifier l\'atelier' : 'Ajouter un atelier',
+                isEditing
+                    ? AppLocalizations.of(context)!.editWorkshopTitle
+                    : AppLocalizations.of(context)!.addWorkshopTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -750,7 +765,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Selectionnez un type d\'exercice',
+                AppLocalizations.of(context)!.selectExerciseType,
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -760,7 +775,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
               _buildTypeGrid(colorScheme, isDark),
               const SizedBox(height: 20),
               Text(
-                'Nom de l\'atelier',
+                AppLocalizations.of(context)!.workshopNameLabel,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -775,7 +790,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
                   color: colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Ex: Dribble en slalom',
+                  hintText: AppLocalizations.of(context)!.workshopNameHint,
                   hintStyle: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.3),
@@ -793,7 +808,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Le nom est requis';
+                    return AppLocalizations.of(context)!.workshopNameRequired;
                   }
                   return null;
                 },
@@ -803,7 +818,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Description (optionnelle)',
+                AppLocalizations.of(context)!.descriptionLabel,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -819,7 +834,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
                   color: colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Decrivez l\'exercice...',
+                  hintText: AppLocalizations.of(context)!.descriptionHint,
                   hintStyle: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.3),
@@ -851,7 +866,9 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
                     elevation: 0,
                   ),
                   child: Text(
-                    isEditing ? 'Modifier' : 'Ajouter l\'atelier',
+                    isEditing
+                        ? AppLocalizations.of(context)!.editAction
+                        : AppLocalizations.of(context)!.saveWorkshop,
                     style: GoogleFonts.montserrat(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -913,9 +930,9 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _getDefaultName(type).isEmpty
-                      ? 'Libre'
-                      : _getDefaultName(type),
+                  _getDefaultName(context, type).isEmpty
+                      ? AppLocalizations.of(context)!.workshopTypePersonnalise
+                      : _getDefaultName(context, type),
                   style: GoogleFonts.montserrat(
                     fontSize: 10,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/annotation.dart';
@@ -64,10 +65,10 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
           _bulletins = bulletins;
           _posteNom = posteMatch.isNotEmpty
               ? posteMatch.first.nom
-              : 'Non specifie';
+              : AppLocalizations.of(context)!.notSpecified;
           _niveauNom = niveauMatch.isNotEmpty
               ? niveauMatch.first.nom
-              : 'Non specifie';
+              : AppLocalizations.of(context)!.notSpecified;
           _isLoading = false;
         });
       }
@@ -147,7 +148,7 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Fiche Academicien',
+              AppLocalizations.of(context)!.academicianProfileTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -228,7 +229,7 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'ACADEMICIEN',
+                    AppLocalizations.of(context)!.academicianBadgeTypeMention,
                     style: GoogleFonts.montserrat(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -243,13 +244,13 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
                     _buildMiniStat(
                       Icons.check_circle_rounded,
                       '${_presences.length}',
-                      'Presences',
+                      AppLocalizations.of(context)!.presenceLabel,
                     ),
                     const SizedBox(width: 16),
                     _buildMiniStat(
                       Icons.edit_note_rounded,
                       '${_annotations.length}',
-                      'Annotations',
+                      AppLocalizations.of(context)!.annotationsLabel,
                     ),
                   ],
                 ),
@@ -303,11 +304,11 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
           borderRadius: BorderRadius.circular(14),
         ),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'Infos'),
-          Tab(text: 'Presences'),
-          Tab(text: 'Notes'),
-          Tab(text: 'Bulletins'),
+        tabs: [
+          Tab(text: AppLocalizations.of(context)!.infosTab),
+          Tab(text: AppLocalizations.of(context)!.presencesTab),
+          Tab(text: AppLocalizations.of(context)!.notesTab),
+          Tab(text: AppLocalizations.of(context)!.bulletinsTab),
         ],
       ),
     );
@@ -325,35 +326,51 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
           _buildInfoCard(
             colorScheme,
             isDark,
-            'Informations personnelles',
+            AppLocalizations.of(context)!.personalInformation,
             Icons.person_rounded,
             [
-              _InfoRow('Nom complet', '${acad.prenom} ${acad.nom}'),
-              _InfoRow('Age', '$age ans'),
               _InfoRow(
-                'Date de naissance',
+                AppLocalizations.of(context)!.fullNameLabel,
+                '${acad.prenom} ${acad.nom}',
+              ),
+              _InfoRow(
+                AppLocalizations.of(context)!.ageLabel,
+                AppLocalizations.of(context)!.yearsOld(age),
+              ),
+              _InfoRow(
+                AppLocalizations.of(context)!.birthDateLabel,
                 '${acad.dateNaissance.day}/${acad.dateNaissance.month}/${acad.dateNaissance.year}',
               ),
-              _InfoRow('Telephone parent', acad.telephoneParent),
-              if (acad.piedFort != null) _InfoRow('Pied fort', acad.piedFort!),
+              _InfoRow(
+                AppLocalizations.of(context)!.parentPhoneLabel,
+                acad.telephoneParent,
+              ),
+              if (acad.piedFort != null)
+                _InfoRow(
+                  AppLocalizations.of(context)!.strongFootLabel,
+                  acad.piedFort!,
+                ),
             ],
           ),
           const SizedBox(height: 14),
           _buildInfoCard(
             colorScheme,
             isDark,
-            'Informations sportives',
+            AppLocalizations.of(context)!.sportInfos,
             Icons.sports_soccer_rounded,
             [
               _InfoRow(
-                'Poste',
+                AppLocalizations.of(context)!.positionLabel,
                 _posteNom.isNotEmpty ? _posteNom : acad.posteFootballId,
               ),
               _InfoRow(
-                'Niveau scolaire',
+                AppLocalizations.of(context)!.schoolLevelLabel,
                 _niveauNom.isNotEmpty ? _niveauNom : acad.niveauScolaireId,
               ),
-              _InfoRow('Code QR', acad.codeQrUnique),
+              _InfoRow(
+                AppLocalizations.of(context)!.qrCodeLabel,
+                acad.codeQrUnique,
+              ),
             ],
           ),
         ],
@@ -442,7 +459,7 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
       return _buildEmptyTab(
         colorScheme,
         Icons.check_circle_outline_rounded,
-        'Aucune presence enregistree',
+        AppLocalizations.of(context)!.noPresenceRecorded,
       );
     }
 
@@ -482,7 +499,9 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Seance ${presence.seanceId.substring(0, 8)}...',
+                      AppLocalizations.of(
+                        context,
+                      )!.sessionWithIdLabel(presence.seanceId.substring(0, 8)),
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -507,7 +526,7 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Present',
+                  AppLocalizations.of(context)!.presentLabel,
                   style: GoogleFonts.montserrat(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -528,7 +547,7 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
       return _buildEmptyTab(
         colorScheme,
         Icons.edit_note_rounded,
-        'Aucune annotation enregistree',
+        AppLocalizations.of(context)!.noAnnotationRecorded,
       );
     }
 
@@ -581,7 +600,9 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
                         ),
                         if (annotation.note != null)
                           Text(
-                            'Note : ${annotation.note!.toStringAsFixed(1)}/10',
+                            AppLocalizations.of(
+                              context,
+                            )!.noteLabel(annotation.note!.toStringAsFixed(1)),
                             style: GoogleFonts.montserrat(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -644,7 +665,7 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
       return _buildEmptyTab(
         colorScheme,
         Icons.description_outlined,
-        'Aucun bulletin genere',
+        AppLocalizations.of(context)!.noBulletinGenerated,
       );
     }
 
@@ -694,19 +715,19 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
               Row(
                 children: [
                   _buildBulletinStat(
-                    'Presence',
+                    AppLocalizations.of(context)!.presenceLabel,
                     '${bulletin.tauxPresence.toStringAsFixed(0)}%',
                     const Color(0xFF10B981),
                   ),
                   const SizedBox(width: 16),
                   _buildBulletinStat(
-                    'Seances',
+                    AppLocalizations.of(context)!.sessionsLabel,
                     '${bulletin.nbSeancesPresent}/${bulletin.nbSeancesTotal}',
                     const Color(0xFF3B82F6),
                   ),
                   const SizedBox(width: 16),
                   _buildBulletinStat(
-                    'Annotations',
+                    AppLocalizations.of(context)!.annotationsLabel,
                     '${bulletin.nbAnnotationsTotal}',
                     const Color(0xFF8B5CF6),
                   ),

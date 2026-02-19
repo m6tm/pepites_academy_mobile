@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
@@ -59,6 +60,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -68,7 +70,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
           : AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(
-          'Destinataires',
+          l10n!.smsRecipientsTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -91,10 +93,10 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
           unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.4),
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
-          tabs: const [
-            Tab(text: 'Individuel'),
-            Tab(text: 'Filtres'),
-            Tab(text: 'Selection'),
+          tabs: [
+            Tab(text: l10n.smsRecipientsTabIndividual),
+            Tab(text: l10n.smsRecipientsTabFilters),
+            Tab(text: l10n.smsRecipientsTabSelection),
           ],
         ),
       ),
@@ -111,13 +113,13 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildIndividualTab(colorScheme, isDark),
-                    _buildFilterTab(colorScheme, isDark),
-                    _buildSelectionTab(colorScheme, isDark),
+                    _buildIndividualTab(l10n, colorScheme, isDark),
+                    _buildFilterTab(l10n, colorScheme, isDark),
+                    _buildSelectionTab(l10n, colorScheme, isDark),
                   ],
                 ),
               ),
-              _buildBottomBar(colorScheme, isDark),
+              _buildBottomBar(l10n, colorScheme, isDark),
             ],
           );
         },
@@ -126,7 +128,11 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
   }
 
   // --- Onglet Individuel : recherche par nom ---
-  Widget _buildIndividualTab(ColorScheme colorScheme, bool isDark) {
+  Widget _buildIndividualTab(
+    AppLocalizations l,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     return Column(
       children: [
         // Barre de recherche
@@ -146,7 +152,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
                 color: colorScheme.onSurface,
               ),
               decoration: InputDecoration(
-                hintText: 'Rechercher par nom...',
+                hintText: l.smsRecipientsSearchHint,
                 hintStyle: GoogleFonts.montserrat(
                   color: colorScheme.onSurface.withValues(alpha: 0.3),
                   fontSize: 14,
@@ -173,7 +179,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
             children: [
               // Section Academiciens
               _buildSectionHeader(
-                'Academiciens',
+                l.smsRecipientsAcademiciens,
                 Icons.school_rounded,
                 const Color(0xFF3B82F6),
                 colorScheme,
@@ -182,13 +188,13 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
                 (a) => _buildAcademicienTile(a, colorScheme, isDark),
               ),
               if (_filteredAcademiciens.isEmpty)
-                _buildEmptyMessage('Aucun academicien trouve', colorScheme),
+                _buildEmptyMessage(l.smsRecipientsNoAcademiciens, colorScheme),
 
               const SizedBox(height: 12),
 
               // Section Encadreurs
               _buildSectionHeader(
-                'Encadreurs',
+                l.smsRecipientsEncadreurs,
                 Icons.sports_rounded,
                 const Color(0xFF8B5CF6),
                 colorScheme,
@@ -197,7 +203,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
                 (e) => _buildEncadreurTile(e, colorScheme, isDark),
               ),
               if (_filteredEncadreurs.isEmpty)
-                _buildEmptyMessage('Aucun encadreur trouve', colorScheme),
+                _buildEmptyMessage(l.smsRecipientsNoEncadreurs, colorScheme),
 
               const SizedBox(height: 80),
             ],
@@ -422,14 +428,18 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
   }
 
   // --- Onglet Filtres : selection groupee ---
-  Widget _buildFilterTab(ColorScheme colorScheme, bool isDark) {
+  Widget _buildFilterTab(
+    AppLocalizations l,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(16),
       children: [
         // Selection rapide
         Text(
-          'Selection rapide',
+          l.smsRecipientsQuickSelection,
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -441,7 +451,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
           children: [
             Expanded(
               child: _buildQuickFilterButton(
-                'Tous les academiciens',
+                l.smsRecipientsAllAcademiciens,
                 Icons.school_rounded,
                 const Color(0xFF3B82F6),
                 () => widget.smsState.selectionnerTousAcademiciens(),
@@ -452,7 +462,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
             const SizedBox(width: 12),
             Expanded(
               child: _buildQuickFilterButton(
-                'Tous les encadreurs',
+                l.smsRecipientsAllEncadreurs,
                 Icons.sports_rounded,
                 const Color(0xFF8B5CF6),
                 () => widget.smsState.selectionnerTousEncadreurs(),
@@ -466,20 +476,20 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
 
         // Filtre par poste de football
         _buildFilterSection(
-          'Par poste de football',
+          l.smsRecipientsByFootballPoste,
           Icons.sports_soccer_rounded,
           AppColors.primary,
-          _buildPosteFilters(colorScheme, isDark),
+          _buildPosteFilters(l, colorScheme, isDark),
           colorScheme,
         ),
         const SizedBox(height: 20),
 
         // Filtre par niveau scolaire
         _buildFilterSection(
-          'Par niveau scolaire',
+          l.smsRecipientsBySchoolLevel,
           Icons.menu_book_rounded,
           const Color(0xFF10B981),
-          _buildNiveauFilters(colorScheme, isDark),
+          _buildNiveauFilters(l, colorScheme, isDark),
           colorScheme,
         ),
         const SizedBox(height: 80),
@@ -560,7 +570,11 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
     );
   }
 
-  List<Widget> _buildPosteFilters(ColorScheme colorScheme, bool isDark) {
+  List<Widget> _buildPosteFilters(
+    AppLocalizations l,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     // Extraire les postes uniques des academiciens
     final postes = <String>{};
     for (final a in widget.smsState.academiciens) {
@@ -570,7 +584,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
     if (postes.isEmpty) {
       return [
         Text(
-          'Aucun poste disponible',
+          l.smsRecipientsNoPosteAvailable,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             color: colorScheme.onSurface.withValues(alpha: 0.3),
@@ -594,7 +608,11 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
     }).toList();
   }
 
-  List<Widget> _buildNiveauFilters(ColorScheme colorScheme, bool isDark) {
+  List<Widget> _buildNiveauFilters(
+    AppLocalizations l,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     final niveaux = <String>{};
     for (final a in widget.smsState.academiciens) {
       niveaux.add(a.niveauScolaireId);
@@ -603,7 +621,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
     if (niveaux.isEmpty) {
       return [
         Text(
-          'Aucun niveau disponible',
+          l.smsRecipientsNoLevelAvailable,
           style: GoogleFonts.montserrat(
             fontSize: 12,
             color: colorScheme.onSurface.withValues(alpha: 0.3),
@@ -686,7 +704,11 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
   }
 
   // --- Onglet Selection : recapitulatif ---
-  Widget _buildSelectionTab(ColorScheme colorScheme, bool isDark) {
+  Widget _buildSelectionTab(
+    AppLocalizations l,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     final destinataires = widget.smsState.destinatairesSelectionnes;
 
     if (destinataires.isEmpty) {
@@ -701,7 +723,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
             ),
             const SizedBox(height: 16),
             Text(
-              'Aucun destinataire selectionne',
+              l.smsRecipientsNoRecipientSelected,
               style: GoogleFonts.montserrat(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -710,7 +732,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
             ),
             const SizedBox(height: 8),
             Text(
-              'Utilisez les onglets Individuel ou Filtres\npour ajouter des destinataires.',
+              l.smsRecipientsNoRecipientSelectedDesc,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
@@ -739,7 +761,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${destinataires.length} selectionne${destinataires.length > 1 ? 's' : ''}',
+                  l.smsRecipientsSelectedCount(destinataires.length),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -752,7 +774,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
                 onPressed: () => widget.smsState.viderSelection(),
                 icon: const Icon(Icons.clear_all_rounded, size: 18),
                 label: Text(
-                  'Tout retirer',
+                  l.smsRecipientsRemoveAll,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -833,7 +855,11 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
   }
 
   // --- Barre inferieure ---
-  Widget _buildBottomBar(ColorScheme colorScheme, bool isDark) {
+  Widget _buildBottomBar(
+    AppLocalizations l,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     final count = widget.smsState.destinatairesSelectionnes.length;
 
     return Container(
@@ -914,7 +940,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Previsualiser',
+                        l.smsRecipientsPreview,
                         style: GoogleFonts.montserrat(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,

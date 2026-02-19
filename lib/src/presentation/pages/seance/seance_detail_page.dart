@@ -12,6 +12,7 @@ import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../annotation/widgets/annotation_side_panel.dart';
 import 'atelier_composition_page.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Vue detaillee d'une seance affichant les encadreurs presents,
 /// les academiciens et les ateliers programmes.
@@ -96,7 +97,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     if (_ateliers.isEmpty) {
       AcademyToast.show(
         context,
-        title: 'Ajoutez au moins un atelier pour pouvoir annoter.',
+        title: AppLocalizations.of(context)!.sessionAddAtLeastOneWorkshop,
         isError: true,
       );
       return;
@@ -156,13 +157,16 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           SliverToBoxAdapter(child: _buildStatsRow(colorScheme, isDark)),
           SliverToBoxAdapter(
             child: _buildSectionTitle(
-              'Encadreurs presents',
+              AppLocalizations.of(context)!.presentCoaches,
               Icons.person_rounded,
             ),
           ),
           SliverToBoxAdapter(child: _buildEncadreursList(colorScheme, isDark)),
           SliverToBoxAdapter(
-            child: _buildSectionTitle('Academiciens', Icons.groups_rounded),
+            child: _buildSectionTitle(
+              AppLocalizations.of(context)!.academicians,
+              Icons.groups_rounded,
+            ),
           ),
           SliverToBoxAdapter(
             child: _buildAcademiciensList(colorScheme, isDark),
@@ -170,7 +174,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           SliverToBoxAdapter(
             child: _buildSectionTitleWithAction(
               context,
-              'Ateliers programmes',
+              AppLocalizations.of(context)!.workshopsRecapLabel,
               Icons.fitness_center_rounded,
             ),
           ),
@@ -227,7 +231,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           Icon(_statusIcon, color: _statusColor, size: 22),
           const SizedBox(width: 10),
           Text(
-            _statusLabel,
+            _getStatusLabel(context),
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -270,21 +274,21 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
         children: [
           _DetailRow(
             icon: Icons.calendar_today_rounded,
-            label: 'Date',
+            label: AppLocalizations.of(context)!.dateLabel,
             value: seance.dateFormatee,
           ),
           const Divider(height: 20, color: Colors.grey),
           _DetailRow(
             icon: Icons.access_time_rounded,
-            label: 'Horaire',
+            label: AppLocalizations.of(context)!.horaireLabel,
             value: seance.dureeFormatee,
           ),
           const Divider(height: 20, color: Colors.grey),
           _DetailRow(
             icon: Icons.person_rounded,
-            label: 'Responsable',
+            label: AppLocalizations.of(context)!.responsibleLabel,
             value: seance.encadreurResponsableId == 'current_user'
-                ? 'Moi'
+                ? AppLocalizations.of(context)!.meLabel
                 : seance.encadreurResponsableId,
           ),
         ],
@@ -300,7 +304,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           _StatBox(
             icon: Icons.people_rounded,
             value: '${seance.nbPresents}',
-            label: 'Presents',
+            label: AppLocalizations.of(context)!.presentsRecapLabel,
             color: const Color(0xFF3B82F6),
             isDark: isDark,
           ),
@@ -308,7 +312,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           _StatBox(
             icon: Icons.sports_soccer_rounded,
             value: '${seance.atelierIds.length}',
-            label: 'Ateliers',
+            label: AppLocalizations.of(context)!.workshops,
             color: const Color(0xFF8B5CF6),
             isDark: isDark,
           ),
@@ -316,7 +320,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           _StatBox(
             icon: Icons.group_rounded,
             value: '${seance.encadreurIds.length}',
-            label: 'Encadreurs',
+            label: AppLocalizations.of(context)!.coaches,
             color: const Color(0xFF10B981),
             isDark: isDark,
           ),
@@ -371,7 +375,9 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
               color: AppColors.primary,
             ),
             label: Text(
-              seance.estOuverte ? 'Gerer' : 'Voir',
+              seance.estOuverte
+                  ? AppLocalizations.of(context)!.manageAction
+                  : AppLocalizations.of(context)!.viewAll,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -405,7 +411,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     }
 
     if (seance.encadreurIds.isEmpty) {
-      return _buildEmptyListMessage('Aucun encadreur enregistre', colorScheme);
+      return _buildEmptyListMessage(
+        AppLocalizations.of(context)!.noCoachRegistered,
+        colorScheme,
+      );
     }
 
     return SizedBox(
@@ -455,7 +464,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
 
     if (seance.academicienIds.isEmpty) {
       return _buildEmptyListMessage(
-        'Aucun academicien enregistre',
+        AppLocalizations.of(context)!.noAcademicianRegistered,
         colorScheme,
       );
     }
@@ -509,7 +518,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     }
 
     if (_ateliers.isEmpty) {
-      return _buildEmptyListMessage('Aucun atelier programme', colorScheme);
+      return _buildEmptyListMessage(
+        AppLocalizations.of(context)!.noWorkshopProgrammed,
+        colorScheme,
+      );
     }
 
     return Padding(
@@ -576,7 +588,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                atelier.typeLabel,
+                                AtelierCompositionPage.getTypeLabel(
+                                  context,
+                                  atelier.type,
+                                ),
                                 style: GoogleFonts.montserrat(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -707,14 +722,15 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     }
   }
 
-  String get _statusLabel {
+  String _getStatusLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     switch (seance.statut) {
       case SeanceStatus.ouverte:
-        return 'En cours';
+        return l10n.sessionStatusOpen;
       case SeanceStatus.fermee:
-        return 'Terminee';
+        return l10n.sessionStatusClosed;
       case SeanceStatus.aVenir:
-        return 'A venir';
+        return l10n.sessionStatusUpcoming;
     }
   }
 

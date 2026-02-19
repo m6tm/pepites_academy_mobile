@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../state/sms_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/glassmorphism_card.dart';
@@ -37,19 +38,21 @@ class _SmsComposePageState extends State<SmsComposePage> {
 
   int get _charCount => _messageController.text.length;
   int get _smsCount => (_charCount / _maxSmsLength).ceil().clamp(1, 99);
-  int get _remainingChars =>
-      (_smsCount * _maxSmsLength) - _charCount;
+  int get _remainingChars => (_smsCount * _maxSmsLength) - _charCount;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(
-          'Nouveau SMS',
+          l10n.smsComposeTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -67,7 +70,7 @@ class _SmsComposePageState extends State<SmsComposePage> {
             children: [
               // En-tete
               Text(
-                'Redigez votre message',
+                l10n.smsComposeHeader,
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -77,7 +80,7 @@ class _SmsComposePageState extends State<SmsComposePage> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Le message sera envoye par SMS aux destinataires selectionnes.',
+                l10n.smsComposeSubHeader,
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -103,9 +106,11 @@ class _SmsComposePageState extends State<SmsComposePage> {
                             height: 1.5,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Saisissez votre message ici...',
+                            hintText: l10n.smsComposeHint,
                             hintStyle: GoogleFonts.montserrat(
-                              color: colorScheme.onSurface.withValues(alpha: 0.3),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.3,
+                              ),
                               fontSize: 15,
                             ),
                             border: InputBorder.none,
@@ -126,20 +131,22 @@ class _SmsComposePageState extends State<SmsComposePage> {
                         decoration: BoxDecoration(
                           border: Border(
                             top: BorderSide(
-                              color: colorScheme.onSurface.withValues(alpha: 0.08),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.08,
+                              ),
                             ),
                           ),
                         ),
                         child: Row(
                           children: [
                             _buildCounterChip(
-                              '$_charCount caractere${_charCount > 1 ? 's' : ''}',
+                              l10n.smsComposeCharCount(_charCount),
                               Icons.text_fields_rounded,
                               colorScheme,
                             ),
                             const SizedBox(width: 12),
                             _buildCounterChip(
-                              '$_smsCount SMS',
+                              l10n.smsComposeSmsCount(_smsCount),
                               Icons.sms_rounded,
                               colorScheme,
                               color: _smsCount > 1
@@ -148,13 +155,15 @@ class _SmsComposePageState extends State<SmsComposePage> {
                             ),
                             const Spacer(),
                             Text(
-                              '$_remainingChars restants',
+                              l10n.smsComposeRemainingChars(_remainingChars),
                               style: GoogleFonts.montserrat(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                                 color: _remainingChars < 20
                                     ? AppColors.error
-                                    : colorScheme.onSurface.withValues(alpha: 0.4),
+                                    : colorScheme.onSurface.withValues(
+                                        alpha: 0.4,
+                                      ),
                               ),
                             ),
                           ],
@@ -185,8 +194,9 @@ class _SmsComposePageState extends State<SmsComposePage> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    disabledBackgroundColor:
-                        AppColors.primary.withValues(alpha: 0.3),
+                    disabledBackgroundColor: AppColors.primary.withValues(
+                      alpha: 0.3,
+                    ),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -197,7 +207,7 @@ class _SmsComposePageState extends State<SmsComposePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Choisir les destinataires',
+                        l10n.smsComposeChooseRecipients,
                         style: GoogleFonts.montserrat(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,

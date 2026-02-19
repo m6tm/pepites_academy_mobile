@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../application/services/search_service.dart';
 import '../../../domain/entities/academicien.dart';
@@ -148,8 +149,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                       color: colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
-                      hintText:
-                          'Rechercher un academicien, encadreur, seance...',
+                      hintText: AppLocalizations.of(context)!.searchHint,
                       hintStyle: GoogleFonts.montserrat(
                         fontSize: 13,
                         color: colorScheme.onSurface.withValues(alpha: 0.35),
@@ -192,20 +192,25 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
   /// Filtres par categorie (chips horizontaux).
   Widget _buildCategoryFilters(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     final categories = [
-      _CategoryChipData('Tous', SearchCategory.tous, Icons.apps_rounded),
       _CategoryChipData(
-        'Academiciens',
+        l10n.allTagFilter,
+        SearchCategory.tous,
+        Icons.apps_rounded,
+      ),
+      _CategoryChipData(
+        l10n.academicians,
         SearchCategory.academiciens,
         Icons.school_rounded,
       ),
       _CategoryChipData(
-        'Encadreurs',
+        l10n.coaches,
         SearchCategory.encadreurs,
         Icons.sports_rounded,
       ),
       _CategoryChipData(
-        'Seances',
+        l10n.sessionsLabel,
         SearchCategory.seances,
         Icons.calendar_today_rounded,
       ),
@@ -283,7 +288,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recherches recentes',
+                AppLocalizations.of(context)!.recentSearches,
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -293,7 +298,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
               GestureDetector(
                 onTap: () => _searchState.viderHistorique(),
                 child: Text(
-                  'Tout effacer',
+                  AppLocalizations.of(context)!.clearAll,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -379,7 +384,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 20),
           Text(
-            'Recherche universelle',
+            AppLocalizations.of(context)!.universalSearch,
             style: GoogleFonts.montserrat(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -390,7 +395,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              'Trouvez rapidement un academicien, un encadreur ou une seance.',
+              AppLocalizations.of(context)!.universalSearchDesc,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
@@ -439,7 +444,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 16),
           Text(
-            'Aucun resultat',
+            AppLocalizations.of(context)!.noResultsFound,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -448,7 +453,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 6),
           Text(
-            'Essayez avec d\'autres termes de recherche.',
+            AppLocalizations.of(context)!.noResultsDesc,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               color: colorScheme.onSurface.withValues(alpha: 0.35),
@@ -593,30 +598,31 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
   /// Retourne les informations visuelles pour une categorie.
   _CategoryVisual _getCategoryVisual(SearchCategory categorie) {
+    final l10n = AppLocalizations.of(context)!;
     switch (categorie) {
       case SearchCategory.academiciens:
         return _CategoryVisual(
           icon: Icons.school_rounded,
           color: const Color(0xFF3B82F6),
-          label: 'Joueur',
+          label: l10n.playerLabel,
         );
       case SearchCategory.encadreurs:
         return _CategoryVisual(
           icon: Icons.sports_rounded,
           color: const Color(0xFF8B5CF6),
-          label: 'Coach',
+          label: l10n.coachLabel,
         );
       case SearchCategory.seances:
         return _CategoryVisual(
           icon: Icons.calendar_today_rounded,
           color: const Color(0xFF10B981),
-          label: 'Seance',
+          label: l10n.sessionLabel,
         );
       case SearchCategory.tous:
         return _CategoryVisual(
           icon: Icons.apps_rounded,
           color: AppColors.primary,
-          label: 'Tous',
+          label: l10n.allTagFilter,
         );
     }
   }

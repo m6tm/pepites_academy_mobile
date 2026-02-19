@@ -908,12 +908,6 @@ abstract class AppLocalizations {
   /// **'Presents'**
   String get present;
 
-  /// No description provided for @workshops.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ateliers'**
-  String get workshops;
-
   /// No description provided for @annotations.
   ///
   /// In fr, this message translates to:
@@ -2694,7 +2688,7 @@ abstract class AppLocalizations {
   ///
   /// In fr, this message translates to:
   /// **'{count, plural, =0{Aucun bulletin généré} =1{1 bulletin généré} other{{count} bulletins générés}}'**
-  String bulletinsGeneratedCount(num count);
+  String bulletinsGeneratedCount(int count);
 
   /// No description provided for @notEnoughDataEvolution.
   ///
@@ -3313,6 +3307,1050 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{count} ateliers'**
   String workshopsInfoLabel(int count);
+
+  /// No description provided for @workshopCompositionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ateliers'**
+  String get workshopCompositionTitle;
+
+  /// No description provided for @workshopProgrammed.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} atelier{count, plural, =1{} other{s}} {count, plural, =1{programme} other{programmes}}'**
+  String workshopProgrammed(int count);
+
+  /// No description provided for @noWorkshopProgrammed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun atelier programme'**
+  String get noWorkshopProgrammed;
+
+  /// No description provided for @workshopCompositionSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Composez votre seance en ajoutant des ateliers.\nChaque atelier represente un bloc d\'activite.'**
+  String get workshopCompositionSubtitle;
+
+  /// No description provided for @addWorkshopTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un atelier'**
+  String get addWorkshopTitle;
+
+  /// No description provided for @editWorkshopTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l\'atelier'**
+  String get editWorkshopTitle;
+
+  /// No description provided for @deleteWorkshopTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer l\'atelier ?'**
+  String get deleteWorkshopTitle;
+
+  /// No description provided for @deleteWorkshopConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'atelier \"{name}\" sera definitivement supprime.'**
+  String deleteWorkshopConfirmation(String name);
+
+  /// No description provided for @selectExerciseType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionnez un type d\'exercice'**
+  String get selectExerciseType;
+
+  /// No description provided for @workshopNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'atelier'**
+  String get workshopNameLabel;
+
+  /// No description provided for @workshopNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Dribble en slalom'**
+  String get workshopNameHint;
+
+  /// No description provided for @workshopNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom est requis'**
+  String get workshopNameRequired;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// No description provided for @descriptionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Travail des appuis et conduite de balle'**
+  String get descriptionHint;
+
+  /// No description provided for @saveWorkshop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter cet atelier'**
+  String get saveWorkshop;
+
+  /// No description provided for @annotateAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annoter'**
+  String get annotateAction;
+
+  /// No description provided for @workshopTypeDribble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dribble'**
+  String get workshopTypeDribble;
+
+  /// No description provided for @workshopTypePasses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passes'**
+  String get workshopTypePasses;
+
+  /// No description provided for @workshopTypeFinition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Finition'**
+  String get workshopTypeFinition;
+
+  /// No description provided for @workshopTypePhysique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Condition physique'**
+  String get workshopTypePhysique;
+
+  /// No description provided for @workshopTypeJeuEnSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeu en situation'**
+  String get workshopTypeJeuEnSituation;
+
+  /// No description provided for @workshopTypeTactique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tactique'**
+  String get workshopTypeTactique;
+
+  /// No description provided for @workshopTypeGardien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gardien'**
+  String get workshopTypeGardien;
+
+  /// No description provided for @workshopTypeEchauffement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Echauffement'**
+  String get workshopTypeEchauffement;
+
+  /// No description provided for @workshopTypePersonnalise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnalise'**
+  String get workshopTypePersonnalise;
+
+  /// No description provided for @sessionAddAtLeastOneWorkshop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez au moins un atelier pour pouvoir annoter.'**
+  String get sessionAddAtLeastOneWorkshop;
+
+  /// No description provided for @presentCoaches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreurs presents'**
+  String get presentCoaches;
+
+  /// No description provided for @responsibleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Responsable'**
+  String get responsibleLabel;
+
+  /// No description provided for @horaireLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horaire'**
+  String get horaireLabel;
+
+  /// No description provided for @manageAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gerer'**
+  String get manageAction;
+
+  /// No description provided for @noCoachRegistered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun encadreur enregistre'**
+  String get noCoachRegistered;
+
+  /// No description provided for @noAcademicianRegistered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun academicien enregistre'**
+  String get noAcademicianRegistered;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un academicien, encadreur, seance...'**
+  String get searchHint;
+
+  /// No description provided for @recentSearches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherches recentes'**
+  String get recentSearches;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout effacer'**
+  String get clearAll;
+
+  /// No description provided for @universalSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche universelle'**
+  String get universalSearch;
+
+  /// No description provided for @universalSearchDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trouvez rapidement un academicien, un encadreur ou une seance.'**
+  String get universalSearchDesc;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun resultat'**
+  String get noResultsFound;
+
+  /// No description provided for @noResultsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essayez avec d\'autres termes de recherche.'**
+  String get noResultsDesc;
+
+  /// No description provided for @playerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Joueur'**
+  String get playerLabel;
+
+  /// No description provided for @academicianFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiche Academicien'**
+  String get academicianFile;
+
+  /// No description provided for @infosTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Infos'**
+  String get infosTab;
+
+  /// No description provided for @presencesTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presences'**
+  String get presencesTab;
+
+  /// No description provided for @notesTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notes'**
+  String get notesTab;
+
+  /// No description provided for @bulletinsTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletins'**
+  String get bulletinsTab;
+
+  /// No description provided for @personalInfos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations personnelles'**
+  String get personalInfos;
+
+  /// No description provided for @sportInfos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations sportives'**
+  String get sportInfos;
+
+  /// No description provided for @ageLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Age'**
+  String get ageLabel;
+
+  /// No description provided for @noPresenceRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune presence enregistree'**
+  String get noPresenceRecorded;
+
+  /// No description provided for @noAnnotationRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune annotation enregistree'**
+  String get noAnnotationRecorded;
+
+  /// No description provided for @noBulletinGenerated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun bulletin genere'**
+  String get noBulletinGenerated;
+
+  /// No description provided for @coachFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiche Encadreur'**
+  String get coachFile;
+
+  /// No description provided for @statsTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stats'**
+  String get statsTab;
+
+  /// No description provided for @activityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activite'**
+  String get activityLabel;
+
+  /// No description provided for @conductedSessions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seances dirigees'**
+  String get conductedSessions;
+
+  /// No description provided for @conductedAnnotations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annotations realisees'**
+  String get conductedAnnotations;
+
+  /// No description provided for @recordedPresences.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presences enregistrees'**
+  String get recordedPresences;
+
+  /// No description provided for @noConductedSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune seance dirigee'**
+  String get noConductedSession;
+
+  /// No description provided for @closedSessionsStat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seances cloturees'**
+  String get closedSessionsStat;
+
+  /// No description provided for @avgPresents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moy. presents'**
+  String get avgPresents;
+
+  /// No description provided for @totalWorkshops.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total ateliers'**
+  String get totalWorkshops;
+
+  /// No description provided for @closureRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de cloture'**
+  String get closureRate;
+
+  /// No description provided for @keyFigures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chiffres cles'**
+  String get keyFigures;
+
+  /// No description provided for @scannedPresences.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presences scannees'**
+  String get scannedPresences;
+
+  /// No description provided for @teamTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Equipe'**
+  String get teamTab;
+
+  /// No description provided for @recapTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recap'**
+  String get recapTab;
+
+  /// No description provided for @sessionDetailTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Detail Seance'**
+  String get sessionDetailTitle;
+
+  /// No description provided for @cancelAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get cancelAction;
+
+  /// No description provided for @deleteAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get deleteAction;
+
+  /// No description provided for @saveAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get saveAction;
+
+  /// No description provided for @addAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get addAction;
+
+  /// No description provided for @editAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get editAction;
+
+  /// No description provided for @sessionStatusOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get sessionStatusOpen;
+
+  /// No description provided for @sessionStatusClosed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermee'**
+  String get sessionStatusClosed;
+
+  /// No description provided for @sessionStatusUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'A venir'**
+  String get sessionStatusUpcoming;
+
+  /// No description provided for @lastUpdateWithDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis a jour le {date}'**
+  String lastUpdateWithDate(String date);
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @positionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste'**
+  String get positionLabel;
+
+  /// No description provided for @schoolLevelLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau scolaire'**
+  String get schoolLevelLabel;
+
+  /// No description provided for @qrCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code QR'**
+  String get qrCodeLabel;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note : {note}/10'**
+  String noteLabel(String note);
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Telephone'**
+  String get phoneLabel;
+
+  /// No description provided for @registeredOnLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscrit le'**
+  String get registeredOnLabel;
+
+  /// No description provided for @sessionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance'**
+  String get sessionLabel;
+
+  /// No description provided for @coachLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach'**
+  String get coachLabel;
+
+  /// No description provided for @presentCountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} present(s)'**
+  String presentCountLabel(String count);
+
+  /// No description provided for @workshopCountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} atelier(s)'**
+  String workshopCountLabel(String count);
+
+  /// No description provided for @coachWithNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur {number}'**
+  String coachWithNumber(int number);
+
+  /// No description provided for @academicianWithNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Academicien {number}'**
+  String academicianWithNumber(int number);
+
+  /// No description provided for @academicianProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiche Academicien'**
+  String get academicianProfileTitle;
+
+  /// No description provided for @academicianBadgeTypeMention.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACADEMICIEN'**
+  String get academicianBadgeTypeMention;
+
+  /// No description provided for @coachProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiche Encadreur'**
+  String get coachProfileTitle;
+
+  /// No description provided for @coachBadgeTypeMention.
+  ///
+  /// In fr, this message translates to:
+  /// **'ENCADREUR'**
+  String get coachBadgeTypeMention;
+
+  /// No description provided for @recapLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recapitulatif'**
+  String get recapLabel;
+
+  /// No description provided for @statsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques'**
+  String get statsLabel;
+
+  /// No description provided for @sessionsTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances'**
+  String get sessionsTab;
+
+  /// No description provided for @presentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présent'**
+  String get presentLabel;
+
+  /// No description provided for @sessionWithIdLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance {id}...'**
+  String sessionWithIdLabel(String id);
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut'**
+  String get statusLabel;
+
+  /// No description provided for @generalInformation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations générales'**
+  String get generalInformation;
+
+  /// No description provided for @presentAcademicians.
+  ///
+  /// In fr, this message translates to:
+  /// **'Académiciens présents'**
+  String get presentAcademicians;
+
+  /// No description provided for @completedWorkshops.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ateliers réalisés'**
+  String get completedWorkshops;
+
+  /// No description provided for @noCoachRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun encadreur enregistré'**
+  String get noCoachRecorded;
+
+  /// No description provided for @noAcademicianRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun académicien enregistré'**
+  String get noAcademicianRecorded;
+
+  /// No description provided for @noWorkshopRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun atelier enregistré'**
+  String get noWorkshopRecorded;
+
+  /// No description provided for @at.
+  ///
+  /// In fr, this message translates to:
+  /// **' à '**
+  String get at;
+
+  /// No description provided for @notesInfoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} notes'**
+  String notesInfoLabel(int count);
+
+  /// No description provided for @smsComposeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau SMS'**
+  String get smsComposeTitle;
+
+  /// No description provided for @smsComposeHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rédigez votre message'**
+  String get smsComposeHeader;
+
+  /// No description provided for @smsComposeSubHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le message sera envoyé par SMS aux destinataires sélectionnés.'**
+  String get smsComposeSubHeader;
+
+  /// No description provided for @smsComposeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez votre message ici...'**
+  String get smsComposeHint;
+
+  /// No description provided for @smsComposeCharCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{{count} caractère} other{{count} caractères}}'**
+  String smsComposeCharCount(int count);
+
+  /// No description provided for @smsComposeSmsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} SMS'**
+  String smsComposeSmsCount(int count);
+
+  /// No description provided for @smsComposeRemainingChars.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} restants'**
+  String smsComposeRemainingChars(int count);
+
+  /// No description provided for @smsComposeChooseRecipients.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir les destinataires'**
+  String get smsComposeChooseRecipients;
+
+  /// No description provided for @smsConfirmationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmation'**
+  String get smsConfirmationTitle;
+
+  /// No description provided for @smsConfirmationSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récapitulatif'**
+  String get smsConfirmationSummary;
+
+  /// No description provided for @smsConfirmationCheckInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez les informations avant l\'envoi.'**
+  String get smsConfirmationCheckInfo;
+
+  /// No description provided for @smsConfirmationRecipient.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Destinataire} other{Destinataires}}'**
+  String smsConfirmationRecipient(int count);
+
+  /// No description provided for @smsConfirmationSmsPerPerson.
+  ///
+  /// In fr, this message translates to:
+  /// **'SMS / personne'**
+  String get smsConfirmationSmsPerPerson;
+
+  /// No description provided for @smsConfirmationTotalSms.
+  ///
+  /// In fr, this message translates to:
+  /// **'SMS total'**
+  String get smsConfirmationTotalSms;
+
+  /// No description provided for @smsConfirmationMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get smsConfirmationMessage;
+
+  /// No description provided for @smsConfirmationMessageInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'{length} caractères - {count} SMS'**
+  String smsConfirmationMessageInfo(int length, int count);
+
+  /// No description provided for @smsConfirmationRecipientsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Destinataires ({count})'**
+  String smsConfirmationRecipientsCount(int count);
+
+  /// No description provided for @smsConfirmationSendSms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer les SMS'**
+  String get smsConfirmationSendSms;
+
+  /// No description provided for @smsConfirmationConfirmSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer l\'envoi'**
+  String get smsConfirmationConfirmSend;
+
+  /// No description provided for @smsConfirmationDialogBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes sur le point d\'envoyer ce message à {count} {count, plural, =1{destinataire} other{destinataires}}.\n\nCette action est irréversible.'**
+  String smsConfirmationDialogBody(int count);
+
+  /// No description provided for @smsConfirmationCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get smsConfirmationCancel;
+
+  /// No description provided for @smsConfirmationConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get smsConfirmationConfirm;
+
+  /// No description provided for @smsConfirmationSuccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'SMS envoyé !'**
+  String get smsConfirmationSuccessTitle;
+
+  /// No description provided for @smsConfirmationSuccessBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le message a été envoyé avec succès.'**
+  String get smsConfirmationSuccessBody;
+
+  /// No description provided for @smsConfirmationBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get smsConfirmationBack;
+
+  /// No description provided for @smsConfirmationError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'envoi.'**
+  String get smsConfirmationError;
+
+  /// No description provided for @smsHistoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique SMS'**
+  String get smsHistoryTitle;
+
+  /// No description provided for @smsHistoryNoSms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun SMS envoyé'**
+  String get smsHistoryNoSms;
+
+  /// No description provided for @smsHistoryNoSmsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les messages envoyés apparaîtront ici.'**
+  String get smsHistoryNoSmsDescription;
+
+  /// No description provided for @smsStatusSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyé'**
+  String get smsStatusSent;
+
+  /// No description provided for @smsStatusFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec'**
+  String get smsStatusFailed;
+
+  /// No description provided for @smsStatusPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get smsStatusPending;
+
+  /// No description provided for @dateTimeJustNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'À l\'instant'**
+  String get dateTimeJustNow;
+
+  /// No description provided for @dateTimeMinutesAgo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {minutes} min'**
+  String dateTimeMinutesAgo(int minutes);
+
+  /// No description provided for @dateTimeHoursAgo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {hours}h'**
+  String dateTimeHoursAgo(int hours);
+
+  /// No description provided for @dateTimeYesterday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hier'**
+  String get dateTimeYesterday;
+
+  /// No description provided for @dateTimeDaysAgo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il y a {days} jours'**
+  String dateTimeDaysAgo(int days);
+
+  /// No description provided for @smsHistoryMoreRecipients.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{count}'**
+  String smsHistoryMoreRecipients(int count);
+
+  /// No description provided for @smsHistoryMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get smsHistoryMessage;
+
+  /// No description provided for @smsHistoryRecipients.
+  ///
+  /// In fr, this message translates to:
+  /// **'Destinataires ({count})'**
+  String smsHistoryRecipients(int count);
+
+  /// No description provided for @smsHistoryDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ce SMS ?'**
+  String get smsHistoryDeleteTitle;
+
+  /// No description provided for @smsHistoryDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce message sera retiré de l\'historique.'**
+  String get smsHistoryDeleteBody;
+
+  /// No description provided for @smsHistoryDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get smsHistoryDeleteCancel;
+
+  /// No description provided for @smsHistoryDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get smsHistoryDeleteConfirm;
+
+  /// No description provided for @smsRecipientsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Destinataires'**
+  String get smsRecipientsTitle;
+
+  /// No description provided for @smsRecipientsTabIndividual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Individuel'**
+  String get smsRecipientsTabIndividual;
+
+  /// No description provided for @smsRecipientsTabFilters.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get smsRecipientsTabFilters;
+
+  /// No description provided for @smsRecipientsTabSelection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélection'**
+  String get smsRecipientsTabSelection;
+
+  /// No description provided for @smsRecipientsSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher par nom...'**
+  String get smsRecipientsSearchHint;
+
+  /// No description provided for @smsRecipientsAcademiciens.
+  ///
+  /// In fr, this message translates to:
+  /// **'Académiciens'**
+  String get smsRecipientsAcademiciens;
+
+  /// No description provided for @smsRecipientsNoAcademiciens.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun académicien trouvé'**
+  String get smsRecipientsNoAcademiciens;
+
+  /// No description provided for @smsRecipientsEncadreurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreurs'**
+  String get smsRecipientsEncadreurs;
+
+  /// No description provided for @smsRecipientsNoEncadreurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun encadreur trouvé'**
+  String get smsRecipientsNoEncadreurs;
+
+  /// No description provided for @smsRecipientsQuickSelection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélection rapide'**
+  String get smsRecipientsQuickSelection;
+
+  /// No description provided for @smsRecipientsAllAcademiciens.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les académiciens'**
+  String get smsRecipientsAllAcademiciens;
+
+  /// No description provided for @smsRecipientsAllEncadreurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les encadreurs'**
+  String get smsRecipientsAllEncadreurs;
+
+  /// No description provided for @smsRecipientsByFootballPoste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par poste de football'**
+  String get smsRecipientsByFootballPoste;
+
+  /// No description provided for @smsRecipientsNoPosteAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun poste disponible'**
+  String get smsRecipientsNoPosteAvailable;
+
+  /// No description provided for @smsRecipientsBySchoolLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par niveau scolaire'**
+  String get smsRecipientsBySchoolLevel;
+
+  /// No description provided for @smsRecipientsNoLevelAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun niveau disponible'**
+  String get smsRecipientsNoLevelAvailable;
+
+  /// No description provided for @smsRecipientsNoRecipientSelected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun destinataire sélectionné'**
+  String get smsRecipientsNoRecipientSelected;
+
+  /// No description provided for @smsRecipientsNoRecipientSelectedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez les onglets Individuel ou Filtres\npour ajouter des destinataires.'**
+  String get smsRecipientsNoRecipientSelectedDesc;
+
+  /// No description provided for @smsRecipientsSelectedCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{{count} sélectionné} other{{count} sélectionnés}}'**
+  String smsRecipientsSelectedCount(int count);
+
+  /// No description provided for @smsRecipientsRemoveAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout retirer'**
+  String get smsRecipientsRemoveAll;
+
+  /// No description provided for @smsRecipientsPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévisualiser'**
+  String get smsRecipientsPreview;
+
+  /// No description provided for @workshops.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ateliers'**
+  String get workshops;
+
+  /// No description provided for @academician.
+  ///
+  /// In fr, this message translates to:
+  /// **'Académicien'**
+  String get academician;
 }
 
 class _AppLocalizationsDelegate

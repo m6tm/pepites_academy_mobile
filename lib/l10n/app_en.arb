@@ -812,5 +812,343 @@
         "type": "int"
       }
     }
-  }
+  },
+  "workshopCompositionTitle": "Workshops",
+  "workshopProgrammed": "{count} workshop{count, plural, =1{} other{s}} {count, plural, =1{programmed} other{programmed}}",
+  "@workshopProgrammed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noWorkshopProgrammed": "No workshops programmed",
+  "workshopCompositionSubtitle": "Compose your session by adding workshops.\nEach workshop represents an activity block.",
+  "addWorkshopTitle": "Add a workshop",
+  "editWorkshopTitle": "Edit workshop",
+  "deleteWorkshopTitle": "Delete workshop?",
+  "deleteWorkshopConfirmation": "The workshop \"{name}\" will be permanently deleted.",
+  "@deleteWorkshopConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "selectExerciseType": "Select an exercise type",
+  "workshopNameLabel": "Workshop name",
+  "workshopNameHint": "Ex: Slalom dribbling",
+  "workshopNameRequired": "Name is required",
+  "descriptionLabel": "Description",
+  "descriptionHint": "Ex: Footwork and ball control",
+  "saveWorkshop": "Add this workshop",
+  "annotateAction": "Annotate",
+  "workshopTypeDribble": "Dribble",
+  "workshopTypePasses": "Passes",
+  "workshopTypeFinition": "Finishing",
+  "workshopTypePhysique": "Physical condition",
+  "workshopTypeJeuEnSituation": "Game situation",
+  "workshopTypeTactique": "Tactics",
+  "workshopTypeGardien": "Goalkeeper",
+  "workshopTypeEchauffement": "Warm-up",
+  "workshopTypePersonnalise": "Custom",
+  "sessionAddAtLeastOneWorkshop": "Add at least one workshop to be able to annotate.",
+  "presentCoaches": "Present coaches",
+  "responsibleLabel": "Responsible",
+  "horaireLabel": "Schedule",
+  "manageAction": "Manage",
+  "noCoachRegistered": "No coach registered",
+  "noAcademicianRegistered": "No academician registered",
+  "searchHint": "Search for an academician, coach, session...",
+  "recentSearches": "Recent searches",
+  "clearAll": "Clear all",
+  "universalSearch": "Universal Search",
+  "universalSearchDesc": "Quickly find an academician, a coach or a session.",
+  "noResultsFound": "No results",
+  "noResultsDesc": "Try with other search terms.",
+  "playerLabel": "Player",
+  "academicianFile": "Academician File",
+  "infosTab": "Infos",
+  "presencesTab": "Presences",
+  "notesTab": "Notes",
+  "bulletinsTab": "Reports",
+  "personalInfos": "Personal information",
+  "sportInfos": "Sport information",
+  "ageLabel": "Age",
+  "noPresenceRecorded": "No presence recorded",
+  "noAnnotationRecorded": "No annotation recorded",
+  "noBulletinGenerated": "No report generated",
+  "coachFile": "Coach File",
+  "statsTab": "Stats",
+  "activityLabel": "Activity",
+  "conductedSessions": "Conducted sessions",
+  "conductedAnnotations": "Conducted annotations",
+  "recordedPresences": "Recorded presences",
+  "noConductedSession": "No conducted session",
+  "closedSessionsStat": "Closed sessions",
+  "avgPresents": "Avg. presents",
+  "totalWorkshops": "Total workshops",
+  "closureRate": "Closure rate",
+  "keyFigures": "Key figures",
+  "scannedPresences": "Scanned presences",
+  "teamTab": "Team",
+  "recapTab": "Recap",
+  "sessionDetailTitle": "Session Detail",
+  "cancelAction": "Cancel",
+  "deleteAction": "Delete",
+  "saveAction": "Save",
+  "addAction": "Add",
+  "editAction": "Edit",
+  "sessionStatusOpen": "In progress",
+  "sessionStatusClosed": "Closed",
+  "sessionStatusUpcoming": "Upcoming",
+  "lastUpdateWithDate": "Last updated on {date}",
+  "@lastUpdateWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dateLabel": "Date",
+  "positionLabel": "Position",
+  "schoolLevelLabel": "School level",
+  "qrCodeLabel": "QR Code",
+  "noteLabel": "Note: {note}/10",
+  "@noteLabel": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "phoneLabel": "Phone",
+  "registeredOnLabel": "Registered on",
+  "sessionLabel": "Session",
+  "coachLabel": "Coach",
+  "presentCountLabel": "{count} present(s)",
+  "@presentCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "workshopCountLabel": "{count} workshop(s)",
+  "@workshopCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "coachWithNumber": "Coach {number}",
+  "@coachWithNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "academicianWithNumber": "Academician {number}",
+  "@academicianWithNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "academicianProfileTitle": "Academician Record",
+  "academicianBadgeTypeMention": "ACADEMICIAN",
+  "coachProfileTitle": "Coach Record",
+  "coachBadgeTypeMention": "COACH",
+  "recapLabel": "Summary",
+  "statsLabel": "Statistics",
+  "sessionsTab": "Sessions",
+  "presentLabel": "Present",
+  "sessionWithIdLabel": "Session {id}...",
+  "@sessionWithIdLabel": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "statusLabel": "Status",
+  "generalInformation": "General Information",
+  "presentAcademicians": "Present Academicians",
+  "completedWorkshops": "Completed Workshops",
+  "noCoachRecorded": "No coach recorded",
+  "noAcademicianRecorded": "No academician recorded",
+  "noWorkshopRecorded": "No workshop recorded",
+  "at": " at ",
+  "notesInfoLabel": "{count} notes",
+  "@notesInfoLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsComposeTitle": "New SMS",
+  "smsComposeHeader": "Write your message",
+  "smsComposeSubHeader": "The message will be sent by SMS to the selected recipients.",
+  "smsComposeHint": "Enter your message here...",
+  "smsComposeCharCount": "{count, plural, =1{{count} character} other{{count} characters}}",
+  "@smsComposeCharCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsComposeSmsCount": "{count} SMS",
+  "@smsComposeSmsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsComposeRemainingChars": "{count} remaining",
+  "@smsComposeRemainingChars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsComposeChooseRecipients": "Choose recipients",
+  "smsConfirmationTitle": "Confirmation",
+  "smsConfirmationSummary": "Summary",
+  "smsConfirmationCheckInfo": "Check the information before sending.",
+  "smsConfirmationRecipient": "{count, plural, =1{Recipient} other{Recipients}}",
+  "@smsConfirmationRecipient": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsConfirmationSmsPerPerson": "SMS / person",
+  "smsConfirmationTotalSms": "Total SMS",
+  "smsConfirmationMessage": "Message",
+  "smsConfirmationMessageInfo": "{length} characters - {count} SMS",
+  "@smsConfirmationMessageInfo": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsConfirmationRecipientsCount": "Recipients ({count})",
+  "@smsConfirmationRecipientsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsConfirmationSendSms": "Send SMS",
+  "smsConfirmationConfirmSend": "Confirm sending",
+  "smsConfirmationDialogBody": "You are about to send this message to {count} {count, plural, =1{recipient} other{recipients}}.\n\nThis action is irreversible.",
+  "@smsConfirmationDialogBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsConfirmationCancel": "Cancel",
+  "smsConfirmationConfirm": "Confirm",
+  "smsConfirmationSuccessTitle": "SMS sent!",
+  "smsConfirmationSuccessBody": "The message was sent successfully.",
+  "smsConfirmationBack": "Back",
+  "smsConfirmationError": "Error while sending.",
+  "smsHistoryTitle": "SMS History",
+  "smsHistoryNoSms": "No SMS sent",
+  "smsHistoryNoSmsDescription": "Sent messages will appear here.",
+  "smsStatusSent": "Sent",
+  "smsStatusFailed": "Failed",
+  "smsStatusPending": "Pending",
+  "dateTimeJustNow": "Just now",
+  "dateTimeMinutesAgo": "{minutes} min ago",
+  "@dateTimeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "dateTimeHoursAgo": "{hours}h ago",
+  "@dateTimeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "dateTimeYesterday": "Yesterday",
+  "dateTimeDaysAgo": "{days} days ago",
+  "@dateTimeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "smsHistoryMoreRecipients": "+{count}",
+  "@smsHistoryMoreRecipients": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsHistoryMessage": "Message",
+  "smsHistoryRecipients": "Recipients ({count})",
+  "@smsHistoryRecipients": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsHistoryDeleteTitle": "Delete this SMS?",
+  "smsHistoryDeleteBody": "This message will be removed from the history.",
+  "smsHistoryDeleteCancel": "Cancel",
+  "smsHistoryDeleteConfirm": "Delete",
+  "smsRecipientsTitle": "Recipients",
+  "smsRecipientsTabIndividual": "Individual",
+  "smsRecipientsTabFilters": "Filters",
+  "smsRecipientsTabSelection": "Selection",
+  "smsRecipientsSearchHint": "Search by name...",
+  "smsRecipientsAcademiciens": "Academicians",
+  "smsRecipientsNoAcademiciens": "No academician found",
+  "smsRecipientsEncadreurs": "Coaches",
+  "smsRecipientsNoEncadreurs": "No coach found",
+  "smsRecipientsQuickSelection": "Quick selection",
+  "smsRecipientsAllAcademiciens": "All academicians",
+  "smsRecipientsAllEncadreurs": "All coaches",
+  "smsRecipientsByFootballPoste": "By football position",
+  "smsRecipientsNoPosteAvailable": "No position available",
+  "smsRecipientsBySchoolLevel": "By school level",
+  "smsRecipientsNoLevelAvailable": "No level available",
+  "smsRecipientsNoRecipientSelected": "No recipient selected",
+  "smsRecipientsNoRecipientSelectedDesc": "Use the Individual or Filters tabs\nto add recipients.",
+  "smsRecipientsSelectedCount": "{count, plural, =1{{count} selected} other{{count} selected}}",
+  "@smsRecipientsSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smsRecipientsRemoveAll": "Remove all",
+  "smsRecipientsPreview": "Preview",
+  "workshops": "Workshops",
+  "academician": "Academician"
 }

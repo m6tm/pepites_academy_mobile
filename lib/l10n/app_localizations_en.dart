@@ -439,9 +439,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get present => 'Present';
 
   @override
-  String get workshops => 'Workshops';
-
-  @override
   String get annotations => 'Annotations';
 
   @override
@@ -1404,7 +1401,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noObservation => 'No remarks written.';
 
   @override
-  String bulletinsGeneratedCount(num count) {
+  String bulletinsGeneratedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -1761,4 +1758,615 @@ class AppLocalizationsEn extends AppLocalizations {
   String workshopsInfoLabel(int count) {
     return '$count workshops';
   }
+
+  @override
+  String get workshopCompositionTitle => 'Workshops';
+
+  @override
+  String workshopProgrammed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'programmed',
+      one: 'programmed',
+    );
+    return '$count workshop$_temp0 $_temp1';
+  }
+
+  @override
+  String get noWorkshopProgrammed => 'No workshops programmed';
+
+  @override
+  String get workshopCompositionSubtitle =>
+      'Compose your session by adding workshops.\nEach workshop represents an activity block.';
+
+  @override
+  String get addWorkshopTitle => 'Add a workshop';
+
+  @override
+  String get editWorkshopTitle => 'Edit workshop';
+
+  @override
+  String get deleteWorkshopTitle => 'Delete workshop?';
+
+  @override
+  String deleteWorkshopConfirmation(String name) {
+    return 'The workshop \"$name\" will be permanently deleted.';
+  }
+
+  @override
+  String get selectExerciseType => 'Select an exercise type';
+
+  @override
+  String get workshopNameLabel => 'Workshop name';
+
+  @override
+  String get workshopNameHint => 'Ex: Slalom dribbling';
+
+  @override
+  String get workshopNameRequired => 'Name is required';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get descriptionHint => 'Ex: Footwork and ball control';
+
+  @override
+  String get saveWorkshop => 'Add this workshop';
+
+  @override
+  String get annotateAction => 'Annotate';
+
+  @override
+  String get workshopTypeDribble => 'Dribble';
+
+  @override
+  String get workshopTypePasses => 'Passes';
+
+  @override
+  String get workshopTypeFinition => 'Finishing';
+
+  @override
+  String get workshopTypePhysique => 'Physical condition';
+
+  @override
+  String get workshopTypeJeuEnSituation => 'Game situation';
+
+  @override
+  String get workshopTypeTactique => 'Tactics';
+
+  @override
+  String get workshopTypeGardien => 'Goalkeeper';
+
+  @override
+  String get workshopTypeEchauffement => 'Warm-up';
+
+  @override
+  String get workshopTypePersonnalise => 'Custom';
+
+  @override
+  String get sessionAddAtLeastOneWorkshop =>
+      'Add at least one workshop to be able to annotate.';
+
+  @override
+  String get presentCoaches => 'Present coaches';
+
+  @override
+  String get responsibleLabel => 'Responsible';
+
+  @override
+  String get horaireLabel => 'Schedule';
+
+  @override
+  String get manageAction => 'Manage';
+
+  @override
+  String get noCoachRegistered => 'No coach registered';
+
+  @override
+  String get noAcademicianRegistered => 'No academician registered';
+
+  @override
+  String get searchHint => 'Search for an academician, coach, session...';
+
+  @override
+  String get recentSearches => 'Recent searches';
+
+  @override
+  String get clearAll => 'Clear all';
+
+  @override
+  String get universalSearch => 'Universal Search';
+
+  @override
+  String get universalSearchDesc =>
+      'Quickly find an academician, a coach or a session.';
+
+  @override
+  String get noResultsFound => 'No results';
+
+  @override
+  String get noResultsDesc => 'Try with other search terms.';
+
+  @override
+  String get playerLabel => 'Player';
+
+  @override
+  String get academicianFile => 'Academician File';
+
+  @override
+  String get infosTab => 'Infos';
+
+  @override
+  String get presencesTab => 'Presences';
+
+  @override
+  String get notesTab => 'Notes';
+
+  @override
+  String get bulletinsTab => 'Reports';
+
+  @override
+  String get personalInfos => 'Personal information';
+
+  @override
+  String get sportInfos => 'Sport information';
+
+  @override
+  String get ageLabel => 'Age';
+
+  @override
+  String get noPresenceRecorded => 'No presence recorded';
+
+  @override
+  String get noAnnotationRecorded => 'No annotation recorded';
+
+  @override
+  String get noBulletinGenerated => 'No report generated';
+
+  @override
+  String get coachFile => 'Coach File';
+
+  @override
+  String get statsTab => 'Stats';
+
+  @override
+  String get activityLabel => 'Activity';
+
+  @override
+  String get conductedSessions => 'Conducted sessions';
+
+  @override
+  String get conductedAnnotations => 'Conducted annotations';
+
+  @override
+  String get recordedPresences => 'Recorded presences';
+
+  @override
+  String get noConductedSession => 'No conducted session';
+
+  @override
+  String get closedSessionsStat => 'Closed sessions';
+
+  @override
+  String get avgPresents => 'Avg. presents';
+
+  @override
+  String get totalWorkshops => 'Total workshops';
+
+  @override
+  String get closureRate => 'Closure rate';
+
+  @override
+  String get keyFigures => 'Key figures';
+
+  @override
+  String get scannedPresences => 'Scanned presences';
+
+  @override
+  String get teamTab => 'Team';
+
+  @override
+  String get recapTab => 'Recap';
+
+  @override
+  String get sessionDetailTitle => 'Session Detail';
+
+  @override
+  String get cancelAction => 'Cancel';
+
+  @override
+  String get deleteAction => 'Delete';
+
+  @override
+  String get saveAction => 'Save';
+
+  @override
+  String get addAction => 'Add';
+
+  @override
+  String get editAction => 'Edit';
+
+  @override
+  String get sessionStatusOpen => 'In progress';
+
+  @override
+  String get sessionStatusClosed => 'Closed';
+
+  @override
+  String get sessionStatusUpcoming => 'Upcoming';
+
+  @override
+  String lastUpdateWithDate(String date) {
+    return 'Last updated on $date';
+  }
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get positionLabel => 'Position';
+
+  @override
+  String get schoolLevelLabel => 'School level';
+
+  @override
+  String get qrCodeLabel => 'QR Code';
+
+  @override
+  String noteLabel(String note) {
+    return 'Note: $note/10';
+  }
+
+  @override
+  String get phoneLabel => 'Phone';
+
+  @override
+  String get registeredOnLabel => 'Registered on';
+
+  @override
+  String get sessionLabel => 'Session';
+
+  @override
+  String get coachLabel => 'Coach';
+
+  @override
+  String presentCountLabel(String count) {
+    return '$count present(s)';
+  }
+
+  @override
+  String workshopCountLabel(String count) {
+    return '$count workshop(s)';
+  }
+
+  @override
+  String coachWithNumber(int number) {
+    return 'Coach $number';
+  }
+
+  @override
+  String academicianWithNumber(int number) {
+    return 'Academician $number';
+  }
+
+  @override
+  String get academicianProfileTitle => 'Academician Record';
+
+  @override
+  String get academicianBadgeTypeMention => 'ACADEMICIAN';
+
+  @override
+  String get coachProfileTitle => 'Coach Record';
+
+  @override
+  String get coachBadgeTypeMention => 'COACH';
+
+  @override
+  String get recapLabel => 'Summary';
+
+  @override
+  String get statsLabel => 'Statistics';
+
+  @override
+  String get sessionsTab => 'Sessions';
+
+  @override
+  String get presentLabel => 'Present';
+
+  @override
+  String sessionWithIdLabel(String id) {
+    return 'Session $id...';
+  }
+
+  @override
+  String get statusLabel => 'Status';
+
+  @override
+  String get generalInformation => 'General Information';
+
+  @override
+  String get presentAcademicians => 'Present Academicians';
+
+  @override
+  String get completedWorkshops => 'Completed Workshops';
+
+  @override
+  String get noCoachRecorded => 'No coach recorded';
+
+  @override
+  String get noAcademicianRecorded => 'No academician recorded';
+
+  @override
+  String get noWorkshopRecorded => 'No workshop recorded';
+
+  @override
+  String get at => ' at ';
+
+  @override
+  String notesInfoLabel(int count) {
+    return '$count notes';
+  }
+
+  @override
+  String get smsComposeTitle => 'New SMS';
+
+  @override
+  String get smsComposeHeader => 'Write your message';
+
+  @override
+  String get smsComposeSubHeader =>
+      'The message will be sent by SMS to the selected recipients.';
+
+  @override
+  String get smsComposeHint => 'Enter your message here...';
+
+  @override
+  String smsComposeCharCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters',
+      one: '$count character',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String smsComposeSmsCount(int count) {
+    return '$count SMS';
+  }
+
+  @override
+  String smsComposeRemainingChars(int count) {
+    return '$count remaining';
+  }
+
+  @override
+  String get smsComposeChooseRecipients => 'Choose recipients';
+
+  @override
+  String get smsConfirmationTitle => 'Confirmation';
+
+  @override
+  String get smsConfirmationSummary => 'Summary';
+
+  @override
+  String get smsConfirmationCheckInfo =>
+      'Check the information before sending.';
+
+  @override
+  String smsConfirmationRecipient(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Recipients',
+      one: 'Recipient',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get smsConfirmationSmsPerPerson => 'SMS / person';
+
+  @override
+  String get smsConfirmationTotalSms => 'Total SMS';
+
+  @override
+  String get smsConfirmationMessage => 'Message';
+
+  @override
+  String smsConfirmationMessageInfo(int length, int count) {
+    return '$length characters - $count SMS';
+  }
+
+  @override
+  String smsConfirmationRecipientsCount(int count) {
+    return 'Recipients ($count)';
+  }
+
+  @override
+  String get smsConfirmationSendSms => 'Send SMS';
+
+  @override
+  String get smsConfirmationConfirmSend => 'Confirm sending';
+
+  @override
+  String smsConfirmationDialogBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'recipients',
+      one: 'recipient',
+    );
+    return 'You are about to send this message to $count $_temp0.\n\nThis action is irreversible.';
+  }
+
+  @override
+  String get smsConfirmationCancel => 'Cancel';
+
+  @override
+  String get smsConfirmationConfirm => 'Confirm';
+
+  @override
+  String get smsConfirmationSuccessTitle => 'SMS sent!';
+
+  @override
+  String get smsConfirmationSuccessBody => 'The message was sent successfully.';
+
+  @override
+  String get smsConfirmationBack => 'Back';
+
+  @override
+  String get smsConfirmationError => 'Error while sending.';
+
+  @override
+  String get smsHistoryTitle => 'SMS History';
+
+  @override
+  String get smsHistoryNoSms => 'No SMS sent';
+
+  @override
+  String get smsHistoryNoSmsDescription => 'Sent messages will appear here.';
+
+  @override
+  String get smsStatusSent => 'Sent';
+
+  @override
+  String get smsStatusFailed => 'Failed';
+
+  @override
+  String get smsStatusPending => 'Pending';
+
+  @override
+  String get dateTimeJustNow => 'Just now';
+
+  @override
+  String dateTimeMinutesAgo(int minutes) {
+    return '$minutes min ago';
+  }
+
+  @override
+  String dateTimeHoursAgo(int hours) {
+    return '${hours}h ago';
+  }
+
+  @override
+  String get dateTimeYesterday => 'Yesterday';
+
+  @override
+  String dateTimeDaysAgo(int days) {
+    return '$days days ago';
+  }
+
+  @override
+  String smsHistoryMoreRecipients(int count) {
+    return '+$count';
+  }
+
+  @override
+  String get smsHistoryMessage => 'Message';
+
+  @override
+  String smsHistoryRecipients(int count) {
+    return 'Recipients ($count)';
+  }
+
+  @override
+  String get smsHistoryDeleteTitle => 'Delete this SMS?';
+
+  @override
+  String get smsHistoryDeleteBody =>
+      'This message will be removed from the history.';
+
+  @override
+  String get smsHistoryDeleteCancel => 'Cancel';
+
+  @override
+  String get smsHistoryDeleteConfirm => 'Delete';
+
+  @override
+  String get smsRecipientsTitle => 'Recipients';
+
+  @override
+  String get smsRecipientsTabIndividual => 'Individual';
+
+  @override
+  String get smsRecipientsTabFilters => 'Filters';
+
+  @override
+  String get smsRecipientsTabSelection => 'Selection';
+
+  @override
+  String get smsRecipientsSearchHint => 'Search by name...';
+
+  @override
+  String get smsRecipientsAcademiciens => 'Academicians';
+
+  @override
+  String get smsRecipientsNoAcademiciens => 'No academician found';
+
+  @override
+  String get smsRecipientsEncadreurs => 'Coaches';
+
+  @override
+  String get smsRecipientsNoEncadreurs => 'No coach found';
+
+  @override
+  String get smsRecipientsQuickSelection => 'Quick selection';
+
+  @override
+  String get smsRecipientsAllAcademiciens => 'All academicians';
+
+  @override
+  String get smsRecipientsAllEncadreurs => 'All coaches';
+
+  @override
+  String get smsRecipientsByFootballPoste => 'By football position';
+
+  @override
+  String get smsRecipientsNoPosteAvailable => 'No position available';
+
+  @override
+  String get smsRecipientsBySchoolLevel => 'By school level';
+
+  @override
+  String get smsRecipientsNoLevelAvailable => 'No level available';
+
+  @override
+  String get smsRecipientsNoRecipientSelected => 'No recipient selected';
+
+  @override
+  String get smsRecipientsNoRecipientSelectedDesc =>
+      'Use the Individual or Filters tabs\nto add recipients.';
+
+  @override
+  String smsRecipientsSelectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '$count selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get smsRecipientsRemoveAll => 'Remove all';
+
+  @override
+  String get smsRecipientsPreview => 'Preview';
+
+  @override
+  String get workshops => 'Workshops';
+
+  @override
+  String get academician => 'Academician';
 }

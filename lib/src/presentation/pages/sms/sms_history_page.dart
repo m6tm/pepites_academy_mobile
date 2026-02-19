@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/sms_message.dart';
 import '../../state/sms_state.dart';
 import '../../theme/app_colors.dart';
@@ -24,15 +25,17 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(
-          'Historique SMS',
+          l10n.smsHistoryTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -52,7 +55,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
           final historique = widget.smsState.historique;
 
           if (historique.isEmpty) {
-            return _buildEmptyState(colorScheme);
+            return _buildEmptyState(l10n, colorScheme);
           }
 
           return ListView.builder(
@@ -60,7 +63,12 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
             padding: const EdgeInsets.all(16),
             itemCount: historique.length,
             itemBuilder: (context, index) {
-              return _buildSmsCard(historique[index], colorScheme, isDark);
+              return _buildSmsCard(
+                historique[index],
+                l10n,
+                colorScheme,
+                isDark,
+              );
             },
           );
         },
@@ -68,7 +76,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
     );
   }
 
-  Widget _buildEmptyState(ColorScheme colorScheme) {
+  Widget _buildEmptyState(AppLocalizations l, ColorScheme colorScheme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -80,7 +88,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Aucun SMS envoye',
+            l.smsHistoryNoSms,
             style: GoogleFonts.montserrat(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -89,7 +97,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Les messages envoyes apparaitront ici.',
+            l.smsHistoryNoSmsDescription,
             style: GoogleFonts.montserrat(
               fontSize: 13,
               color: colorScheme.onSurface.withValues(alpha: 0.25),
@@ -102,12 +110,13 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
 
   Widget _buildSmsCard(
     SmsMessage sms,
+    AppLocalizations l,
     ColorScheme colorScheme,
     bool isDark,
   ) {
     final statusColor = _getStatusColor(sms.statut);
     final statusIcon = _getStatusIcon(sms.statut);
-    final statusLabel = _getStatusLabel(sms.statut);
+    final statusLabel = _getStatusLabel(sms.statut, l);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -122,7 +131,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => _afficherDetailSms(context, sms, colorScheme, isDark),
+          onTap: () => _afficherDetailSms(context, sms, l, colorScheme, isDark),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -153,11 +162,12 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                             ),
                           ),
                           Text(
-                            _formatDate(sms.dateEnvoi),
+                            _formatDate(sms.dateEnvoi, l),
                             style: GoogleFonts.montserrat(
                               fontSize: 11,
-                              color: colorScheme.onSurface
-                                  .withValues(alpha: 0.35),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.35,
+                              ),
                             ),
                           ),
                         ],
@@ -215,9 +225,9 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                   spacing: 6,
                   runSpacing: 4,
                   children: [
-                    ...sms.destinataires.take(3).map(
-                          (d) => _buildDestinataireChip(d, colorScheme),
-                        ),
+                    ...sms.destinataires
+                        .take(3)
+                        .map((d) => _buildDestinataireChip(d, colorScheme)),
                     if (sms.destinataires.length > 3)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -229,12 +239,13 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          '+${sms.destinataires.length - 3}',
+                          l.smsHistoryMoreRecipients(
+                            sms.destinataires.length - 3,
+                          ),
                           style: GoogleFonts.montserrat(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface
-                                .withValues(alpha: 0.4),
+                            color: colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                         ),
                       ),
@@ -253,8 +264,9 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
     ColorScheme colorScheme,
   ) {
     final isAcademicien = destinataire.type == TypeDestinataire.academicien;
-    final color =
-        isAcademicien ? const Color(0xFF3B82F6) : const Color(0xFF8B5CF6);
+    final color = isAcademicien
+        ? const Color(0xFF3B82F6)
+        : const Color(0xFF8B5CF6);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -295,26 +307,26 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
     }
   }
 
-  String _getStatusLabel(StatutEnvoi statut) {
+  String _getStatusLabel(StatutEnvoi statut, AppLocalizations l) {
     switch (statut) {
       case StatutEnvoi.envoye:
-        return 'Envoye';
+        return l.smsStatusSent;
       case StatutEnvoi.echec:
-        return 'Echec';
+        return l.smsStatusFailed;
       case StatutEnvoi.enAttente:
-        return 'En attente';
+        return l.smsStatusPending;
     }
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l) {
     final now = DateTime.now();
     final diff = now.difference(date);
 
-    if (diff.inMinutes < 1) return 'A l\'instant';
-    if (diff.inHours < 1) return 'Il y a ${diff.inMinutes} min';
-    if (diff.inDays < 1) return 'Il y a ${diff.inHours}h';
-    if (diff.inDays == 1) return 'Hier';
-    if (diff.inDays < 7) return 'Il y a ${diff.inDays} jours';
+    if (diff.inMinutes < 1) return l.dateTimeJustNow;
+    if (diff.inHours < 1) return l.dateTimeMinutesAgo(diff.inMinutes);
+    if (diff.inDays < 1) return l.dateTimeHoursAgo(diff.inHours);
+    if (diff.inDays == 1) return l.dateTimeYesterday;
+    if (diff.inDays < 7) return l.dateTimeDaysAgo(diff.inDays);
 
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
@@ -322,6 +334,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
   void _afficherDetailSms(
     BuildContext context,
     SmsMessage sms,
+    AppLocalizations l,
     ColorScheme colorScheme,
     bool isDark,
   ) {
@@ -336,9 +349,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
           ),
           decoration: BoxDecoration(
             color: isDark ? AppColors.backgroundDark : Colors.white,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -361,8 +372,9 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(sms.statut)
-                            .withValues(alpha: 0.1),
+                        color: _getStatusColor(
+                          sms.statut,
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -377,7 +389,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _getStatusLabel(sms.statut),
+                            _getStatusLabel(sms.statut, l),
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -385,11 +397,12 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                             ),
                           ),
                           Text(
-                            _formatDate(sms.dateEnvoi),
+                            _formatDate(sms.dateEnvoi, l),
                             style: GoogleFonts.montserrat(
                               fontSize: 12,
-                              color: colorScheme.onSurface
-                                  .withValues(alpha: 0.4),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.4,
+                              ),
                             ),
                           ),
                         ],
@@ -398,7 +411,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                     IconButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        _confirmerSuppression(context, sms);
+                        _confirmerSuppression(context, sms, l);
                       },
                       icon: Icon(
                         Icons.delete_outline_rounded,
@@ -416,7 +429,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                   padding: const EdgeInsets.all(20),
                   children: [
                     Text(
-                      'Message',
+                      l.smsHistoryMessage,
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -441,7 +454,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Destinataires (${sms.destinataires.length})',
+                      l.smsHistoryRecipients(sms.destinataires.length),
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -450,8 +463,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                     ),
                     const SizedBox(height: 8),
                     ...sms.destinataires.map((d) {
-                      final isAcad =
-                          d.type == TypeDestinataire.academicien;
+                      final isAcad = d.type == TypeDestinataire.academicien;
                       final color = isAcad
                           ? const Color(0xFF3B82F6)
                           : const Color(0xFF8B5CF6);
@@ -485,8 +497,9 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                               d.telephone,
                               style: GoogleFonts.montserrat(
                                 fontSize: 11,
-                                color: colorScheme.onSurface
-                                    .withValues(alpha: 0.35),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.35,
+                                ),
                               ),
                             ),
                           ],
@@ -503,7 +516,11 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
     );
   }
 
-  void _confirmerSuppression(BuildContext context, SmsMessage sms) {
+  void _confirmerSuppression(
+    BuildContext context,
+    SmsMessage sms,
+    AppLocalizations l,
+  ) {
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -512,21 +529,21 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
             borderRadius: BorderRadius.circular(20),
           ),
           title: Text(
-            'Supprimer ce SMS ?',
+            l.smsHistoryDeleteTitle,
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.w700,
               fontSize: 16,
             ),
           ),
           content: Text(
-            'Ce message sera retire de l\'historique.',
+            l.smsHistoryDeleteBody,
             style: GoogleFonts.montserrat(fontSize: 14),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
-                'Annuler',
+                l.smsHistoryDeleteCancel,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
               ),
             ),
@@ -543,7 +560,7 @@ class _SmsHistoryPageState extends State<SmsHistoryPage> {
                 ),
               ),
               child: Text(
-                'Supprimer',
+                l.smsHistoryDeleteConfirm,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
               ),
             ),

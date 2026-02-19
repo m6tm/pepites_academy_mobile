@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/entities/presence.dart';
@@ -82,7 +83,9 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
             Expanded(
               child: _isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     )
                   : TabBarView(
                       controller: _tabController,
@@ -127,7 +130,7 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Fiche Encadreur',
+              AppLocalizations.of(context)!.coachProfileTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -210,7 +213,7 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        enc.role.id.toUpperCase(),
+                        AppLocalizations.of(context)!.coachBadgeTypeMention,
                         style: GoogleFonts.montserrat(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -246,13 +249,13 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
                     _buildMiniStat(
                       Icons.sports_soccer_rounded,
                       '${_seancesDirigees.length}',
-                      'Seances',
+                      AppLocalizations.of(context)!.sessionsLabel,
                     ),
                     const SizedBox(width: 16),
                     _buildMiniStat(
                       Icons.check_circle_rounded,
                       '${_presences.length}',
-                      'Presences',
+                      AppLocalizations.of(context)!.presenceLabel,
                     ),
                   ],
                 ),
@@ -306,10 +309,10 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
           borderRadius: BorderRadius.circular(14),
         ),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'Infos'),
-          Tab(text: 'Seances'),
-          Tab(text: 'Stats'),
+        tabs: [
+          Tab(text: AppLocalizations.of(context)!.infosTab),
+          Tab(text: AppLocalizations.of(context)!.sessionsTab),
+          Tab(text: AppLocalizations.of(context)!.statsTab),
         ],
       ),
     );
@@ -326,16 +329,25 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
           _buildInfoCard(
             colorScheme,
             isDark,
-            'Informations personnelles',
+            AppLocalizations.of(context)!.personalInformation,
             Icons.person_rounded,
             [
-              _InfoRow('Nom complet', enc.nomComplet),
-              _InfoRow('Telephone', enc.telephone),
-              _InfoRow('Specialite', enc.specialite),
-              _InfoRow('Role', enc.role.id),
-              _InfoRow('Code QR', enc.codeQrUnique),
               _InfoRow(
-                'Inscrit le',
+                AppLocalizations.of(context)!.fullNameLabel,
+                enc.nomComplet,
+              ),
+              _InfoRow(AppLocalizations.of(context)!.phoneLabel, enc.telephone),
+              _InfoRow(
+                AppLocalizations.of(context)!.specialtyLabel,
+                enc.specialite,
+              ),
+              _InfoRow(AppLocalizations.of(context)!.roleLabel, enc.role.id),
+              _InfoRow(
+                AppLocalizations.of(context)!.qrCodeLabel,
+                enc.codeQrUnique,
+              ),
+              _InfoRow(
+                AppLocalizations.of(context)!.registeredOnLabel,
                 '${enc.createdAt.day}/${enc.createdAt.month}/${enc.createdAt.year}',
               ),
             ],
@@ -344,12 +356,21 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
           _buildInfoCard(
             colorScheme,
             isDark,
-            'Activite',
+            AppLocalizations.of(context)!.activityLabel,
             Icons.bar_chart_rounded,
             [
-              _InfoRow('Seances dirigees', '${enc.nbSeancesDirigees}'),
-              _InfoRow('Annotations realisees', '${enc.nbAnnotations}'),
-              _InfoRow('Presences enregistrees', '${_presences.length}'),
+              _InfoRow(
+                AppLocalizations.of(context)!.conductedSessions,
+                '${enc.nbSeancesDirigees}',
+              ),
+              _InfoRow(
+                AppLocalizations.of(context)!.conductedAnnotations,
+                '${enc.nbAnnotations}',
+              ),
+              _InfoRow(
+                AppLocalizations.of(context)!.recordedPresences,
+                '${_presences.length}',
+              ),
             ],
           ),
         ],
@@ -496,7 +517,9 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
                           '${seance.dateFormatee} - ${seance.dureeFormatee}',
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
-                            color: colorScheme.onSurface.withValues(alpha: 0.45),
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.45,
+                            ),
                           ),
                         ),
                       ],
@@ -527,13 +550,17 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
                 children: [
                   _buildSeanceChip(
                     Icons.people_rounded,
-                    '${seance.nbPresents} presents',
+                    AppLocalizations.of(
+                      context,
+                    )!.presentsInfoLabel(seance.nbPresents),
                     const Color(0xFF3B82F6),
                   ),
                   const SizedBox(width: 10),
                   _buildSeanceChip(
                     Icons.fitness_center_rounded,
-                    '${seance.atelierIds.length} ateliers',
+                    AppLocalizations.of(
+                      context,
+                    )!.workshopsInfoLabel(seance.atelierIds.length),
                     const Color(0xFF8B5CF6),
                   ),
                 ],
@@ -566,14 +593,14 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
   /// Onglet Statistiques.
   Widget _buildStatistiquesTab(ColorScheme colorScheme, bool isDark) {
     final nbSeances = _seancesDirigees.length;
-    final nbSeancesFermees =
-        _seancesDirigees.where((s) => s.estFermee).length;
+    final nbSeancesFermees = _seancesDirigees.where((s) => s.estFermee).length;
     final totalPresents = _seancesDirigees.fold<int>(
       0,
       (sum, s) => sum + s.nbPresents,
     );
-    final moyennePresents =
-        nbSeances > 0 ? (totalPresents / nbSeances).toStringAsFixed(1) : '0';
+    final moyennePresents = nbSeances > 0
+        ? (totalPresents / nbSeances).toStringAsFixed(1)
+        : '0';
     final totalAteliers = _seancesDirigees.fold<int>(
       0,
       (sum, s) => sum + s.atelierIds.length,
@@ -587,7 +614,7 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'Seances dirigees',
+                  AppLocalizations.of(context)!.conductedSessions,
                   '$nbSeances',
                   Icons.sports_soccer_rounded,
                   const Color(0xFF3B82F6),
@@ -598,7 +625,7 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'Seances cloturees',
+                  AppLocalizations.of(context)!.closedSessionsStat,
                   '$nbSeancesFermees',
                   Icons.check_circle_rounded,
                   const Color(0xFF10B981),
@@ -613,7 +640,7 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'Moy. presents',
+                  AppLocalizations.of(context)!.avgPresents,
                   moyennePresents,
                   Icons.people_rounded,
                   const Color(0xFF8B5CF6),
@@ -624,7 +651,7 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'Total ateliers',
+                  AppLocalizations.of(context)!.totalWorkshops,
                   '$totalAteliers',
                   Icons.fitness_center_rounded,
                   const Color(0xFFF59E0B),
@@ -638,13 +665,19 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
           _buildInfoCard(
             colorScheme,
             isDark,
-            'Recapitulatif',
+            AppLocalizations.of(context)!.recapLabel,
             Icons.insights_rounded,
             [
-              _InfoRow('Presences enregistrees', '${_presences.length}'),
-              _InfoRow('Annotations realisees', '${widget.encadreur.nbAnnotations}'),
               _InfoRow(
-                'Taux de cloture',
+                AppLocalizations.of(context)!.recordedPresences,
+                '${_presences.length}',
+              ),
+              _InfoRow(
+                AppLocalizations.of(context)!.conductedAnnotations,
+                '${widget.encadreur.nbAnnotations}',
+              ),
+              _InfoRow(
+                AppLocalizations.of(context)!.closureRate,
                 nbSeances > 0
                     ? '${((nbSeancesFermees / nbSeances) * 100).toStringAsFixed(0)}%'
                     : '0%',
@@ -757,11 +790,11 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
   String _getStatusLabel(SeanceStatus statut) {
     switch (statut) {
       case SeanceStatus.ouverte:
-        return 'En cours';
+        return AppLocalizations.of(context)!.sessionStatusOpen;
       case SeanceStatus.fermee:
-        return 'Terminee';
+        return AppLocalizations.of(context)!.sessionStatusClosed;
       case SeanceStatus.aVenir:
-        return 'A venir';
+        return AppLocalizations.of(context)!.sessionStatusUpcoming;
     }
   }
 }

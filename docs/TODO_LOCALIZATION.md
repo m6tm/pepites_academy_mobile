@@ -43,22 +43,22 @@ Liste des pages et composants à migrer vers `AppLocalizations` pour supporter l
 
 ## 🏃 Module Séances & Ateliers
 
-- [ ] `lib/src/presentation/pages/seance/atelier_composition_page.dart`
-- [ ] `lib/src/presentation/pages/seance/seance_detail_page.dart`
+- [x] `lib/src/presentation/pages/seance/atelier_composition_page.dart`
+- [x] `lib/src/presentation/pages/seance/seance_detail_page.dart`
 
 ## 🔍 Module Recherche & Détails
 
-- [ ] `lib/src/presentation/pages/search/search_page.dart`
-- [ ] `lib/src/presentation/pages/search/academicien_detail_page.dart`
-- [ ] `lib/src/presentation/pages/search/encadreur_detail_page.dart`
-- [ ] `lib/src/presentation/pages/search/seance_detail_consultation_page.dart`
+- [x] `lib/src/presentation/pages/search/search_page.dart`
+- [x] `lib/src/presentation/pages/search/academicien_detail_page.dart`
+- [x] `lib/src/presentation/pages/search/encadreur_detail_page.dart`
+- [x] `lib/src/presentation/pages/search/seance_detail_consultation_page.dart`
 
 ## 💬 Module SMS & Communication
 
-- [ ] `lib/src/presentation/pages/sms/sms_compose_page.dart`
-- [ ] `lib/src/presentation/pages/sms/sms_confirmation_page.dart`
-- [ ] `lib/src/presentation/pages/sms/sms_history_page.dart`
-- [ ] `lib/src/presentation/pages/sms/sms_recipient_selection_page.dart`
+- [x] `lib/src/presentation/pages/sms/sms_compose_page.dart`
+- [x] `lib/src/presentation/pages/sms/sms_confirmation_page.dart`
+- [x] `lib/src/presentation/pages/sms/sms_history_page.dart`
+- [x] `lib/src/presentation/pages/sms/sms_recipient_selection_page.dart`
 
 ## ⚙️ Module Référentiel & Paramètres
 

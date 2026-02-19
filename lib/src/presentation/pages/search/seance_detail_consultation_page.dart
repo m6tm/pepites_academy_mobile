@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/annotation.dart';
 import '../../../domain/entities/atelier.dart';
@@ -42,25 +43,27 @@ class _SeanceDetailConsultationPageState
 
   Future<void> _chargerDonnees() async {
     try {
-      final responsable = await DependencyInjection.encadreurRepository
-          .getById(widget.seance.encadreurResponsableId);
+      final responsable = await DependencyInjection.encadreurRepository.getById(
+        widget.seance.encadreurResponsableId,
+      );
 
       final encadreurs = <Encadreur>[];
       for (final id in widget.seance.encadreurIds) {
-        final enc =
-            await DependencyInjection.encadreurRepository.getById(id);
+        final enc = await DependencyInjection.encadreurRepository.getById(id);
         if (enc != null) encadreurs.add(enc);
       }
 
       final academiciens = <Academicien>[];
       for (final id in widget.seance.academicienIds) {
-        final acad =
-            await DependencyInjection.academicienRepository.getById(id);
+        final acad = await DependencyInjection.academicienRepository.getById(
+          id,
+        );
         if (acad != null) academiciens.add(acad);
       }
 
-      final ateliers = await DependencyInjection.atelierRepository
-          .getBySeance(widget.seance.id);
+      final ateliers = await DependencyInjection.atelierRepository.getBySeance(
+        widget.seance.id,
+      );
       final presences = await DependencyInjection.presenceRepository
           .getBySeance(widget.seance.id);
       final annotations = await DependencyInjection.annotationRepository
@@ -105,8 +108,9 @@ class _SeanceDetailConsultationPageState
             Expanded(
               child: _isLoading
                   ? const Center(
-                      child:
-                          CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     )
                   : TabBarView(
                       controller: _tabController,
@@ -126,6 +130,7 @@ class _SeanceDetailConsultationPageState
 
   /// Barre d'application.
   Widget _buildAppBar(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -152,7 +157,7 @@ class _SeanceDetailConsultationPageState
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Detail Seance',
+              l10n.sessionDetailTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -168,6 +173,7 @@ class _SeanceDetailConsultationPageState
   /// En-tete avec infos principales de la seance.
   Widget _buildSeanceHeader(ColorScheme colorScheme) {
     final seance = widget.seance;
+    final l10n = AppLocalizations.of(context)!;
     final statusColor = _getStatusColor(seance.statut);
     final statusLabel = _getStatusLabel(seance.statut);
 
@@ -178,10 +184,7 @@ class _SeanceDetailConsultationPageState
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF1C1C1C),
-            statusColor.withValues(alpha: 0.3),
-          ],
+          colors: [const Color(0xFF1C1C1C), statusColor.withValues(alpha: 0.3)],
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
@@ -198,8 +201,10 @@ class _SeanceDetailConsultationPageState
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
@@ -261,19 +266,19 @@ class _SeanceDetailConsultationPageState
             children: [
               _buildHeaderChip(
                 Icons.people_rounded,
-                '${seance.nbPresents} presents',
+                l10n.presentsInfoLabel(seance.nbPresents),
                 const Color(0xFF3B82F6),
               ),
               const SizedBox(width: 12),
               _buildHeaderChip(
                 Icons.fitness_center_rounded,
-                '${_ateliers.length} ateliers',
+                l10n.workshopsInfoLabel(_ateliers.length),
                 const Color(0xFF8B5CF6),
               ),
               const SizedBox(width: 12),
               _buildHeaderChip(
                 Icons.edit_note_rounded,
-                '${_annotations.length} notes',
+                l10n.notesInfoLabel(_annotations.length),
                 const Color(0xFFF59E0B),
               ),
             ],
@@ -303,6 +308,7 @@ class _SeanceDetailConsultationPageState
 
   /// Barre d'onglets.
   Widget _buildTabBar(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -327,11 +333,11 @@ class _SeanceDetailConsultationPageState
           borderRadius: BorderRadius.circular(14),
         ),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: 'Recap'),
-          Tab(text: 'Equipe'),
-          Tab(text: 'Ateliers'),
-          Tab(text: 'Notes'),
+        tabs: [
+          Tab(text: l10n.recapTab),
+          Tab(text: l10n.teamTab),
+          Tab(text: l10n.workshops),
+          Tab(text: l10n.notesTab),
         ],
       ),
     );
@@ -340,6 +346,7 @@ class _SeanceDetailConsultationPageState
   /// Onglet Recapitulatif.
   Widget _buildRecapTab(ColorScheme colorScheme, bool isDark) {
     final seance = widget.seance;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -348,33 +355,33 @@ class _SeanceDetailConsultationPageState
           _buildInfoCard(
             colorScheme,
             isDark,
-            'Informations generales',
+            l10n.generalInformation,
             Icons.info_outline_rounded,
             [
-              _InfoRow('Titre', seance.titre),
-              _InfoRow('Date', seance.dateFormatee),
-              _InfoRow('Horaires', seance.dureeFormatee),
+              _InfoRow(l10n.sessionTitleLabel, seance.titre),
+              _InfoRow(l10n.dateLabel, seance.dateFormatee),
+              _InfoRow(l10n.horaireLabel, seance.dureeFormatee),
               _InfoRow(
-                'Responsable',
+                l10n.responsibleLabel,
                 _responsable != null
                     ? _responsable!.nomComplet
                     : seance.encadreurResponsableId,
               ),
-              _InfoRow('Statut', _getStatusLabel(seance.statut)),
+              _InfoRow(l10n.statusLabel, _getStatusLabel(seance.statut)),
             ],
           ),
           const SizedBox(height: 14),
           _buildInfoCard(
             colorScheme,
             isDark,
-            'Chiffres cles',
+            l10n.keyFigures,
             Icons.bar_chart_rounded,
             [
-              _InfoRow('Academiciens presents', '${seance.nbPresents}'),
-              _InfoRow('Encadreurs', '${_encadreurs.length + 1}'),
-              _InfoRow('Ateliers realises', '${_ateliers.length}'),
-              _InfoRow('Annotations', '${_annotations.length}'),
-              _InfoRow('Presences scannees', '${_presences.length}'),
+              _InfoRow(l10n.presentAcademicians, '${seance.nbPresents}'),
+              _InfoRow(l10n.coaches, '${_encadreurs.length + 1}'),
+              _InfoRow(l10n.completedWorkshops, '${_ateliers.length}'),
+              _InfoRow(l10n.annotations, '${_annotations.length}'),
+              _InfoRow(l10n.scannedPresences, '${_presences.length}'),
             ],
           ),
         ],
@@ -384,13 +391,14 @@ class _SeanceDetailConsultationPageState
 
   /// Onglet Participants (encadreurs + academiciens).
   Widget _buildParticipantsTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Encadreurs',
+            l10n.coaches,
             style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -401,7 +409,10 @@ class _SeanceDetailConsultationPageState
           if (_responsable != null)
             _buildParticipantTile(
               _responsable!.nomComplet,
-              'Responsable - ${_responsable!.specialite}',
+              l10n.roleWithSpeciality(
+                l10n.responsibleLabel,
+                _responsable!.specialite,
+              ),
               const Color(0xFF8B5CF6),
               Icons.star_rounded,
               colorScheme,
@@ -418,10 +429,10 @@ class _SeanceDetailConsultationPageState
             ),
           ),
           if (_responsable == null && _encadreurs.isEmpty)
-            _buildEmptyInline(colorScheme, 'Aucun encadreur enregistre'),
+            _buildEmptyInline(colorScheme, l10n.noCoachRecorded),
           const SizedBox(height: 20),
           Text(
-            'Academiciens (${_academiciens.length})',
+            '${l10n.academicians} (${_academiciens.length})',
             style: GoogleFonts.montserrat(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -430,12 +441,12 @@ class _SeanceDetailConsultationPageState
           ),
           const SizedBox(height: 10),
           if (_academiciens.isEmpty)
-            _buildEmptyInline(colorScheme, 'Aucun academicien enregistre')
+            _buildEmptyInline(colorScheme, l10n.noAcademicianRecorded)
           else
             ..._academiciens.map(
               (acad) => _buildParticipantTile(
                 '${acad.prenom} ${acad.nom}',
-                'Academicien',
+                l10n.academician,
                 const Color(0xFF3B82F6),
                 Icons.school_rounded,
                 colorScheme,
@@ -520,11 +531,12 @@ class _SeanceDetailConsultationPageState
 
   /// Onglet Ateliers.
   Widget _buildAteliersTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     if (_ateliers.isEmpty) {
       return _buildEmptyTab(
         colorScheme,
         Icons.fitness_center_rounded,
-        'Aucun atelier enregistre',
+        l10n.noWorkshopRecorded,
       );
     }
 
@@ -590,8 +602,7 @@ class _SeanceDetailConsultationPageState
                         atelier.description,
                         style: GoogleFonts.montserrat(
                           fontSize: 12,
-                          color:
-                              colorScheme.onSurface.withValues(alpha: 0.55),
+                          color: colorScheme.onSurface.withValues(alpha: 0.55),
                           height: 1.4,
                         ),
                         maxLines: 2,
@@ -610,11 +621,12 @@ class _SeanceDetailConsultationPageState
 
   /// Onglet Annotations.
   Widget _buildAnnotationsTab(ColorScheme colorScheme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     if (_annotations.isEmpty) {
       return _buildEmptyTab(
         colorScheme,
         Icons.edit_note_rounded,
-        'Aucune annotation enregistree',
+        l10n.noAnnotationRecorded,
       );
     }
 
@@ -657,7 +669,7 @@ class _SeanceDetailConsultationPageState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Acad. ${annotation.academicienId.substring(0, 8)}...',
+                          '${l10n.academician} ${annotation.academicienId.substring(0, 8)}...',
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -668,8 +680,9 @@ class _SeanceDetailConsultationPageState
                           _formatDateTime(annotation.horodate),
                           style: GoogleFonts.montserrat(
                             fontSize: 10,
-                            color: colorScheme.onSurface
-                                .withValues(alpha: 0.45),
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.45,
+                            ),
                           ),
                         ),
                       ],
@@ -682,8 +695,7 @@ class _SeanceDetailConsultationPageState
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -719,8 +731,7 @@ class _SeanceDetailConsultationPageState
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color:
-                                AppColors.primary.withValues(alpha: 0.08),
+                            color: AppColors.primary.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -795,8 +806,7 @@ class _SeanceDetailConsultationPageState
                     row.label,
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
-                      color:
-                          colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                   Flexible(
@@ -848,9 +858,10 @@ class _SeanceDetailConsultationPageState
   }
 
   String _formatDateTime(DateTime dt) {
+    final l10n = AppLocalizations.of(context)!;
     return '${dt.day.toString().padLeft(2, '0')}/'
         '${dt.month.toString().padLeft(2, '0')}/'
-        '${dt.year} a '
+        '${dt.year}${l10n.at}'
         '${dt.hour.toString().padLeft(2, '0')}:'
         '${dt.minute.toString().padLeft(2, '0')}';
   }
@@ -867,13 +878,14 @@ class _SeanceDetailConsultationPageState
   }
 
   String _getStatusLabel(SeanceStatus statut) {
+    final l10n = AppLocalizations.of(context)!;
     switch (statut) {
       case SeanceStatus.ouverte:
-        return 'En cours';
+        return l10n.statusInProgress;
       case SeanceStatus.fermee:
-        return 'Terminee';
+        return l10n.statusCompleted;
       case SeanceStatus.aVenir:
-        return 'A venir';
+        return l10n.statusUpcoming;
     }
   }
 }

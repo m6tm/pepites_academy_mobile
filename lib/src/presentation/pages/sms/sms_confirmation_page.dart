@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/sms_message.dart';
 import '../../state/sms_state.dart';
 import '../../theme/app_colors.dart';
@@ -15,6 +16,7 @@ class SmsConfirmationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final destinataires = smsState.destinatairesSelectionnes;
@@ -23,11 +25,12 @@ class SmsConfirmationPage extends StatelessWidget {
     final totalSmsUnits = nbSms * destinataires.length;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(
-          'Confirmation',
+          l10n.smsConfirmationTitle,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -49,7 +52,7 @@ class SmsConfirmationPage extends StatelessWidget {
                   children: [
                     // En-tete
                     Text(
-                      'Recapitulatif',
+                      l10n.smsConfirmationSummary,
                       style: GoogleFonts.montserrat(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
@@ -59,7 +62,7 @@ class SmsConfirmationPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Verifiez les informations avant l\'envoi.',
+                      l10n.smsConfirmationCheckInfo,
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -73,7 +76,7 @@ class SmsConfirmationPage extends StatelessWidget {
                         Expanded(
                           child: _buildStatCard(
                             '${destinataires.length}',
-                            'Destinataire${destinataires.length > 1 ? 's' : ''}',
+                            l10n.smsConfirmationRecipient(destinataires.length),
                             Icons.people_rounded,
                             const Color(0xFF3B82F6),
                             colorScheme,
@@ -84,7 +87,7 @@ class SmsConfirmationPage extends StatelessWidget {
                         Expanded(
                           child: _buildStatCard(
                             '$nbSms',
-                            'SMS / personne',
+                            l10n.smsConfirmationSmsPerPerson,
                             Icons.sms_rounded,
                             const Color(0xFF8B5CF6),
                             colorScheme,
@@ -95,7 +98,7 @@ class SmsConfirmationPage extends StatelessWidget {
                         Expanded(
                           child: _buildStatCard(
                             '$totalSmsUnits',
-                            'SMS total',
+                            l10n.smsConfirmationTotalSms,
                             Icons.send_rounded,
                             AppColors.primary,
                             colorScheme,
@@ -108,7 +111,7 @@ class SmsConfirmationPage extends StatelessWidget {
 
                     // Contenu du message
                     _buildSectionTitle(
-                      'Message',
+                      l10n.smsConfirmationMessage,
                       Icons.message_rounded,
                       colorScheme,
                     ),
@@ -133,17 +136,22 @@ class SmsConfirmationPage extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: colorScheme.onSurface
-                                  .withValues(alpha: 0.05),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.05,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              '${contenu.length} caracteres - $nbSms SMS',
+                              l10n.smsConfirmationMessageInfo(
+                                contenu.length,
+                                nbSms,
+                              ),
                               style: GoogleFonts.montserrat(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
-                                color: colorScheme.onSurface
-                                    .withValues(alpha: 0.4),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                           ),
@@ -154,7 +162,7 @@ class SmsConfirmationPage extends StatelessWidget {
 
                     // Liste des destinataires
                     _buildSectionTitle(
-                      'Destinataires (${destinataires.length})',
+                      l10n.smsConfirmationRecipientsCount(destinataires.length),
                       Icons.people_rounded,
                       colorScheme,
                     ),
@@ -168,7 +176,7 @@ class SmsConfirmationPage extends StatelessWidget {
               ),
 
               // Barre d'envoi
-              _buildSendBar(context, colorScheme, isDark),
+              _buildSendBar(context, l10n, colorScheme, isDark),
             ],
           );
         },
@@ -245,8 +253,9 @@ class SmsConfirmationPage extends StatelessWidget {
     bool isDark,
   ) {
     final isAcademicien = destinataire.type == TypeDestinataire.academicien;
-    final color =
-        isAcademicien ? const Color(0xFF3B82F6) : const Color(0xFF8B5CF6);
+    final color = isAcademicien
+        ? const Color(0xFF3B82F6)
+        : const Color(0xFF8B5CF6);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
@@ -294,6 +303,7 @@ class SmsConfirmationPage extends StatelessWidget {
 
   Widget _buildSendBar(
     BuildContext context,
+    AppLocalizations l,
     ColorScheme colorScheme,
     bool isDark,
   ) {
@@ -316,7 +326,7 @@ class SmsConfirmationPage extends StatelessWidget {
           child: ElevatedButton(
             onPressed: smsState.isLoading
                 ? null
-                : () => _confirmerEnvoi(context),
+                : () => _confirmerEnvoi(context, l),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -340,7 +350,7 @@ class SmsConfirmationPage extends StatelessWidget {
                       const Icon(Icons.send_rounded, size: 20),
                       const SizedBox(width: 10),
                       Text(
-                        'Envoyer les SMS',
+                        l.smsConfirmationSendSms,
                         style: GoogleFonts.montserrat(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -354,7 +364,7 @@ class SmsConfirmationPage extends StatelessWidget {
     );
   }
 
-  void _confirmerEnvoi(BuildContext context) {
+  void _confirmerEnvoi(BuildContext context, AppLocalizations l) {
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -379,7 +389,7 @@ class SmsConfirmationPage extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Confirmer l\'envoi',
+                l.smsConfirmationConfirmSend,
                 style: GoogleFonts.montserrat(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -388,14 +398,14 @@ class SmsConfirmationPage extends StatelessWidget {
             ],
           ),
           content: Text(
-            'Vous etes sur le point d\'envoyer ce message a $count destinataire${count > 1 ? 's' : ''}.\n\nCette action est irreversible.',
+            l.smsConfirmationDialogBody(count),
             style: GoogleFonts.montserrat(fontSize: 14, height: 1.5),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
-                'Annuler',
+                l.smsConfirmationCancel,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
               ),
             ),
@@ -404,9 +414,9 @@ class SmsConfirmationPage extends StatelessWidget {
                 Navigator.of(dialogContext).pop();
                 final success = await smsState.envoyerSms();
                 if (success && context.mounted) {
-                  _afficherSucces(context);
+                  _afficherSucces(context, l);
                 } else if (context.mounted) {
-                  _afficherErreur(context);
+                  _afficherErreur(context, l);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -417,7 +427,7 @@ class SmsConfirmationPage extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Confirmer',
+                l.smsConfirmationConfirm,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
               ),
             ),
@@ -427,7 +437,7 @@ class SmsConfirmationPage extends StatelessWidget {
     );
   }
 
-  void _afficherSucces(BuildContext context) {
+  void _afficherSucces(BuildContext context, AppLocalizations l) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -453,7 +463,7 @@ class SmsConfirmationPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'SMS envoye !',
+                l.smsConfirmationSuccessTitle,
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -461,12 +471,9 @@ class SmsConfirmationPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                smsState.successMessage ?? 'Le message a ete envoye avec succes.',
+                smsState.successMessage ?? l.smsConfirmationSuccessBody,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 13,
-                  color: Colors.grey,
-                ),
+                style: GoogleFonts.montserrat(fontSize: 13, color: Colors.grey),
               ),
             ],
           ),
@@ -489,7 +496,7 @@ class SmsConfirmationPage extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Retour',
+                  l.smsConfirmationBack,
                   style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
                 ),
               ),
@@ -500,11 +507,11 @@ class SmsConfirmationPage extends StatelessWidget {
     );
   }
 
-  void _afficherErreur(BuildContext context) {
+  void _afficherErreur(BuildContext context, AppLocalizations l) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          smsState.errorMessage ?? 'Erreur lors de l\'envoi.',
+          smsState.errorMessage ?? l.smsConfirmationError,
           style: GoogleFonts.montserrat(),
         ),
         backgroundColor: AppColors.error,
