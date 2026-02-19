@@ -1,3 +1,4 @@
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/academicien.dart';
 import '../../domain/entities/encadreur.dart';
 import '../../domain/entities/seance.dart';
@@ -31,14 +32,20 @@ class SearchService {
   final AcademicienRepository _academicienRepository;
   final EncadreurRepository _encadreurRepository;
   final SeanceRepository _seanceRepository;
+  AppLocalizations? _l10n;
 
   SearchService({
     required AcademicienRepository academicienRepository,
     required EncadreurRepository encadreurRepository,
     required SeanceRepository seanceRepository,
-  })  : _academicienRepository = academicienRepository,
-        _encadreurRepository = encadreurRepository,
-        _seanceRepository = seanceRepository;
+  }) : _academicienRepository = academicienRepository,
+       _encadreurRepository = encadreurRepository,
+       _seanceRepository = seanceRepository;
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   /// Recherche globale dans toutes les categories.
   Future<List<SearchResult>> rechercher(
@@ -79,7 +86,7 @@ class SearchService {
           (a) => SearchResult(
             id: a.id,
             titre: '${a.prenom} ${a.nom}',
-            sousTitre: 'Academicien',
+            sousTitre: _l10n?.serviceSearchAcademicianSubtitle ?? 'Academicien',
             categorie: SearchCategory.academiciens,
             entite: a,
           ),
@@ -95,7 +102,9 @@ class SearchService {
           (e) => SearchResult(
             id: e.id,
             titre: '${e.prenom} ${e.nom}',
-            sousTitre: 'Encadreur - ${e.specialite}',
+            sousTitre:
+                _l10n?.serviceSearchCoachSubtitle(e.specialite) ??
+                'Encadreur - ${e.specialite}',
             categorie: SearchCategory.encadreurs,
             entite: e,
           ),

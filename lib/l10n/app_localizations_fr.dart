@@ -2729,4 +2729,228 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get syncOnReconnect =>
       'Les donnees seront synchronisees au retour du reseau';
+
+  @override
+  String get exceptionNetworkDefault => 'Pas de connexion internet';
+
+  @override
+  String get exceptionNetworkCheck =>
+      'Pas de connexion internet. Verifiez votre reseau.';
+
+  @override
+  String get exceptionTimeoutDefault => 'Le delai d\'attente a expire';
+
+  @override
+  String get exceptionTimeoutServer =>
+      'Le serveur met trop de temps a repondre.';
+
+  @override
+  String get exceptionServerDefault => 'Erreur interne du serveur';
+
+  @override
+  String get exceptionServerHttp => 'Erreur de protocole HTTP.';
+
+  @override
+  String get exceptionRequestBad => 'Format de donnees invalide.';
+
+  @override
+  String get exceptionRequestBadDetails => 'JSON malforme ou type incorrect.';
+
+  @override
+  String get exceptionNotFoundDefault => 'Ressource introuvable';
+
+  @override
+  String get exceptionAuthDefault => 'Non authentifie';
+
+  @override
+  String get exceptionPermissionDefault => 'Acces refuse';
+
+  @override
+  String get exceptionCacheDefault =>
+      'Erreur de chargement des donnees locales';
+
+  @override
+  String get exceptionUnknownDefault => 'Une erreur inattendue est survenue';
+
+  @override
+  String get exceptionUnknownTechnical =>
+      'Une erreur inattendue est survenue (technique).';
+
+  @override
+  String exceptionCacheReadKey(String key, String error) {
+    return 'Erreur lors de la lecture de la cle \'\'$key\'\' : $error';
+  }
+
+  @override
+  String exceptionCacheWriteKey(String key, String error) {
+    return 'Erreur lors de l\'\'ecriture de la cle \'\'$key\'\' : $error';
+  }
+
+  @override
+  String exceptionCacheReadString(String key, String error) {
+    return 'Erreur lors de la lecture de la chaine \'\'$key\'\' : $error';
+  }
+
+  @override
+  String exceptionCacheWriteString(String key, String error) {
+    return 'Erreur lors de l\'\'ecriture de la chaine \'\'$key\'\' : $error';
+  }
+
+  @override
+  String exceptionCacheDeleteKey(String key, String error) {
+    return 'Erreur lors de la suppression de la cle \'\'$key\'\' : $error';
+  }
+
+  @override
+  String exceptionCacheResetPrefs(String error) {
+    return 'Erreur lors de la reinitialisation des preferences : $error';
+  }
+
+  @override
+  String get serviceSeanceNotFound => 'Seance introuvable.';
+
+  @override
+  String get serviceSeanceAlreadyClosed => 'Cette seance est deja cloturee.';
+
+  @override
+  String serviceSeanceCannotOpen(String title) {
+    return 'Impossible d\'\'ouvrir une nouvelle seance. La seance \"$title\" est encore ouverte. Veuillez la cloturer avant d\'\'en ouvrir une nouvelle.';
+  }
+
+  @override
+  String serviceSeanceOpenedSuccess(String title) {
+    return 'Seance \"$title\" ouverte avec succes.';
+  }
+
+  @override
+  String serviceSeanceClosedSuccess(String title) {
+    return 'Seance \"$title\" cloturee avec succes.';
+  }
+
+  @override
+  String get serviceRefPosteExists => 'Un poste avec ce nom existe deja.';
+
+  @override
+  String get serviceRefPosteOtherExists =>
+      'Un autre poste avec ce nom existe deja.';
+
+  @override
+  String serviceRefPosteCreated(String name) {
+    return 'Poste \"$name\" cree avec succes.';
+  }
+
+  @override
+  String serviceRefPosteUpdated(String name) {
+    return 'Poste \"$name\" modifie avec succes.';
+  }
+
+  @override
+  String get serviceRefPosteDeleted => 'Poste supprime avec succes.';
+
+  @override
+  String serviceRefPosteCannotDelete(int count) {
+    return 'Impossible de supprimer ce poste : $count academicien(s) rattache(s).';
+  }
+
+  @override
+  String get serviceRefNiveauExists => 'Un niveau avec ce nom existe deja.';
+
+  @override
+  String get serviceRefNiveauOtherExists =>
+      'Un autre niveau avec ce nom existe deja.';
+
+  @override
+  String serviceRefNiveauCreated(String name) {
+    return 'Niveau \"$name\" cree avec succes.';
+  }
+
+  @override
+  String serviceRefNiveauUpdated(String name) {
+    return 'Niveau \"$name\" modifie avec succes.';
+  }
+
+  @override
+  String get serviceRefNiveauDeleted => 'Niveau supprime avec succes.';
+
+  @override
+  String serviceRefNiveauCannotDelete(int count) {
+    return 'Impossible de supprimer ce niveau : $count academicien(s) rattache(s).';
+  }
+
+  @override
+  String get serviceScanPresenceAlreadyRecorded => 'Presence deja enregistree';
+
+  @override
+  String get serviceScanAcademicianIdentified => 'Academicien identifie';
+
+  @override
+  String get serviceScanCoachIdentified => 'Encadreur identifie';
+
+  @override
+  String get serviceScanQrNotRecognized => 'Code QR non reconnu';
+
+  @override
+  String get serviceScanTypeAcademician => 'Academicien';
+
+  @override
+  String get serviceScanTypeCoach => 'Encadreur';
+
+  @override
+  String serviceAtelierSeanceNotFound(String id) {
+    return 'Seance introuvable : $id';
+  }
+
+  @override
+  String serviceAtelierNotFound(String id) {
+    return 'Atelier introuvable : $id';
+  }
+
+  @override
+  String serviceBulletinNotFound(String id) {
+    return 'Bulletin introuvable : $id';
+  }
+
+  @override
+  String get serviceSyncMaxRetries => 'Nombre maximum de tentatives atteint';
+
+  @override
+  String get serviceSearchAcademicianSubtitle => 'Academicien';
+
+  @override
+  String serviceSearchCoachSubtitle(String specialty) {
+    return 'Encadreur - $specialty';
+  }
+
+  @override
+  String infraSeanceNotFound(String id) {
+    return 'Seance non trouvee : $id';
+  }
+
+  @override
+  String infraSmsNotFound(String id) {
+    return 'SMS introuvable : $id';
+  }
+
+  @override
+  String get domaineTechnique => 'Technique';
+
+  @override
+  String get domainePhysique => 'Physique';
+
+  @override
+  String get domaineTactique => 'Tactique';
+
+  @override
+  String get domaineMental => 'Mental';
+
+  @override
+  String get domaineEspritEquipe => 'Esprit d\'\'equipe';
+
+  @override
+  String get domaineGeneral => 'General';
+
+  @override
+  String bulletinObservationsResume(int count, String content) {
+    return '$count observations. Derniere : $content';
+  }
 }

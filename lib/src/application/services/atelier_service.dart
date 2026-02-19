@@ -1,3 +1,4 @@
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/atelier.dart';
 import '../../domain/repositories/atelier_repository.dart';
 import '../../domain/repositories/seance_repository.dart';
@@ -8,12 +9,18 @@ import '../../domain/repositories/seance_repository.dart';
 class AtelierService {
   final AtelierRepository _atelierRepository;
   final SeanceRepository _seanceRepository;
+  AppLocalizations? _l10n;
 
   AtelierService({
     required AtelierRepository atelierRepository,
     required SeanceRepository seanceRepository,
-  })  : _atelierRepository = atelierRepository,
-        _seanceRepository = seanceRepository;
+  }) : _atelierRepository = atelierRepository,
+       _seanceRepository = seanceRepository;
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   /// Recupere tous les ateliers d'une seance, tries par ordre.
   Future<List<Atelier>> getAteliersParSeance(String seanceId) async {
@@ -29,7 +36,10 @@ class AtelierService {
   }) async {
     final seance = await _seanceRepository.getById(seanceId);
     if (seance == null) {
-      throw Exception('Seance introuvable : $seanceId');
+      throw Exception(
+        _l10n?.serviceAtelierSeanceNotFound(seanceId) ??
+            'Seance introuvable : $seanceId',
+      );
     }
 
     final ateliersExistants = await _atelierRepository.getBySeance(seanceId);
@@ -64,7 +74,10 @@ class AtelierService {
   Future<void> supprimerAtelier(String atelierId) async {
     final atelier = await _atelierRepository.getById(atelierId);
     if (atelier == null) {
-      throw Exception('Atelier introuvable : $atelierId');
+      throw Exception(
+        _l10n?.serviceAtelierNotFound(atelierId) ??
+            'Atelier introuvable : $atelierId',
+      );
     }
 
     await _atelierRepository.delete(atelierId);
@@ -72,7 +85,9 @@ class AtelierService {
     // Mise a jour de la seance
     final seance = await _seanceRepository.getById(atelier.seanceId);
     if (seance != null) {
-      final updatedIds = seance.atelierIds.where((id) => id != atelierId).toList();
+      final updatedIds = seance.atelierIds
+          .where((id) => id != atelierId)
+          .toList();
       await _seanceRepository.update(
         seance.copyWith(atelierIds: updatedIds, nbAteliers: updatedIds.length),
       );

@@ -1,3 +1,4 @@
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/presence.dart';
 import '../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../infrastructure/repositories/encadreur_repository_impl.dart';
@@ -43,6 +44,7 @@ class QrScannerService {
   final PresenceRepositoryImpl _presenceRepository;
   final SeanceRepositoryImpl _seanceRepository;
   ActivityService? _activityService;
+  AppLocalizations? _l10n;
 
   QrScannerService({
     required AcademicienRepositoryImpl academicienRepository,
@@ -59,6 +61,11 @@ class QrScannerService {
     _activityService = service;
   }
 
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
+
   /// Identifie un profil a partir d'un code QR scanne.
   /// Recherche d'abord parmi les academiciens, puis les encadreurs.
   Future<ScanResult> identifyQrCode(String qrCode, String seanceId) async {
@@ -72,8 +79,10 @@ class QrScannerService {
       return ScanResult(
         success: true,
         message: dejaPresent
-            ? 'Presence deja enregistree'
-            : 'Academicien identifie',
+            ? (_l10n?.serviceScanPresenceAlreadyRecorded ??
+                  'Presence deja enregistree')
+            : (_l10n?.serviceScanAcademicianIdentified ??
+                  'Academicien identifie'),
         typeProfil: ProfilType.academicien,
         profilId: academicien.id,
         nom: academicien.nom,
@@ -93,8 +102,9 @@ class QrScannerService {
       return ScanResult(
         success: true,
         message: dejaPresent
-            ? 'Presence deja enregistree'
-            : 'Encadreur identifie',
+            ? (_l10n?.serviceScanPresenceAlreadyRecorded ??
+                  'Presence deja enregistree')
+            : (_l10n?.serviceScanCoachIdentified ?? 'Encadreur identifie'),
         typeProfil: ProfilType.encadreur,
         profilId: encadreur.id,
         nom: encadreur.nom,
@@ -104,7 +114,9 @@ class QrScannerService {
       );
     }
 
-    return ScanResult.failure('Code QR non reconnu');
+    return ScanResult.failure(
+      _l10n?.serviceScanQrNotRecognized ?? 'Code QR non reconnu',
+    );
   }
 
   /// Enregistre la presence d'un profil pour une seance.
@@ -149,8 +161,8 @@ class QrScannerService {
 
     // Enregistrement de l'activite
     final typeLabel = typeProfil == ProfilType.academicien
-        ? 'Academicien'
-        : 'Encadreur';
+        ? (_l10n?.serviceScanTypeAcademician ?? 'Academicien')
+        : (_l10n?.serviceScanTypeCoach ?? 'Encadreur');
     String nomComplet = typeLabel;
     if (typeProfil == ProfilType.academicien) {
       final acad = await _academicienRepository.getById(profilId);

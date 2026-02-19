@@ -1,3 +1,4 @@
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/seance.dart';
 import '../../domain/repositories/presence_repository.dart';
 import '../../domain/repositories/seance_repository.dart';
@@ -41,6 +42,7 @@ class SeanceService {
   final SeanceRepository _seanceRepository;
   final PresenceRepository _presenceRepository;
   ActivityService? _activityService;
+  AppLocalizations? _l10n;
 
   SeanceService({
     required SeanceRepository seanceRepository,
@@ -51,6 +53,11 @@ class SeanceService {
   /// Injecte le service d'activites.
   void setActivityService(ActivityService service) {
     _activityService = service;
+  }
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
   }
 
   /// Recupere toutes les seances triees par date decroissante.
@@ -85,9 +92,10 @@ class SeanceService {
       return OuvertureResult(
         success: false,
         message:
+            _l10n?.serviceSeanceCannotOpen(seanceOuverte.titre) ??
             'Impossible d\'ouvrir une nouvelle seance. '
-            'La seance "${seanceOuverte.titre}" est encore ouverte. '
-            'Veuillez la cloturer avant d\'en ouvrir une nouvelle.',
+                'La seance "${seanceOuverte.titre}" est encore ouverte. '
+                'Veuillez la cloturer avant d\'en ouvrir une nouvelle.',
         seanceBloqueante: seanceOuverte,
       );
     }
@@ -106,7 +114,9 @@ class SeanceService {
     await _activityService?.enregistrerSeanceOuverte(titre, created.id);
     return OuvertureResult(
       success: true,
-      message: 'Seance "$titre" ouverte avec succes.',
+      message:
+          _l10n?.serviceSeanceOpenedSuccess(titre) ??
+          'Seance "$titre" ouverte avec succes.',
       seance: created,
     );
   }
@@ -115,16 +125,18 @@ class SeanceService {
   Future<FermetureResult> fermerSeance(String seanceId) async {
     final seance = await _seanceRepository.getById(seanceId);
     if (seance == null) {
-      return const FermetureResult(
+      return FermetureResult(
         success: false,
-        message: 'Seance introuvable.',
+        message: _l10n?.serviceSeanceNotFound ?? 'Seance introuvable.',
       );
     }
 
     if (seance.estFermee) {
       return FermetureResult(
         success: false,
-        message: 'Cette seance est deja cloturee.',
+        message:
+            _l10n?.serviceSeanceAlreadyClosed ??
+            'Cette seance est deja cloturee.',
         seance: seance,
       );
     }
@@ -148,7 +160,9 @@ class SeanceService {
 
     return FermetureResult(
       success: true,
-      message: 'Seance "${seance.titre}" cloturee avec succes.',
+      message:
+          _l10n?.serviceSeanceClosedSuccess(seance.titre) ??
+          'Seance "${seance.titre}" cloturee avec succes.',
       seance: fermee,
       nbPresents: nbPresents,
       nbAteliers: nbAteliers,

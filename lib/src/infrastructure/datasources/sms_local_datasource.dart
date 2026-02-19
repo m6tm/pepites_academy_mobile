@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/sms_message.dart';
 
 /// Source de donnees locale pour les SMS.
@@ -7,8 +8,14 @@ import '../../domain/entities/sms_message.dart';
 class SmsLocalDatasource {
   static const String _key = 'sms_history_data';
   final SharedPreferences _prefs;
+  AppLocalizations? _l10n;
 
   SmsLocalDatasource(this._prefs);
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   /// Recupere tout l'historique des SMS.
   List<SmsMessage> getAll() {
@@ -34,7 +41,10 @@ class SmsLocalDatasource {
     final list = getAll();
     final index = list.indexWhere((m) => m.id == message.id);
     if (index == -1) {
-      throw Exception('SMS introuvable : ${message.id}');
+      throw Exception(
+        _l10n?.infraSmsNotFound(message.id) ??
+            'SMS introuvable : ${message.id}',
+      );
     }
     list[index] = message;
     await _saveAll(list);

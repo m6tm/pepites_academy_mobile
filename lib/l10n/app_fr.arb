@@ -1395,5 +1395,235 @@
       }
     }
   },
-  "syncOnReconnect": "Les donnees seront synchronisees au retour du reseau"
+  "syncOnReconnect": "Les donnees seront synchronisees au retour du reseau",
+  "exceptionNetworkDefault": "Pas de connexion internet",
+  "exceptionNetworkCheck": "Pas de connexion internet. Verifiez votre reseau.",
+  "exceptionTimeoutDefault": "Le delai d'attente a expire",
+  "exceptionTimeoutServer": "Le serveur met trop de temps a repondre.",
+  "exceptionServerDefault": "Erreur interne du serveur",
+  "exceptionServerHttp": "Erreur de protocole HTTP.",
+  "exceptionRequestBad": "Format de donnees invalide.",
+  "exceptionRequestBadDetails": "JSON malforme ou type incorrect.",
+  "exceptionNotFoundDefault": "Ressource introuvable",
+  "exceptionAuthDefault": "Non authentifie",
+  "exceptionPermissionDefault": "Acces refuse",
+  "exceptionCacheDefault": "Erreur de chargement des donnees locales",
+  "exceptionUnknownDefault": "Une erreur inattendue est survenue",
+  "exceptionUnknownTechnical": "Une erreur inattendue est survenue (technique).",
+  "exceptionCacheReadKey": "Erreur lors de la lecture de la cle ''{key}'' : {error}",
+  "@exceptionCacheReadKey": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exceptionCacheWriteKey": "Erreur lors de l''ecriture de la cle ''{key}'' : {error}",
+  "@exceptionCacheWriteKey": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exceptionCacheReadString": "Erreur lors de la lecture de la chaine ''{key}'' : {error}",
+  "@exceptionCacheReadString": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exceptionCacheWriteString": "Erreur lors de l''ecriture de la chaine ''{key}'' : {error}",
+  "@exceptionCacheWriteString": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exceptionCacheDeleteKey": "Erreur lors de la suppression de la cle ''{key}'' : {error}",
+  "@exceptionCacheDeleteKey": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exceptionCacheResetPrefs": "Erreur lors de la reinitialisation des preferences : {error}",
+  "@exceptionCacheResetPrefs": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceSeanceNotFound": "Seance introuvable.",
+  "serviceSeanceAlreadyClosed": "Cette seance est deja cloturee.",
+  "serviceSeanceCannotOpen": "Impossible d''ouvrir une nouvelle seance. La seance \"{title}\" est encore ouverte. Veuillez la cloturer avant d''en ouvrir une nouvelle.",
+  "@serviceSeanceCannotOpen": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceSeanceOpenedSuccess": "Seance \"{title}\" ouverte avec succes.",
+  "@serviceSeanceOpenedSuccess": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceSeanceClosedSuccess": "Seance \"{title}\" cloturee avec succes.",
+  "@serviceSeanceClosedSuccess": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefPosteExists": "Un poste avec ce nom existe deja.",
+  "serviceRefPosteOtherExists": "Un autre poste avec ce nom existe deja.",
+  "serviceRefPosteCreated": "Poste \"{name}\" cree avec succes.",
+  "@serviceRefPosteCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefPosteUpdated": "Poste \"{name}\" modifie avec succes.",
+  "@serviceRefPosteUpdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefPosteDeleted": "Poste supprime avec succes.",
+  "serviceRefPosteCannotDelete": "Impossible de supprimer ce poste : {count} academicien(s) rattache(s).",
+  "@serviceRefPosteCannotDelete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "serviceRefNiveauExists": "Un niveau avec ce nom existe deja.",
+  "serviceRefNiveauOtherExists": "Un autre niveau avec ce nom existe deja.",
+  "serviceRefNiveauCreated": "Niveau \"{name}\" cree avec succes.",
+  "@serviceRefNiveauCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefNiveauUpdated": "Niveau \"{name}\" modifie avec succes.",
+  "@serviceRefNiveauUpdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefNiveauDeleted": "Niveau supprime avec succes.",
+  "serviceRefNiveauCannotDelete": "Impossible de supprimer ce niveau : {count} academicien(s) rattache(s).",
+  "@serviceRefNiveauCannotDelete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "serviceScanPresenceAlreadyRecorded": "Presence deja enregistree",
+  "serviceScanAcademicianIdentified": "Academicien identifie",
+  "serviceScanCoachIdentified": "Encadreur identifie",
+  "serviceScanQrNotRecognized": "Code QR non reconnu",
+  "serviceScanTypeAcademician": "Academicien",
+  "serviceScanTypeCoach": "Encadreur",
+  "serviceAtelierSeanceNotFound": "Seance introuvable : {id}",
+  "@serviceAtelierSeanceNotFound": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceAtelierNotFound": "Atelier introuvable : {id}",
+  "@serviceAtelierNotFound": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceBulletinNotFound": "Bulletin introuvable : {id}",
+  "@serviceBulletinNotFound": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceSyncMaxRetries": "Nombre maximum de tentatives atteint",
+  "serviceSearchAcademicianSubtitle": "Academicien",
+  "serviceSearchCoachSubtitle": "Encadreur - {specialty}",
+  "@serviceSearchCoachSubtitle": {
+    "placeholders": {
+      "specialty": {
+        "type": "String"
+      }
+    }
+  },
+  "infraSeanceNotFound": "Seance non trouvee : {id}",
+  "@infraSeanceNotFound": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "infraSmsNotFound": "SMS introuvable : {id}",
+  "@infraSmsNotFound": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "domaineTechnique": "Technique",
+  "domainePhysique": "Physique",
+  "domaineTactique": "Tactique",
+  "domaineMental": "Mental",
+  "domaineEspritEquipe": "Esprit d''equipe",
+  "domaineGeneral": "General",
+  "bulletinObservationsResume": "{count} observations. Derniere : {content}",
+  "@bulletinObservationsResume": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "content": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/connectivity_status.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/entities/conflict_resolution.dart';
@@ -50,23 +51,30 @@ class SyncService {
   /// Callback notifie quand le nombre d'operations en attente change.
   void Function(int)? onPendingCountChanged;
 
+  AppLocalizations? _l10n;
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
+
   SyncService({
     required SyncRepository syncRepository,
     required ApiSyncDatasource apiDatasource,
     required ConnectivityService connectivityService,
-  })  : _syncRepository = syncRepository,
-        _apiDatasource = apiDatasource,
-        _connectivityService = connectivityService;
+  }) : _syncRepository = syncRepository,
+       _apiDatasource = apiDatasource,
+       _connectivityService = connectivityService;
 
   /// Demarre l'ecoute de la connectivite pour synchroniser automatiquement.
   void startAutoSync() {
-    _connectivitySubscription = _connectivityService.statusStream.listen(
-      (status) {
-        if (status == ConnectivityStatus.connected) {
-          syncPendingOperations();
-        }
-      },
-    );
+    _connectivitySubscription = _connectivityService.statusStream.listen((
+      status,
+    ) {
+      if (status == ConnectivityStatus.connected) {
+        syncPendingOperations();
+      }
+    });
   }
 
   /// Ajoute une operation a la file d'attente de synchronisation.
@@ -118,15 +126,18 @@ class SyncService {
 
     for (final operation in pending) {
       if (operation.retryCount >= maxRetryCount) {
+        final maxRetriesMsg =
+            _l10n?.serviceSyncMaxRetries ??
+            'Nombre maximum de tentatives atteint';
         await _syncRepository.updateStatus(
           operation.id,
           SyncOperationStatus.failed,
-          errorMessage: 'Nombre maximum de tentatives atteint',
+          errorMessage: maxRetriesMsg,
         );
         failureCount++;
         errors.add(
           '${operation.entityType.name}/${operation.entityId}: '
-          'Nombre maximum de tentatives atteint',
+          '$maxRetriesMsg',
         );
         continue;
       }
@@ -165,9 +176,7 @@ class SyncService {
           errorMessage: e.toString(),
         );
         failureCount++;
-        errors.add(
-          '${operation.entityType.name}/${operation.entityId}: $e',
-        );
+        errors.add('${operation.entityType.name}/${operation.entityId}: $e');
       }
     }
 
@@ -212,15 +221,12 @@ class SyncService {
 
   void _scheduleRetry() {
     _retryTimer?.cancel();
-    _retryTimer = Timer(
-      const Duration(seconds: retryDelaySeconds),
-      () async {
-        final isConnected = await _connectivityService.isConnected();
-        if (isConnected) {
-          syncPendingOperations();
-        }
-      },
-    );
+    _retryTimer = Timer(const Duration(seconds: retryDelaySeconds), () async {
+      final isConnected = await _connectivityService.isConnected();
+      if (isConnected) {
+        syncPendingOperations();
+      }
+    });
   }
 
   void _notifyPendingCountChanged() async {

@@ -2716,4 +2716,229 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get syncOnReconnect =>
       'Data will be synced when connection is restored';
+
+  @override
+  String get exceptionNetworkDefault => 'No internet connection';
+
+  @override
+  String get exceptionNetworkCheck =>
+      'No internet connection. Check your network.';
+
+  @override
+  String get exceptionTimeoutDefault => 'Request timed out';
+
+  @override
+  String get exceptionTimeoutServer =>
+      'The server is taking too long to respond.';
+
+  @override
+  String get exceptionServerDefault => 'Internal server error';
+
+  @override
+  String get exceptionServerHttp => 'HTTP protocol error.';
+
+  @override
+  String get exceptionRequestBad => 'Invalid data format.';
+
+  @override
+  String get exceptionRequestBadDetails => 'Malformed JSON or incorrect type.';
+
+  @override
+  String get exceptionNotFoundDefault => 'Resource not found';
+
+  @override
+  String get exceptionAuthDefault => 'Not authenticated';
+
+  @override
+  String get exceptionPermissionDefault => 'Access denied';
+
+  @override
+  String get exceptionCacheDefault => 'Error loading local data';
+
+  @override
+  String get exceptionUnknownDefault => 'An unexpected error occurred';
+
+  @override
+  String get exceptionUnknownTechnical =>
+      'An unexpected error occurred (technical).';
+
+  @override
+  String exceptionCacheReadKey(String key, String error) {
+    return 'Error reading key \'\'$key\'\': $error';
+  }
+
+  @override
+  String exceptionCacheWriteKey(String key, String error) {
+    return 'Error writing key \'\'$key\'\': $error';
+  }
+
+  @override
+  String exceptionCacheReadString(String key, String error) {
+    return 'Error reading string \'\'$key\'\': $error';
+  }
+
+  @override
+  String exceptionCacheWriteString(String key, String error) {
+    return 'Error writing string \'\'$key\'\': $error';
+  }
+
+  @override
+  String exceptionCacheDeleteKey(String key, String error) {
+    return 'Error deleting key \'\'$key\'\': $error';
+  }
+
+  @override
+  String exceptionCacheResetPrefs(String error) {
+    return 'Error resetting preferences: $error';
+  }
+
+  @override
+  String get serviceSeanceNotFound => 'Session not found.';
+
+  @override
+  String get serviceSeanceAlreadyClosed => 'This session is already closed.';
+
+  @override
+  String serviceSeanceCannotOpen(String title) {
+    return 'Cannot open a new session. The session \"$title\" is still open. Please close it before opening a new one.';
+  }
+
+  @override
+  String serviceSeanceOpenedSuccess(String title) {
+    return 'Session \"$title\" opened successfully.';
+  }
+
+  @override
+  String serviceSeanceClosedSuccess(String title) {
+    return 'Session \"$title\" closed successfully.';
+  }
+
+  @override
+  String get serviceRefPosteExists =>
+      'A position with this name already exists.';
+
+  @override
+  String get serviceRefPosteOtherExists =>
+      'Another position with this name already exists.';
+
+  @override
+  String serviceRefPosteCreated(String name) {
+    return 'Position \"$name\" created successfully.';
+  }
+
+  @override
+  String serviceRefPosteUpdated(String name) {
+    return 'Position \"$name\" updated successfully.';
+  }
+
+  @override
+  String get serviceRefPosteDeleted => 'Position deleted successfully.';
+
+  @override
+  String serviceRefPosteCannotDelete(int count) {
+    return 'Cannot delete this position: $count academician(s) linked.';
+  }
+
+  @override
+  String get serviceRefNiveauExists => 'A level with this name already exists.';
+
+  @override
+  String get serviceRefNiveauOtherExists =>
+      'Another level with this name already exists.';
+
+  @override
+  String serviceRefNiveauCreated(String name) {
+    return 'Level \"$name\" created successfully.';
+  }
+
+  @override
+  String serviceRefNiveauUpdated(String name) {
+    return 'Level \"$name\" updated successfully.';
+  }
+
+  @override
+  String get serviceRefNiveauDeleted => 'Level deleted successfully.';
+
+  @override
+  String serviceRefNiveauCannotDelete(int count) {
+    return 'Cannot delete this level: $count academician(s) linked.';
+  }
+
+  @override
+  String get serviceScanPresenceAlreadyRecorded =>
+      'Attendance already recorded';
+
+  @override
+  String get serviceScanAcademicianIdentified => 'Academician identified';
+
+  @override
+  String get serviceScanCoachIdentified => 'Coach identified';
+
+  @override
+  String get serviceScanQrNotRecognized => 'QR code not recognized';
+
+  @override
+  String get serviceScanTypeAcademician => 'Academician';
+
+  @override
+  String get serviceScanTypeCoach => 'Coach';
+
+  @override
+  String serviceAtelierSeanceNotFound(String id) {
+    return 'Session not found: $id';
+  }
+
+  @override
+  String serviceAtelierNotFound(String id) {
+    return 'Workshop not found: $id';
+  }
+
+  @override
+  String serviceBulletinNotFound(String id) {
+    return 'Bulletin not found: $id';
+  }
+
+  @override
+  String get serviceSyncMaxRetries => 'Maximum number of retries reached';
+
+  @override
+  String get serviceSearchAcademicianSubtitle => 'Academician';
+
+  @override
+  String serviceSearchCoachSubtitle(String specialty) {
+    return 'Coach - $specialty';
+  }
+
+  @override
+  String infraSeanceNotFound(String id) {
+    return 'Session not found: $id';
+  }
+
+  @override
+  String infraSmsNotFound(String id) {
+    return 'SMS not found: $id';
+  }
+
+  @override
+  String get domaineTechnique => 'Technical';
+
+  @override
+  String get domainePhysique => 'Physical';
+
+  @override
+  String get domaineTactique => 'Tactical';
+
+  @override
+  String get domaineMental => 'Mental';
+
+  @override
+  String get domaineEspritEquipe => 'Team spirit';
+
+  @override
+  String get domaineGeneral => 'General';
+
+  @override
+  String bulletinObservationsResume(int count, String content) {
+    return '$count observations. Last: $content';
+  }
 }

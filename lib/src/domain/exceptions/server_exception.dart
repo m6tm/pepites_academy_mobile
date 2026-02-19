@@ -1,21 +1,33 @@
 import 'domain_exception.dart';
 
-/// Exception levée lors d'erreurs côté serveur (5xx).
+/// Exception levee lors d'erreurs cote serveur (5xx).
 class ServerException extends DomainException {
   const ServerException([
     super.message = "Erreur interne du serveur",
     String? code,
-  ]) : super(code: code ?? "SERVER_ERROR");
+    String? messageKey,
+  ]) : super(
+         code: code ?? "SERVER_ERROR",
+         messageKey: messageKey ?? 'exceptionServerDefault',
+       );
 }
 
-/// Exception levée lors d'erreurs de requête (400, validation).
+/// Exception levee lors d'erreurs de requete (400, validation).
 class RequestException extends DomainException {
-  const RequestException(super.message, {super.details})
-    : super(code: "BAD_REQUEST");
+  const RequestException(super.message, {super.details, String? messageKey})
+    : super(
+        code: "BAD_REQUEST",
+        messageKey: messageKey ?? 'exceptionRequestBad',
+      );
 }
 
-/// Exception levée lorsqu'une ressource est introuvable (404).
+/// Exception levee lorsqu'une ressource est introuvable (404).
 class NotFoundException extends DomainException {
-  const NotFoundException([super.message = "Ressource introuvable"])
-    : super(code: "NOT_FOUND");
+  const NotFoundException([
+    super.message = "Ressource introuvable",
+    String? messageKey,
+  ]) : super(
+         code: "NOT_FOUND",
+         messageKey: messageKey ?? 'exceptionNotFoundDefault',
+       );
 }

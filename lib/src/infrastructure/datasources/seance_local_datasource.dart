@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/seance.dart';
 
 /// Source de donnees locale pour les seances d'entrainement.
@@ -7,17 +8,21 @@ import '../../domain/entities/seance.dart';
 class SeanceLocalDatasource {
   static const String _key = 'seances_data';
   final SharedPreferences _prefs;
+  AppLocalizations? _l10n;
 
   SeanceLocalDatasource(this._prefs);
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   /// Recupere toutes les seances stockees localement.
   List<Seance> getAll() {
     final jsonStr = _prefs.getString(_key);
     if (jsonStr == null || jsonStr.isEmpty) return [];
     final List<dynamic> list = json.decode(jsonStr) as List<dynamic>;
-    return list
-        .map((e) => Seance.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return list.map((e) => Seance.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Recupere une seance par son identifiant.
@@ -47,7 +52,10 @@ class SeanceLocalDatasource {
     final list = getAll();
     final index = list.indexWhere((s) => s.id == seance.id);
     if (index == -1) {
-      throw Exception('Seance non trouvee : ${seance.id}');
+      throw Exception(
+        _l10n?.infraSeanceNotFound(seance.id) ??
+            'Seance non trouvee : ${seance.id}',
+      );
     }
     list[index] = seance;
     await _saveAll(list);

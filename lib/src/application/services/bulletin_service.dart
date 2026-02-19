@@ -1,3 +1,4 @@
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/annotation.dart';
 import '../../domain/entities/bulletin.dart';
 import '../../infrastructure/repositories/annotation_repository_impl.dart';
@@ -13,6 +14,7 @@ class BulletinService {
   final AnnotationRepositoryImpl _annotationRepository;
   final SeanceRepositoryImpl _seanceRepository;
   ActivityService? _activityService;
+  AppLocalizations? _l10n;
 
   BulletinService({
     required BulletinRepositoryImpl bulletinRepository,
@@ -25,6 +27,11 @@ class BulletinService {
   /// Injecte le service d'activites.
   void setActivityService(ActivityService service) {
     _activityService = service;
+  }
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
   }
 
   /// Genere un bulletin pour un academicien sur une periode donnee.
@@ -199,19 +206,24 @@ class BulletinService {
   }
 
   String _tagVersDomaine(String tag) {
-    if (_estTagTechnique(tag)) return 'Technique';
-    if (_estTagPhysique(tag)) return 'Physique';
-    if (_estTagTactique(tag)) return 'Tactique';
-    if (_estTagMental(tag)) return 'Mental';
-    if (_estTagEspritEquipe(tag)) return 'Esprit d\'equipe';
-    return 'General';
+    if (_estTagTechnique(tag)) return _l10n?.domaineTechnique ?? 'Technique';
+    if (_estTagPhysique(tag)) return _l10n?.domainePhysique ?? 'Physique';
+    if (_estTagTactique(tag)) return _l10n?.domaineTactique ?? 'Tactique';
+    if (_estTagMental(tag)) return _l10n?.domaineMental ?? 'Mental';
+    if (_estTagEspritEquipe(tag))
+      return _l10n?.domaineEspritEquipe ?? 'Esprit d\'equipe';
+    return _l10n?.domaineGeneral ?? 'General';
   }
 
   String _resumeAnnotations(List<Annotation> annotations) {
     if (annotations.isEmpty) return '';
     final derniere = annotations.first;
     if (annotations.length == 1) return derniere.contenu;
-    return '${annotations.length} observations. Derniere : ${derniere.contenu}';
+    return _l10n?.bulletinObservationsResume(
+          annotations.length,
+          derniere.contenu,
+        ) ??
+        '${annotations.length} observations. Derniere : ${derniere.contenu}';
   }
 
   /// Recupere les bulletins d'un academicien.
@@ -231,7 +243,10 @@ class BulletinService {
   ) async {
     final bulletin = await _bulletinRepository.getById(bulletinId);
     if (bulletin == null) {
-      throw Exception('Bulletin introuvable : $bulletinId');
+      throw Exception(
+        _l10n?.serviceBulletinNotFound(bulletinId) ??
+            'Bulletin introuvable : $bulletinId',
+      );
     }
     return _bulletinRepository.update(
       bulletin.copyWith(observationsGenerales: observations),

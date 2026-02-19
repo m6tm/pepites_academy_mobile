@@ -1,12 +1,20 @@
 import 'domain_exception.dart';
 
-/// Exception levée lors de problèmes de connectivité réseau.
+/// Exception levee lors de problemes de connectivite reseau.
 class NetworkException extends DomainException {
-  const NetworkException([super.message = "Pas de connexion internet"])
-    : super(code: "NETWORK_ERROR");
+  const NetworkException([
+    super.message = "Pas de connexion internet",
+    String? messageKey,
+  ]) : super(
+         code: "NETWORK_ERROR",
+         messageKey: messageKey ?? 'exceptionNetworkDefault',
+       );
 }
 
-/// Exception levée lors d'un timeout.
+/// Exception levee lors d'un timeout.
 class TimeoutException extends NetworkException {
-  const TimeoutException([super.message = "Le délai d'attente a expiré"]);
+  const TimeoutException([
+    String message = "Le delai d'attente a expire",
+    String? messageKey,
+  ]) : super(message, messageKey ?? 'exceptionTimeoutDefault');
 }

@@ -1322,5 +1322,189 @@
       }
     }
   },
-  "syncOnReconnect": "Data will be synced when connection is restored"
+  "syncOnReconnect": "Data will be synced when connection is restored",
+
+  "exceptionNetworkDefault": "No internet connection",
+  "exceptionNetworkCheck": "No internet connection. Check your network.",
+  "exceptionTimeoutDefault": "Request timed out",
+  "exceptionTimeoutServer": "The server is taking too long to respond.",
+  "exceptionServerDefault": "Internal server error",
+  "exceptionServerHttp": "HTTP protocol error.",
+  "exceptionRequestBad": "Invalid data format.",
+  "exceptionRequestBadDetails": "Malformed JSON or incorrect type.",
+  "exceptionNotFoundDefault": "Resource not found",
+  "exceptionAuthDefault": "Not authenticated",
+  "exceptionPermissionDefault": "Access denied",
+  "exceptionCacheDefault": "Error loading local data",
+  "exceptionUnknownDefault": "An unexpected error occurred",
+  "exceptionUnknownTechnical": "An unexpected error occurred (technical).",
+
+  "exceptionCacheReadKey": "Error reading key ''{key}'': {error}",
+  "@exceptionCacheReadKey": {
+    "placeholders": {
+      "key": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "exceptionCacheWriteKey": "Error writing key ''{key}'': {error}",
+  "@exceptionCacheWriteKey": {
+    "placeholders": {
+      "key": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "exceptionCacheReadString": "Error reading string ''{key}'': {error}",
+  "@exceptionCacheReadString": {
+    "placeholders": {
+      "key": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "exceptionCacheWriteString": "Error writing string ''{key}'': {error}",
+  "@exceptionCacheWriteString": {
+    "placeholders": {
+      "key": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "exceptionCacheDeleteKey": "Error deleting key ''{key}'': {error}",
+  "@exceptionCacheDeleteKey": {
+    "placeholders": {
+      "key": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "exceptionCacheResetPrefs": "Error resetting preferences: {error}",
+  "@exceptionCacheResetPrefs": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "serviceSeanceNotFound": "Session not found.",
+  "serviceSeanceAlreadyClosed": "This session is already closed.",
+  "serviceSeanceCannotOpen": "Cannot open a new session. The session \"{title}\" is still open. Please close it before opening a new one.",
+  "@serviceSeanceCannotOpen": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "serviceSeanceOpenedSuccess": "Session \"{title}\" opened successfully.",
+  "@serviceSeanceOpenedSuccess": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "serviceSeanceClosedSuccess": "Session \"{title}\" closed successfully.",
+  "@serviceSeanceClosedSuccess": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+
+  "serviceRefPosteExists": "A position with this name already exists.",
+  "serviceRefPosteOtherExists": "Another position with this name already exists.",
+  "serviceRefPosteCreated": "Position \"{name}\" created successfully.",
+  "@serviceRefPosteCreated": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "serviceRefPosteUpdated": "Position \"{name}\" updated successfully.",
+  "@serviceRefPosteUpdated": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "serviceRefPosteDeleted": "Position deleted successfully.",
+  "serviceRefPosteCannotDelete": "Cannot delete this position: {count} academician(s) linked.",
+  "@serviceRefPosteCannotDelete": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "serviceRefNiveauExists": "A level with this name already exists.",
+  "serviceRefNiveauOtherExists": "Another level with this name already exists.",
+  "serviceRefNiveauCreated": "Level \"{name}\" created successfully.",
+  "@serviceRefNiveauCreated": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "serviceRefNiveauUpdated": "Level \"{name}\" updated successfully.",
+  "@serviceRefNiveauUpdated": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "serviceRefNiveauDeleted": "Level deleted successfully.",
+  "serviceRefNiveauCannotDelete": "Cannot delete this level: {count} academician(s) linked.",
+  "@serviceRefNiveauCannotDelete": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "serviceScanPresenceAlreadyRecorded": "Attendance already recorded",
+  "serviceScanAcademicianIdentified": "Academician identified",
+  "serviceScanCoachIdentified": "Coach identified",
+  "serviceScanQrNotRecognized": "QR code not recognized",
+  "serviceScanTypeAcademician": "Academician",
+  "serviceScanTypeCoach": "Coach",
+
+  "serviceAtelierSeanceNotFound": "Session not found: {id}",
+  "@serviceAtelierSeanceNotFound": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "serviceAtelierNotFound": "Workshop not found: {id}",
+  "@serviceAtelierNotFound": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "serviceBulletinNotFound": "Bulletin not found: {id}",
+  "@serviceBulletinNotFound": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+
+  "serviceSyncMaxRetries": "Maximum number of retries reached",
+
+  "serviceSearchAcademicianSubtitle": "Academician",
+  "serviceSearchCoachSubtitle": "Coach - {specialty}",
+  "@serviceSearchCoachSubtitle": {
+    "placeholders": {
+      "specialty": { "type": "String" }
+    }
+  },
+
+  "infraSeanceNotFound": "Session not found: {id}",
+  "@infraSeanceNotFound": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "infraSmsNotFound": "SMS not found: {id}",
+  "@infraSmsNotFound": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+
+  "domaineTechnique": "Technical",
+  "domainePhysique": "Physical",
+  "domaineTactique": "Tactical",
+  "domaineMental": "Mental",
+  "domaineEspritEquipe": "Team spirit",
+  "domaineGeneral": "General",
+  "bulletinObservationsResume": "{count} observations. Last: {content}",
+  "@bulletinObservationsResume": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "content": { "type": "String" }
+    }
+  }
 }

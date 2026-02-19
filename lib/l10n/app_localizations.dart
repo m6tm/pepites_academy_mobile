@@ -4951,6 +4951,354 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Les donnees seront synchronisees au retour du reseau'**
   String get syncOnReconnect;
+
+  /// No description provided for @exceptionNetworkDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion internet'**
+  String get exceptionNetworkDefault;
+
+  /// No description provided for @exceptionNetworkCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion internet. Verifiez votre reseau.'**
+  String get exceptionNetworkCheck;
+
+  /// No description provided for @exceptionTimeoutDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le delai d\'attente a expire'**
+  String get exceptionTimeoutDefault;
+
+  /// No description provided for @exceptionTimeoutServer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur met trop de temps a repondre.'**
+  String get exceptionTimeoutServer;
+
+  /// No description provided for @exceptionServerDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur interne du serveur'**
+  String get exceptionServerDefault;
+
+  /// No description provided for @exceptionServerHttp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de protocole HTTP.'**
+  String get exceptionServerHttp;
+
+  /// No description provided for @exceptionRequestBad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format de donnees invalide.'**
+  String get exceptionRequestBad;
+
+  /// No description provided for @exceptionRequestBadDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'JSON malforme ou type incorrect.'**
+  String get exceptionRequestBadDetails;
+
+  /// No description provided for @exceptionNotFoundDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ressource introuvable'**
+  String get exceptionNotFoundDefault;
+
+  /// No description provided for @exceptionAuthDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non authentifie'**
+  String get exceptionAuthDefault;
+
+  /// No description provided for @exceptionPermissionDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acces refuse'**
+  String get exceptionPermissionDefault;
+
+  /// No description provided for @exceptionCacheDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de chargement des donnees locales'**
+  String get exceptionCacheDefault;
+
+  /// No description provided for @exceptionUnknownDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur inattendue est survenue'**
+  String get exceptionUnknownDefault;
+
+  /// No description provided for @exceptionUnknownTechnical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur inattendue est survenue (technique).'**
+  String get exceptionUnknownTechnical;
+
+  /// No description provided for @exceptionCacheReadKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la lecture de la cle \'\'{key}\'\' : {error}'**
+  String exceptionCacheReadKey(String key, String error);
+
+  /// No description provided for @exceptionCacheWriteKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'\'ecriture de la cle \'\'{key}\'\' : {error}'**
+  String exceptionCacheWriteKey(String key, String error);
+
+  /// No description provided for @exceptionCacheReadString.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la lecture de la chaine \'\'{key}\'\' : {error}'**
+  String exceptionCacheReadString(String key, String error);
+
+  /// No description provided for @exceptionCacheWriteString.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'\'ecriture de la chaine \'\'{key}\'\' : {error}'**
+  String exceptionCacheWriteString(String key, String error);
+
+  /// No description provided for @exceptionCacheDeleteKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la suppression de la cle \'\'{key}\'\' : {error}'**
+  String exceptionCacheDeleteKey(String key, String error);
+
+  /// No description provided for @exceptionCacheResetPrefs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la reinitialisation des preferences : {error}'**
+  String exceptionCacheResetPrefs(String error);
+
+  /// No description provided for @serviceSeanceNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance introuvable.'**
+  String get serviceSeanceNotFound;
+
+  /// No description provided for @serviceSeanceAlreadyClosed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette seance est deja cloturee.'**
+  String get serviceSeanceAlreadyClosed;
+
+  /// No description provided for @serviceSeanceCannotOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'\'ouvrir une nouvelle seance. La seance \"{title}\" est encore ouverte. Veuillez la cloturer avant d\'\'en ouvrir une nouvelle.'**
+  String serviceSeanceCannotOpen(String title);
+
+  /// No description provided for @serviceSeanceOpenedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance \"{title}\" ouverte avec succes.'**
+  String serviceSeanceOpenedSuccess(String title);
+
+  /// No description provided for @serviceSeanceClosedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance \"{title}\" cloturee avec succes.'**
+  String serviceSeanceClosedSuccess(String title);
+
+  /// No description provided for @serviceRefPosteExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un poste avec ce nom existe deja.'**
+  String get serviceRefPosteExists;
+
+  /// No description provided for @serviceRefPosteOtherExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un autre poste avec ce nom existe deja.'**
+  String get serviceRefPosteOtherExists;
+
+  /// No description provided for @serviceRefPosteCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste \"{name}\" cree avec succes.'**
+  String serviceRefPosteCreated(String name);
+
+  /// No description provided for @serviceRefPosteUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste \"{name}\" modifie avec succes.'**
+  String serviceRefPosteUpdated(String name);
+
+  /// No description provided for @serviceRefPosteDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste supprime avec succes.'**
+  String get serviceRefPosteDeleted;
+
+  /// No description provided for @serviceRefPosteCannotDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de supprimer ce poste : {count} academicien(s) rattache(s).'**
+  String serviceRefPosteCannotDelete(int count);
+
+  /// No description provided for @serviceRefNiveauExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un niveau avec ce nom existe deja.'**
+  String get serviceRefNiveauExists;
+
+  /// No description provided for @serviceRefNiveauOtherExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un autre niveau avec ce nom existe deja.'**
+  String get serviceRefNiveauOtherExists;
+
+  /// No description provided for @serviceRefNiveauCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau \"{name}\" cree avec succes.'**
+  String serviceRefNiveauCreated(String name);
+
+  /// No description provided for @serviceRefNiveauUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau \"{name}\" modifie avec succes.'**
+  String serviceRefNiveauUpdated(String name);
+
+  /// No description provided for @serviceRefNiveauDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau supprime avec succes.'**
+  String get serviceRefNiveauDeleted;
+
+  /// No description provided for @serviceRefNiveauCannotDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de supprimer ce niveau : {count} academicien(s) rattache(s).'**
+  String serviceRefNiveauCannotDelete(int count);
+
+  /// No description provided for @serviceScanPresenceAlreadyRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presence deja enregistree'**
+  String get serviceScanPresenceAlreadyRecorded;
+
+  /// No description provided for @serviceScanAcademicianIdentified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Academicien identifie'**
+  String get serviceScanAcademicianIdentified;
+
+  /// No description provided for @serviceScanCoachIdentified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur identifie'**
+  String get serviceScanCoachIdentified;
+
+  /// No description provided for @serviceScanQrNotRecognized.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code QR non reconnu'**
+  String get serviceScanQrNotRecognized;
+
+  /// No description provided for @serviceScanTypeAcademician.
+  ///
+  /// In fr, this message translates to:
+  /// **'Academicien'**
+  String get serviceScanTypeAcademician;
+
+  /// No description provided for @serviceScanTypeCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur'**
+  String get serviceScanTypeCoach;
+
+  /// No description provided for @serviceAtelierSeanceNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance introuvable : {id}'**
+  String serviceAtelierSeanceNotFound(String id);
+
+  /// No description provided for @serviceAtelierNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Atelier introuvable : {id}'**
+  String serviceAtelierNotFound(String id);
+
+  /// No description provided for @serviceBulletinNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin introuvable : {id}'**
+  String serviceBulletinNotFound(String id);
+
+  /// No description provided for @serviceSyncMaxRetries.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre maximum de tentatives atteint'**
+  String get serviceSyncMaxRetries;
+
+  /// No description provided for @serviceSearchAcademicianSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Academicien'**
+  String get serviceSearchAcademicianSubtitle;
+
+  /// No description provided for @serviceSearchCoachSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur - {specialty}'**
+  String serviceSearchCoachSubtitle(String specialty);
+
+  /// No description provided for @infraSeanceNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance non trouvee : {id}'**
+  String infraSeanceNotFound(String id);
+
+  /// No description provided for @infraSmsNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'SMS introuvable : {id}'**
+  String infraSmsNotFound(String id);
+
+  /// No description provided for @domaineTechnique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique'**
+  String get domaineTechnique;
+
+  /// No description provided for @domainePhysique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Physique'**
+  String get domainePhysique;
+
+  /// No description provided for @domaineTactique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tactique'**
+  String get domaineTactique;
+
+  /// No description provided for @domaineMental.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mental'**
+  String get domaineMental;
+
+  /// No description provided for @domaineEspritEquipe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Esprit d\'\'equipe'**
+  String get domaineEspritEquipe;
+
+  /// No description provided for @domaineGeneral.
+  ///
+  /// In fr, this message translates to:
+  /// **'General'**
+  String get domaineGeneral;
+
+  /// No description provided for @bulletinObservationsResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} observations. Derniere : {content}'**
+  String bulletinObservationsResume(int count, String content);
 }
 
 class _AppLocalizationsDelegate

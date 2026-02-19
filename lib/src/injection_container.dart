@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
 import 'application/services/activity_service.dart';
 import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
@@ -83,6 +84,9 @@ class DependencyInjection {
   static late final NotificationState notificationState;
   static late final ThemeState themeState;
   static late final LanguageState languageState;
+  static late PreferencesRepositoryImpl _preferencesRepository;
+  static late SeanceLocalDatasource _seanceDatasource;
+  static late SmsLocalDatasource _smsDatasource;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -90,6 +94,7 @@ class DependencyInjection {
 
     // Initialisation du Repository Preferences (Infrastructure)
     final preferencesRepository = PreferencesRepositoryImpl(sharedPrefs);
+    _preferencesRepository = preferencesRepository;
 
     // Initialisation du Service Preferences (Application)
     preferences = AppPreferences(preferencesRepository);
@@ -109,6 +114,7 @@ class DependencyInjection {
 
     // Initialisation du Repository Seance
     final seanceDatasource = SeanceLocalDatasource(sharedPrefs);
+    _seanceDatasource = seanceDatasource;
     seanceRepository = SeanceRepositoryImpl(seanceDatasource);
 
     // Initialisation du Service QR Scanner
@@ -157,6 +163,7 @@ class DependencyInjection {
 
     // Initialisation du module SMS
     final smsDatasource = SmsLocalDatasource(sharedPrefs);
+    _smsDatasource = smsDatasource;
     smsRepository = SmsRepositoryImpl(smsDatasource);
     smsService = SmsService(smsRepository: smsRepository);
     smsState = SmsState(
@@ -248,5 +255,21 @@ class DependencyInjection {
       syncService: syncService,
       connectivityState: connectivityState,
     );
+  }
+
+  /// Propage les traductions a tous les services et repositories.
+  /// Doit etre appelee depuis un widget ayant acces au [BuildContext].
+  static void updateLocalizations(AppLocalizations l10n) {
+    seanceService.setLocalizations(l10n);
+    atelierService.setLocalizations(l10n);
+    bulletinService.setLocalizations(l10n);
+    qrScannerService.setLocalizations(l10n);
+    referentielService.setLocalizations(l10n);
+    searchService.setLocalizations(l10n);
+    syncService.setLocalizations(l10n);
+    seanceRepository.setLocalizations(l10n);
+    _preferencesRepository.setLocalizations(l10n);
+    _seanceDatasource.setLocalizations(l10n);
+    _smsDatasource.setLocalizations(l10n);
   }
 }

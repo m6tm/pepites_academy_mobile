@@ -1,3 +1,4 @@
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/poste_football.dart';
 import '../../domain/entities/niveau_scolaire.dart';
 import '../../domain/repositories/poste_football_repository.dart';
@@ -18,6 +19,7 @@ class ReferentielService {
   final PosteFootballRepository _posteRepository;
   final NiveauScolaireRepository _niveauRepository;
   ActivityService? _activityService;
+  AppLocalizations? _l10n;
 
   ReferentielService({
     required PosteFootballRepository posteRepository,
@@ -28,6 +30,11 @@ class ReferentielService {
   /// Injecte le service d'activites (injection tardive pour eviter les dependances circulaires).
   void setActivityService(ActivityService service) {
     _activityService = service;
+  }
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
   }
 
   // --- Postes de football ---
@@ -45,9 +52,10 @@ class ReferentielService {
     final postes = await _posteRepository.getAll();
     final existe = postes.any((p) => p.nom.toLowerCase() == nom.toLowerCase());
     if (existe) {
-      return const ReferentielResult(
+      return ReferentielResult(
         success: false,
-        message: 'Un poste avec ce nom existe deja.',
+        message:
+            _l10n?.serviceRefPosteExists ?? 'Un poste avec ce nom existe deja.',
       );
     }
 
@@ -57,7 +65,9 @@ class ReferentielService {
     await _activityService?.enregistrerPosteAjoute(nom);
     return ReferentielResult(
       success: true,
-      message: 'Poste "$nom" cree avec succes.',
+      message:
+          _l10n?.serviceRefPosteCreated(nom) ??
+          'Poste "$nom" cree avec succes.',
     );
   }
 
@@ -68,9 +78,11 @@ class ReferentielService {
       (p) => p.id != poste.id && p.nom.toLowerCase() == poste.nom.toLowerCase(),
     );
     if (doublon) {
-      return const ReferentielResult(
+      return ReferentielResult(
         success: false,
-        message: 'Un autre poste avec ce nom existe deja.',
+        message:
+            _l10n?.serviceRefPosteOtherExists ??
+            'Un autre poste avec ce nom existe deja.',
       );
     }
 
@@ -78,7 +90,9 @@ class ReferentielService {
     await _activityService?.enregistrerPosteModifie(poste.nom);
     return ReferentielResult(
       success: true,
-      message: 'Poste "${poste.nom}" modifie avec succes.',
+      message:
+          _l10n?.serviceRefPosteUpdated(poste.nom) ??
+          'Poste "${poste.nom}" modifie avec succes.',
     );
   }
 
@@ -89,6 +103,7 @@ class ReferentielService {
       return ReferentielResult(
         success: false,
         message:
+            _l10n?.serviceRefPosteCannotDelete(count) ??
             'Impossible de supprimer ce poste : $count academicien(s) rattache(s).',
       );
     }
@@ -96,9 +111,9 @@ class ReferentielService {
     final poste = await _posteRepository.getById(id);
     await _posteRepository.delete(id);
     await _activityService?.enregistrerPosteSupprime(poste?.nom ?? id);
-    return const ReferentielResult(
+    return ReferentielResult(
       success: true,
-      message: 'Poste supprime avec succes.',
+      message: _l10n?.serviceRefPosteDeleted ?? 'Poste supprime avec succes.',
     );
   }
 
@@ -117,9 +132,11 @@ class ReferentielService {
     final niveaux = await _niveauRepository.getAll();
     final existe = niveaux.any((n) => n.nom.toLowerCase() == nom.toLowerCase());
     if (existe) {
-      return const ReferentielResult(
+      return ReferentielResult(
         success: false,
-        message: 'Un niveau avec ce nom existe deja.',
+        message:
+            _l10n?.serviceRefNiveauExists ??
+            'Un niveau avec ce nom existe deja.',
       );
     }
 
@@ -129,7 +146,9 @@ class ReferentielService {
     await _activityService?.enregistrerNiveauAjoute(nom);
     return ReferentielResult(
       success: true,
-      message: 'Niveau "$nom" cree avec succes.',
+      message:
+          _l10n?.serviceRefNiveauCreated(nom) ??
+          'Niveau "$nom" cree avec succes.',
     );
   }
 
@@ -141,9 +160,11 @@ class ReferentielService {
           n.id != niveau.id && n.nom.toLowerCase() == niveau.nom.toLowerCase(),
     );
     if (doublon) {
-      return const ReferentielResult(
+      return ReferentielResult(
         success: false,
-        message: 'Un autre niveau avec ce nom existe deja.',
+        message:
+            _l10n?.serviceRefNiveauOtherExists ??
+            'Un autre niveau avec ce nom existe deja.',
       );
     }
 
@@ -151,7 +172,9 @@ class ReferentielService {
     await _activityService?.enregistrerNiveauModifie(niveau.nom);
     return ReferentielResult(
       success: true,
-      message: 'Niveau "${niveau.nom}" modifie avec succes.',
+      message:
+          _l10n?.serviceRefNiveauUpdated(niveau.nom) ??
+          'Niveau "${niveau.nom}" modifie avec succes.',
     );
   }
 
@@ -162,6 +185,7 @@ class ReferentielService {
       return ReferentielResult(
         success: false,
         message:
+            _l10n?.serviceRefNiveauCannotDelete(count) ??
             'Impossible de supprimer ce niveau : $count academicien(s) rattache(s).',
       );
     }
@@ -169,9 +193,9 @@ class ReferentielService {
     final niveau = await _niveauRepository.getById(id);
     await _niveauRepository.delete(id);
     await _activityService?.enregistrerNiveauSupprime(niveau?.nom ?? id);
-    return const ReferentielResult(
+    return ReferentielResult(
       success: true,
-      message: 'Niveau supprime avec succes.',
+      message: _l10n?.serviceRefNiveauDeleted ?? 'Niveau supprime avec succes.',
     );
   }
 }

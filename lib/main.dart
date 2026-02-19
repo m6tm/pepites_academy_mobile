@@ -58,6 +58,13 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: const SplashPage(),
+      builder: (context, child) {
+        final l10n = AppLocalizations.of(context);
+        if (l10n != null) {
+          DependencyInjection.updateLocalizations(l10n);
+        }
+        return child ?? const SizedBox.shrink();
+      },
     );
   }
 }

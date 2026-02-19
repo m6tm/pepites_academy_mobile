@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../domain/exceptions/cache_exception.dart';
 import '../../domain/repositories/preferences_repository.dart';
 
@@ -6,15 +7,24 @@ import '../../domain/repositories/preferences_repository.dart';
 /// Gère la robustesse avec des blocs try-catch et le mapping vers les exceptions de domaine.
 class PreferencesRepositoryImpl implements PreferencesRepository {
   final SharedPreferences _prefs;
+  AppLocalizations? _l10n;
 
   PreferencesRepositoryImpl(this._prefs);
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   @override
   Future<bool?> getBool(String key) async {
     try {
       return _prefs.getBool(key);
     } catch (e) {
-      throw CacheException("Erreur lors de la lecture de la clé '$key' : $e");
+      throw CacheException(
+        _l10n?.exceptionCacheReadKey(key, e.toString()) ??
+            "Erreur lors de la lecture de la cle '$key' : $e",
+      );
     }
   }
 
@@ -23,7 +33,10 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
     try {
       await _prefs.setBool(key, value);
     } catch (e) {
-      throw CacheException("Erreur lors de l'écriture de la clé '$key' : $e");
+      throw CacheException(
+        _l10n?.exceptionCacheWriteKey(key, e.toString()) ??
+            "Erreur lors de l'ecriture de la cle '$key' : $e",
+      );
     }
   }
 
@@ -33,7 +46,8 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
       return _prefs.getString(key);
     } catch (e) {
       throw CacheException(
-        "Erreur lors de la lecture de la chaîne '$key' : $e",
+        _l10n?.exceptionCacheReadString(key, e.toString()) ??
+            "Erreur lors de la lecture de la chaine '$key' : $e",
       );
     }
   }
@@ -44,7 +58,8 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
       await _prefs.setString(key, value);
     } catch (e) {
       throw CacheException(
-        "Erreur lors de l'écriture de la chaîne '$key' : $e",
+        _l10n?.exceptionCacheWriteString(key, e.toString()) ??
+            "Erreur lors de l'ecriture de la chaine '$key' : $e",
       );
     }
   }
@@ -60,7 +75,8 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
       await _prefs.remove(key);
     } catch (e) {
       throw CacheException(
-        "Erreur lors de la suppression de la clé '$key' : $e",
+        _l10n?.exceptionCacheDeleteKey(key, e.toString()) ??
+            "Erreur lors de la suppression de la cle '$key' : $e",
       );
     }
   }
@@ -71,7 +87,8 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
       await _prefs.clear();
     } catch (e) {
       throw CacheException(
-        "Erreur lors de la réinitialisation des préférences : $e",
+        _l10n?.exceptionCacheResetPrefs(e.toString()) ??
+            "Erreur lors de la reinitialisation des preferences : $e",
       );
     }
   }

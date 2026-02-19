@@ -1,3 +1,4 @@
+import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/seance.dart';
 import '../../domain/repositories/seance_repository.dart';
 import '../datasources/seance_local_datasource.dart';
@@ -6,8 +7,14 @@ import '../datasources/seance_local_datasource.dart';
 /// Delegue les operations au datasource local.
 class SeanceRepositoryImpl implements SeanceRepository {
   final SeanceLocalDatasource _datasource;
+  AppLocalizations? _l10n;
 
   SeanceRepositoryImpl(this._datasource);
+
+  /// Met a jour les traductions.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   @override
   Future<Seance?> getById(String id) async {
@@ -38,7 +45,9 @@ class SeanceRepositoryImpl implements SeanceRepository {
   Future<Seance> ouvrir(String id) async {
     final seance = _datasource.getById(id);
     if (seance == null) {
-      throw Exception('Seance non trouvee : $id');
+      throw Exception(
+        _l10n?.infraSeanceNotFound(id) ?? 'Seance non trouvee : $id',
+      );
     }
     final updated = seance.copyWith(statut: SeanceStatus.ouverte);
     return _datasource.update(updated);
@@ -48,7 +57,9 @@ class SeanceRepositoryImpl implements SeanceRepository {
   Future<Seance> fermer(String id) async {
     final seance = _datasource.getById(id);
     if (seance == null) {
-      throw Exception('Seance non trouvee : $id');
+      throw Exception(
+        _l10n?.infraSeanceNotFound(id) ?? 'Seance non trouvee : $id',
+      );
     }
     final updated = seance.copyWith(statut: SeanceStatus.fermee);
     return _datasource.update(updated);
