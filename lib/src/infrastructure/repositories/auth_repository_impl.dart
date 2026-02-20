@@ -19,10 +19,10 @@ class AuthRepositoryImpl implements AuthRepository {
     final result = await _dioClient.post(
       ApiEndpoints.register,
       data: {
-        'first_name': firstName,
-        'last_name': lastName,
+        'prenom': firstName,
+        'nom': lastName,
         'email': email,
-        'password': password,
+        'mot_de_passe': password,
       },
     );
 
@@ -36,7 +36,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     final result = await _dioClient.post(
       ApiEndpoints.login,
-      data: {'email': email, 'password': password},
+      data: {'email': email, 'mot_de_passe': password},
     );
 
     return result.fold((failure) => failure, (data) {

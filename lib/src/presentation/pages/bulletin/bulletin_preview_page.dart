@@ -9,6 +9,7 @@ import '../../../domain/entities/bulletin.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../state/bulletin_state.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/academy_toast.dart';
 import 'widgets/competences_radar_widget.dart';
 
 /// Ecran de previsualisation du bulletin de formation.
@@ -72,26 +73,18 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
       if (byteData == null) return;
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.bulletinCaptured,
-              style: GoogleFonts.montserrat(fontSize: 13),
-            ),
-            backgroundColor: AppColors.success,
-          ),
+        AcademyToast.show(
+          context,
+          title: l10n.bulletinCaptured,
+          isSuccess: true,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.exportError(e.toString()),
-              style: GoogleFonts.montserrat(fontSize: 13),
-            ),
-            backgroundColor: AppColors.error,
-          ),
+        AcademyToast.show(
+          context,
+          title: l10n.exportError(e.toString()),
+          isError: true,
         );
       }
     }

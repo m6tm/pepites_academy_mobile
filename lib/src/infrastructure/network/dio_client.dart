@@ -140,27 +140,38 @@ class DioClient {
 
         case DioExceptionType.badResponse:
           final statusCode = error.response?.statusCode;
+          final responseData = error.response?.data;
+          String? serverMessage;
+
+          if (responseData is Map<String, dynamic>) {
+            serverMessage =
+                responseData['erreur']?.toString() ??
+                responseData['message']?.toString();
+          }
+
           if (statusCode == 401 || statusCode == 403) {
             return NetworkFailure(
               type: NetworkFailureType.unauthorized,
               statusCode: statusCode,
-              message: error.response?.statusMessage,
+              message: serverMessage ?? error.response?.statusMessage,
             );
           } else if (statusCode == 404) {
             return NetworkFailure(
               type: NetworkFailureType.notFound,
               statusCode: statusCode,
+              message: serverMessage,
             );
           } else if (statusCode != null && statusCode >= 500) {
             return NetworkFailure(
               type: NetworkFailureType.serverError,
               statusCode: statusCode,
+              message: serverMessage,
             );
           }
           return NetworkFailure(
             type: NetworkFailureType.unknown,
             statusCode: statusCode,
-            message: error.response?.statusMessage,
+            message: serverMessage ?? error.response?.statusMessage,
           );
 
         case DioExceptionType.cancel:

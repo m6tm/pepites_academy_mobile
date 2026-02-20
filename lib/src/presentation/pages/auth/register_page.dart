@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
+import '../../widgets/academy_toast.dart';
 
 /// Page d'inscription pour Pépites Academy.
 class RegisterPage extends StatefulWidget {
@@ -87,18 +88,16 @@ class _RegisterPageState extends State<RegisterPage> {
         setState(() => _isLoading = false);
 
         if (failure != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(failure.message ?? l10n.error),
-              backgroundColor: Colors.red,
-            ),
+          AcademyToast.show(
+            context,
+            title: failure.message ?? l10n.error,
+            isError: true,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.registrationSuccessTitle),
-              backgroundColor: Colors.green,
-            ),
+          AcademyToast.show(
+            context,
+            title: l10n.registrationSuccessTitle,
+            isSuccess: true,
           );
           // Redirection vers la page de connexion ou le dashboard
           Navigator.pop(context);

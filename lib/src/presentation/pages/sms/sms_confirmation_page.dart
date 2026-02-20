@@ -4,6 +4,7 @@ import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/sms_message.dart';
 import '../../state/sms_state.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/academy_toast.dart';
 import '../../widgets/glassmorphism_card.dart';
 
 /// Page de previsualisation et confirmation avant envoi du SMS.
@@ -508,16 +509,10 @@ class SmsConfirmationPage extends StatelessWidget {
   }
 
   void _afficherErreur(BuildContext context, AppLocalizations l) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          smsState.errorMessage ?? l.smsConfirmationError,
-          style: GoogleFonts.montserrat(),
-        ),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    AcademyToast.show(
+      context,
+      title: smsState.errorMessage ?? l.smsConfirmationError,
+      isError: true,
     );
   }
 }
