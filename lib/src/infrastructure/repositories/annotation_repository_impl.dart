@@ -1,4 +1,6 @@
+import '../../application/services/sync_service.dart';
 import '../../domain/entities/annotation.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/annotation_repository.dart';
 import '../datasources/annotation_local_datasource.dart';
 
@@ -6,12 +8,25 @@ import '../datasources/annotation_local_datasource.dart';
 /// Delegue les operations au datasource local.
 class AnnotationRepositoryImpl implements AnnotationRepository {
   final AnnotationLocalDatasource _datasource;
+  SyncService? _syncService;
 
   AnnotationRepositoryImpl(this._datasource);
 
+  /// Injecte le service de synchronisation.
+  void setSyncService(SyncService service) {
+    _syncService = service;
+  }
+
   @override
   Future<Annotation> create(Annotation annotation) async {
-    return _datasource.add(annotation);
+    final created = await _datasource.add(annotation);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.annotation,
+      entityId: created.id,
+      operationType: SyncOperationType.create,
+      data: created.toJson(),
+    );
+    return created;
   }
 
   @override
@@ -39,11 +54,24 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
 
   /// Met a jour une annotation existante.
   Future<Annotation> update(Annotation annotation) async {
-    return _datasource.update(annotation);
+    final updated = await _datasource.update(annotation);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.annotation,
+      entityId: updated.id,
+      operationType: SyncOperationType.update,
+      data: updated.toJson(),
+    );
+    return updated;
   }
 
   /// Supprime une annotation.
   Future<void> delete(String id) async {
-    return _datasource.delete(id);
+    await _datasource.delete(id);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.annotation,
+      entityId: id,
+      operationType: SyncOperationType.delete,
+      data: {'id': id},
+    );
   }
 }

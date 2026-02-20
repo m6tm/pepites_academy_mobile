@@ -23,4 +23,20 @@ class Academicien {
     required this.codeQrUnique,
     this.piedFort,
   });
+
+  /// Serialise l'academicien en Map JSON.
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nom': nom,
+      'prenom': prenom,
+      'dateNaissance': dateNaissance.toIso8601String(),
+      'photoUrl': photoUrl,
+      'telephoneParent': telephoneParent,
+      'posteFootballId': posteFootballId,
+      'niveauScolaireId': niveauScolaireId,
+      'codeQrUnique': codeQrUnique,
+      'piedFort': piedFort,
+    };
+  }
 }

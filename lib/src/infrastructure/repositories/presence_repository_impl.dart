@@ -1,4 +1,6 @@
+import '../../application/services/sync_service.dart';
 import '../../domain/entities/presence.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/presence_repository.dart';
 import '../datasources/presence_local_datasource.dart';
 
@@ -6,12 +8,25 @@ import '../datasources/presence_local_datasource.dart';
 /// Delegue les operations au datasource local.
 class PresenceRepositoryImpl implements PresenceRepository {
   final PresenceLocalDatasource _datasource;
+  SyncService? _syncService;
 
   PresenceRepositoryImpl(this._datasource);
 
+  /// Injecte le service de synchronisation.
+  void setSyncService(SyncService service) {
+    _syncService = service;
+  }
+
   @override
   Future<Presence> mark(Presence presence) async {
-    return _datasource.add(presence);
+    final marked = await _datasource.add(presence);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.presence,
+      entityId: marked.id,
+      operationType: SyncOperationType.create,
+      data: marked.toJson(),
+    );
+    return marked;
   }
 
   @override

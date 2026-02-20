@@ -210,8 +210,9 @@ class BulletinService {
     if (_estTagPhysique(tag)) return _l10n?.domainePhysique ?? 'Physique';
     if (_estTagTactique(tag)) return _l10n?.domaineTactique ?? 'Tactique';
     if (_estTagMental(tag)) return _l10n?.domaineMental ?? 'Mental';
-    if (_estTagEspritEquipe(tag))
+    if (_estTagEspritEquipe(tag)) {
       return _l10n?.domaineEspritEquipe ?? 'Esprit d\'equipe';
+    }
     return _l10n?.domaineGeneral ?? 'General';
   }
 

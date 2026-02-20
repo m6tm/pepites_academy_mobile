@@ -1,4 +1,6 @@
+import '../../application/services/sync_service.dart';
 import '../../domain/entities/sms_message.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/sms_repository.dart';
 import '../datasources/sms_local_datasource.dart';
 
@@ -6,12 +8,25 @@ import '../datasources/sms_local_datasource.dart';
 /// Delegue les operations au datasource local.
 class SmsRepositoryImpl implements SmsRepository {
   final SmsLocalDatasource _datasource;
+  SyncService? _syncService;
 
   SmsRepositoryImpl(this._datasource);
 
+  /// Injecte le service de synchronisation.
+  void setSyncService(SyncService service) {
+    _syncService = service;
+  }
+
   @override
   Future<SmsMessage> send(SmsMessage message) async {
-    return _datasource.add(message);
+    final sent = await _datasource.add(message);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.smsMessage,
+      entityId: sent.id,
+      operationType: SyncOperationType.create,
+      data: sent.toJson(),
+    );
+    return sent;
   }
 
   @override
@@ -21,7 +36,13 @@ class SmsRepositoryImpl implements SmsRepository {
 
   @override
   Future<void> delete(String id) async {
-    return _datasource.delete(id);
+    await _datasource.delete(id);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.smsMessage,
+      entityId: id,
+      operationType: SyncOperationType.delete,
+      data: {'id': id},
+    );
   }
 
   @override

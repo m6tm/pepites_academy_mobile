@@ -1,4 +1,6 @@
+import '../../application/services/sync_service.dart';
 import '../../domain/entities/bulletin.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/bulletin_repository.dart';
 import '../datasources/bulletin_local_datasource.dart';
 
@@ -6,17 +8,37 @@ import '../datasources/bulletin_local_datasource.dart';
 /// Delegue les operations au datasource local.
 class BulletinRepositoryImpl implements BulletinRepository {
   final BulletinLocalDatasource _datasource;
+  SyncService? _syncService;
 
   BulletinRepositoryImpl(this._datasource);
 
+  /// Injecte le service de synchronisation.
+  void setSyncService(SyncService service) {
+    _syncService = service;
+  }
+
   @override
   Future<Bulletin> create(Bulletin bulletin) async {
-    return _datasource.add(bulletin);
+    final created = await _datasource.add(bulletin);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.bulletin,
+      entityId: created.id,
+      operationType: SyncOperationType.create,
+      data: created.toJson(),
+    );
+    return created;
   }
 
   @override
   Future<Bulletin> update(Bulletin bulletin) async {
-    return _datasource.update(bulletin);
+    final updated = await _datasource.update(bulletin);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.bulletin,
+      entityId: updated.id,
+      operationType: SyncOperationType.update,
+      data: updated.toJson(),
+    );
+    return updated;
   }
 
   @override
@@ -36,6 +58,12 @@ class BulletinRepositoryImpl implements BulletinRepository {
 
   @override
   Future<void> delete(String id) async {
-    return _datasource.delete(id);
+    await _datasource.delete(id);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.bulletin,
+      entityId: id,
+      operationType: SyncOperationType.delete,
+      data: {'id': id},
+    );
   }
 }

@@ -17,7 +17,6 @@ import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
-import 'infrastructure/datasources/api_sync_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
 import 'infrastructure/datasources/bulletin_local_datasource.dart';
 import 'infrastructure/datasources/connectivity_datasource.dart';
@@ -29,6 +28,8 @@ import 'infrastructure/datasources/seance_local_datasource.dart';
 import 'infrastructure/datasources/sms_local_datasource.dart';
 import 'infrastructure/datasources/notification_local_datasource.dart';
 import 'infrastructure/datasources/sync_queue_local_datasource.dart';
+import 'infrastructure/datasources/api_sync_datasource_impl.dart';
+import 'infrastructure/network/dio_client.dart';
 import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
@@ -241,7 +242,8 @@ class DependencyInjection {
 
     final syncQueueDatasource = SyncQueueLocalDatasource();
     final syncRepo = SyncRepositoryImpl(syncQueueDatasource);
-    final apiSyncDatasource = StubApiSyncDatasource();
+    final dioClient = DioClient();
+    final apiSyncDatasource = ApiSyncDatasourceImpl(dioClient);
     syncService = SyncService(
       syncRepository: syncRepo,
       apiDatasource: apiSyncDatasource,
@@ -255,6 +257,18 @@ class DependencyInjection {
       syncService: syncService,
       connectivityState: connectivityState,
     );
+
+    // Injection du service de synchronisation dans les repositories
+    academicienRepository.setSyncService(syncService);
+    encadreurRepoImpl.setSyncService(syncService);
+    presenceRepository.setSyncService(syncService);
+    seanceRepository.setSyncService(syncService);
+    atelierRepository.setSyncService(syncService);
+    annotationRepository.setSyncService(syncService);
+    bulletinRepository.setSyncService(syncService);
+    smsRepository.setSyncService(syncService);
+    niveauRepository.setSyncService(syncService);
+    posteRepository.setSyncService(syncService);
   }
 
   /// Propage les traductions a tous les services et repositories.

@@ -1,5 +1,7 @@
 import '../../../l10n/app_localizations.dart';
+import '../../application/services/sync_service.dart';
 import '../../domain/entities/seance.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/seance_repository.dart';
 import '../datasources/seance_local_datasource.dart';
 
@@ -7,9 +9,15 @@ import '../datasources/seance_local_datasource.dart';
 /// Delegue les operations au datasource local.
 class SeanceRepositoryImpl implements SeanceRepository {
   final SeanceLocalDatasource _datasource;
+  SyncService? _syncService;
   AppLocalizations? _l10n;
 
   SeanceRepositoryImpl(this._datasource);
+
+  /// Injecte le service de synchronisation.
+  void setSyncService(SyncService service) {
+    _syncService = service;
+  }
 
   /// Met a jour les traductions.
   void setLocalizations(AppLocalizations l10n) {
@@ -33,12 +41,26 @@ class SeanceRepositoryImpl implements SeanceRepository {
 
   @override
   Future<Seance> create(Seance seance) async {
-    return _datasource.add(seance);
+    final created = await _datasource.add(seance);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.seance,
+      entityId: created.id,
+      operationType: SyncOperationType.create,
+      data: created.toJson(),
+    );
+    return created;
   }
 
   @override
   Future<Seance> update(Seance seance) async {
-    return _datasource.update(seance);
+    final updated = await _datasource.update(seance);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.seance,
+      entityId: updated.id,
+      operationType: SyncOperationType.update,
+      data: updated.toJson(),
+    );
+    return updated;
   }
 
   @override
@@ -50,7 +72,14 @@ class SeanceRepositoryImpl implements SeanceRepository {
       );
     }
     final updated = seance.copyWith(statut: SeanceStatus.ouverte);
-    return _datasource.update(updated);
+    final result = await _datasource.update(updated);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.seance,
+      entityId: result.id,
+      operationType: SyncOperationType.update,
+      data: result.toJson(),
+    );
+    return result;
   }
 
   @override
@@ -62,11 +91,24 @@ class SeanceRepositoryImpl implements SeanceRepository {
       );
     }
     final updated = seance.copyWith(statut: SeanceStatus.fermee);
-    return _datasource.update(updated);
+    final result = await _datasource.update(updated);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.seance,
+      entityId: result.id,
+      operationType: SyncOperationType.update,
+      data: result.toJson(),
+    );
+    return result;
   }
 
   @override
   Future<void> delete(String id) async {
-    return _datasource.delete(id);
+    await _datasource.delete(id);
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.seance,
+      entityId: id,
+      operationType: SyncOperationType.delete,
+      data: {'id': id},
+    );
   }
 }

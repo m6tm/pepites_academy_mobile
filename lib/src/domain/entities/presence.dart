@@ -15,4 +15,15 @@ class Presence {
     required this.profilId,
     required this.seanceId,
   });
+
+  /// Serialise la presence en Map JSON.
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'horodateArrivee': horodateArrivee.toIso8601String(),
+      'typeProfil': typeProfil.name,
+      'profilId': profilId,
+      'seanceId': seanceId,
+    };
+  }
 }

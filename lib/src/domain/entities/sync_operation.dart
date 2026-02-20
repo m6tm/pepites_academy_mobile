@@ -1,9 +1,5 @@
 /// Types d'operations pouvant etre mises en file d'attente de synchronisation.
-enum SyncOperationType {
-  create,
-  update,
-  delete,
-}
+enum SyncOperationType { create, update, delete }
 
 /// Types d'entites concernees par la synchronisation.
 enum SyncEntityType {
@@ -11,15 +7,16 @@ enum SyncEntityType {
   presence,
   atelier,
   seance,
+  academicien,
+  bulletin,
+  encadreur,
+  niveauScolaire,
+  posteFootball,
+  smsMessage,
 }
 
 /// Statuts possibles d'une operation de synchronisation.
-enum SyncOperationStatus {
-  pending,
-  inProgress,
-  completed,
-  failed,
-}
+enum SyncOperationStatus { pending, inProgress, completed, failed }
 
 /// Represente une operation en attente de synchronisation vers le backend.
 /// Chaque modification locale (creation, mise a jour, suppression) genere
@@ -77,7 +74,7 @@ class SyncOperation {
     );
   }
 
-  /// Serialise l'operation en Map pour stockage SQLite.
+  /// Serialise l'operation en Map pour stockage SQLite ou envoi API.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -92,6 +89,9 @@ class SyncOperation {
       'errorMessage': errorMessage,
     };
   }
+
+  /// Alias pour toMap utilisé par la couche réseau.
+  Map<String, dynamic> toJson() => toMap();
 
   /// Deserialise une operation depuis un Map SQLite.
   factory SyncOperation.fromMap(Map<String, dynamic> map) {
