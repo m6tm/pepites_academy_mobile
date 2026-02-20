@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../injection_container.dart';
 import '../../widgets/academy_toast.dart';
 
 /// Page de réinitialisation du mot de passe pour Pépites Academy.
@@ -70,17 +71,31 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       final l10n = AppLocalizations.of(context)!;
-      // Simulation de réinitialisation
-      await Future.delayed(const Duration(seconds: 2));
+
+      final failure = await DependencyInjection.authService.resetPassword(
+        _passwordController.text,
+      );
+
       if (mounted) {
         setState(() => _isLoading = false);
-        // Retour à la connexion ou message de succès
-        AcademyToast.show(
-          context,
-          title: l10n.passwordResetSuccess,
-          isSuccess: true,
-        );
-        Navigator.of(context).popUntil((route) => route.isFirst);
+
+        if (failure == null) {
+          // Succès
+          AcademyToast.show(
+            context,
+            title: l10n.passwordResetSuccess,
+            isSuccess: true,
+          );
+          // Retour à la page de connexion
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } else {
+          // Erreur
+          AcademyToast.show(
+            context,
+            title: failure.message ?? "Erreur de réinitialisation",
+            isError: true,
+          );
+        }
       }
     }
   }

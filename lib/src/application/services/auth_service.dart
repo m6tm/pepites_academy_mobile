@@ -34,4 +34,19 @@ class AuthService {
   Future<void> logout() {
     return _authRepository.logout();
   }
+
+  /// Demande une réinitialisation de mot de passe.
+  Future<NetworkFailure?> forgotPassword(String email) {
+    return _authRepository.forgotPassword(email);
+  }
+
+  /// Vérifie le code OTP.
+  Future<NetworkFailure?> verifyOtp(String email, String code) {
+    return _authRepository.verifyOtp(email, code);
+  }
+
+  /// Réinitialise le mot de passe.
+  Future<NetworkFailure?> resetPassword(String newPassword) {
+    return _authRepository.resetPassword(newPassword);
+  }
 }

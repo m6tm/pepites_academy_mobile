@@ -49,4 +49,46 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     // TODO: Effacer le token localement
   }
+
+  @override
+  Future<NetworkFailure?> forgotPassword(String email) async {
+    final result = await _dioClient.post(
+      ApiEndpoints.forgotPassword,
+      data: {'email': email},
+    );
+
+    return result.fold((failure) => failure, (_) => null);
+  }
+
+  @override
+  Future<NetworkFailure?> verifyOtp(String email, String code) async {
+    final result = await _dioClient.post(
+      ApiEndpoints.verifyOtp,
+      data: {'email': email, 'code': code},
+    );
+
+    return result.fold((failure) => failure, (data) {
+      // Le backend renvoie access_token et refresh_token
+      final accessToken = data['access_token'] as String?;
+      if (accessToken != null) {
+        // On configure temporairement le token pour la requête de reset
+        // Dans une vraie app, on utiliserait un intercepteur
+        _dioClient.setToken(accessToken);
+      }
+      return null;
+    });
+  }
+
+  @override
+  Future<NetworkFailure?> resetPassword(String newPassword) async {
+    final result = await _dioClient.post(
+      ApiEndpoints.resetPassword,
+      data: {'nouveau_mot_de_passe': newPassword},
+    );
+
+    // Après le reset, on peut effacer le token car le backend révoque tout
+    _dioClient.setToken(null);
+
+    return result.fold((failure) => failure, (_) => null);
+  }
 }

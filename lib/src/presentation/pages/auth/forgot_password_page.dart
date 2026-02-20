@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../injection_container.dart';
+import '../../widgets/academy_toast.dart';
 import 'otp_verification_page.dart';
 
 /// Page de récupération de mot de passe pour Pépites Academy.
@@ -25,17 +27,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   void _handleReset() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      // Simulation d'envoi d'email
-      await Future.delayed(const Duration(seconds: 2));
+
+      final failure = await DependencyInjection.authService.forgotPassword(
+        _emailController.text,
+      );
+
       if (mounted) {
         setState(() => _isLoading = false);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                OtpVerificationPage(email: _emailController.text),
-          ),
-        );
+
+        if (failure == null) {
+          // Succès
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  OtpVerificationPage(email: _emailController.text),
+            ),
+          );
+        } else {
+          // Erreur
+          AcademyToast.show(
+            context,
+            title: failure.message ?? "Une erreur est survenue",
+            isError: true,
+          );
+        }
       }
     }
   }

@@ -33,6 +33,15 @@ class DioClient {
       );
   }
 
+  /// Met à jour le token d'authentification pour les requêtes futures.
+  void setToken(String? token) {
+    if (token != null) {
+      _dio.options.headers['Authorization'] = 'Bearer $token';
+    } else {
+      _dio.options.headers.remove('Authorization');
+    }
+  }
+
   /// Effectue une requête GET.
   Future<Either<NetworkFailure, T>> get<T>(
     String url, {

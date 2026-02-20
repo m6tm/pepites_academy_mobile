@@ -11,7 +11,13 @@ class ApiEndpoints {
 
   /// Chemin pour l'authentification.
   static const String login = '/auth/login';
+
   static const String register = '/auth/register';
+
+  /// Chemins pour la réinitialisation de mot de passe.
+  static const String forgotPassword = '/auth/forgot-password';
+  static const String verifyOtp = '/auth/verify-otp';
+  static const String resetPassword = '/auth/reset-password';
 
   /// Délais d'expiration des requêtes (en millisecondes).
   static const int receiveTimeout = 15000;

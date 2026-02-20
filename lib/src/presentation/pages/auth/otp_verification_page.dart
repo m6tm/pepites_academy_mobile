@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../injection_container.dart';
+import '../../widgets/academy_toast.dart';
 import 'reset_password_page.dart';
 
 /// Page de vérification OTP pour Pépites Academy.
@@ -38,14 +40,29 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     final code = _controllers.map((c) => c.text).join();
     if (code.length == 6) {
       setState(() => _isLoading = true);
-      // Simulation de vérification
-      await Future.delayed(const Duration(seconds: 2));
+
+      final failure = await DependencyInjection.authService.verifyOtp(
+        widget.email,
+        code,
+      );
+
       if (mounted) {
         setState(() => _isLoading = false);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
-        );
+
+        if (failure == null) {
+          // Succès
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
+          );
+        } else {
+          // Erreur
+          AcademyToast.show(
+            context,
+            title: failure.message ?? "Code invalide",
+            isError: true,
+          );
+        }
       }
     }
   }
