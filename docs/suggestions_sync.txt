@@ -1,0 +1,17 @@
+SUGGESTIONS D'AMÉLIORATION - SYSTÈME DE SYNCHRONISATION
+--------------------------------------------------
+
+1. Gestion des échecs critiques (maxRetryCount atteint) :
+   - Implémenter une fonction dans l'interface utilisateur pour "Réessayer tout".
+   - Cette fonction devra réinitialiser le 'retryCount' à 0 et repasser le statut à 'pending' pour toutes les opérations ayant le statut 'failed'.
+
+2. Dashboard de Synchronisation :
+   - Créer une vue dédiée pour visualiser l'état de la file d'attente.
+   - Afficher le nombre d'opérations par statut (En attente, En cours, Terminées, Échecs).
+   - Permettre de voir le détail des erreurs pour les opérations en échec.
+
+3. Retry individuel :
+   - permettre de relancer une synchronisation spécifique manuellement depuis la liste des erreurs.
+
+4. Nettoyage intelligent :
+   - Option pour supprimer les opérations en échec qui ne peuvent pas être résolues (ex: erreur de validation métier côté serveur).

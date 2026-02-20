@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../injection_container.dart';
 
 /// Page d'inscription pour Pépites Academy.
 class RegisterPage extends StatefulWidget {
@@ -71,12 +72,37 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _handleRegister() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      // Simulation d'inscription
-      await Future.delayed(const Duration(seconds: 2));
+
+      final failure = await DependencyInjection.authService.register(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
       if (mounted) {
         setState(() => _isLoading = false);
+
+        if (failure != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(failure.message ?? l10n.error),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.registrationSuccessTitle),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Redirection vers la page de connexion ou le dashboard
+          Navigator.pop(context);
+        }
       }
     }
   }

@@ -13,6 +13,7 @@ import 'application/services/referentiel_service.dart';
 import 'application/services/sms_service.dart';
 import 'application/services/notification_service.dart';
 import 'application/services/sync_service.dart';
+import 'application/services/auth_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
@@ -43,6 +44,7 @@ import 'infrastructure/repositories/preferences_repository_impl.dart';
 import 'infrastructure/repositories/presence_repository_impl.dart';
 import 'infrastructure/repositories/seance_repository_impl.dart';
 import 'infrastructure/repositories/sms_repository_impl.dart';
+import 'infrastructure/repositories/auth_repository_impl.dart';
 import 'infrastructure/repositories/notification_repository_impl.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'presentation/state/connectivity_state.dart';
@@ -58,6 +60,7 @@ import 'presentation/state/language_state.dart';
 class DependencyInjection {
   static late final ActivityService activityService;
   static late final AppPreferences preferences;
+  static late final AuthService authService;
   static late final EncadreurRepository encadreurRepository;
   static late final AcademicienRepositoryImpl academicienRepository;
   static late final PresenceRepositoryImpl presenceRepository;
@@ -249,6 +252,10 @@ class DependencyInjection {
       apiDatasource: apiSyncDatasource,
       connectivityService: connectivityService,
     );
+
+    // Initialisation de l'authentification
+    final authRepository = AuthRepositoryImpl(dioClient);
+    authService = AuthService(authRepository);
 
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,
