@@ -27,6 +27,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   void _handleReset() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
+      final l10n = AppLocalizations.of(context)!;
 
       final failure = await DependencyInjection.authService.forgotPassword(
         _emailController.text,
@@ -48,7 +49,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           // Erreur
           AcademyToast.show(
             context,
-            title: failure.message ?? "Une erreur est survenue",
+            title: failure.message ?? l10n.unexpectedError,
             isError: true,
           );
         }

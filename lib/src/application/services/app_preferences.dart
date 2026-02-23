@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
 import '../../domain/repositories/preferences_repository.dart';
+import '../../presentation/pages/auth/login_page.dart';
+import '../../presentation/widgets/academy_toast.dart';
+import '../../injection_container.dart';
 
 /// Service applicatif regroupant les clés de préférences et la logique métier associée.
 /// Offre une couche d'abstraction supplémentaire au-dessus du repository.
@@ -10,6 +14,8 @@ class AppPreferences {
   static const String _keyUserRole = 'user_role';
   static const String _keyUserId = 'user_id';
   static const String _keyUserName = 'user_name';
+  static const String _keyToken = 'access_token';
+  static const String _keyRefreshToken = 'refresh_token';
 
   AppPreferences(this._repository);
 
@@ -63,10 +69,54 @@ class AppPreferences {
     return _repository.getString(_keyUserName);
   }
 
+  /// Récupère le token d'accès.
+  Future<String?> getToken() async {
+    return _repository.getString(_keyToken);
+  }
+
+  /// Enregistre le token d'accès.
+  Future<void> setToken(String token) async {
+    await _repository.setString(_keyToken, token);
+  }
+
+  /// Récupère le token de rafraîchissement.
+  Future<String?> getRefreshToken() async {
+    return _repository.getString(_keyRefreshToken);
+  }
+
+  /// Enregistre le token de rafraîchissement.
+  Future<void> setRefreshToken(String token) async {
+    await _repository.setString(_keyRefreshToken, token);
+  }
+
   /// Déconnexion de l'utilisateur.
   Future<void> logout() async {
     await _repository.remove(_keyUserRole);
     await _repository.remove(_keyUserId);
     await _repository.remove(_keyUserName);
+    await _repository.remove(_keyToken);
+    await _repository.remove(_keyRefreshToken);
+  }
+
+  /// Force la déconnexion et renvoie l'utilisateur à la page de connexion.
+  Future<void> forceLogout([String? message]) async {
+    await logout();
+
+    final context = DependencyInjection.navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      if (message != null) {
+        AcademyToast.show(
+          context,
+          title: 'Déconnexion',
+          description: message,
+          isError: true,
+        );
+      }
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (route) => false,
+      );
+    }
   }
 }

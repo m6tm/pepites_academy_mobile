@@ -40,6 +40,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     final code = _controllers.map((c) => c.text).join();
     if (code.length == 6) {
       setState(() => _isLoading = true);
+      final l10n = AppLocalizations.of(context)!;
 
       final failure = await DependencyInjection.authService.verifyOtp(
         widget.email,
@@ -59,7 +60,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           // Erreur
           AcademyToast.show(
             context,
-            title: failure.message ?? "Code invalide",
+            title: failure.message ?? l10n.invalidOtpError,
             isError: true,
           );
         }

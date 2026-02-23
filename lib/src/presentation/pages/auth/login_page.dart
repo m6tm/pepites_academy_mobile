@@ -5,8 +5,6 @@ import '../../../injection_container.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
-import '../../../infrastructure/utils/dev_credentials.dart';
-import '../../../domain/entities/user_role.dart';
 import '../dashboard/admin_dashboard_page.dart';
 import '../dashboard/encadreur_dashboard_page.dart';
 
@@ -38,56 +36,55 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = true);
       final l10n = AppLocalizations.of(context)!;
 
-      // Simulation de latence réseau
-      await Future.delayed(const Duration(seconds: 2));
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-      if (mounted) {
-        final email = _emailController.text.trim();
-        final password = _passwordController.text;
+      final failure = await DependencyInjection.authService.login(
+        email: email,
+        password: password,
+      );
 
-        if (DevCredentials.isValid(email, password)) {
-          setState(() => _isLoading = false);
-          final role = DevCredentials.getRole(email)!;
-          final userName = role == UserRole.admin
-              ? 'Administrateur'
-              : 'Coach Mamadou';
+      if (!mounted) return;
 
-          // Sauvegarde de la session
-          await DependencyInjection.preferences.setUserLoggedIn(
-            role: role.id,
-            userId: email,
-            userName: userName,
-          );
+      setState(() => _isLoading = false);
 
-          if (!mounted) return;
+      if (failure == null) {
+        // Succès
+        final roleStr =
+            await DependencyInjection.preferences.getUserRole() ?? 'encadreur';
+        final userName =
+            await DependencyInjection.preferences.getUserName() ?? email;
 
-          AcademyToast.show(
-            context,
-            title: l10n.welcomeBack,
-            description: l10n.connectedAs(role.id),
-            isSuccess: true,
-          );
+        if (!mounted) return;
 
-          // Navigation vers le dashboard selon le role
-          await Future.delayed(const Duration(milliseconds: 500));
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => role == UserRole.admin
-                    ? const AdminDashboardPage(userName: 'Administrateur')
-                    : const EncadreurDashboardPage(userName: 'Coach Mamadou'),
-              ),
-            );
-          }
-        } else {
-          setState(() => _isLoading = false);
-          AcademyToast.show(
-            context,
-            title: l10n.loginFailed,
-            description: l10n.loginFailedDescription,
-            isError: true,
+        AcademyToast.show(
+          context,
+          title: l10n.welcomeBack,
+          description: l10n.connectedAs(roleStr),
+          isSuccess: true,
+        );
+
+        // Navigation vers le dashboard selon le role
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) =>
+                  (roleStr.toLowerCase() == 'admin' ||
+                      roleStr.toLowerCase() == 'administrateur')
+                  ? AdminDashboardPage(userName: userName)
+                  : EncadreurDashboardPage(userName: userName),
+            ),
           );
         }
+      } else {
+        // Erreur
+        AcademyToast.show(
+          context,
+          title: l10n.loginFailed,
+          description: failure.message ?? l10n.loginFailedDescription,
+          isError: true,
+        );
       }
     }
   }

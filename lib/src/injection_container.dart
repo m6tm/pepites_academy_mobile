@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import 'application/services/activity_service.dart';
@@ -31,6 +32,7 @@ import 'infrastructure/datasources/notification_local_datasource.dart';
 import 'infrastructure/datasources/sync_queue_local_datasource.dart';
 import 'infrastructure/datasources/api_sync_datasource_impl.dart';
 import 'infrastructure/network/dio_client.dart';
+import 'infrastructure/network/auth_interceptor.dart';
 import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
@@ -88,6 +90,8 @@ class DependencyInjection {
   static late final NotificationState notificationState;
   static late final ThemeState themeState;
   static late final LanguageState languageState;
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
   static late PreferencesRepositoryImpl _preferencesRepository;
   static late SeanceLocalDatasource _seanceDatasource;
   static late SmsLocalDatasource _smsDatasource;
@@ -246,6 +250,21 @@ class DependencyInjection {
     final syncQueueDatasource = SyncQueueLocalDatasource();
     final syncRepo = SyncRepositoryImpl(syncQueueDatasource);
     final dioClient = DioClient();
+
+    // Ajout de l'intercepteur d'authentification pour le refresh automatique
+    final authInterceptor = AuthInterceptor(
+      dio: dioClient.dio,
+      preferences: preferences,
+    );
+    dioClient.addInterceptor(authInterceptor);
+
+    // Restauration du token (temporairement manuel pour rassurer si besoin,
+    // bien que l'intercepteur le gère aussi pour chaque requête)
+    final token = await preferences.getToken();
+    if (token != null) {
+      dioClient.setToken(token);
+    }
+
     final apiSyncDatasource = ApiSyncDatasourceImpl(dioClient);
     syncService = SyncService(
       syncRepository: syncRepo,
@@ -254,7 +273,7 @@ class DependencyInjection {
     );
 
     // Initialisation de l'authentification
-    final authRepository = AuthRepositoryImpl(dioClient);
+    final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);
 
     connectivityState = ConnectivityState(

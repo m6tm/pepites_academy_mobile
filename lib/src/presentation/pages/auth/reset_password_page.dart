@@ -92,7 +92,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           // Erreur
           AcademyToast.show(
             context,
-            title: failure.message ?? "Erreur de réinitialisation",
+            title: failure.message ?? l10n.passwordResetError,
             isError: true,
           );
         }

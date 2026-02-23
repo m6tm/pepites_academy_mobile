@@ -182,6 +182,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get passwordResetSuccess => 'Mot de passe reinitialise avec succes';
 
   @override
+  String get invalidOtpError => 'Code de verification invalide';
+
+  @override
+  String get otpExpiredError => 'Code de verification expire';
+
+  @override
+  String get userNotFoundError => 'Utilisateur non trouve';
+
+  @override
+  String get passwordResetError =>
+      'Impossible de reinitialiser le mot de passe';
+
+  @override
+  String get unexpectedError => 'Une erreur inattendue est survenue';
+
+  @override
   String get settings => 'Parametres';
 
   @override

@@ -428,6 +428,36 @@ abstract class AppLocalizations {
   /// **'Mot de passe reinitialise avec succes'**
   String get passwordResetSuccess;
 
+  /// No description provided for @invalidOtpError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de verification invalide'**
+  String get invalidOtpError;
+
+  /// No description provided for @otpExpiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de verification expire'**
+  String get otpExpiredError;
+
+  /// No description provided for @userNotFoundError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur non trouve'**
+  String get userNotFoundError;
+
+  /// No description provided for @passwordResetError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de reinitialiser le mot de passe'**
+  String get passwordResetError;
+
+  /// No description provided for @unexpectedError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur inattendue est survenue'**
+  String get unexpectedError;
+
   /// No description provided for @settings.
   ///
   /// In fr, this message translates to:

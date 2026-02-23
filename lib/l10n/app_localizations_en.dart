@@ -181,6 +181,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordResetSuccess => 'Password reset successfully';
 
   @override
+  String get invalidOtpError => 'Invalid verification code';
+
+  @override
+  String get otpExpiredError => 'Verification code expired';
+
+  @override
+  String get userNotFoundError => 'User not found';
+
+  @override
+  String get passwordResetError => 'Could not reset password';
+
+  @override
+  String get unexpectedError => 'An unexpected error occurred';
+
+  @override
   String get settings => 'Settings';
 
   @override

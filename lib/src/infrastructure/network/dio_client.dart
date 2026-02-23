@@ -11,6 +11,9 @@ import 'api_endpoints.dart';
 class DioClient {
   final Dio _dio;
 
+  /// Expose le client Dio sous-jacent (par ex. pour les intercepteurs).
+  Dio get dio => _dio;
+
   DioClient({Dio? dio}) : _dio = dio ?? Dio() {
     _dio
       ..options.baseUrl = ApiEndpoints.baseUrl
@@ -31,6 +34,11 @@ class DioClient {
           compact: true,
         ),
       );
+  }
+
+  /// Ajoute un intercepteur personnalisé au client.
+  void addInterceptor(Interceptor interceptor) {
+    _dio.interceptors.add(interceptor);
   }
 
   /// Met à jour le token d'authentification pour les requêtes futures.

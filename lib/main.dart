@@ -49,6 +49,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: DependencyInjection.navigatorKey,
       title: 'Pépites Academy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

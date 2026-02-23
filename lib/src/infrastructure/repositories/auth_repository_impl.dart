@@ -2,12 +2,14 @@ import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
+import '../../application/services/app_preferences.dart';
 
 /// Implémentation du dépôt d'authentification utilisant l'API.
 class AuthRepositoryImpl implements AuthRepository {
   final DioClient _dioClient;
+  final AppPreferences _preferences;
 
-  AuthRepositoryImpl(this._dioClient);
+  AuthRepositoryImpl(this._dioClient, this._preferences);
 
   @override
   Future<NetworkFailure?> register({
@@ -40,14 +42,42 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     return result.fold((failure) => failure, (data) {
-      // TODO: Gérer le token et les infos utilisateur
+      if (data is Map<String, dynamic>) {
+        final accessToken = data['access_token'] as String?;
+        final refreshToken = data['refresh_token'] as String?;
+        if (accessToken != null) {
+          // Set temporaire dans Dio
+          _dioClient.setToken(accessToken);
+          // Persistance globale
+          _preferences.setToken(accessToken);
+        }
+        if (refreshToken != null) {
+          _preferences.setRefreshToken(refreshToken);
+        }
+
+        final encadreur = data['encadreur'] as Map<String, dynamic>?;
+        if (encadreur != null) {
+          final role = encadreur['role'] as String? ?? 'encadreur';
+          final emailResponse = encadreur['email'] as String? ?? email;
+          final nom = encadreur['nom'] as String? ?? '';
+          final prenom = encadreur['prenom'] as String? ?? '';
+          final userName = '$prenom $nom'.trim();
+
+          _preferences.setUserLoggedIn(
+            role: role,
+            userId: emailResponse,
+            userName: userName.isNotEmpty ? userName : emailResponse,
+          );
+        }
+      }
       return null;
     });
   }
 
   @override
   Future<void> logout() async {
-    // TODO: Effacer le token localement
+    _dioClient.setToken(null);
+    await _preferences.logout();
   }
 
   @override
