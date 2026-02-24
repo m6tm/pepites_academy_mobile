@@ -14,6 +14,7 @@ class AppPreferences {
   static const String _keyUserRole = 'user_role';
   static const String _keyUserId = 'user_id';
   static const String _keyUserName = 'user_name';
+  static const String _keyUserPhoto = 'user_photo';
   static const String _keyToken = 'access_token';
   static const String _keyRefreshToken = 'refresh_token';
 
@@ -42,10 +43,14 @@ class AppPreferences {
     required String role,
     required String userId,
     required String userName,
+    String? photoUrl,
   }) async {
     await _repository.setString(_keyUserRole, role);
     await _repository.setString(_keyUserId, userId);
     await _repository.setString(_keyUserName, userName);
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      await _repository.setString(_keyUserPhoto, photoUrl);
+    }
   }
 
   /// Vérifie si un utilisateur est connecté.
@@ -67,6 +72,11 @@ class AppPreferences {
   /// Récupère le nom de l'utilisateur connecté.
   Future<String?> getUserName() async {
     return _repository.getString(_keyUserName);
+  }
+
+  /// Récupère la photo de l'utilisateur connecté.
+  Future<String?> getUserPhoto() async {
+    return _repository.getString(_keyUserPhoto);
   }
 
   /// Récupère le token d'accès.
@@ -94,6 +104,7 @@ class AppPreferences {
     await _repository.remove(_keyUserRole);
     await _repository.remove(_keyUserId);
     await _repository.remove(_keyUserName);
+    await _repository.remove(_keyUserPhoto);
     await _repository.remove(_keyToken);
     await _repository.remove(_keyRefreshToken);
   }

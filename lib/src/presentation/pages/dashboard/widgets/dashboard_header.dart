@@ -11,6 +11,7 @@ class DashboardHeader extends StatelessWidget {
   final String userName;
   final String role;
   final String greeting;
+  final String? photoUrl;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onSmsTap;
   final VoidCallback? onSearchTap;
@@ -22,6 +23,7 @@ class DashboardHeader extends StatelessWidget {
     required this.userName,
     required this.role,
     required this.greeting,
+    this.photoUrl,
     this.onNotificationTap,
     this.onSmsTap,
     this.onSearchTap,
@@ -59,15 +61,37 @@ class DashboardHeader extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Center(
-                child: Text(
-                  userName.isNotEmpty ? userName[0].toUpperCase() : '?',
-                  style: GoogleFonts.montserrat(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: photoUrl != null && photoUrl!.isNotEmpty
+                    ? Image.network(
+                        photoUrl!,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Center(
+                          child: Text(
+                            userName.isNotEmpty
+                                ? userName[0].toUpperCase()
+                                : '?',
+                            style: GoogleFonts.montserrat(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          userName.isNotEmpty ? userName[0].toUpperCase() : '?',
+                          style: GoogleFonts.montserrat(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
               ),
             ),
           ),

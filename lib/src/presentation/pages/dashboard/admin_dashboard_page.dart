@@ -16,8 +16,13 @@ import 'widgets/admin_internal_widgets.dart';
 /// Offre une vue d'ensemble complete de l'academie avec acces a toutes les fonctionnalites.
 class AdminDashboardPage extends StatefulWidget {
   final String userName;
+  final String? photoUrl;
 
-  const AdminDashboardPage({super.key, this.userName = 'Administrateur'});
+  const AdminDashboardPage({
+    super.key,
+    this.userName = 'Administrateur',
+    this.photoUrl,
+  });
 
   @override
   State<AdminDashboardPage> createState() => _AdminDashboardPageState();
@@ -79,6 +84,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                     AdminHomeScreen(
                       userName: widget.userName,
                       greeting: _getGreeting(),
+                      photoUrl: widget.photoUrl,
                       onNavigateToTab: (index) {
                         setState(() => _selectedNavIndex = index);
                         if (index == 1) {

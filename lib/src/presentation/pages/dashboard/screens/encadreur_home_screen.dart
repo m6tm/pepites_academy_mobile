@@ -26,6 +26,7 @@ import '../widgets/encadreur_internal_widgets.dart';
 class EncadreurHomeScreen extends StatefulWidget {
   final String userName;
   final String greeting;
+  final String? photoUrl;
   final VoidCallback? onSmsTap;
   final void Function(int)? onNavigateToTab;
 
@@ -33,6 +34,7 @@ class EncadreurHomeScreen extends StatefulWidget {
     super.key,
     required this.userName,
     required this.greeting,
+    this.photoUrl,
     this.onSmsTap,
     this.onNavigateToTab,
   });
@@ -142,6 +144,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                 userName: widget.userName,
                 role: l10n.coach,
                 greeting: widget.greeting,
+                photoUrl: widget.photoUrl,
                 notificationCount:
                     DependencyInjection.notificationState.nonLuesCount,
                 onSearchTap: () {

@@ -18,8 +18,13 @@ import 'widgets/encadreur_internal_widgets.dart';
 /// Optimise pour le travail terrain : seances, ateliers, annotations, scan QR.
 class EncadreurDashboardPage extends StatefulWidget {
   final String userName;
+  final String? photoUrl;
 
-  const EncadreurDashboardPage({super.key, this.userName = 'Coach'});
+  const EncadreurDashboardPage({
+    super.key,
+    this.userName = 'Coach',
+    this.photoUrl,
+  });
 
   @override
   State<EncadreurDashboardPage> createState() => _EncadreurDashboardPageState();
@@ -80,6 +85,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
                     EncadreurHomeScreen(
                       userName: widget.userName,
                       greeting: _getGreeting(),
+                      photoUrl: widget.photoUrl,
                       onSmsTap: () => setState(() => _selectedNavIndex = 4),
                       onNavigateToTab: (index) =>
                           setState(() => _selectedNavIndex = index),

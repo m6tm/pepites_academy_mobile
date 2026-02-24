@@ -56,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
             await DependencyInjection.preferences.getUserRole() ?? 'encadreur';
         final userName =
             await DependencyInjection.preferences.getUserName() ?? email;
+        final photoUrl = await DependencyInjection.preferences.getUserPhoto();
 
         if (!mounted) return;
 
@@ -74,8 +75,11 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context) =>
                   (roleStr.toLowerCase() == 'admin' ||
                       roleStr.toLowerCase() == 'administrateur')
-                  ? AdminDashboardPage(userName: userName)
-                  : EncadreurDashboardPage(userName: userName),
+                  ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
+                  : EncadreurDashboardPage(
+                      userName: userName,
+                      photoUrl: photoUrl,
+                    ),
             ),
           );
         }

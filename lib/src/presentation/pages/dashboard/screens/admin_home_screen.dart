@@ -26,12 +26,14 @@ import '../widgets/seance_card.dart';
 class AdminHomeScreen extends StatefulWidget {
   final String userName;
   final String greeting;
+  final String? photoUrl;
   final ValueChanged<int>? onNavigateToTab;
 
   const AdminHomeScreen({
     super.key,
     required this.userName,
     required this.greeting,
+    this.photoUrl,
     this.onNavigateToTab,
   });
 
@@ -108,6 +110,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 userName: widget.userName,
                 role: l10n.administrator,
                 greeting: widget.greeting,
+                photoUrl: widget.photoUrl,
                 notificationCount:
                     DependencyInjection.notificationState.nonLuesCount,
                 onSearchTap: () {

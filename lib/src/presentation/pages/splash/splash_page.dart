@@ -60,6 +60,7 @@ class _SplashPageState extends State<SplashPage>
 
         final roleId = await preferences.getUserRole();
         final savedName = await preferences.getUserName();
+        final photoUrl = await preferences.getUserPhoto();
         // Protection contre un roleId null, retour au login si problème
         if (roleId != null && mounted) {
           final l10n = AppLocalizations.of(context);
@@ -68,8 +69,11 @@ class _SplashPageState extends State<SplashPage>
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => role == UserRole.admin
-                  ? AdminDashboardPage(userName: userName)
-                  : EncadreurDashboardPage(userName: userName),
+                  ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
+                  : EncadreurDashboardPage(
+                      userName: userName,
+                      photoUrl: photoUrl,
+                    ),
             ),
           );
           return;
