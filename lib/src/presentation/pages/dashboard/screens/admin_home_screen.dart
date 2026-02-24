@@ -101,25 +101,31 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       physics: const BouncingScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
-          child: DashboardHeader(
-            userName: widget.userName,
-            role: l10n.administrator,
-            greeting: widget.greeting,
-            notificationCount:
-                DependencyInjection.notificationState.nonLuesCount,
-            onSearchTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
-            },
-            onNotificationTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const NotificationsPage(userRole: 'admin'),
-                ),
+          child: ListenableBuilder(
+            listenable: DependencyInjection.notificationState,
+            builder: (context, _) {
+              return DashboardHeader(
+                userName: widget.userName,
+                role: l10n.administrator,
+                greeting: widget.greeting,
+                notificationCount:
+                    DependencyInjection.notificationState.nonLuesCount,
+                onSearchTap: () {
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
+                },
+                onNotificationTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const NotificationsPage(userRole: 'admin'),
+                    ),
+                  );
+                },
+                onProfileTap: () {},
               );
             },
-            onProfileTap: () {},
           ),
         ),
         SliverToBoxAdapter(child: _buildWelcomeBanner(colorScheme, l10n)),

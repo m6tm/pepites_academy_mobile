@@ -131,7 +131,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               onPressed: () async {
                 final navigator = Navigator.of(context);
                 navigator.pop();
-                await DependencyInjection.preferences.logout();
+                await DependencyInjection.authService.logout();
                 if (mounted) {
                   navigator.pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const LoginPage()),

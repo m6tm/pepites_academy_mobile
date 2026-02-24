@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import '../../application/services/notification_service.dart';
 import '../../domain/entities/notification_item.dart';
 
@@ -41,11 +42,18 @@ class NotificationState extends ChangeNotifier {
     return liste;
   }
 
+  /// Notifie les listeners de maniere securisee (apres le build si necessaire).
+  void _safeNotifyListeners() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+
   /// Charge les notifications pour un role donne.
   Future<void> chargerNotifications(String role) async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _notifications = await _notificationService.getNotifications(role);
@@ -54,7 +62,7 @@ class NotificationState extends ChangeNotifier {
       _errorMessage = 'Erreur lors du chargement des notifications : $e';
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 

@@ -135,27 +135,32 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
       physics: const BouncingScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
-          child: DashboardHeader(
-            userName: widget.userName,
-            role: l10n.coach,
-            greeting: widget.greeting,
-            notificationCount:
-                DependencyInjection.notificationState.nonLuesCount,
-            onSearchTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
-            },
-            onSmsTap: widget.onSmsTap,
-            onNotificationTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      const NotificationsPage(userRole: 'encadreur'),
-                ),
+          child: ListenableBuilder(
+            listenable: DependencyInjection.notificationState,
+            builder: (context, _) {
+              return DashboardHeader(
+                userName: widget.userName,
+                role: l10n.coach,
+                greeting: widget.greeting,
+                notificationCount:
+                    DependencyInjection.notificationState.nonLuesCount,
+                onSearchTap: () {
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
+                },
+                onSmsTap: widget.onSmsTap,
+                onNotificationTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const NotificationsPage(userRole: 'encadreur'),
+                    ),
+                  );
+                },
+                onProfileTap: () {},
               );
             },
-            onProfileTap: () {},
           ),
         ),
         SliverToBoxAdapter(child: _buildTerrainBanner(colorScheme)),

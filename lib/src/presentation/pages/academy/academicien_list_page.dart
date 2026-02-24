@@ -630,7 +630,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
 
   Widget _buildEmptyState(ColorScheme colorScheme) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

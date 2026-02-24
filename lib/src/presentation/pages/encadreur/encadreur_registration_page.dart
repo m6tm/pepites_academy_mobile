@@ -37,6 +37,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
   // Controleurs Step 1
   final _nomController = TextEditingController();
   final _prenomController = TextEditingController();
+  final _emailController = TextEditingController();
   final _telephoneController = TextEditingController();
   File? _photoFile;
   final _picker = ImagePicker();
@@ -106,6 +107,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
     _pageController.dispose();
     _nomController.dispose();
     _prenomController.dispose();
+    _emailController.dispose();
     _telephoneController.dispose();
     _fadeController.dispose();
     super.dispose();
@@ -184,6 +186,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
         id: now.millisecondsSinceEpoch.toString(),
         nom: _nomController.text.trim(),
         prenom: _prenomController.text.trim(),
+        email: _emailController.text.trim(),
         telephone: _telephoneController.text.trim(),
         photoUrl: _photoFile?.path ?? '',
         specialite: _selectedSpecialite!,
@@ -468,6 +471,25 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
               icon: Icons.person_outline,
               validator: (v) =>
                   v == null || v.isEmpty ? l10n.requiredField : null,
+              colorScheme: colorScheme,
+              isDark: isDark,
+            ),
+            const SizedBox(height: 20),
+
+            // Email
+            _buildPremiumTextField(
+              controller: _emailController,
+              label: l10n.email,
+              hint: l10n.emailHint,
+              icon: Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) {
+                if (v == null || v.isEmpty) return l10n.emailRequired;
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) {
+                  return l10n.emailRequired;
+                }
+                return null;
+              },
               colorScheme: colorScheme,
               isDark: isDark,
             ),

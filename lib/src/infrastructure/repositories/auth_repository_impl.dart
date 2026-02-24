@@ -63,10 +63,20 @@ class AuthRepositoryImpl implements AuthRepository {
           final prenom = encadreur['prenom'] as String? ?? '';
           final userName = '$prenom $nom'.trim();
 
+          // Si pas de nom/prénom, extraire le prénom de l'email (avant @)
+          String displayName = userName;
+          if (displayName.isEmpty) {
+            final emailPrefix = emailResponse.split('@').first;
+            // Capitaliser la première lettre
+            displayName = emailPrefix.isNotEmpty
+                ? emailPrefix[0].toUpperCase() + emailPrefix.substring(1)
+                : emailResponse;
+          }
+
           _preferences.setUserLoggedIn(
             role: role,
             userId: emailResponse,
-            userName: userName.isNotEmpty ? userName : emailResponse,
+            userName: displayName,
           );
         }
       }
@@ -76,6 +86,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    // Appeler la route de déconnexion du backend pour révoquer la session
+    await _dioClient.post(ApiEndpoints.logout, data: {});
     _dioClient.setToken(null);
     await _preferences.logout();
   }

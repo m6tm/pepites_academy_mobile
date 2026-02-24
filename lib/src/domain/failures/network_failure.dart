@@ -15,6 +15,9 @@ enum NetworkFailureType {
   /// Ressource non trouvée (404).
   notFound,
 
+  /// Conflit de données (409) - email/téléphone déjà existant.
+  conflict,
+
   /// Erreur inattendue ou inconnue.
   unknown,
 }

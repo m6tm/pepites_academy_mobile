@@ -5,6 +5,8 @@ class Encadreur {
   final String id;
   final String nom;
   final String prenom;
+  final String? email;
+  final String? motDePasse;
   final String telephone;
   final String photoUrl;
   final String specialite;
@@ -18,6 +20,8 @@ class Encadreur {
     required this.id,
     required this.nom,
     required this.prenom,
+    this.email,
+    this.motDePasse,
     required this.telephone,
     required this.photoUrl,
     required this.specialite,
@@ -33,6 +37,8 @@ class Encadreur {
     String? id,
     String? nom,
     String? prenom,
+    String? email,
+    String? motDePasse,
     String? telephone,
     String? photoUrl,
     String? specialite,
@@ -46,6 +52,8 @@ class Encadreur {
       id: id ?? this.id,
       nom: nom ?? this.nom,
       prenom: prenom ?? this.prenom,
+      email: email ?? this.email,
+      motDePasse: motDePasse ?? this.motDePasse,
       telephone: telephone ?? this.telephone,
       photoUrl: photoUrl ?? this.photoUrl,
       specialite: specialite ?? this.specialite,
@@ -62,7 +70,7 @@ class Encadreur {
 
   /// Sérialisation vers Map pour le stockage local.
   Map<String, dynamic> toJson() {
-    return {
+    final map = <String, dynamic>{
       'id': id,
       'nom': nom,
       'prenom': prenom,
@@ -75,6 +83,9 @@ class Encadreur {
       'nbSeancesDirigees': nbSeancesDirigees,
       'nbAnnotations': nbAnnotations,
     };
+    if (email != null) map['email'] = email;
+    if (motDePasse != null) map['motDePasse'] = motDePasse;
+    return map;
   }
 
   /// Désérialisation depuis Map.
@@ -83,12 +94,21 @@ class Encadreur {
       id: json['id'] as String,
       nom: json['nom'] as String,
       prenom: json['prenom'] as String,
+      email: json['email'] as String?,
       telephone: json['telephone'] as String,
-      photoUrl: json['photoUrl'] as String,
+      photoUrl:
+          json['photoUrl'] as String? ?? json['photo_url'] as String? ?? '',
       specialite: json['specialite'] as String,
       role: UserRole.fromId(json['role'] as String),
-      codeQrUnique: json['codeQrUnique'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      codeQrUnique:
+          json['codeQrUnique'] as String? ??
+          json['code_qr_unique'] as String? ??
+          '',
+      createdAt: DateTime.parse(
+        json['createdAt'] as String? ??
+            json['created_at'] as String? ??
+            DateTime.now().toIso8601String(),
+      ),
       nbSeancesDirigees: json['nbSeancesDirigees'] as int? ?? 0,
       nbAnnotations: json['nbAnnotations'] as int? ?? 0,
     );

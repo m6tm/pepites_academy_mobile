@@ -55,6 +55,9 @@ class _SplashPageState extends State<SplashPage>
       final bool isLoggedIn = await preferences.isUserLoggedIn();
 
       if (isLoggedIn && mounted) {
+        // Synchroniser les referentiels depuis le backend
+        await DependencyInjection.syncReferentiels();
+
         final roleId = await preferences.getUserRole();
         final savedName = await preferences.getUserName();
         // Protection contre un roleId null, retour au login si problème

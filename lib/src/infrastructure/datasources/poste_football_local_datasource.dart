@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/poste_football.dart';
+import '../network/api_endpoints.dart';
+import '../network/dio_client.dart';
 
 /// Source de donnees locale pour les postes de football.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
@@ -14,16 +16,56 @@ class PosteFootballLocalDatasource {
 
   /// Postes par defaut pre-remplis a la premiere installation.
   static List<PosteFootball> get defaultPostes => [
-    PosteFootball(id: '1', nom: 'Gardien', description: 'Dernier rempart de l\'equipe'),
-    PosteFootball(id: '2', nom: 'Defenseur central', description: 'Pilier de la defense'),
-    PosteFootball(id: '3', nom: 'Lateral droit', description: 'Defenseur sur le flanc droit'),
-    PosteFootball(id: '4', nom: 'Lateral gauche', description: 'Defenseur sur le flanc gauche'),
-    PosteFootball(id: '5', nom: 'Milieu defensif', description: 'Sentinelle devant la defense'),
-    PosteFootball(id: '6', nom: 'Milieu offensif', description: 'Meneur de jeu'),
-    PosteFootball(id: '7', nom: 'Ailier droit', description: 'Attaquant sur le flanc droit'),
-    PosteFootball(id: '8', nom: 'Ailier gauche', description: 'Attaquant sur le flanc gauche'),
-    PosteFootball(id: '9', nom: 'Avant-centre', description: 'Buteur principal'),
-    PosteFootball(id: '10', nom: 'Piston', description: 'Lateral offensif polyvalent'),
+    PosteFootball(
+      id: '1',
+      nom: 'Gardien',
+      description: 'Dernier rempart de l\'equipe',
+    ),
+    PosteFootball(
+      id: '2',
+      nom: 'Defenseur central',
+      description: 'Pilier de la defense',
+    ),
+    PosteFootball(
+      id: '3',
+      nom: 'Lateral droit',
+      description: 'Defenseur sur le flanc droit',
+    ),
+    PosteFootball(
+      id: '4',
+      nom: 'Lateral gauche',
+      description: 'Defenseur sur le flanc gauche',
+    ),
+    PosteFootball(
+      id: '5',
+      nom: 'Milieu defensif',
+      description: 'Sentinelle devant la defense',
+    ),
+    PosteFootball(
+      id: '6',
+      nom: 'Milieu offensif',
+      description: 'Meneur de jeu',
+    ),
+    PosteFootball(
+      id: '7',
+      nom: 'Ailier droit',
+      description: 'Attaquant sur le flanc droit',
+    ),
+    PosteFootball(
+      id: '8',
+      nom: 'Ailier gauche',
+      description: 'Attaquant sur le flanc gauche',
+    ),
+    PosteFootball(
+      id: '9',
+      nom: 'Avant-centre',
+      description: 'Buteur principal',
+    ),
+    PosteFootball(
+      id: '10',
+      nom: 'Piston',
+      description: 'Lateral offensif polyvalent',
+    ),
   ];
 
   /// Initialise les postes par defaut si c'est le premier lancement.
@@ -48,9 +90,7 @@ class PosteFootballLocalDatasource {
 
   /// Sauvegarde la liste complete des postes.
   Future<void> saveAll(List<PosteFootball> postes) async {
-    final jsonString = json.encode(
-      postes.map((e) => e.toJson()).toList(),
-    );
+    final jsonString = json.encode(postes.map((e) => e.toJson()).toList());
     await _prefs.setString(_storageKey, jsonString);
   }
 
@@ -88,6 +128,49 @@ class PosteFootballLocalDatasource {
       return list.firstWhere((e) => e.id == id);
     } catch (_) {
       return null;
+    }
+  }
+
+  /// Synchronise les postes de football depuis le backend.
+  /// Remplace les donnees locales par celles du serveur.
+  Future<bool> syncFromApi(DioClient dioClient) async {
+    try {
+      final result = await dioClient.get<List<dynamic>>(
+        ApiEndpoints.postesFootball,
+      );
+      return result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[PosteFootball] Sync failed: ${failure.message}');
+          return false;
+        },
+        (data) async {
+          final postes = data.map((json) {
+            final map = json as Map<String, dynamic>;
+            return PosteFootball(
+              id: map['id'] as String,
+              nom: map['nom'] as String,
+              description: map['description'] as String?,
+              iconeCodePoint: map['icone_code_point'] as String?,
+              createdAt: map['created_at'] != null
+                  ? DateTime.parse(map['created_at'] as String)
+                  : null,
+              updatedAt: map['updated_at'] != null
+                  ? DateTime.parse(map['updated_at'] as String)
+                  : null,
+            );
+          }).toList();
+          await saveAll(postes);
+          await _prefs.setBool(_initializedKey, true);
+          // ignore: avoid_print
+          print('[PosteFootball] Synced ${postes.length} items from backend');
+          return true;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[PosteFootball] Sync exception: $e');
+      return false;
     }
   }
 }

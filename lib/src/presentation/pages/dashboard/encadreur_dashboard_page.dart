@@ -191,7 +191,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
               onPressed: () async {
                 final navigator = Navigator.of(context);
                 navigator.pop();
-                await DependencyInjection.preferences.logout();
+                await DependencyInjection.authService.logout();
                 if (mounted) {
                   navigator.pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const LoginPage()),

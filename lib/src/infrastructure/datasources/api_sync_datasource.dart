@@ -5,11 +5,16 @@ class SyncResult {
   final bool success;
   final String? errorMessage;
   final Map<String, dynamic>? serverResponse;
+  final int? statusCode;
+
+  /// Indique si l'erreur est un conflit (409) - donnee deja existante.
+  bool get isConflict => statusCode == 409;
 
   SyncResult({
     required this.success,
     this.errorMessage,
     this.serverResponse,
+    this.statusCode,
   });
 }
 
@@ -21,10 +26,7 @@ abstract class ApiSyncDatasource {
   Future<SyncResult> pushOperation(SyncOperation operation);
 
   /// Recupere les donnees du serveur pour une entite donnee.
-  Future<Map<String, dynamic>?> fetchEntity(
-    String entityType,
-    String entityId,
-  );
+  Future<Map<String, dynamic>?> fetchEntity(String entityType, String entityId);
 
   /// Verifie si le serveur est accessible.
   Future<bool> isServerReachable();

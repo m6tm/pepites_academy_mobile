@@ -49,7 +49,9 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = false);
 
       if (failure == null) {
-        // Succès
+        // Succès - synchroniser les referentiels depuis le backend
+        await DependencyInjection.syncReferentiels();
+
         final roleStr =
             await DependencyInjection.preferences.getUserRole() ?? 'encadreur';
         final userName =

@@ -178,6 +178,12 @@ class DioClient {
               statusCode: statusCode,
               message: serverMessage,
             );
+          } else if (statusCode == 409) {
+            return NetworkFailure(
+              type: NetworkFailureType.conflict,
+              statusCode: statusCode,
+              message: serverMessage,
+            );
           } else if (statusCode != null && statusCode >= 500) {
             return NetworkFailure(
               type: NetworkFailureType.serverError,
@@ -204,9 +210,20 @@ class DioClient {
           if (error.error is SocketException) {
             return const NetworkFailure(type: NetworkFailureType.noConnection);
           }
-          return const NetworkFailure(type: NetworkFailureType.unknown);
+          // Log l'erreur pour le débogage
+          // ignore: avoid_print
+          print('[DioClient] Unknown error: ${error.error}');
+          return NetworkFailure(
+            type: NetworkFailureType.unknown,
+            message: error.error?.toString(),
+          );
       }
     }
-    return const NetworkFailure(type: NetworkFailureType.unknown);
+    // ignore: avoid_print
+    print('[DioClient] Non-Dio error: $error');
+    return NetworkFailure(
+      type: NetworkFailureType.unknown,
+      message: error.toString(),
+    );
   }
 }

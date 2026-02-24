@@ -48,6 +48,7 @@ import 'infrastructure/repositories/seance_repository_impl.dart';
 import 'infrastructure/repositories/sms_repository_impl.dart';
 import 'infrastructure/repositories/auth_repository_impl.dart';
 import 'infrastructure/repositories/notification_repository_impl.dart';
+import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'presentation/state/connectivity_state.dart';
 import 'presentation/state/search_state.dart';
@@ -95,6 +96,9 @@ class DependencyInjection {
   static late PreferencesRepositoryImpl _preferencesRepository;
   static late SeanceLocalDatasource _seanceDatasource;
   static late SmsLocalDatasource _smsDatasource;
+  static late PosteFootballLocalDatasource _posteDatasource;
+  static late NiveauScolaireLocalDatasource _niveauDatasource;
+  static late DioClient _dioClient;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -203,6 +207,10 @@ class DependencyInjection {
       academicienDatasource,
     );
 
+    // Conserver les datasources pour la synchronisation ulterieure
+    _posteDatasource = posteDatasource;
+    _niveauDatasource = niveauDatasource;
+
     referentielService = ReferentielService(
       posteRepository: posteRepository,
       niveauRepository: niveauRepository,
@@ -250,6 +258,7 @@ class DependencyInjection {
     final syncQueueDatasource = SyncQueueLocalDatasource();
     final syncRepo = SyncRepositoryImpl(syncQueueDatasource);
     final dioClient = DioClient();
+    _dioClient = dioClient;
 
     // Ajout de l'intercepteur d'authentification pour le refresh automatique
     final authInterceptor = AuthInterceptor(
@@ -271,6 +280,9 @@ class DependencyInjection {
       apiDatasource: apiSyncDatasource,
       connectivityService: connectivityService,
     );
+
+    // Configuration du callback pour les erreurs de conflit (409)
+    syncService.onConflictError = _handleConflictError;
 
     // Initialisation de l'authentification
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
@@ -295,6 +307,61 @@ class DependencyInjection {
     smsRepository.setSyncService(syncService);
     niveauRepository.setSyncService(syncService);
     posteRepository.setSyncService(syncService);
+  }
+
+  /// Gere les erreurs de conflit (409) en supprimant l'enregistrement local.
+  /// Principalement pour les encadreurs (email duplique) et academiciens (telephone duplique).
+  static Future<void> _handleConflictError(
+    SyncEntityType entityType,
+    String entityId,
+  ) async {
+    try {
+      switch (entityType) {
+        case SyncEntityType.encadreur:
+          await encadreurRepository.delete(entityId);
+          break;
+        case SyncEntityType.academicien:
+          await academicienRepository.delete(entityId);
+          break;
+        case SyncEntityType.seance:
+          await seanceRepository.delete(entityId);
+          break;
+        case SyncEntityType.atelier:
+          await atelierRepository.delete(entityId);
+          break;
+        case SyncEntityType.annotation:
+          await annotationRepository.delete(entityId);
+          break;
+        case SyncEntityType.bulletin:
+          await bulletinRepository.delete(entityId);
+          break;
+        case SyncEntityType.smsMessage:
+          await smsRepository.delete(entityId);
+          break;
+        default:
+          // Les autres types n'ont pas de methode delete ou ne sont pas concernes
+          break;
+      }
+      // ignore: avoid_print
+      print(
+        '[DI] Conflit 409: suppression locale de ${entityType.name}/$entityId',
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur suppression locale apres conflit: $e');
+    }
+  }
+
+  /// Synchronise les referentiels (postes et niveaux) depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<void> syncReferentiels() async {
+    try {
+      await _posteDatasource.syncFromApi(_dioClient);
+      await _niveauDatasource.syncFromApi(_dioClient);
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync referentiels: $e');
+    }
   }
 
   /// Propage les traductions a tous les services et repositories.

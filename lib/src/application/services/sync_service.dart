@@ -51,6 +51,11 @@ class SyncService {
   /// Callback notifie quand le nombre d'operations en attente change.
   void Function(int)? onPendingCountChanged;
 
+  /// Callback notifie quand une operation echoue avec un conflit (409).
+  /// Permet aux repositories de supprimer l'enregistrement local.
+  Future<void> Function(SyncEntityType entityType, String entityId)?
+  onConflictError;
+
   AppLocalizations? _l10n;
 
   /// Met a jour les traductions.
@@ -153,6 +158,19 @@ class SyncService {
         if (result.success) {
           await _syncRepository.markCompleted(operation.id);
           successCount++;
+        } else if (result.isConflict) {
+          // Conflit (409): email/telephone deja existant
+          // Supprimer l'operation de la queue et l'enregistrement local
+          await _syncRepository.markCompleted(operation.id);
+          if (onConflictError != null) {
+            await onConflictError!(operation.entityType, operation.entityId);
+          }
+          failureCount++;
+          const conflictMsg = 'Donnee deja existante sur le serveur';
+          errors.add(
+            '${operation.entityType.name}/${operation.entityId}: '
+            '$conflictMsg - ${result.errorMessage}',
+          );
         } else {
           await _syncRepository.incrementRetryCount(operation.id);
           await _syncRepository.updateStatus(

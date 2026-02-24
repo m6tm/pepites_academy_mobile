@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
 import '../../domain/entities/sync_operation.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
 import 'api_sync_datasource.dart';
 
 /// Implémentation réelle de [ApiSyncDatasource] utilisant [DioClient].
+/// Route les opérations de synchronisation vers les endpoints REST appropriés.
 class ApiSyncDatasourceImpl implements ApiSyncDatasource {
   final DioClient _dioClient;
 
@@ -11,20 +15,191 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
 
   @override
   Future<SyncResult> pushOperation(SyncOperation operation) async {
-    final result = await _dioClient.post(
-      ApiEndpoints.sync,
-      data: operation.toJson(),
-    );
+    final endpoint = _getEndpointForEntity(operation.entityType);
+    final payload = json.decode(operation.payload) as Map<String, dynamic>;
+
+    switch (operation.operationType) {
+      case SyncOperationType.create:
+        return _handleCreate(endpoint, payload);
+      case SyncOperationType.update:
+        return _handleUpdate(endpoint, operation.entityId, payload);
+      case SyncOperationType.delete:
+        return _handleDelete(endpoint, operation.entityId);
+    }
+  }
+
+  /// Gère la création d'une entité via POST.
+  Future<SyncResult> _handleCreate(
+    String endpoint,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final data = _transformPayloadForApi(payload);
+      // ignore: avoid_print
+      print('[ApiSync] POST $endpoint avec ${data.keys.toList()}');
+      final result = await _dioClient.post(endpoint, data: data);
+
+      return result.fold(
+        (failure) => SyncResult(
+          success: false,
+          errorMessage: failure.message ?? 'Erreur lors de la création',
+          statusCode: failure.statusCode,
+        ),
+        (response) => SyncResult(
+          success: true,
+          serverResponse: response as Map<String, dynamic>?,
+        ),
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[ApiSync] Exception lors de la création: $e');
+      return SyncResult(success: false, errorMessage: 'Exception: $e');
+    }
+  }
+
+  /// Gère la mise à jour d'une entité via PUT.
+  Future<SyncResult> _handleUpdate(
+    String endpoint,
+    String entityId,
+    Map<String, dynamic> payload,
+  ) async {
+    final data = _transformPayloadForApi(payload);
+    final result = await _dioClient.put('$endpoint/$entityId', data: data);
 
     return result.fold(
       (failure) => SyncResult(
         success: false,
-        errorMessage: failure.message ?? 'Erreur lors de la synchronisation',
+        errorMessage: failure.message ?? 'Erreur lors de la mise à jour',
+        statusCode: failure.statusCode,
       ),
-      (data) => SyncResult(
+      (response) => SyncResult(
         success: true,
-        serverResponse: data as Map<String, dynamic>?,
+        serverResponse: response as Map<String, dynamic>?,
       ),
+    );
+  }
+
+  /// Gère la suppression d'une entité via DELETE.
+  Future<SyncResult> _handleDelete(String endpoint, String entityId) async {
+    final result = await _dioClient.delete('$endpoint/$entityId');
+
+    return result.fold(
+      (failure) => SyncResult(
+        success: false,
+        errorMessage: failure.message ?? 'Erreur lors de la suppression',
+        statusCode: failure.statusCode,
+      ),
+      (response) => SyncResult(
+        success: true,
+        serverResponse: response as Map<String, dynamic>?,
+      ),
+    );
+  }
+
+  /// Retourne l'endpoint REST correspondant au type d'entité.
+  String _getEndpointForEntity(SyncEntityType entityType) {
+    switch (entityType) {
+      case SyncEntityType.encadreur:
+        return ApiEndpoints.encadreurs;
+      case SyncEntityType.academicien:
+        return ApiEndpoints.academiciens;
+      case SyncEntityType.seance:
+        return ApiEndpoints.seances;
+      case SyncEntityType.atelier:
+        return ApiEndpoints.ateliers;
+      case SyncEntityType.annotation:
+        return ApiEndpoints.annotations;
+      case SyncEntityType.presence:
+        return ApiEndpoints.presences;
+      case SyncEntityType.bulletin:
+        return ApiEndpoints.bulletins;
+      case SyncEntityType.posteFootball:
+        return ApiEndpoints.postesFootball;
+      case SyncEntityType.niveauScolaire:
+        return ApiEndpoints.niveauxScolaires;
+      case SyncEntityType.smsMessage:
+        return '/sms';
+    }
+  }
+
+  /// Transforme le payload mobile vers le format attendu par l'API backend.
+  /// Convertit les noms de champs camelCase vers snake_case.
+  /// Convertit les photos locales en base64 pour l'upload.
+  Map<String, dynamic> _transformPayloadForApi(Map<String, dynamic> payload) {
+    final transformed = <String, dynamic>{};
+
+    for (final entry in payload.entries) {
+      final key = _camelToSnake(entry.key);
+      var value = entry.value;
+
+      // Conversion des photos locales en base64
+      if (key == 'photo_url' && value is String && value.isNotEmpty) {
+        final photoBase64 = _convertPhotoToBase64(value);
+        if (photoBase64 != null) {
+          transformed['photo_base64'] = photoBase64;
+          continue;
+        }
+      }
+
+      // Conversion spéciale pour certains champs
+      if (key == 'photo_url' && value is String && value.isEmpty) {
+        value = '';
+      }
+
+      // Conversion des dates ISO en format date uniquement (YYYY-MM-DD)
+      if (key == 'date_naissance' && value is String && value.contains('T')) {
+        value = value.split('T').first;
+      }
+
+      // Ne pas envoyer les champs calculés localement
+      if (key == 'nb_seances_dirigees' || key == 'nb_annotations') {
+        continue;
+      }
+
+      transformed[key] = value;
+    }
+
+    return transformed;
+  }
+
+  /// Convertit une photo locale en base64.
+  /// Retourne null si le chemin n'est pas un fichier local valide.
+  String? _convertPhotoToBase64(String photoPath) {
+    // Ignorer les URLs distantes
+    if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
+      return null;
+    }
+
+    // Ignorer les chemins vides ou invalides
+    if (photoPath.isEmpty || photoPath.length < 3) {
+      return null;
+    }
+
+    try {
+      final file = File(photoPath);
+      if (file.existsSync()) {
+        final bytes = file.readAsBytesSync();
+        // Limiter la taille pour éviter les problèmes de mémoire (max 5MB)
+        if (bytes.length > 5 * 1024 * 1024) {
+          return null;
+        }
+        final base64String = base64Encode(bytes);
+        // Ajouter le préfixe data URI
+        return 'data:image/jpeg;base64,$base64String';
+      }
+    } catch (e) {
+      // Ignorer les erreurs de lecture de fichier
+      // ignore: avoid_print
+      print('[ApiSync] Erreur lecture photo: $e');
+    }
+    return null;
+  }
+
+  /// Convertit une chaîne camelCase en snake_case.
+  String _camelToSnake(String input) {
+    return input.replaceAllMapped(
+      RegExp(r'[A-Z]'),
+      (match) => '_${match.group(0)!.toLowerCase()}',
     );
   }
 
@@ -33,9 +208,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     String entityType,
     String entityId,
   ) async {
-    final result = await _dioClient.get(
-      '/${entityType.toLowerCase()}s/$entityId',
-    );
+    final endpoint = _getEndpointForEntityName(entityType);
+    final result = await _dioClient.get('$endpoint/$entityId');
 
     return result.fold(
       (failure) => null,
@@ -43,10 +217,32 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     );
   }
 
+  /// Retourne l'endpoint REST correspondant au nom d'entité (string).
+  String _getEndpointForEntityName(String entityType) {
+    switch (entityType.toLowerCase()) {
+      case 'encadreur':
+        return ApiEndpoints.encadreurs;
+      case 'academicien':
+        return ApiEndpoints.academiciens;
+      case 'seance':
+        return ApiEndpoints.seances;
+      case 'atelier':
+        return ApiEndpoints.ateliers;
+      case 'annotation':
+        return ApiEndpoints.annotations;
+      case 'presence':
+        return ApiEndpoints.presences;
+      case 'bulletin':
+        return ApiEndpoints.bulletins;
+      default:
+        return '/${entityType.toLowerCase()}s';
+    }
+  }
+
   @override
   Future<bool> isServerReachable() async {
     try {
-      final result = await _dioClient.get('/health');
+      final result = await _dioClient.get(ApiEndpoints.health);
       return result.isRight();
     } catch (_) {
       return false;
