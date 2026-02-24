@@ -34,7 +34,7 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     Map<String, dynamic> payload,
   ) async {
     try {
-      final data = _transformPayloadForApi(payload);
+      final data = _transformPayloadForApi(payload, isCreate: true);
       // ignore: avoid_print
       print('[ApiSync] POST $endpoint avec ${data.keys.toList()}');
       final result = await _dioClient.post(endpoint, data: data);
@@ -125,7 +125,10 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
   /// Transforme le payload mobile vers le format attendu par l'API backend.
   /// Convertit les noms de champs camelCase vers snake_case.
   /// Convertit les photos locales en base64 pour l'upload.
-  Map<String, dynamic> _transformPayloadForApi(Map<String, dynamic> payload) {
+  Map<String, dynamic> _transformPayloadForApi(
+    Map<String, dynamic> payload, {
+    bool isCreate = false,
+  }) {
     final transformed = <String, dynamic>{};
 
     for (final entry in payload.entries) {
@@ -147,12 +150,22 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
       }
 
       // Conversion des dates ISO en format date uniquement (YYYY-MM-DD)
-      if (key == 'date_naissance' && value is String && value.contains('T')) {
+      if ((key == 'date_naissance' || key == 'date') &&
+          value is String &&
+          value.contains('T')) {
         value = value.split('T').first;
       }
 
-      // Ne pas envoyer les champs calculés localement
-      if (key == 'nb_seances_dirigees' || key == 'nb_annotations') {
+      // Ne pas envoyer les champs calculés ou gérés par le backend
+      // Pour les créations, exclure aussi 'id' et 'statut' (gérés par le backend)
+      if ((isCreate && (key == 'id' || key == 'statut')) ||
+          key == 'nb_seances_dirigees' ||
+          key == 'nb_annotations' ||
+          key == 'nb_presents' ||
+          key == 'nb_ateliers' ||
+          key == 'encadreur_ids' ||
+          key == 'academicien_ids' ||
+          key == 'atelier_ids') {
         continue;
       }
 

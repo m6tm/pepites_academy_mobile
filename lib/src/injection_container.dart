@@ -287,6 +287,7 @@ class DependencyInjection {
     // Initialisation de l'authentification
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);
+    authService.setSyncService(syncService);
 
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,

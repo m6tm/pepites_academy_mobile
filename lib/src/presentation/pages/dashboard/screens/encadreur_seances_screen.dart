@@ -534,6 +534,19 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                             return;
                           }
 
+                          final encadreurId = await DependencyInjection
+                              .preferences
+                              .getUserId();
+                          if (encadreurId == null || encadreurId.isEmpty) {
+                            if (!context.mounted) return;
+                            AcademyToast.show(
+                              context,
+                              title: 'Erreur d\'authentification',
+                              isError: true,
+                            );
+                            return;
+                          }
+
                           Navigator.of(context).pop();
 
                           final now = DateTime.now();
@@ -554,7 +567,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                               heureFin.hour,
                               heureFin.minute,
                             ),
-                            encadreurResponsableId: 'current_user',
+                            encadreurResponsableId: encadreurId,
                           );
 
                           if (!mounted) return;

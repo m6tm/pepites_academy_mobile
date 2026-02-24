@@ -117,14 +117,13 @@ class AppPreferences {
   }
 
   /// Déconnexion de l'utilisateur.
+  /// Efface toutes les préférences sauf l'état de l'onboarding.
   Future<void> logout() async {
-    await _repository.remove(_keyUserRole);
-    await _repository.remove(_keyUserId);
-    await _repository.remove(_keyUserName);
-    await _repository.remove(_keyUserPrenom);
-    await _repository.remove(_keyUserPhoto);
-    await _repository.remove(_keyToken);
-    await _repository.remove(_keyRefreshToken);
+    final onboardingCompleted = await isOnboardingCompleted();
+    await _repository.clear();
+    if (onboardingCompleted) {
+      await setOnboardingCompleted();
+    }
   }
 
   /// Force la déconnexion et renvoie l'utilisateur à la page de connexion.

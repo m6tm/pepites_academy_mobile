@@ -57,6 +57,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
         final encadreur = data['encadreur'] as Map<String, dynamic>?;
         if (encadreur != null) {
+          final encadreurId = encadreur['id'] as String? ?? '';
           final role = encadreur['role'] as String? ?? 'encadreur';
           final emailResponse = encadreur['email'] as String? ?? email;
           final nom = encadreur['nom'] as String? ?? '';
@@ -79,7 +80,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
           _preferences.setUserLoggedIn(
             role: role,
-            userId: emailResponse,
+            userId: encadreurId,
             userName: displayName,
             userPrenom: prenom,
             photoUrl: photoUrl,

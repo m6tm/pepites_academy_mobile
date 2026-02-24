@@ -1,11 +1,18 @@
 import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
+import 'sync_service.dart';
 
 /// Service gérant la logique métier liée à l'authentification.
 class AuthService {
   final AuthRepository _authRepository;
+  SyncService? _syncService;
 
   AuthService(this._authRepository);
+
+  /// Injecte le service de synchronisation.
+  void setSyncService(SyncService service) {
+    _syncService = service;
+  }
 
   /// Inscrit un nouvel utilisateur.
   Future<NetworkFailure?> register({
@@ -30,8 +37,9 @@ class AuthService {
     return _authRepository.login(email: email, password: password);
   }
 
-  /// Déconnecte l'utilisateur.
-  Future<void> logout() {
+  /// Déconnecte l'utilisateur et vide la queue de synchronisation.
+  Future<void> logout() async {
+    await _syncService?.clearAll();
     return _authRepository.logout();
   }
 
