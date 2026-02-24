@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
@@ -14,11 +16,15 @@ import '../widgets/encadreur_internal_widgets.dart';
 /// Informations personnelles, statistiques et parametres.
 class EncadreurProfileScreen extends StatelessWidget {
   final String userName;
+  final String? fullName;
+  final String? photoUrl;
   final VoidCallback onLogout;
 
   const EncadreurProfileScreen({
     super.key,
     required this.userName,
+    this.fullName,
+    this.photoUrl,
     required this.onLogout,
   });
 
@@ -80,25 +86,21 @@ class EncadreurProfileScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Text(
-                      userName[0].toUpperCase(),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: _buildProfileImage(),
                   ),
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  userName,
+                  fullName ?? userName,
                   style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -286,6 +288,48 @@ class EncadreurProfileScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileImage() {
+    if (photoUrl != null && photoUrl!.isNotEmpty) {
+      final isLocal = !photoUrl!.startsWith('http');
+      if (isLocal && File(photoUrl!).existsSync()) {
+        return Image.file(
+          File(photoUrl!),
+          width: 80,
+          height: 80,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+        );
+      } else if (!isLocal) {
+        return Image.network(
+          photoUrl!,
+          width: 80,
+          height: 80,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+        );
+      }
+    }
+    return _buildDefaultAvatar();
+  }
+
+  Widget _buildDefaultAvatar() {
+    return Container(
+      width: 80,
+      height: 80,
+      color: Colors.transparent,
+      child: Center(
+        child: Text(
+          userName.isNotEmpty ? userName[0].toUpperCase() : 'C',
+          style: GoogleFonts.montserrat(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
         ),
       ),
     );

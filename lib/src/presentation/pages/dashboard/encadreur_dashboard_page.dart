@@ -35,6 +35,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
   int _selectedNavIndex = 0;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  String? _fullName;
 
   @override
   void initState() {
@@ -48,6 +49,14 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
       curve: Curves.easeOut,
     );
     _fadeController.forward();
+    _loadFullName();
+  }
+
+  Future<void> _loadFullName() async {
+    final fullName = await DependencyInjection.preferences.getUserFullName();
+    if (mounted && fullName.isNotEmpty) {
+      setState(() => _fullName = fullName);
+    }
   }
 
   @override
@@ -96,6 +105,8 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
                     const EncadreurCommunicationScreen(),
                     EncadreurProfileScreen(
                       userName: widget.userName,
+                      fullName: _fullName,
+                      photoUrl: widget.photoUrl,
                       onLogout: _handleLogout,
                     ),
                   ],

@@ -60,12 +60,13 @@ class AuthRepositoryImpl implements AuthRepository {
           final role = encadreur['role'] as String? ?? 'encadreur';
           final emailResponse = encadreur['email'] as String? ?? email;
           final nom = encadreur['nom'] as String? ?? '';
+          final prenom = encadreur['prenom'] as String? ?? '';
           final photoUrl =
               encadreur['photo_url'] as String? ??
               encadreur['photoUrl'] as String? ??
               '';
 
-          // Utiliser uniquement le nom pour l'affichage
+          // Utiliser uniquement le nom pour l'affichage dans le header
           String displayName = nom.trim();
           if (displayName.isEmpty) {
             // Si pas de nom, extraire le prénom de l'email (avant @)
@@ -80,6 +81,7 @@ class AuthRepositoryImpl implements AuthRepository {
             role: role,
             userId: emailResponse,
             userName: displayName,
+            userPrenom: prenom,
             photoUrl: photoUrl,
           );
         }

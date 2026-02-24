@@ -34,6 +34,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
   final _academyKey = GlobalKey<AcademicienListPageState>();
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  String? _fullName;
 
   @override
   void initState() {
@@ -47,6 +48,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
       curve: Curves.easeOut,
     );
     _fadeController.forward();
+    _loadFullName();
+  }
+
+  Future<void> _loadFullName() async {
+    final fullName = await DependencyInjection.preferences.getUserFullName();
+    if (mounted && fullName.isNotEmpty) {
+      setState(() => _fullName = fullName);
+    }
   }
 
   @override
@@ -97,6 +106,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                     const AdminCommunicationScreen(),
                     AdminSettingsScreen(
                       userName: widget.userName,
+                      fullName: _fullName,
+                      photoUrl: widget.photoUrl,
                       onLogout: _handleLogout,
                     ),
                   ],

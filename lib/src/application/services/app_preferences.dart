@@ -14,6 +14,7 @@ class AppPreferences {
   static const String _keyUserRole = 'user_role';
   static const String _keyUserId = 'user_id';
   static const String _keyUserName = 'user_name';
+  static const String _keyUserPrenom = 'user_prenom';
   static const String _keyUserPhoto = 'user_photo';
   static const String _keyToken = 'access_token';
   static const String _keyRefreshToken = 'refresh_token';
@@ -43,11 +44,15 @@ class AppPreferences {
     required String role,
     required String userId,
     required String userName,
+    String? userPrenom,
     String? photoUrl,
   }) async {
     await _repository.setString(_keyUserRole, role);
     await _repository.setString(_keyUserId, userId);
     await _repository.setString(_keyUserName, userName);
+    if (userPrenom != null && userPrenom.isNotEmpty) {
+      await _repository.setString(_keyUserPrenom, userPrenom);
+    }
     if (photoUrl != null && photoUrl.isNotEmpty) {
       await _repository.setString(_keyUserPhoto, photoUrl);
     }
@@ -72,6 +77,18 @@ class AppPreferences {
   /// Récupère le nom de l'utilisateur connecté.
   Future<String?> getUserName() async {
     return _repository.getString(_keyUserName);
+  }
+
+  /// Récupère le prénom de l'utilisateur connecté.
+  Future<String?> getUserPrenom() async {
+    return _repository.getString(_keyUserPrenom);
+  }
+
+  /// Récupère le nom complet (prénom + nom) de l'utilisateur connecté.
+  Future<String> getUserFullName() async {
+    final prenom = await _repository.getString(_keyUserPrenom) ?? '';
+    final nom = await _repository.getString(_keyUserName) ?? '';
+    return '$prenom $nom'.trim();
   }
 
   /// Récupère la photo de l'utilisateur connecté.
@@ -104,6 +121,7 @@ class AppPreferences {
     await _repository.remove(_keyUserRole);
     await _repository.remove(_keyUserId);
     await _repository.remove(_keyUserName);
+    await _repository.remove(_keyUserPrenom);
     await _repository.remove(_keyUserPhoto);
     await _repository.remove(_keyToken);
     await _repository.remove(_keyRefreshToken);

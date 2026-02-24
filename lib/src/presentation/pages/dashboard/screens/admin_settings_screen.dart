@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
@@ -14,11 +16,15 @@ import '../widgets/admin_internal_widgets.dart';
 /// Configuration de l'application, profil et deconnexion.
 class AdminSettingsScreen extends StatelessWidget {
   final String userName;
+  final String? fullName;
+  final String? photoUrl;
   final VoidCallback onLogout;
 
   const AdminSettingsScreen({
     super.key,
     required this.userName,
+    this.fullName,
+    this.photoUrl,
     required this.onLogout,
   });
 
@@ -195,15 +201,9 @@ class AdminSettingsScreen extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.4),
               ),
             ),
-            child: Center(
-              child: Text(
-                userName[0].toUpperCase(),
-                style: GoogleFonts.montserrat(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.primary,
-                ),
-              ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: _buildProfileImage(),
             ),
           ),
           const SizedBox(width: 14),
@@ -212,12 +212,14 @@ class AdminSettingsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  userName,
+                  fullName ?? userName,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -247,6 +249,48 @@ class AdminSettingsScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImage() {
+    if (photoUrl != null && photoUrl!.isNotEmpty) {
+      final isLocal = !photoUrl!.startsWith('http');
+      if (isLocal && File(photoUrl!).existsSync()) {
+        return Image.file(
+          File(photoUrl!),
+          width: 56,
+          height: 56,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+        );
+      } else if (!isLocal) {
+        return Image.network(
+          photoUrl!,
+          width: 56,
+          height: 56,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+        );
+      }
+    }
+    return _buildDefaultAvatar();
+  }
+
+  Widget _buildDefaultAvatar() {
+    return Container(
+      width: 56,
+      height: 56,
+      color: AppColors.primary.withValues(alpha: 0.2),
+      child: Center(
+        child: Text(
+          userName.isNotEmpty ? userName[0].toUpperCase() : 'A',
+          style: GoogleFonts.montserrat(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+          ),
+        ),
       ),
     );
   }

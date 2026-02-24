@@ -450,7 +450,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Future<void> _chargerActivitesRecentes() async {
     try {
       final activites = await DependencyInjection.activityService
-          .getActivitesRecentes(limit: 15);
+          .getActivitesRecentes(limit: 5);
       if (mounted) {
         setState(() {
           _activites = activites;
