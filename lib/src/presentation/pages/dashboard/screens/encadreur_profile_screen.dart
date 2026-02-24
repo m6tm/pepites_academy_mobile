@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../notification/notification_settings_page.dart';
+import '../../referentiel/referentiel_hub_page.dart';
 import '../../settings/about_page.dart';
 import '../../settings/theme_settings_page.dart';
 import '../../settings/language_settings_page.dart';
@@ -252,6 +253,21 @@ class EncadreurProfileScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => const NotificationSettingsPage(),
                 ),
+              ),
+            ),
+            Divider(
+              height: 1,
+              indent: 60,
+              color: colorScheme.onSurface.withValues(alpha: 0.05),
+            ),
+            SettingsTile(
+              icon: Icons.tune_rounded,
+              label: l10n.referentials,
+              value: l10n.referentialsSubtitle,
+              color: const Color(0xFF10B981),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ReferentielHubPage()),
               ),
             ),
             Divider(

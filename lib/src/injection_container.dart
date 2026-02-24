@@ -354,13 +354,38 @@ class DependencyInjection {
 
   /// Synchronise les referentiels (postes et niveaux) depuis le backend.
   /// Doit etre appelee apres l'authentification reussie.
-  static Future<void> syncReferentiels() async {
+  /// Retourne true si la synchronisation a reussi.
+  static Future<bool> syncReferentiels() async {
     try {
-      await _posteDatasource.syncFromApi(_dioClient);
-      await _niveauDatasource.syncFromApi(_dioClient);
+      final postesOk = await _posteDatasource.syncFromApi(_dioClient);
+      final niveauxOk = await _niveauDatasource.syncFromApi(_dioClient);
+      return postesOk && niveauxOk;
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync referentiels: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise uniquement les postes de football depuis le backend.
+  static Future<bool> syncPostesFootball() async {
+    try {
+      return await _posteDatasource.syncFromApi(_dioClient);
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync postes: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise uniquement les niveaux scolaires depuis le backend.
+  static Future<bool> syncNiveauxScolaires() async {
+    try {
+      return await _niveauDatasource.syncFromApi(_dioClient);
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync niveaux: $e');
+      return false;
     }
   }
 

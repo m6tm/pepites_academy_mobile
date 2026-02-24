@@ -6,7 +6,7 @@ import '../network/dio_client.dart';
 
 /// Source de donnees locale pour les postes de football.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
-/// Pre-remplit les postes par defaut lors du premier acces.
+/// Les donnees sont synchronisees depuis le backend.
 class PosteFootballLocalDatasource {
   final SharedPreferences _prefs;
   static const String _storageKey = 'postes_football_data';
@@ -14,67 +14,12 @@ class PosteFootballLocalDatasource {
 
   PosteFootballLocalDatasource(this._prefs);
 
-  /// Postes par defaut pre-remplis a la premiere installation.
-  static List<PosteFootball> get defaultPostes => [
-    PosteFootball(
-      id: '1',
-      nom: 'Gardien',
-      description: 'Dernier rempart de l\'equipe',
-    ),
-    PosteFootball(
-      id: '2',
-      nom: 'Defenseur central',
-      description: 'Pilier de la defense',
-    ),
-    PosteFootball(
-      id: '3',
-      nom: 'Lateral droit',
-      description: 'Defenseur sur le flanc droit',
-    ),
-    PosteFootball(
-      id: '4',
-      nom: 'Lateral gauche',
-      description: 'Defenseur sur le flanc gauche',
-    ),
-    PosteFootball(
-      id: '5',
-      nom: 'Milieu defensif',
-      description: 'Sentinelle devant la defense',
-    ),
-    PosteFootball(
-      id: '6',
-      nom: 'Milieu offensif',
-      description: 'Meneur de jeu',
-    ),
-    PosteFootball(
-      id: '7',
-      nom: 'Ailier droit',
-      description: 'Attaquant sur le flanc droit',
-    ),
-    PosteFootball(
-      id: '8',
-      nom: 'Ailier gauche',
-      description: 'Attaquant sur le flanc gauche',
-    ),
-    PosteFootball(
-      id: '9',
-      nom: 'Avant-centre',
-      description: 'Buteur principal',
-    ),
-    PosteFootball(
-      id: '10',
-      nom: 'Piston',
-      description: 'Lateral offensif polyvalent',
-    ),
-  ];
+  /// Verifie si les donnees ont deja ete synchronisees depuis le backend.
+  bool get isInitialized => _prefs.getBool(_initializedKey) ?? false;
 
-  /// Initialise les postes par defaut si c'est le premier lancement.
+  /// Methode de compatibilite - ne fait rien car la sync est geree par syncFromApi.
   Future<void> ensureInitialized() async {
-    final initialized = _prefs.getBool(_initializedKey) ?? false;
-    if (!initialized) {
-      await saveAll(defaultPostes);
-      await _prefs.setBool(_initializedKey, true);
-    }
+    // Les donnees sont synchronisees depuis le backend via syncFromApi()
   }
 
   /// Recupere tous les postes stockes localement.

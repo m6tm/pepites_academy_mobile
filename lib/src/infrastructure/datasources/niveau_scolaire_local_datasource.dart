@@ -6,7 +6,7 @@ import '../network/dio_client.dart';
 
 /// Source de donnees locale pour les niveaux scolaires.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
-/// Pre-remplit les niveaux par defaut lors du premier acces.
+/// Les donnees sont synchronisees depuis le backend.
 class NiveauScolaireLocalDatasource {
   final SharedPreferences _prefs;
   static const String _storageKey = 'niveaux_scolaires_data';
@@ -14,30 +14,12 @@ class NiveauScolaireLocalDatasource {
 
   NiveauScolaireLocalDatasource(this._prefs);
 
-  /// Niveaux par defaut pre-remplis a la premiere installation.
-  static List<NiveauScolaire> get defaultNiveaux => [
-    NiveauScolaire(id: '1', nom: 'CP', ordre: 1),
-    NiveauScolaire(id: '2', nom: 'CE1', ordre: 2),
-    NiveauScolaire(id: '3', nom: 'CE2', ordre: 3),
-    NiveauScolaire(id: '4', nom: 'CM1', ordre: 4),
-    NiveauScolaire(id: '5', nom: 'CM2', ordre: 5),
-    NiveauScolaire(id: '6', nom: '6eme', ordre: 6),
-    NiveauScolaire(id: '7', nom: '5eme', ordre: 7),
-    NiveauScolaire(id: '8', nom: '4eme', ordre: 8),
-    NiveauScolaire(id: '9', nom: '3eme', ordre: 9),
-    NiveauScolaire(id: '10', nom: '2nde', ordre: 10),
-    NiveauScolaire(id: '11', nom: '1ere', ordre: 11),
-    NiveauScolaire(id: '12', nom: 'Terminale', ordre: 12),
-    NiveauScolaire(id: '13', nom: 'Universite', ordre: 13),
-  ];
+  /// Verifie si les donnees ont deja ete synchronisees depuis le backend.
+  bool get isInitialized => _prefs.getBool(_initializedKey) ?? false;
 
-  /// Initialise les niveaux par defaut si c'est le premier lancement.
+  /// Methode de compatibilite - ne fait rien car la sync est geree par syncFromApi.
   Future<void> ensureInitialized() async {
-    final initialized = _prefs.getBool(_initializedKey) ?? false;
-    if (!initialized) {
-      await saveAll(defaultNiveaux);
-      await _prefs.setBool(_initializedKey, true);
-    }
+    // Les donnees sont synchronisees depuis le backend via syncFromApi()
   }
 
   /// Recupere tous les niveaux stockes localement.

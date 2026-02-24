@@ -153,6 +153,8 @@ class ReferentielService {
   }
 
   /// Met a jour un niveau scolaire existant.
+  /// Si l'ordre est deja pris par un autre niveau, le backend permute les ordres
+  /// automatiquement et retourne le niveau permute dans la reponse.
   Future<ReferentielResult> modifierNiveau(NiveauScolaire niveau) async {
     final niveaux = await _niveauRepository.getAll();
     final doublon = niveaux.any(
@@ -166,6 +168,27 @@ class ReferentielService {
             _l10n?.serviceRefNiveauOtherExists ??
             'Un autre niveau avec ce nom existe deja.',
       );
+    }
+
+    // Verifier si l'ordre est deja pris par un autre niveau pour permutation locale
+    final ancienNiveau = niveaux.firstWhere(
+      (n) => n.id == niveau.id,
+      orElse: () => niveau,
+    );
+    final ancienOrdre = ancienNiveau.ordre;
+
+    final niveauAvecMemeOrdre = niveaux.firstWhere(
+      (n) => n.id != niveau.id && n.ordre == niveau.ordre,
+      orElse: () => NiveauScolaire(id: '', nom: '', ordre: -1),
+    );
+
+    // Si un autre niveau a le meme ordre, permuter localement
+    // Le backend fera la meme chose et retournera le niveau permute
+    if (niveauAvecMemeOrdre.id.isNotEmpty && niveau.ordre != ancienOrdre) {
+      final autreNiveauMisAJour = niveauAvecMemeOrdre.copyWith(
+        ordre: ancienOrdre,
+      );
+      await _niveauRepository.update(autreNiveauMisAJour);
     }
 
     await _niveauRepository.update(niveau);

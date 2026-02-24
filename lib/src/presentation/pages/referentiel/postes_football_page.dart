@@ -46,6 +46,23 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
     }
   }
 
+  Future<void> _syncFromBackend() async {
+    setState(() => _isLoading = true);
+    final success = await DependencyInjection.syncPostesFootball();
+    if (mounted) {
+      if (success) {
+        await _chargerPostes();
+      } else {
+        setState(() => _isLoading = false);
+        AcademyToast.show(
+          context,
+          title: AppLocalizations.of(context)!.loadingError,
+          isError: true,
+        );
+      }
+    }
+  }
+
   Future<void> _ajouterPoste() async {
     final result = await _showPosteDialog();
     if (result == true) {
@@ -201,11 +218,11 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 late final dynamic res;
 
                 if (isEdit) {
+                  final descText = descController.text.trim();
                   final updated = poste.copyWith(
                     nom: nomController.text.trim(),
-                    description: descController.text.trim().isEmpty
-                        ? null
-                        : descController.text.trim(),
+                    description: descText.isEmpty ? null : descText,
+                    clearDescription: descText.isEmpty,
                   );
                   res = await DependencyInjection.referentielService
                       .modifierPoste(updated);
@@ -370,6 +387,12 @@ class _PostesFootballPageState extends State<PostesFootballPage> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: _syncFromBackend,
+            icon: const Icon(Icons.sync_rounded),
+            color: AppColors.primary,
+            tooltip: AppLocalizations.of(context)!.syncNowLabel,
           ),
           Container(
             padding: const EdgeInsets.all(10),

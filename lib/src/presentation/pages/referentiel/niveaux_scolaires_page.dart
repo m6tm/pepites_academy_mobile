@@ -43,6 +43,20 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
     }
   }
 
+  Future<void> _syncFromBackend() async {
+    setState(() => _isLoading = true);
+    final success = await DependencyInjection.syncNiveauxScolaires();
+    if (mounted) {
+      if (success) {
+        await _chargerNiveaux();
+      } else {
+        setState(() => _isLoading = false);
+        final l10n = AppLocalizations.of(context)!;
+        AcademyToast.show(context, title: l10n.loadingError, isError: true);
+      }
+    }
+  }
+
   Future<void> _ajouterNiveau() async {
     final result = await _showNiveauDialog();
     if (result == true) {
@@ -373,6 +387,12 @@ class _NiveauxScolairesPageState extends State<NiveauxScolairesPage> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: _syncFromBackend,
+            icon: const Icon(Icons.sync_rounded),
+            color: const Color(0xFF3B82F6),
+            tooltip: l10n.syncNowLabel,
           ),
           Container(
             padding: const EdgeInsets.all(10),

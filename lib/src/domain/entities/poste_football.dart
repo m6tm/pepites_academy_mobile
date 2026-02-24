@@ -18,10 +18,12 @@ class PosteFootball {
        updatedAt = updatedAt ?? DateTime.now();
 
   /// Cree une copie du poste avec des champs modifies.
+  /// Utiliser [clearDescription] = true pour supprimer la description.
   PosteFootball copyWith({
     String? id,
     String? nom,
     String? description,
+    bool clearDescription = false,
     String? iconeCodePoint,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -29,7 +31,7 @@ class PosteFootball {
     return PosteFootball(
       id: id ?? this.id,
       nom: nom ?? this.nom,
-      description: description ?? this.description,
+      description: clearDescription ? null : (description ?? this.description),
       iconeCodePoint: iconeCodePoint ?? this.iconeCodePoint,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
