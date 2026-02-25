@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -66,6 +67,39 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  /// Construit la photo de profil en gérant les chemins locaux et URLs distantes.
+  Widget _buildProfilePhoto(Encadreur enc) {
+    final initials =
+        '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}';
+    final fallback = Center(
+      child: Text(
+        initials,
+        style: GoogleFonts.montserrat(
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
+        ),
+      ),
+    );
+
+    if (enc.photoUrl.isEmpty) return fallback;
+
+    final isRemote = enc.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        enc.photoUrl,
+        fit: BoxFit.cover,
+        width: 64,
+        height: 64,
+        errorBuilder: (_, o, st) => fallback,
+      );
+    }
+
+    final file = File(enc.photoUrl);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, fit: BoxFit.cover, width: 64, height: 64);
   }
 
   @override
@@ -176,15 +210,9 @@ class _EncadreurDetailPageState extends State<EncadreurDetailPage>
               ),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Center(
-              child: Text(
-                '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}',
-                style: GoogleFonts.montserrat(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: _buildProfilePhoto(enc),
             ),
           ),
           const SizedBox(width: 16),

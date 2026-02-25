@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
@@ -291,14 +292,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
         leading: CircleAvatar(
           radius: 18,
           backgroundColor: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-          child: Text(
-            academicien.prenom.isNotEmpty ? academicien.prenom[0] : '?',
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF3B82F6),
-              fontSize: 14,
-            ),
-          ),
+          child: ClipOval(child: _buildAcademicienAvatar(academicien)),
         ),
         title: Text(
           '${academicien.prenom} ${academicien.nom}',
@@ -366,14 +360,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
         leading: CircleAvatar(
           radius: 18,
           backgroundColor: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-          child: Text(
-            encadreur.prenom.isNotEmpty ? encadreur.prenom[0] : '?',
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF8B5CF6),
-              fontSize: 14,
-            ),
-          ),
+          child: ClipOval(child: _buildEncadreurAvatar(encadreur)),
         ),
         title: Text(
           '${encadreur.prenom} ${encadreur.nom}',
@@ -411,6 +398,68 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
         },
       ),
     );
+  }
+
+  /// Construit l'avatar d'un académicien avec gestion des photos locales et distantes.
+  Widget _buildAcademicienAvatar(Academicien academicien) {
+    final fallback = Center(
+      child: Text(
+        academicien.prenom.isNotEmpty ? academicien.prenom[0] : '?',
+        style: GoogleFonts.montserrat(
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF3B82F6),
+          fontSize: 14,
+        ),
+      ),
+    );
+
+    if (academicien.photoUrl.isEmpty) return fallback;
+
+    final isRemote = academicien.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        academicien.photoUrl,
+        fit: BoxFit.cover,
+        width: 36,
+        height: 36,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    }
+
+    final file = File(academicien.photoUrl);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, fit: BoxFit.cover, width: 36, height: 36);
+  }
+
+  /// Construit l'avatar d'un encadreur avec gestion des photos locales et distantes.
+  Widget _buildEncadreurAvatar(Encadreur encadreur) {
+    final fallback = Center(
+      child: Text(
+        encadreur.prenom.isNotEmpty ? encadreur.prenom[0] : '?',
+        style: GoogleFonts.montserrat(
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF8B5CF6),
+          fontSize: 14,
+        ),
+      ),
+    );
+
+    if (encadreur.photoUrl.isEmpty) return fallback;
+
+    final isRemote = encadreur.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        encadreur.photoUrl,
+        fit: BoxFit.cover,
+        width: 36,
+        height: 36,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    }
+
+    final file = File(encadreur.photoUrl);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, fit: BoxFit.cover, width: 36, height: 36);
   }
 
   Widget _buildEmptyMessage(String message, ColorScheme colorScheme) {

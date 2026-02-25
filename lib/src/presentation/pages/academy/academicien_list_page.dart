@@ -5,6 +5,7 @@ import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
+import '../../../infrastructure/network/api_endpoints.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
@@ -56,7 +57,71 @@ class AcademicienListPageState extends State<AcademicienListPage> {
         ...postes.map((p) => p.nom),
       ];
       _selectedFilter = AppLocalizations.of(context)!.all_masculine;
+      // Si connecté, récupère d'abord depuis l'API
+      await _refreshFromApiIfOnline();
       await _loadAcademiciens();
+    }
+  }
+
+  /// Si connecté, récupère la liste des académiciens depuis l'API
+  /// et met à jour le cache local via upsert direct (sans sync).
+  Future<void> _refreshFromApiIfOnline() async {
+    if (!DependencyInjection.connectivityState.isConnected) return;
+    try {
+      final data = await DependencyInjection.apiSyncDatasource.fetchAll(
+        ApiEndpoints.academiciens,
+      );
+      if (data == null || data.isEmpty) return;
+
+      final remoteList = data
+          .map(_academicienFromApiJson)
+          .whereType<Academicien>()
+          .toList();
+
+      if (remoteList.isNotEmpty) {
+        await DependencyInjection.academicienRepository.upsertAllFromRemote(
+          remoteList,
+        );
+      }
+    } catch (_) {
+      // Ignorer les erreurs réseau, l'affichage local reste intact
+    }
+  }
+
+  /// Convertit un JSON API en entité Academicien (supporte snake_case et camelCase).
+  Academicien? _academicienFromApiJson(Map<String, dynamic> json) {
+    try {
+      return Academicien(
+        id: json['id'] as String,
+        nom: json['nom'] as String? ?? '',
+        prenom: json['prenom'] as String? ?? '',
+        dateNaissance: DateTime.parse(
+          json['dateNaissance'] as String? ??
+              json['date_naissance'] as String? ??
+              DateTime.now().toIso8601String(),
+        ),
+        photoUrl:
+            json['photoUrl'] as String? ?? json['photo_url'] as String? ?? '',
+        telephoneParent:
+            json['telephoneParent'] as String? ??
+            json['telephone_parent'] as String? ??
+            '',
+        posteFootballId:
+            json['posteFootballId'] as String? ??
+            json['poste_football_id'] as String? ??
+            '',
+        niveauScolaireId:
+            json['niveauScolaireId'] as String? ??
+            json['niveau_scolaire_id'] as String? ??
+            '',
+        codeQrUnique:
+            json['codeQrUnique'] as String? ??
+            json['code_qr_unique'] as String? ??
+            '',
+        piedFort: json['piedFort'] as String? ?? json['pied_fort'] as String?,
+      );
+    } catch (_) {
+      return null;
     }
   }
 
@@ -143,6 +208,12 @@ class AcademicienListPageState extends State<AcademicienListPage> {
     ).then((_) => _loadAcademiciens());
   }
 
+  /// Rafraîchit la liste des académiciens depuis l'API.
+  Future<void> _onRefresh() async {
+    await _refreshFromApiIfOnline();
+    await _loadAcademiciens();
+  }
+
   int _calculateAge(DateTime dateNaissance) {
     final now = DateTime.now();
     int age = now.year - dateNaissance.year;
@@ -162,35 +233,41 @@ class AcademicienListPageState extends State<AcademicienListPage> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(child: _buildHeader(colorScheme)),
-            SliverToBoxAdapter(child: _buildSearchBar(colorScheme, isDark)),
-            SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
-            SliverToBoxAdapter(child: _buildQuickStats(colorScheme, isDark)),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            _isLoading
-                ? const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                : _filteredAcademiciens.isEmpty
-                ? SliverFillRemaining(child: _buildEmptyState(colorScheme))
-                : SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return _buildAcademicienCard(
-                          _filteredAcademiciens[index],
-                          colorScheme,
-                          isDark,
-                          index,
-                        );
-                      }, childCount: _filteredAcademiciens.length),
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              SliverToBoxAdapter(child: _buildHeader(colorScheme)),
+              SliverToBoxAdapter(child: _buildSearchBar(colorScheme, isDark)),
+              SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
+              SliverToBoxAdapter(child: _buildQuickStats(colorScheme, isDark)),
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
+              _isLoading
+                  ? const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : _filteredAcademiciens.isEmpty
+                  ? SliverFillRemaining(child: _buildEmptyState(colorScheme))
+                  : SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          return _buildAcademicienCard(
+                            _filteredAcademiciens[index],
+                            colorScheme,
+                            isDark,
+                            index,
+                          );
+                        }, childCount: _filteredAcademiciens.length),
+                      ),
                     ),
-                  ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          ),
         ),
       ),
       floatingActionButton: _buildFab(),
@@ -525,25 +602,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child:
-                      acad.photoUrl.isNotEmpty &&
-                          File(acad.photoUrl).existsSync()
-                      ? Image.file(File(acad.photoUrl), fit: BoxFit.cover)
-                      : Container(
-                          color: const Color(
-                            0xFF3B82F6,
-                          ).withValues(alpha: 0.08),
-                          child: Center(
-                            child: Text(
-                              '${acad.prenom.isNotEmpty ? acad.prenom[0] : ''}${acad.nom.isNotEmpty ? acad.nom[0] : ''}',
-                              style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF3B82F6),
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ),
+                  child: _buildAvatarImage(acad),
                 ),
               ),
               const SizedBox(width: 14),
@@ -626,6 +685,43 @@ class AcademicienListPageState extends State<AcademicienListPage> {
         ),
       ),
     );
+  }
+
+  /// Construit l'image avatar en gérant les chemins locaux et URLs distantes.
+  Widget _buildAvatarImage(Academicien acad) {
+    final initials =
+        '${acad.prenom.isNotEmpty ? acad.prenom[0] : ''}${acad.nom.isNotEmpty ? acad.nom[0] : ''}';
+    final fallback = Container(
+      color: const Color(0xFF3B82F6).withValues(alpha: 0.08),
+      child: Center(
+        child: Text(
+          initials,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF3B82F6),
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+
+    if (acad.photoUrl.isEmpty) return fallback;
+
+    final isRemote = acad.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        acad.photoUrl,
+        fit: BoxFit.cover,
+        width: 56,
+        height: 56,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    }
+
+    // Chemin local
+    final file = File(acad.photoUrl);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, fit: BoxFit.cover);
   }
 
   Widget _buildEmptyState(ColorScheme colorScheme) {

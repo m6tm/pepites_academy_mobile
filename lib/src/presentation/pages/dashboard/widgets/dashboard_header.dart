@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../injection_container.dart';
@@ -31,6 +32,38 @@ class DashboardHeader extends StatelessWidget {
     this.notificationCount = 0,
   });
 
+  /// Construit l'image avatar en gérant les chemins locaux et URLs distantes.
+  Widget _buildAvatarImage() {
+    final fallback = Center(
+      child: Text(
+        userName.isNotEmpty ? userName[0].toUpperCase() : '?',
+        style: GoogleFonts.montserrat(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+
+    if (photoUrl == null || photoUrl!.isEmpty) return fallback;
+
+    final isRemote = photoUrl!.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        photoUrl!,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+        errorBuilder: (_, o, st) => fallback,
+      );
+    }
+
+    // Chemin local
+    final file = File(photoUrl!);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, width: 50, height: 50, fit: BoxFit.cover);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -63,35 +96,7 @@ class DashboardHeader extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: photoUrl != null && photoUrl!.isNotEmpty
-                    ? Image.network(
-                        photoUrl!,
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Center(
-                          child: Text(
-                            userName.isNotEmpty
-                                ? userName[0].toUpperCase()
-                                : '?',
-                            style: GoogleFonts.montserrat(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Center(
-                        child: Text(
-                          userName.isNotEmpty ? userName[0].toUpperCase() : '?',
-                          style: GoogleFonts.montserrat(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
+                child: _buildAvatarImage(),
               ),
             ),
           ),

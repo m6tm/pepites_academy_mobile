@@ -75,6 +75,43 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
+  /// Construit la photo de profil en gérant les chemins locaux et URLs distantes.
+  Widget _buildProfilePhoto() {
+    final initials =
+        '${_academicien.prenom.isNotEmpty ? _academicien.prenom[0] : ''}${_academicien.nom.isNotEmpty ? _academicien.nom[0] : ''}';
+    final fallback = Container(
+      color: Colors.white.withValues(alpha: 0.2),
+      child: Center(
+        child: Text(
+          initials,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 28,
+          ),
+        ),
+      ),
+    );
+
+    if (_academicien.photoUrl.isEmpty) return fallback;
+
+    final isRemote = _academicien.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        _academicien.photoUrl,
+        fit: BoxFit.cover,
+        width: 90,
+        height: 90,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    }
+
+    // Chemin local
+    final file = File(_academicien.photoUrl);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, fit: BoxFit.cover);
+  }
+
   void _showDeleteConfirmation() {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
@@ -300,26 +337,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(21),
-                      child:
-                          _academicien.photoUrl.isNotEmpty &&
-                              File(_academicien.photoUrl).existsSync()
-                          ? Image.file(
-                              File(_academicien.photoUrl),
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              child: Center(
-                                child: Text(
-                                  '${_academicien.prenom.isNotEmpty ? _academicien.prenom[0] : ''}${_academicien.nom.isNotEmpty ? _academicien.nom[0] : ''}',
-                                  style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                  ),
-                                ),
-                              ),
-                            ),
+                      child: _buildProfilePhoto(),
                     ),
                   ),
                   const SizedBox(height: 12),

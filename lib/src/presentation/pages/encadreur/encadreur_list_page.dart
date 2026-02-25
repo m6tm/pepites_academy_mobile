@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../infrastructure/repositories/encadreur_repository_impl.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
+import '../../../infrastructure/network/api_endpoints.dart';
+import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import 'encadreur_registration_page.dart';
 import 'encadreur_profile_page.dart';
@@ -52,6 +55,41 @@ class _EncadreurListPageState extends State<EncadreurListPage>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+    _refreshFromApiIfOnlineThenLoad();
+  }
+
+  /// Si connecté, récupère la liste depuis l'API et met à jour le cache local
+  /// via upsert direct (sans sync), puis charge l'affichage.
+  Future<void> _refreshFromApiIfOnlineThenLoad() async {
+    if (DependencyInjection.connectivityState.isConnected) {
+      try {
+        final data = await DependencyInjection.apiSyncDatasource.fetchAll(
+          ApiEndpoints.encadreurs,
+        );
+        if (data != null && data.isNotEmpty) {
+          final remoteList = data
+              .map((json) {
+                try {
+                  return Encadreur.fromJson(json);
+                } catch (_) {
+                  return null;
+                }
+              })
+              .whereType<Encadreur>()
+              .toList();
+
+          if (remoteList.isNotEmpty) {
+            // Accès direct à l'impl pour éviter l'interface abstraite
+            final repo = DependencyInjection.encadreurRepository;
+            if (repo is EncadreurRepositoryImpl) {
+              await repo.upsertAllFromRemote(remoteList);
+            }
+          }
+        }
+      } catch (_) {
+        // Ignorer les erreurs réseau
+      }
+    }
     _loadEncadreurs();
   }
 
@@ -128,6 +166,11 @@ class _EncadreurListPageState extends State<EncadreurListPage>
     }
   }
 
+  /// Rafraîchit la liste des encadreurs depuis l'API.
+  Future<void> _onRefresh() async {
+    await _refreshFromApiIfOnlineThenLoad();
+  }
+
   void _navigateToProfile(Encadreur encadreur) {
     Navigator.push(
       context,
@@ -149,36 +192,42 @@ class _EncadreurListPageState extends State<EncadreurListPage>
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(child: _buildHeader(colorScheme, isDark)),
-            SliverToBoxAdapter(child: _buildSearchBar(colorScheme, isDark)),
-            SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
-            SliverToBoxAdapter(child: _buildQuickStats(colorScheme, isDark)),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            _isLoading
-                ? const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                : _filteredEncadreurs.isEmpty
-                ? SliverFillRemaining(child: _buildEmptyState(colorScheme))
-                : SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final enc = _filteredEncadreurs[index];
-                        return _buildEncadreurCard(
-                          enc,
-                          colorScheme,
-                          isDark,
-                          index,
-                        );
-                      }, childCount: _filteredEncadreurs.length),
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              SliverToBoxAdapter(child: _buildHeader(colorScheme, isDark)),
+              SliverToBoxAdapter(child: _buildSearchBar(colorScheme, isDark)),
+              SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
+              SliverToBoxAdapter(child: _buildQuickStats(colorScheme, isDark)),
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
+              _isLoading
+                  ? const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : _filteredEncadreurs.isEmpty
+                  ? SliverFillRemaining(child: _buildEmptyState(colorScheme))
+                  : SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final enc = _filteredEncadreurs[index];
+                          return _buildEncadreurCard(
+                            enc,
+                            colorScheme,
+                            isDark,
+                            index,
+                          );
+                        }, childCount: _filteredEncadreurs.length),
+                      ),
                     ),
-                  ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          ),
         ),
       ),
       floatingActionButton: _buildFab(),
@@ -481,22 +530,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child:
-                      enc.photoUrl.isNotEmpty && File(enc.photoUrl).existsSync()
-                      ? Image.file(File(enc.photoUrl), fit: BoxFit.cover)
-                      : Container(
-                          color: AppColors.primary.withValues(alpha: 0.08),
-                          child: Center(
-                            child: Text(
-                              '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}',
-                              style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ),
+                  child: _buildAvatarImage(enc),
                 ),
               ),
               const SizedBox(width: 14),
@@ -565,6 +599,43 @@ class _EncadreurListPageState extends State<EncadreurListPage>
         ),
       ),
     );
+  }
+
+  /// Construit l'image avatar en gérant les chemins locaux et URLs distantes.
+  Widget _buildAvatarImage(Encadreur enc) {
+    final initials =
+        '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}';
+    final fallback = Container(
+      color: AppColors.primary.withValues(alpha: 0.08),
+      child: Center(
+        child: Text(
+          initials,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+
+    if (enc.photoUrl.isEmpty) return fallback;
+
+    final isRemote = enc.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        enc.photoUrl,
+        fit: BoxFit.cover,
+        width: 56,
+        height: 56,
+        errorBuilder: (_, o, st) => fallback,
+      );
+    }
+
+    // Chemin local
+    final file = File(enc.photoUrl);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, fit: BoxFit.cover);
   }
 
   Widget _buildEmptyState(ColorScheme colorScheme) {

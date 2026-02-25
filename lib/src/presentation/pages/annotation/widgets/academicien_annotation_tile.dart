@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
@@ -71,16 +72,25 @@ class AcademicienAnnotationTile extends StatelessWidget {
         ),
       ),
       child: academicien.photoUrl.isNotEmpty
-          ? ClipOval(
-              child: Image.network(
-                academicien.photoUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    _buildAvatarFallback(),
-              ),
-            )
+          ? ClipOval(child: _buildAvatarImage())
           : _buildAvatarFallback(),
     );
+  }
+
+  Widget _buildAvatarImage() {
+    final isRemote = academicien.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        academicien.photoUrl,
+        fit: BoxFit.cover,
+        width: 48,
+        height: 48,
+        errorBuilder: (_, __, ___) => _buildAvatarFallback(),
+      );
+    }
+    final file = File(academicien.photoUrl);
+    if (!file.existsSync()) return _buildAvatarFallback();
+    return Image.file(file, fit: BoxFit.cover, width: 48, height: 48);
   }
 
   Widget _buildAvatarFallback() {

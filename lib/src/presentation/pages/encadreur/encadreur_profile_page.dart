@@ -41,6 +41,43 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
     super.dispose();
   }
 
+  /// Construit la photo de profil en gérant les chemins locaux et URLs distantes.
+  Widget _buildProfilePhoto() {
+    final initials =
+        '${_encadreur.prenom.isNotEmpty ? _encadreur.prenom[0] : ''}${_encadreur.nom.isNotEmpty ? _encadreur.nom[0] : ''}';
+    final fallback = Container(
+      color: Colors.white.withValues(alpha: 0.2),
+      child: Center(
+        child: Text(
+          initials,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 28,
+          ),
+        ),
+      ),
+    );
+
+    if (_encadreur.photoUrl.isEmpty) return fallback;
+
+    final isRemote = _encadreur.photoUrl.startsWith('http');
+    if (isRemote) {
+      return Image.network(
+        _encadreur.photoUrl,
+        fit: BoxFit.cover,
+        width: 90,
+        height: 90,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    }
+
+    // Chemin local
+    final file = File(_encadreur.photoUrl);
+    if (!file.existsSync()) return fallback;
+    return Image.file(file, fit: BoxFit.cover);
+  }
+
   void _showDeleteConfirmation() {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
@@ -240,26 +277,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(21),
-                      child:
-                          _encadreur.photoUrl.isNotEmpty &&
-                              File(_encadreur.photoUrl).existsSync()
-                          ? Image.file(
-                              File(_encadreur.photoUrl),
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              child: Center(
-                                child: Text(
-                                  '${_encadreur.prenom.isNotEmpty ? _encadreur.prenom[0] : ''}${_encadreur.nom.isNotEmpty ? _encadreur.nom[0] : ''}',
-                                  style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                  ),
-                                ),
-                              ),
-                            ),
+                      child: _buildProfilePhoto(),
                     ),
                   ),
                   const SizedBox(height: 12),
