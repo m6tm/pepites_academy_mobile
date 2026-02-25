@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../application/services/seance_service.dart';
 import '../../../../domain/entities/seance.dart';
+import '../../../../infrastructure/network/api_endpoints.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../../state/seance_state.dart';
@@ -29,7 +30,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     super.initState();
     _seanceState = SeanceState(_getSeanceService());
     _seanceState.addListener(_onStateChanged);
-    _seanceState.chargerSeances();
+    _refreshFromApiIfOnlineThenLoad();
   }
 
   SeanceService _getSeanceService() {
@@ -41,6 +42,41 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     if (mounted) setState(() {});
   }
 
+  /// Si connecté, récupère la liste depuis l'API et met à jour le cache local
+  /// via upsert direct (sans sync), puis charge l'affichage.
+  Future<void> _refreshFromApiIfOnlineThenLoad() async {
+    if (DependencyInjection.connectivityState.isConnected) {
+      try {
+        final data = await DependencyInjection.apiSyncDatasource.fetchAll(
+          ApiEndpoints.seances,
+        );
+        if (data != null && data.isNotEmpty) {
+          final remoteList = data
+              .map(_seanceFromApiJson)
+              .whereType<Seance>()
+              .toList();
+          if (remoteList.isNotEmpty) {
+            await DependencyInjection.seanceRepository.upsertAllFromRemote(
+              remoteList,
+            );
+          }
+        }
+      } catch (_) {
+        // Ignorer les erreurs réseau
+      }
+    }
+    await _seanceState.chargerSeances();
+  }
+
+  /// Convertit un JSON API en entité Seance.
+  Seance? _seanceFromApiJson(Map<String, dynamic> json) {
+    try {
+      return Seance.fromJson(json);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   void dispose() {
     _seanceState.removeListener(_onStateChanged);
@@ -48,45 +84,56 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     super.dispose();
   }
 
+  /// Rafraîchit la liste des séances depuis l'API.
+  Future<void> _onRefresh() async {
+    await _refreshFromApiIfOnlineThenLoad();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        SliverToBoxAdapter(child: _buildHeader(colorScheme)),
-        SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
-        if (_seanceState.seanceOuverte != null)
-          SliverToBoxAdapter(child: _buildSeanceOuverteBanner(colorScheme)),
-        if (_seanceState.isLoading)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(40),
-              child: Center(child: CircularProgressIndicator()),
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: AppColors.primary,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
+          SliverToBoxAdapter(child: _buildHeader(colorScheme)),
+          SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
+          if (_seanceState.seanceOuverte != null)
+            SliverToBoxAdapter(child: _buildSeanceOuverteBanner(colorScheme)),
+          if (_seanceState.isLoading)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            )
+          else if (_seanceState.seances.isEmpty)
+            SliverToBoxAdapter(child: _buildEmptyState(colorScheme))
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final seance = _seanceState.seances[index];
+                return SeanceCard(
+                  title: seance.titre,
+                  date: seance.dateFormatee,
+                  heureDebut: _formatHeure(seance.heureDebut),
+                  heureFin: _formatHeure(seance.heureFin),
+                  encadreur: AppLocalizations.of(context)!.meLabel,
+                  nbPresents: seance.nbPresents,
+                  nbAteliers: seance.nbAteliers,
+                  status: _mapStatus(seance.statut),
+                  onTap: () => _navigateToDetail(seance),
+                );
+              }, childCount: _seanceState.seances.length),
             ),
-          )
-        else if (_seanceState.seances.isEmpty)
-          SliverToBoxAdapter(child: _buildEmptyState(colorScheme))
-        else
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final seance = _seanceState.seances[index];
-              return SeanceCard(
-                title: seance.titre,
-                date: seance.dateFormatee,
-                heureDebut: _formatHeure(seance.heureDebut),
-                heureFin: _formatHeure(seance.heureFin),
-                encadreur: AppLocalizations.of(context)!.meLabel,
-                nbPresents: seance.nbPresents,
-                nbAteliers: seance.nbAteliers,
-                status: _mapStatus(seance.statut),
-                onTap: () => _navigateToDetail(seance),
-              );
-            }, childCount: _seanceState.seances.length),
-          ),
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-      ],
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
+      ),
     );
   }
 
@@ -537,8 +584,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                           final encadreurId = await DependencyInjection
                               .preferences
                               .getUserId();
+
+                          if (!context.mounted) return;
+
                           if (encadreurId == null || encadreurId.isEmpty) {
-                            if (!context.mounted) return;
                             AcademyToast.show(
                               context,
                               title: 'Erreur d\'authentification',
