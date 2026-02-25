@@ -85,7 +85,7 @@ class AcademicienAnnotationTile extends StatelessWidget {
         fit: BoxFit.cover,
         width: 48,
         height: 48,
-        errorBuilder: (_, __, ___) => _buildAvatarFallback(),
+        errorBuilder: (context, error, stackTrace) => _buildAvatarFallback(),
       );
     }
     final file = File(academicien.photoUrl);

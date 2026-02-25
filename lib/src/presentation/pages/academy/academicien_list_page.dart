@@ -714,7 +714,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
         fit: BoxFit.cover,
         width: 56,
         height: 56,
-        errorBuilder: (_, __, ___) => fallback,
+        errorBuilder: (context, error, stackTrace) => fallback,
       );
     }
 

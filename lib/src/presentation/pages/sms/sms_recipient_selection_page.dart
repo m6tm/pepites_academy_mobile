@@ -422,7 +422,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
         fit: BoxFit.cover,
         width: 36,
         height: 36,
-        errorBuilder: (_, __, ___) => fallback,
+        errorBuilder: (context, error, stackTrace) => fallback,
       );
     }
 
@@ -453,7 +453,7 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
         fit: BoxFit.cover,
         width: 36,
         height: 36,
-        errorBuilder: (_, __, ___) => fallback,
+        errorBuilder: (context, error, stackTrace) => fallback,
       );
     }
 

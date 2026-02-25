@@ -99,6 +99,7 @@ class DependencyInjection {
   static late SmsLocalDatasource _smsDatasource;
   static late PosteFootballLocalDatasource _posteDatasource;
   static late NiveauScolaireLocalDatasource _niveauDatasource;
+  static late AcademicienLocalDatasource _academicienDatasource;
   static late DioClient _dioClient;
 
   /// Initialise les dependances asynchrones.
@@ -119,6 +120,7 @@ class DependencyInjection {
 
     // Initialisation du Repository Academicien
     final academicienDatasource = AcademicienLocalDatasource(sharedPrefs);
+    _academicienDatasource = academicienDatasource;
     academicienRepository = AcademicienRepositoryImpl(academicienDatasource);
 
     // Initialisation du Repository Presence
@@ -389,6 +391,18 @@ class DependencyInjection {
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync niveaux: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les academiciens depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncAcademiciens() async {
+    try {
+      return await _academicienDatasource.syncFromApi(_dioClient);
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync academiciens: $e');
       return false;
     }
   }

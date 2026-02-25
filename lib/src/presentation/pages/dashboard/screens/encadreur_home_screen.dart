@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
@@ -10,6 +11,7 @@ import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../state/seance_state.dart';
+import '../../academy/academicien_list_page.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../scanner/qr_scanner_page.dart';
 import '../../notification/notifications_page.dart';
@@ -45,6 +47,8 @@ class EncadreurHomeScreen extends StatefulWidget {
 
 class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
   late final SeanceState _seanceState;
+  List<Academicien> _academiciens = [];
+  bool _isLoadingAcademiciens = true;
 
   @override
   void initState() {
@@ -53,6 +57,18 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     _seanceState.addListener(_onStateChanged);
     _seanceState.chargerSeances();
     DependencyInjection.notificationState.chargerNotifications('encadreur');
+    _chargerAcademiciens();
+  }
+
+  Future<void> _chargerAcademiciens() async {
+    final academiciens = await DependencyInjection.academicienRepository
+        .getAll();
+    if (mounted) {
+      setState(() {
+        _academiciens = academiciens;
+        _isLoadingAcademiciens = false;
+      });
+    }
   }
 
   void _onStateChanged() {
@@ -92,6 +108,18 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
       ),
     );
     _seanceState.chargerSeances();
+  }
+
+  /// Ouvre la liste complete des academiciens.
+  void _ouvrirListeAcademiciens() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AcademicienListPage(
+          repository: DependencyInjection.academicienRepository,
+        ),
+      ),
+    );
   }
 
   /// Verifie qu'une seance est ouverte avant de lancer le scanner.
@@ -181,6 +209,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
           child: SectionTitle(
             title: l10n.myAcademicians,
             actionLabel: l10n.viewAll,
+            onAction: _ouvrirListeAcademiciens,
           ),
         ),
         SliverToBoxAdapter(child: _buildAcademiciensList(colorScheme)),
@@ -629,14 +658,39 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
   }
 
   Widget _buildAcademiciensList(ColorScheme colorScheme) {
-    final academiciens = [
-      AcademicienMini('Amadou K.', 'Avant-centre', const Color(0xFF3B82F6)),
-      AcademicienMini('Ibrahim T.', 'Milieu', const Color(0xFF8B5CF6)),
-      AcademicienMini('Moussa D.', 'Ailier', const Color(0xFF10B981)),
-      AcademicienMini('Sekou C.', 'Defenseur', const Color(0xFFF59E0B)),
-      AcademicienMini('Youssouf K.', 'Gardien', AppColors.primary),
-      AcademicienMini('Bakary S.', 'Milieu def.', const Color(0xFF6366F1)),
+    // Couleurs pour les cartes d'académiciens
+    const colors = [
+      Color(0xFF3B82F6),
+      Color(0xFF8B5CF6),
+      Color(0xFF10B981),
+      Color(0xFFF59E0B),
+      Color(0xFF6366F1),
+      Color(0xFFEC4899),
     ];
+
+    if (_isLoadingAcademiciens) {
+      return const SizedBox(
+        height: 120,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_academiciens.isEmpty) {
+      return SizedBox(
+        height: 120,
+        child: Center(
+          child: Text(
+            'Aucun académicien',
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Afficher les 6 derniers académiciens
+    final displayList = _academiciens.take(6).toList();
 
     return SizedBox(
       height: 120,
@@ -644,10 +698,21 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         separatorBuilder: (_, index) => const SizedBox(width: 12),
-        itemCount: academiciens.length,
+        itemCount: displayList.length,
         itemBuilder: (context, index) {
-          final acad = academiciens[index];
-          return AcademicienMiniCard(data: acad);
+          final acad = displayList[index];
+          final color = colors[index % colors.length];
+          final miniData = AcademicienMini(
+            '${acad.prenom} ${acad.nom[0]}.',
+            '', // Le poste sera affiché si disponible
+            color,
+            id: acad.id,
+            photoUrl: acad.photoUrl,
+          );
+          return AcademicienMiniCard(
+            data: miniData,
+            onTap: () => _ouvrirListeAcademiciens(),
+          );
         },
       ),
     );

@@ -102,7 +102,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
         fit: BoxFit.cover,
         width: 90,
         height: 90,
-        errorBuilder: (_, __, ___) => fallback,
+        errorBuilder: (context, error, stackTrace) => fallback,
       );
     }
 

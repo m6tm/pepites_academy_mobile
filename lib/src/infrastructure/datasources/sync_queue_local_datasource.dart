@@ -80,7 +80,9 @@ class SyncQueueLocalDatasource {
     );
   }
 
-  /// Recupere toutes les operations en attente, triees par date de creation.
+  /// Recupere toutes les operations en attente, triees par priorite d'entite
+  /// puis par date de creation. Les seances sont synchronisees avant les
+  /// presences pour garantir que la seance existe sur le backend.
   Future<List<SyncOperation>> getPending() async {
     final db = await database;
     final maps = await db.query(
@@ -89,7 +91,46 @@ class SyncQueueLocalDatasource {
       whereArgs: [SyncOperationStatus.pending.name],
       orderBy: 'createdAt ASC',
     );
-    return maps.map((m) => SyncOperation.fromMap(m)).toList();
+    final operations = maps.map((m) => SyncOperation.fromMap(m)).toList();
+
+    // Trier par priorite: seances d'abord, puis presences en dernier
+    operations.sort((a, b) {
+      final priorityA = _getEntityPriority(a.entityType);
+      final priorityB = _getEntityPriority(b.entityType);
+      if (priorityA != priorityB) {
+        return priorityA.compareTo(priorityB);
+      }
+      return a.createdAt.compareTo(b.createdAt);
+    });
+
+    return operations;
+  }
+
+  /// Retourne la priorite de synchronisation d'un type d'entite.
+  /// Les entites avec une priorite plus basse sont synchronisees en premier.
+  int _getEntityPriority(SyncEntityType type) {
+    switch (type) {
+      case SyncEntityType.encadreur:
+        return 1;
+      case SyncEntityType.academicien:
+        return 2;
+      case SyncEntityType.seance:
+        return 3;
+      case SyncEntityType.atelier:
+        return 4;
+      case SyncEntityType.annotation:
+        return 5;
+      case SyncEntityType.presence:
+        return 6; // Presences en dernier car dependent des seances
+      case SyncEntityType.bulletin:
+        return 7;
+      case SyncEntityType.smsMessage:
+        return 8;
+      case SyncEntityType.niveauScolaire:
+        return 0;
+      case SyncEntityType.posteFootball:
+        return 0;
+    }
   }
 
   /// Met a jour le statut d'une operation.

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../presentation/theme/app_colors.dart';
@@ -119,74 +120,119 @@ class SeanceStatChip extends StatelessWidget {
 
 /// Modele de donnees pour un academicien en version compacte.
 class AcademicienMini {
+  final String id;
   final String nom;
   final String poste;
   final Color color;
+  final String? photoUrl;
 
-  AcademicienMini(this.nom, this.poste, this.color);
+  AcademicienMini(
+    this.nom,
+    this.poste,
+    this.color, {
+    this.id = '',
+    this.photoUrl,
+  });
 }
 
 /// Carte compacte d'un academicien pour la liste horizontale.
 class AcademicienMiniCard extends StatelessWidget {
   final AcademicienMini data;
+  final VoidCallback? onTap;
 
-  const AcademicienMiniCard({super.key, required this.data});
+  const AcademicienMiniCard({super.key, required this.data, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      width: 90,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: isDark ? colorScheme.surface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: data.color.withValues(alpha: 0.12)),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 90,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isDark ? colorScheme.surface : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: data.color.withValues(alpha: 0.12)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildAvatar(),
+            const SizedBox(height: 8),
+            Text(
+              data.nom,
+              style: GoogleFonts.montserrat(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              data.poste,
+              style: GoogleFonts.montserrat(
+                fontSize: 9,
+                color: colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
+    );
+  }
+
+  Widget _buildAvatar() {
+    final hasPhoto = data.photoUrl != null && data.photoUrl!.isNotEmpty;
+
+    if (hasPhoto) {
+      final isRemote = data.photoUrl!.startsWith('http');
+      if (isRemote) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            data.photoUrl!,
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: data.color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                data.nom[0],
-                style: GoogleFonts.montserrat(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: data.color,
-                ),
-              ),
-            ),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => _buildInitialAvatar(),
           ),
-          const SizedBox(height: 8),
-          Text(
-            data.nom,
-            style: GoogleFonts.montserrat(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+        );
+      }
+      // Chemin local
+      final file = File(data.photoUrl!);
+      if (file.existsSync()) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(file, width: 40, height: 40, fit: BoxFit.cover),
+        );
+      }
+    }
+    return _buildInitialAvatar();
+  }
+
+  Widget _buildInitialAvatar() {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: data.color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Text(
+          data.nom.isNotEmpty ? data.nom[0].toUpperCase() : '?',
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: data.color,
           ),
-          Text(
-            data.poste,
-            style: GoogleFonts.montserrat(
-              fontSize: 9,
-              color: colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+        ),
       ),
     );
   }

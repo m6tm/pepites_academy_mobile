@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/academicien.dart';
+import '../network/api_endpoints.dart';
+import '../network/dio_client.dart';
 
 /// Source de donnees locale pour les academiciens.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
@@ -101,5 +103,49 @@ class AcademicienLocalDatasource {
       codeQrUnique: json['codeQrUnique'] as String,
       piedFort: json['piedFort'] as String?,
     );
+  }
+
+  /// Synchronise les academiciens depuis le backend.
+  /// Remplace les donnees locales par celles du serveur.
+  Future<bool> syncFromApi(DioClient dioClient) async {
+    try {
+      final result = await dioClient.get<List<dynamic>>(
+        ApiEndpoints.academiciens,
+      );
+      return result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[Academicien] Sync failed: ${failure.message}');
+          return false;
+        },
+        (data) async {
+          final academiciens = data.map((json) {
+            final map = json as Map<String, dynamic>;
+            return Academicien(
+              id: map['id'] as String,
+              nom: map['nom'] as String,
+              prenom: map['prenom'] as String,
+              dateNaissance: DateTime.parse(map['date_naissance'] as String),
+              photoUrl: (map['photo_url'] as String?) ?? '',
+              telephoneParent: map['telephone_parent'] as String,
+              posteFootballId: (map['poste_football_id'] as String?) ?? '',
+              niveauScolaireId: (map['niveau_scolaire_id'] as String?) ?? '',
+              codeQrUnique: map['code_qr_unique'] as String,
+              piedFort: map['pied_fort'] as String?,
+            );
+          }).toList();
+          await saveAll(academiciens);
+          // ignore: avoid_print
+          print(
+            '[Academicien] Synced ${academiciens.length} items from backend',
+          );
+          return true;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[Academicien] Sync exception: $e');
+      return false;
+    }
   }
 }
