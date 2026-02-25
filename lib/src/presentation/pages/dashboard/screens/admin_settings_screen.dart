@@ -134,7 +134,7 @@ class AdminSettingsScreen extends StatelessWidget {
               SettingsItemData(
                 Icons.info_outline_rounded,
                 l10n.about,
-                l10n.version('1.7.0'),
+                l10n.version('1.8.0'),
                 colorScheme.onSurface.withValues(alpha: 0.5),
                 onTap: () => Navigator.push(
                   context,
