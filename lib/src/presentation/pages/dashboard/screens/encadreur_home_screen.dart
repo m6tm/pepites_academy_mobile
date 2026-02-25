@@ -12,6 +12,7 @@ import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../state/seance_state.dart';
 import '../../academy/academicien_list_page.dart';
+import '../../academy/academicien_profile_page.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../scanner/qr_scanner_page.dart';
 import '../../notification/notifications_page.dart';
@@ -117,6 +118,29 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
       MaterialPageRoute(
         builder: (_) => AcademicienListPage(
           repository: DependencyInjection.academicienRepository,
+        ),
+      ),
+    );
+  }
+
+  /// Ouvre les details d'un academicien.
+  Future<void> _ouvrirDetailsAcademicien(Academicien academicien) async {
+    final postes = await DependencyInjection.referentielService.getAllPostes();
+    final niveaux = await DependencyInjection.referentielService
+        .getAllNiveaux();
+    final postesMap = {for (final p in postes) p.id: p};
+    final niveauxMap = {for (final n in niveaux) n.id: n};
+
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AcademicienProfilePage(
+          academicien: academicien,
+          repository: DependencyInjection.academicienRepository,
+          postesMap: postesMap,
+          niveauxMap: niveauxMap,
         ),
       ),
     );
@@ -711,7 +735,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
           );
           return AcademicienMiniCard(
             data: miniData,
-            onTap: () => _ouvrirListeAcademiciens(),
+            onTap: () => _ouvrirDetailsAcademicien(acad),
           );
         },
       ),
