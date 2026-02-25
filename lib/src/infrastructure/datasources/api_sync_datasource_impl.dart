@@ -163,7 +163,6 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
           key == 'nb_annotations' ||
           key == 'nb_presents' ||
           key == 'nb_ateliers' ||
-          key == 'encadreur_ids' ||
           key == 'academicien_ids' ||
           key == 'atelier_ids') {
         continue;
