@@ -82,35 +82,48 @@ class Seance {
   }
 
   /// Deserialise une seance depuis un Map JSON.
+  /// Supporte les formats camelCase (local) et snake_case (API).
   factory Seance.fromJson(Map<String, dynamic> json) {
     return Seance(
       id: json['id'] as String,
       titre: json['titre'] as String? ?? '',
       date: DateTime.parse(json['date'] as String),
-      heureDebut: DateTime.parse(json['heureDebut'] as String),
-      heureFin: DateTime.parse(json['heureFin'] as String),
+      heureDebut: DateTime.parse(
+        json['heureDebut'] as String? ?? json['heure_debut'] as String,
+      ),
+      heureFin: DateTime.parse(
+        json['heureFin'] as String? ?? json['heure_fin'] as String,
+      ),
       statut: SeanceStatus.values.firstWhere(
         (e) => e.name == json['statut'],
         orElse: () => SeanceStatus.aVenir,
       ),
-      encadreurResponsableId: json['encadreurResponsableId'] as String,
+      encadreurResponsableId:
+          json['encadreurResponsableId'] as String? ??
+          json['encadreur_responsable_id'] as String? ??
+          '',
       encadreurIds:
-          (json['encadreurIds'] as List<dynamic>?)
+          (json['encadreurIds'] as List<dynamic>? ??
+                  json['encadreur_ids'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
       academicienIds:
-          (json['academicienIds'] as List<dynamic>?)
+          (json['academicienIds'] as List<dynamic>? ??
+                  json['academicien_ids'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
       atelierIds:
-          (json['atelierIds'] as List<dynamic>?)
+          (json['atelierIds'] as List<dynamic>? ??
+                  json['atelier_ids'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
-      nbPresents: json['nbPresents'] as int? ?? 0,
-      nbAteliers: json['nbAteliers'] as int? ?? 0,
+      nbPresents:
+          json['nbPresents'] as int? ?? json['nb_presents'] as int? ?? 0,
+      nbAteliers:
+          json['nbAteliers'] as int? ?? json['nb_ateliers'] as int? ?? 0,
     );
   }
 
