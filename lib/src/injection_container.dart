@@ -91,6 +91,7 @@ class DependencyInjection {
   static late final NotificationState notificationState;
   static late final ThemeState themeState;
   static late final LanguageState languageState;
+  static late final ApiSyncDatasourceImpl apiSyncDatasource;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
   static late PreferencesRepositoryImpl _preferencesRepository;
@@ -274,10 +275,11 @@ class DependencyInjection {
       dioClient.setToken(token);
     }
 
-    final apiSyncDatasource = ApiSyncDatasourceImpl(dioClient);
+    final apiDatasource = ApiSyncDatasourceImpl(dioClient);
+    apiSyncDatasource = apiDatasource;
     syncService = SyncService(
       syncRepository: syncRepo,
-      apiDatasource: apiSyncDatasource,
+      apiDatasource: apiDatasource,
       connectivityService: connectivityService,
     );
 

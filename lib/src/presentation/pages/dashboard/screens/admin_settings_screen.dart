@@ -262,7 +262,7 @@ class AdminSettingsScreen extends StatelessWidget {
           width: 56,
           height: 56,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
         );
       } else if (!isLocal) {
         return Image.network(
@@ -270,7 +270,7 @@ class AdminSettingsScreen extends StatelessWidget {
           width: 56,
           height: 56,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
         );
       }
     }

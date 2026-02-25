@@ -71,7 +71,7 @@ class Atelier {
         orElse: () => AtelierType.personnalise,
       ),
       ordre: json['ordre'] as int? ?? 0,
-      seanceId: json['seanceId'] as String,
+      seanceId: (json['seance_id'] ?? json['seanceId']) as String,
     );
   }
 

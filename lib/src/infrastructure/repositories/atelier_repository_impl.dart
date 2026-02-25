@@ -64,6 +64,17 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   @override
   Future<void> reorder(String seanceId, List<String> atelierIds) async {
-    return _datasource.reorder(seanceId, atelierIds);
+    await _datasource.reorder(seanceId, atelierIds);
+
+    // Synchronisation de l'ordre de chaque atelier vers le backend
+    final ateliers = _datasource.getBySeance(seanceId);
+    for (final atelier in ateliers) {
+      await _syncService?.enqueueOperation(
+        entityType: SyncEntityType.atelier,
+        entityId: atelier.id,
+        operationType: SyncOperationType.update,
+        data: atelier.toJson(),
+      );
+    }
   }
 }

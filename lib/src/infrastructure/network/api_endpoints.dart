@@ -5,7 +5,7 @@ class ApiEndpoints {
   // Utiliser 10.0.2.2 pour l'émulateur Android, localhost pour iOS ou le Web.
   // static const String baseUrl = 'http://10.0.2.2:5000/v1';
   // static const String baseUrl = 'https://apipepites-academy.vercel.app/v1';
-  static const String baseUrl = 'http://192.168.1.119:5000/v1';
+  static const String baseUrl = 'http://192.168.223.148:5000/v1';
 
   /// Chemin pour la synchronisation des données.
   static const String sync = '/sync';

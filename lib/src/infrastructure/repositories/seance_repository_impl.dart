@@ -34,6 +34,17 @@ class SeanceRepositoryImpl implements SeanceRepository {
     return _datasource.getAll();
   }
 
+  /// Fusionne une liste de donnees distantes dans le cache local
+  /// sans declencher d'operation de synchronisation vers le serveur.
+  Future<void> upsertAllFromRemote(List<Seance> remoteList) async {
+    final local = _datasource.getAll();
+    final localMap = {for (final s in local) s.id: s};
+    for (final remote in remoteList) {
+      localMap[remote.id] = remote;
+    }
+    await _datasource.saveAll(localMap.values.toList());
+  }
+
   @override
   Future<Seance?> getSeanceOuverte() async {
     return _datasource.getSeanceOuverte();

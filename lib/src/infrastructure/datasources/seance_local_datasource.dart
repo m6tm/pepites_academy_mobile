@@ -43,7 +43,7 @@ class SeanceLocalDatasource {
   Future<Seance> add(Seance seance) async {
     final list = getAll();
     list.add(seance);
-    await _saveAll(list);
+    await saveAll(list);
     return seance;
   }
 
@@ -58,7 +58,7 @@ class SeanceLocalDatasource {
       );
     }
     list[index] = seance;
-    await _saveAll(list);
+    await saveAll(list);
     return seance;
   }
 
@@ -66,10 +66,10 @@ class SeanceLocalDatasource {
   Future<void> delete(String id) async {
     final list = getAll();
     list.removeWhere((s) => s.id == id);
-    await _saveAll(list);
+    await saveAll(list);
   }
 
-  Future<void> _saveAll(List<Seance> list) async {
+  Future<void> saveAll(List<Seance> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
   }

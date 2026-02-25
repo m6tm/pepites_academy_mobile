@@ -28,6 +28,10 @@ abstract class ApiSyncDatasource {
   /// Recupere les donnees du serveur pour une entite donnee.
   Future<Map<String, dynamic>?> fetchEntity(String entityType, String entityId);
 
+  /// Recupere la liste complete d'entites depuis le serveur.
+  /// Retourne null en cas d'erreur ou si le serveur est inaccessible.
+  Future<List<Map<String, dynamic>>?> fetchAll(String endpoint);
+
   /// Verifie si le serveur est accessible.
   Future<bool> isServerReachable();
 }
@@ -47,6 +51,12 @@ class StubApiSyncDatasource implements ApiSyncDatasource {
     String entityType,
     String entityId,
   ) async {
+    // Pas de serveur disponible, retourne null.
+    return null;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>?> fetchAll(String endpoint) async {
     // Pas de serveur disponible, retourne null.
     return null;
   }

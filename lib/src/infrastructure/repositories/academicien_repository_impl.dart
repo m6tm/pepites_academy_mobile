@@ -23,6 +23,17 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   @override
   Future<List<Academicien>> getAll() => _datasource.getAll();
 
+  /// Fusionne une liste de donnees distantes dans le cache local
+  /// sans declencher d'operation de synchronisation vers le serveur.
+  Future<void> upsertAllFromRemote(List<Academicien> remoteList) async {
+    final local = await _datasource.getAll();
+    final localMap = {for (final a in local) a.id: a};
+    for (final remote in remoteList) {
+      localMap[remote.id] = remote;
+    }
+    await _datasource.saveAll(localMap.values.toList());
+  }
+
   @override
   Future<Academicien> create(Academicien academicien) async {
     final created = await _datasource.create(academicien);

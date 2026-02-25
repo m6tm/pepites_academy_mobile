@@ -158,8 +158,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
 
       // Ne pas envoyer les champs calculés ou gérés par le backend
       // Pour les créations, exclure aussi 'id' et 'statut' (gérés par le backend)
-      if ((isCreate && (key == 'id' || key == 'statut')) ||
-          key == 'nb_seances_dirigees' ||
+      // Ne pas envoyer les champs calculés uniquement
+      if (key == 'nb_seances_dirigees' ||
           key == 'nb_annotations' ||
           key == 'nb_presents' ||
           key == 'nb_ateliers' ||
@@ -228,6 +228,40 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
       (failure) => null,
       (data) => data as Map<String, dynamic>?,
     );
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>?> fetchAll(String endpoint) async {
+    try {
+      final result = await _dioClient.get<dynamic>(endpoint);
+
+      return result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[ApiSync] fetchAll $endpoint échec: ${failure.message}');
+          return null;
+        },
+        (data) {
+          // L'API peut retourner une List directe ou un Map avec les données
+          if (data is List) {
+            return data.whereType<Map<String, dynamic>>().toList();
+          }
+          if (data is Map<String, dynamic>) {
+            // Cherche la première valeur qui est une liste
+            for (final value in data.values) {
+              if (value is List) {
+                return value.whereType<Map<String, dynamic>>().toList();
+              }
+            }
+          }
+          return null;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[ApiSync] fetchAll $endpoint exception: $e');
+      return null;
+    }
   }
 
   /// Retourne l'endpoint REST correspondant au nom d'entité (string).

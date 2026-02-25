@@ -29,7 +29,7 @@ class AcademicienLocalDatasource {
   Future<Academicien> create(Academicien academicien) async {
     final all = await getAll();
     all.add(academicien);
-    await _saveAll(all);
+    await saveAll(all);
     return academicien;
   }
 
@@ -38,7 +38,7 @@ class AcademicienLocalDatasource {
     final index = all.indexWhere((e) => e.id == academicien.id);
     if (index != -1) {
       all[index] = academicien;
-      await _saveAll(all);
+      await saveAll(all);
     }
     return academicien;
   }
@@ -46,7 +46,7 @@ class AcademicienLocalDatasource {
   Future<void> delete(String id) async {
     final all = await getAll();
     all.removeWhere((e) => e.id == id);
-    await _saveAll(all);
+    await saveAll(all);
   }
 
   Future<Academicien?> getByQrCode(String qrCode) async {
@@ -68,7 +68,7 @@ class AcademicienLocalDatasource {
     }).toList();
   }
 
-  Future<void> _saveAll(List<Academicien> list) async {
+  Future<void> saveAll(List<Academicien> list) async {
     final jsonList = list.map((e) => _toJson(e)).toList();
     await _prefs.setString(_key, json.encode(jsonList));
   }

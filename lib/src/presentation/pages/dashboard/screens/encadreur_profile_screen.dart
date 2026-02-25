@@ -302,7 +302,7 @@ class EncadreurProfileScreen extends StatelessWidget {
           width: 80,
           height: 80,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
         );
       } else if (!isLocal) {
         return Image.network(
@@ -310,7 +310,7 @@ class EncadreurProfileScreen extends StatelessWidget {
           width: 80,
           height: 80,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildDefaultAvatar(),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
         );
       }
     }

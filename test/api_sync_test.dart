@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../lib/src/infrastructure/network/api_endpoints.dart';
+import 'package:pepites_academy_mobile/src/infrastructure/network/api_endpoints.dart';
 
 /// Test d'intégration pour vérifier l'inscription d'un académicien/encadreur avec photo.
 ///
@@ -23,11 +24,11 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     accessToken = prefs.getString('access_token');
 
-    print('=' * 60);
-    print('Test de création académicien/encadreur avec photo');
-    print('=' * 60);
-    print('[INFO] Base URL: ${ApiEndpoints.baseUrl}');
-    print(
+    debugPrint('=' * 60);
+    debugPrint('Test de création académicien/encadreur avec photo');
+    debugPrint('=' * 60);
+    debugPrint('[INFO] Base URL: ${ApiEndpoints.baseUrl}');
+    debugPrint(
       '[INFO] Token présent: ${accessToken != null && accessToken!.isNotEmpty}',
     );
 
@@ -46,7 +47,7 @@ void main() {
 
   test('Vérification de la connexion au serveur', () async {
     final healthResponse = await dio.get('/health');
-    print('[OK] Serveur accessible: ${healthResponse.data}');
+    debugPrint('[OK] Serveur accessible: ${healthResponse.data}');
     expect(healthResponse.statusCode, 200);
   });
 
@@ -61,19 +62,19 @@ void main() {
       'pied_fort': 'Droitier',
     };
 
-    print('[INFO] Payload: $academicienData');
+    debugPrint('[INFO] Payload: $academicienData');
 
     try {
       final response = await dio.post(
         ApiEndpoints.academiciens,
         data: academicienData,
       );
-      print('[OK] Académicien créé: ${response.statusCode}');
-      print('[DATA] ${response.data}');
+      debugPrint('[OK] Académicien créé: ${response.statusCode}');
+      debugPrint('[DATA] ${response.data}');
       expect(response.statusCode, 201);
     } on DioException catch (e) {
-      print('[ERREUR] ${e.type}: ${e.message}');
-      print('[RESPONSE] ${e.response?.data}');
+      debugPrint('[ERREUR] ${e.type}: ${e.message}');
+      debugPrint('[RESPONSE] ${e.response?.data}');
       fail('Échec de la création: ${e.response?.data}');
     }
   });
@@ -93,19 +94,21 @@ void main() {
       'photo_base64': photoBase64,
     };
 
-    print('[INFO] Payload avec photo_base64 (${photoBase64.length} chars)');
+    debugPrint(
+      '[INFO] Payload avec photo_base64 (${photoBase64.length} chars)',
+    );
 
     try {
       final response = await dio.post(
         ApiEndpoints.academiciens,
         data: academicienDataWithPhoto,
       );
-      print('[OK] Académicien avec photo créé: ${response.statusCode}');
-      print('[DATA] ${response.data}');
+      debugPrint('[OK] Académicien avec photo créé: ${response.statusCode}');
+      debugPrint('[DATA] ${response.data}');
       expect(response.statusCode, 201);
     } on DioException catch (e) {
-      print('[ERREUR] ${e.type}: ${e.message}');
-      print('[RESPONSE] ${e.response?.data}');
+      debugPrint('[ERREUR] ${e.type}: ${e.message}');
+      debugPrint('[RESPONSE] ${e.response?.data}');
       fail('Échec de la création avec photo: ${e.response?.data}');
     }
   });
@@ -121,19 +124,19 @@ void main() {
       'role': 'encadreur',
     };
 
-    print('[INFO] Payload: $encadreurData');
+    debugPrint('[INFO] Payload: $encadreurData');
 
     try {
       final response = await dio.post(
         ApiEndpoints.encadreurs,
         data: encadreurData,
       );
-      print('[OK] Encadreur créé: ${response.statusCode}');
-      print('[DATA] ${response.data}');
+      debugPrint('[OK] Encadreur créé: ${response.statusCode}');
+      debugPrint('[DATA] ${response.data}');
       expect(response.statusCode, 201);
     } on DioException catch (e) {
-      print('[ERREUR] ${e.type}: ${e.message}');
-      print('[RESPONSE] ${e.response?.data}');
+      debugPrint('[ERREUR] ${e.type}: ${e.message}');
+      debugPrint('[RESPONSE] ${e.response?.data}');
       fail('Échec de la création encadreur: ${e.response?.data}');
     }
   });
@@ -153,19 +156,19 @@ void main() {
       'photo_base64': photoBase64,
     };
 
-    print('[INFO] Payload avec photo_base64');
+    debugPrint('[INFO] Payload avec photo_base64');
 
     try {
       final response = await dio.post(
         ApiEndpoints.encadreurs,
         data: encadreurDataWithPhoto,
       );
-      print('[OK] Encadreur avec photo créé: ${response.statusCode}');
-      print('[DATA] ${response.data}');
+      debugPrint('[OK] Encadreur avec photo créé: ${response.statusCode}');
+      debugPrint('[DATA] ${response.data}');
       expect(response.statusCode, 201);
     } on DioException catch (e) {
-      print('[ERREUR] ${e.type}: ${e.message}');
-      print('[RESPONSE] ${e.response?.data}');
+      debugPrint('[ERREUR] ${e.type}: ${e.message}');
+      debugPrint('[RESPONSE] ${e.response?.data}');
       fail('Échec de la création encadreur avec photo: ${e.response?.data}');
     }
   });

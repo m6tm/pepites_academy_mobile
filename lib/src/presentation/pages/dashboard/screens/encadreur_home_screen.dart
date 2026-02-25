@@ -415,7 +415,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: _ouvrirAteliers,
                     icon: const Icon(Icons.add_rounded, size: 18),
                     label: Text(
                       AppLocalizations.of(context)!.addWorkshop,

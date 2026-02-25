@@ -26,6 +26,17 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     return _datasource.getAll();
   }
 
+  /// Fusionne une liste de donnees distantes dans le cache local
+  /// sans declencher d'operation de synchronisation vers le serveur.
+  Future<void> upsertAllFromRemote(List<Encadreur> remoteList) async {
+    final local = _datasource.getAll();
+    final localMap = {for (final e in local) e.id: e};
+    for (final remote in remoteList) {
+      localMap[remote.id] = remote;
+    }
+    await _datasource.saveAll(localMap.values.toList());
+  }
+
   @override
   Future<Encadreur> create(Encadreur encadreur) async {
     final created = await _datasource.add(encadreur);
