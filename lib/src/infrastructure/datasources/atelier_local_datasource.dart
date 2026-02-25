@@ -63,20 +63,56 @@ class AtelierLocalDatasource {
   }
 
   /// Reordonne les ateliers d'une seance selon l'ordre des IDs fournis.
-  Future<void> reorder(String seanceId, List<String> atelierIds) async {
+  /// Retourne la liste des ateliers reordonnes avec leurs nouveaux ordres.
+  Future<List<Atelier>> reorder(
+    String seanceId,
+    List<String> atelierIds,
+  ) async {
     final list = getAll();
     final autres = list.where((a) => a.seanceId != seanceId).toList();
-    final ateliersSeance = list.where((a) => a.seanceId == seanceId).toList();
+    final ateliersSeance = {
+      for (final a in list.where((a) => a.seanceId == seanceId)) a.id: a,
+    };
 
     final reordered = <Atelier>[];
     for (int i = 0; i < atelierIds.length; i++) {
-      final atelier = ateliersSeance.firstWhere(
-        (a) => a.id == atelierIds[i],
-      );
-      reordered.add(atelier.copyWith(ordre: i));
+      final atelier = ateliersSeance[atelierIds[i]];
+      if (atelier != null) {
+        reordered.add(atelier.copyWith(ordre: i));
+        ateliersSeance.remove(atelierIds[i]);
+      }
+    }
+
+    // Ajouter les ateliers restants (non inclus dans atelierIds) a la fin
+    int nextOrdre = reordered.length;
+    for (final atelier in ateliersSeance.values) {
+      reordered.add(atelier.copyWith(ordre: nextOrdre++));
     }
 
     await _saveAll([...autres, ...reordered]);
+    return reordered;
+  }
+
+  /// Met a jour ou insere plusieurs ateliers (upsert).
+  /// Utilise pour synchroniser les donnees depuis l'API.
+  Future<void> upsertAll(List<Atelier> ateliers) async {
+    final list = getAll();
+    final existingIds = {for (final a in list) a.id};
+
+    for (final atelier in ateliers) {
+      if (existingIds.contains(atelier.id)) {
+        // Mise a jour
+        final index = list.indexWhere((a) => a.id == atelier.id);
+        if (index != -1) {
+          list[index] = atelier;
+        }
+      } else {
+        // Insertion
+        list.add(atelier);
+      }
+    }
+
+    await _saveAll(list);
   }
 
   Future<void> _saveAll(List<Atelier> list) async {

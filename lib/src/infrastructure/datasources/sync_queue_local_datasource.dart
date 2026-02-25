@@ -23,11 +23,7 @@ class SyncQueueLocalDatasource {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, _dbName);
 
-    return openDatabase(
-      path,
-      version: _dbVersion,
-      onCreate: _onCreate,
-    );
+    return openDatabase(path, version: _dbVersion, onCreate: _onCreate);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -56,8 +52,27 @@ class SyncQueueLocalDatasource {
   }
 
   /// Ajoute une operation a la file d'attente.
+  /// Pour les operations UPDATE, supprime les anciennes operations pending
+  /// du meme type pour la meme entite afin d'eviter les conflits d'ordre.
   Future<void> insert(SyncOperation operation) async {
     final db = await database;
+
+    // Pour les UPDATE, supprimer les anciennes operations pending du meme type
+    // pour la meme entite afin de ne garder que la plus recente
+    if (operation.operationType == SyncOperationType.update) {
+      await db.delete(
+        _tableName,
+        where:
+            'entityType = ? AND entityId = ? AND operationType = ? AND status = ?',
+        whereArgs: [
+          operation.entityType.name,
+          operation.entityId,
+          SyncOperationType.update.name,
+          SyncOperationStatus.pending.name,
+        ],
+      );
+    }
+
     await db.insert(
       _tableName,
       operation.toMap(),
@@ -112,11 +127,7 @@ class SyncQueueLocalDatasource {
   /// Supprime une operation de la file.
   Future<void> delete(String operationId) async {
     final db = await database;
-    await db.delete(
-      _tableName,
-      where: 'id = ?',
-      whereArgs: [operationId],
-    );
+    await db.delete(_tableName, where: 'id = ?', whereArgs: [operationId]);
   }
 
   /// Recupere le nombre d'operations en attente.

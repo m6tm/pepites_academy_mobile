@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/atelier.dart';
 import '../../../domain/entities/seance.dart';
+import '../../../infrastructure/network/api_endpoints.dart';
 import '../../../injection_container.dart';
 import '../../state/annotation_state.dart';
 import '../../state/atelier_state.dart';
@@ -56,7 +57,66 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
   void initState() {
     super.initState();
     widget.atelierState.addListener(_onStateChanged);
-    widget.atelierState.chargerAteliers(widget.seance.id);
+    _loadAteliers();
+  }
+
+  /// Charge les ateliers depuis le cache local d'abord, puis rafraichit depuis l'API en arriere-plan.
+  Future<void> _loadAteliers() async {
+    // Afficher immediatement les donnees du cache local
+    await widget.atelierState.chargerAteliers(widget.seance.id);
+
+    // Rafraichir depuis l'API en arriere-plan
+    _refreshFromApiIfOnline().then((_) {
+      // Recharger depuis le cache mis a jour
+      if (mounted) {
+        widget.atelierState.chargerAteliers(widget.seance.id);
+      }
+    });
+  }
+
+  /// Si connecte, recupere les ateliers de la seance depuis l'API
+  /// et met a jour le cache local.
+  Future<void> _refreshFromApiIfOnline() async {
+    if (!DependencyInjection.connectivityState.isConnected) return;
+    try {
+      final data = await DependencyInjection.apiSyncDatasource.fetchAll(
+        '${ApiEndpoints.ateliers}?seance_id=${widget.seance.id}',
+      );
+      if (data == null || data.isEmpty) return;
+
+      final remoteList = data
+          .map(_atelierFromApiJson)
+          .whereType<Atelier>()
+          .toList();
+
+      if (remoteList.isNotEmpty) {
+        await DependencyInjection.atelierRepository.upsertAllFromRemote(
+          remoteList,
+        );
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('[AtelierCompositionPage] Erreur refresh API: $e');
+    }
+  }
+
+  /// Convertit un JSON API en entite Atelier.
+  Atelier? _atelierFromApiJson(Map<String, dynamic> json) {
+    try {
+      return Atelier(
+        id: json['id'] as String,
+        nom: json['nom'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+        type: AtelierType.values.firstWhere(
+          (e) => e.name == json['type'],
+          orElse: () => AtelierType.personnalise,
+        ),
+        ordre: json['ordre'] as int? ?? 0,
+        seanceId: (json['seance_id'] ?? json['seanceId']) as String,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   @override

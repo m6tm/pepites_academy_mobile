@@ -305,6 +305,7 @@ class DependencyInjection {
     presenceRepository.setSyncService(syncService);
     seanceRepository.setSyncService(syncService);
     atelierRepository.setSyncService(syncService);
+    atelierRepository.setDioClient(dioClient);
     annotationRepository.setSyncService(syncService);
     bulletinRepository.setSyncService(syncService);
     smsRepository.setSyncService(syncService);

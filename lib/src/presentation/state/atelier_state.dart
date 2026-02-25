@@ -121,8 +121,14 @@ class AtelierState extends ChangeNotifier {
   Future<void> reordonnerAteliers(int oldIndex, int newIndex) async {
     if (_seanceId == null) return;
 
-    // Ajustement de l'index pour le ReorderableListView
-    if (newIndex > oldIndex) newIndex--;
+    // Ajustement de l'index pour ReorderableListView/SliverReorderableList
+    // newIndex pointe vers la position AVANT le retrait de l'element
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    // Eviter les operations inutiles
+    if (oldIndex == newIndex) return;
 
     final atelier = _ateliers.removeAt(oldIndex);
     _ateliers.insert(newIndex, atelier);
