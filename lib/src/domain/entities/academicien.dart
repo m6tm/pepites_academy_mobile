@@ -39,4 +39,36 @@ class Academicien {
       'piedFort': piedFort,
     };
   }
+
+  factory Academicien.fromJson(Map<String, dynamic> json) {
+    return Academicien(
+      id: json['id'] as String,
+      nom: json['nom'] as String? ?? '',
+      prenom: json['prenom'] as String? ?? '',
+      dateNaissance: DateTime.parse(
+        json['dateNaissance'] as String? ??
+            json['date_naissance'] as String? ??
+            DateTime.now().toIso8601String(),
+      ),
+      photoUrl:
+          json['photoUrl'] as String? ?? json['photo_url'] as String? ?? '',
+      telephoneParent:
+          json['telephoneParent'] as String? ??
+          json['telephone_parent'] as String? ??
+          '',
+      posteFootballId:
+          json['posteFootballId'] as String? ??
+          json['poste_football_id'] as String? ??
+          '',
+      niveauScolaireId:
+          json['niveauScolaireId'] as String? ??
+          json['niveau_scolaire_id'] as String? ??
+          '',
+      codeQrUnique:
+          json['codeQrUnique'] as String? ??
+          json['code_qr_unique'] as String? ??
+          '',
+      piedFort: json['piedFort'] as String? ?? json['pied_fort'] as String?,
+    );
+  }
 }

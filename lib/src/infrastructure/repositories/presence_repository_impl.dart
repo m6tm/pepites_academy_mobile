@@ -39,6 +39,10 @@ class PresenceRepositoryImpl implements PresenceRepository {
     return _datasource.getByProfil(profilId);
   }
 
+  Future<void> upsertAllFromRemote(List<Presence> remoteList) async {
+    await _datasource.upsertAllFromRemote(remoteList);
+  }
+
   /// Verifie si un profil est deja enregistre pour une seance.
   bool isAlreadyPresent(String profilId, String seanceId) {
     return _datasource.isAlreadyPresent(profilId, seanceId);

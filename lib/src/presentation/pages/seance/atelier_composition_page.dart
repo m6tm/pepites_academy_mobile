@@ -742,6 +742,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
   late final TextEditingController _descriptionController;
   late AtelierType _selectedType;
   bool _isCustomName = false;
+  bool _didInitDependencies = false;
 
   @override
   void initState() {
@@ -751,11 +752,21 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
       text: widget.atelier?.description ?? '',
     );
     _selectedType = widget.atelier?.type ?? AtelierType.dribble;
-    _isCustomName =
-        widget.atelier?.type == AtelierType.personnalise ||
-        (widget.atelier != null &&
-            widget.atelier!.nom !=
-                _getDefaultName(context, widget.atelier!.type));
+    _isCustomName = widget.atelier?.type == AtelierType.personnalise;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didInitDependencies) return;
+    _didInitDependencies = true;
+
+    if (widget.atelier != null) {
+      final defaultName = _getDefaultName(context, widget.atelier!.type);
+      _isCustomName =
+          widget.atelier!.type == AtelierType.personnalise ||
+          widget.atelier!.nom != defaultName;
+    }
   }
 
   @override

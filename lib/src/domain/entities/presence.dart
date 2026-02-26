@@ -26,4 +26,18 @@ class Presence {
       'seanceId': seanceId,
     };
   }
+
+  factory Presence.fromJson(Map<String, dynamic> json) {
+    return Presence(
+      id: json['id'] as String,
+      horodateArrivee: DateTime.parse(
+        (json['horodateArrivee'] ?? json['horodate_arrivee']) as String,
+      ),
+      typeProfil: ProfilType.values.firstWhere(
+        (e) => e.name == (json['typeProfil'] ?? json['type_profil']),
+      ),
+      profilId: (json['profilId'] ?? json['profil_id']) as String,
+      seanceId: (json['seanceId'] ?? json['seance_id']) as String,
+    );
+  }
 }

@@ -4,8 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/atelier.dart';
 import '../../../domain/entities/encadreur.dart';
+import '../../../domain/entities/presence.dart';
 import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
+import '../../../infrastructure/network/api_endpoints.dart';
+import '../../../infrastructure/repositories/encadreur_repository_impl.dart';
 import '../../state/annotation_state.dart';
 import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
@@ -29,6 +32,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   List<Atelier> _ateliers = [];
   List<Academicien> _academiciens = [];
   List<Encadreur> _encadreurs = [];
+  Encadreur? _responsable;
+  String? _responsableNom;
+  int? _nbPresents;
+  List<Presence>? _presences;
   bool _isLoadingAteliers = false;
   bool _isLoadingPersonnes = false;
 
@@ -39,8 +46,129 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   void initState() {
     super.initState();
     _seance = widget.seance;
-    _rafraichirSeance();
-    _chargerAteliers();
+    _loadLocalThenRefresh();
+  }
+
+  Future<void> _loadLocalFast() async {
+    await _rafraichirSeance();
+    await Future.wait([
+      _chargerAteliers(),
+      _chargerPersonnes(),
+      _chargerResponsableNom(),
+    ]);
+  }
+
+  void _loadLocalThenRefresh() {
+    _loadLocalFast();
+    Future.microtask(() async {
+      await _refreshFromBackendIfConnected();
+      if (!mounted) return;
+      await _loadLocalFast();
+    });
+  }
+
+  Future<void> _refreshAll() async {
+    await _refreshFromBackendIfConnected();
+    await _loadLocalFast();
+  }
+
+  Future<void> _refreshFromBackendIfConnected() async {
+    final isConnected = await DependencyInjection.connectivityService
+        .isConnected();
+    if (!isConnected) return;
+
+    final isReachable = await DependencyInjection.apiSyncDatasource
+        .isServerReachable();
+    if (!isReachable) return;
+
+    try {
+      final seancesJson = await DependencyInjection.apiSyncDatasource.fetchAll(
+        ApiEndpoints.seances,
+      );
+      if (seancesJson != null) {
+        final remote = seancesJson
+            .map(Seance.fromJson)
+            .where((s) => s.id == _seance.id)
+            .toList();
+        if (remote.isNotEmpty) {
+          await DependencyInjection.seanceRepository.upsertAllFromRemote(
+            remote,
+          );
+        }
+      }
+
+      final ateliersJson = await DependencyInjection.apiSyncDatasource.fetchAll(
+        ApiEndpoints.ateliers,
+      );
+      if (ateliersJson != null) {
+        final remote = ateliersJson
+            .map(Atelier.fromJson)
+            .where((a) => a.seanceId == _seance.id)
+            .toList();
+        await DependencyInjection.atelierRepository.upsertAllFromRemote(remote);
+      }
+
+      final presencesJson = await DependencyInjection.apiSyncDatasource
+          .fetchAll(ApiEndpoints.presences);
+      if (presencesJson != null) {
+        final remote = presencesJson
+            .map(Presence.fromJson)
+            .where((p) => p.seanceId == _seance.id)
+            .toList();
+        await DependencyInjection.presenceRepository.upsertAllFromRemote(
+          remote,
+        );
+        if (mounted) {
+          setState(() {
+            _presences = remote;
+            _nbPresents = remote.length;
+          });
+        }
+      }
+
+      final academiciensJson = await DependencyInjection.apiSyncDatasource
+          .fetchAll(ApiEndpoints.academiciens);
+      if (academiciensJson != null) {
+        final remote = academiciensJson.map(Academicien.fromJson).toList();
+        await DependencyInjection.academicienRepository.upsertAllFromRemote(
+          remote,
+        );
+      }
+
+      final encadreursJson = await DependencyInjection.apiSyncDatasource
+          .fetchAll(ApiEndpoints.encadreurs);
+      if (encadreursJson != null) {
+        final remote = encadreursJson.map(Encadreur.fromJson).toList();
+        final encRepo =
+            DependencyInjection.encadreurRepository as EncadreurRepositoryImpl;
+        await encRepo.upsertAllFromRemote(remote);
+      }
+    } catch (_) {
+      return;
+    }
+  }
+
+  Future<void> _chargerResponsableNom() async {
+    final responsableId = _seance.encadreurResponsableId;
+    if (responsableId.isEmpty) return;
+
+    try {
+      final currentUserId = await DependencyInjection.preferences.getUserId();
+      if (responsableId == 'current_user' ||
+          (currentUserId != null && currentUserId == responsableId)) {
+        final fullName = await DependencyInjection.preferences
+            .getUserFullName();
+        if (mounted) setState(() => _responsableNom = fullName);
+        return;
+      }
+
+      final enc = await DependencyInjection.encadreurRepository.getById(
+        responsableId,
+      );
+      if (mounted) setState(() => _responsableNom = enc?.nomComplet);
+    } catch (_) {
+      // Ignore
+    }
   }
 
   /// Recharge la seance depuis le datasource pour refleter les modifications.
@@ -50,6 +178,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     );
     if (mounted && updated != null) {
       setState(() => _seance = updated);
+      return;
+    }
+
+    if (mounted) {
       _chargerPersonnes();
     }
   }
@@ -73,18 +205,80 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   Future<void> _chargerPersonnes() async {
     setState(() => _isLoadingPersonnes = true);
     try {
+      final presences =
+          _presences ??
+          await DependencyInjection.presenceRepository.getBySeance(_seance.id);
+
+      final academicienIds = _seance.academicienIds.isNotEmpty
+          ? _seance.academicienIds
+          : presences
+                .where((p) => p.typeProfil == ProfilType.academicien)
+                .map((p) => p.profilId)
+                .toSet()
+                .toList();
+
+      final encadreurIds = _seance.encadreurIds.isNotEmpty
+          ? _seance.encadreurIds
+          : presences
+                .where((p) => p.typeProfil == ProfilType.encadreur)
+                .map((p) => p.profilId)
+                .toSet()
+                .toList();
+
       final tousAcademiciens = await DependencyInjection.academicienRepository
           .getAll();
       final tousEncadreurs = await DependencyInjection.encadreurRepository
           .getAll();
+
+      final academiciensById = <String, Academicien>{
+        for (final a in tousAcademiciens) a.id: a,
+      };
+      final encadreursById = <String, Encadreur>{
+        for (final e in tousEncadreurs) e.id: e,
+      };
+
+      final loadedAcademiciens = <Academicien>[];
+      for (final id in academicienIds) {
+        final fromAll = academiciensById[id];
+        if (fromAll != null) {
+          loadedAcademiciens.add(fromAll);
+          continue;
+        }
+        final fromRepo = await DependencyInjection.academicienRepository
+            .getById(id);
+        if (fromRepo != null) loadedAcademiciens.add(fromRepo);
+      }
+
+      final loadedEncadreurs = <Encadreur>[];
+      for (final id in encadreurIds) {
+        final fromAll = encadreursById[id];
+        if (fromAll != null) {
+          loadedEncadreurs.add(fromAll);
+          continue;
+        }
+        final fromRepo = await DependencyInjection.encadreurRepository.getById(
+          id,
+        );
+        if (fromRepo != null) loadedEncadreurs.add(fromRepo);
+      }
+
+      Encadreur? responsable;
+      if (_seance.encadreurResponsableId.isNotEmpty &&
+          _seance.encadreurResponsableId != 'current_user') {
+        responsable =
+            encadreursById[_seance.encadreurResponsableId] ??
+            await DependencyInjection.encadreurRepository.getById(
+              _seance.encadreurResponsableId,
+            );
+      }
+
       if (mounted) {
         setState(() {
-          _academiciens = tousAcademiciens
-              .where((a) => _seance.academicienIds.contains(a.id))
-              .toList();
-          _encadreurs = tousEncadreurs
-              .where((e) => _seance.encadreurIds.contains(e.id))
-              .toList();
+          _academiciens = loadedAcademiciens;
+          _encadreurs = loadedEncadreurs;
+          _responsable = responsable;
+          _nbPresents = presences.length;
+          _presences = presences;
           _isLoadingPersonnes = false;
         });
       }
@@ -93,7 +287,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     }
   }
 
-  void _ouvrirAnnotationAcademicien(Academicien academicien) {
+  Future<void> _ouvrirAnnotationAcademicien(Academicien academicien) async {
     if (_ateliers.isEmpty) {
       AcademyToast.show(
         context,
@@ -103,10 +297,31 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       return;
     }
 
+    while (mounted) {
+      final atelier = await showModalBottomSheet<Atelier>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) =>
+            _AtelierPickerSheet(academicien: academicien, ateliers: _ateliers),
+      );
+
+      if (atelier == null || !mounted) return;
+
+      await _ouvrirAnnotationAcademicienPourAtelier(
+        academicien: academicien,
+        atelier: atelier,
+      );
+    }
+  }
+
+  Future<void> _ouvrirAnnotationAcademicienPourAtelier({
+    required Academicien academicien,
+    required Atelier atelier,
+  }) {
     final annotationState = AnnotationState(
       DependencyInjection.annotationService,
     );
-    final atelier = _ateliers.first;
 
     annotationState.initialiserContexte(
       atelierId: atelier.id,
@@ -114,7 +329,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     );
     annotationState.selectionnerAcademicien(academicien.id);
 
-    showModalBottomSheet(
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -148,39 +363,46 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          _buildAppBar(context, colorScheme),
-          SliverToBoxAdapter(child: _buildStatusBanner(colorScheme)),
-          SliverToBoxAdapter(child: _buildInfoSection(colorScheme, isDark)),
-          SliverToBoxAdapter(child: _buildStatsRow(colorScheme, isDark)),
-          SliverToBoxAdapter(
-            child: _buildSectionTitle(
-              AppLocalizations.of(context)!.presentCoaches,
-              Icons.person_rounded,
+      body: RefreshIndicator(
+        onRefresh: _refreshAll,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          slivers: [
+            _buildAppBar(context, colorScheme),
+            SliverToBoxAdapter(child: _buildStatusBanner(colorScheme)),
+            SliverToBoxAdapter(child: _buildInfoSection(colorScheme, isDark)),
+            SliverToBoxAdapter(child: _buildStatsRow(colorScheme, isDark)),
+            SliverToBoxAdapter(
+              child: _buildSectionTitle(
+                AppLocalizations.of(context)!.presentCoaches,
+                Icons.person_rounded,
+              ),
             ),
-          ),
-          SliverToBoxAdapter(child: _buildEncadreursList(colorScheme, isDark)),
-          SliverToBoxAdapter(
-            child: _buildSectionTitle(
-              AppLocalizations.of(context)!.academicians,
-              Icons.groups_rounded,
+            SliverToBoxAdapter(
+              child: _buildEncadreursList(colorScheme, isDark),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: _buildAcademiciensList(colorScheme, isDark),
-          ),
-          SliverToBoxAdapter(
-            child: _buildSectionTitleWithAction(
-              context,
-              AppLocalizations.of(context)!.workshopsRecapLabel,
-              Icons.fitness_center_rounded,
+            SliverToBoxAdapter(
+              child: _buildSectionTitle(
+                AppLocalizations.of(context)!.academicians,
+                Icons.groups_rounded,
+              ),
             ),
-          ),
-          SliverToBoxAdapter(child: _buildAteliersList(colorScheme, isDark)),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        ],
+            SliverToBoxAdapter(
+              child: _buildAcademiciensList(colorScheme, isDark),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSectionTitleWithAction(
+                context,
+                AppLocalizations.of(context)!.workshopsRecapLabel,
+                Icons.fitness_center_rounded,
+              ),
+            ),
+            SliverToBoxAdapter(child: _buildAteliersList(colorScheme, isDark)),
+            const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          ],
+        ),
       ),
     );
   }
@@ -288,8 +510,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
             icon: Icons.person_rounded,
             label: AppLocalizations.of(context)!.responsibleLabel,
             value: seance.encadreurResponsableId == 'current_user'
-                ? AppLocalizations.of(context)!.meLabel
-                : seance.encadreurResponsableId,
+                ? (_responsableNom ?? AppLocalizations.of(context)!.meLabel)
+                : (_responsableNom ??
+                      _responsable?.nomComplet ??
+                      seance.encadreurResponsableId),
           ),
         ],
       ),
@@ -297,13 +521,21 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   }
 
   Widget _buildStatsRow(ColorScheme colorScheme, bool isDark) {
+    final nbPresents = _nbPresents ?? seance.nbPresents;
+    final nbAteliers = _ateliers.isNotEmpty
+        ? _ateliers.length
+        : seance.atelierIds.length;
+    final nbEncadreurs = _encadreurs.isNotEmpty
+        ? _encadreurs.length
+        : seance.encadreurIds.length;
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Row(
         children: [
           _StatBox(
             icon: Icons.people_rounded,
-            value: '${seance.nbPresents}',
+            value: '$nbPresents',
             label: AppLocalizations.of(context)!.presentsRecapLabel,
             color: const Color(0xFF3B82F6),
             isDark: isDark,
@@ -311,7 +543,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           const SizedBox(width: 12),
           _StatBox(
             icon: Icons.sports_soccer_rounded,
-            value: '${seance.atelierIds.length}',
+            value: '$nbAteliers',
             label: AppLocalizations.of(context)!.workshops,
             color: const Color(0xFF8B5CF6),
             isDark: isDark,
@@ -319,7 +551,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           const SizedBox(width: 12),
           _StatBox(
             icon: Icons.group_rounded,
-            value: '${seance.encadreurIds.length}',
+            value: '$nbEncadreurs',
             label: AppLocalizations.of(context)!.coaches,
             color: const Color(0xFF10B981),
             isDark: isDark,
@@ -410,7 +642,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       );
     }
 
-    if (seance.encadreurIds.isEmpty) {
+    if (_encadreurs.isEmpty) {
       return _buildEmptyListMessage(
         AppLocalizations.of(context)!.noCoachRegistered,
         colorScheme,
@@ -423,23 +655,14 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemCount: _encadreurs.isNotEmpty
-            ? _encadreurs.length
-            : seance.encadreurIds.length,
+        itemCount: _encadreurs.length,
         itemBuilder: (context, index) {
-          if (index < _encadreurs.length) {
-            final enc = _encadreurs[index];
-            return _PersonChip(
-              label: enc.nomComplet,
-              initials:
-                  '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}',
-              photoUrl: enc.photoUrl,
-              color: const Color(0xFF10B981),
-              isDark: isDark,
-            );
-          }
+          final enc = _encadreurs[index];
           return _PersonChip(
-            label: 'Encadreur ${index + 1}',
+            label: enc.nomComplet,
+            initials:
+                '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}',
+            photoUrl: enc.photoUrl,
             color: const Color(0xFF10B981),
             isDark: isDark,
           );
@@ -462,7 +685,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       );
     }
 
-    if (seance.academicienIds.isEmpty) {
+    if (_academiciens.isEmpty) {
       return _buildEmptyListMessage(
         AppLocalizations.of(context)!.noAcademicianRegistered,
         colorScheme,
@@ -475,28 +698,19 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemCount: _academiciens.isNotEmpty
-            ? _academiciens.length
-            : seance.academicienIds.length,
+        itemCount: _academiciens.length,
         itemBuilder: (context, index) {
-          if (index < _academiciens.length) {
-            final aca = _academiciens[index];
-            return GestureDetector(
-              onTap: () => _ouvrirAnnotationAcademicien(aca),
-              child: _PersonChip(
-                label: '${aca.prenom} ${aca.nom}',
-                initials:
-                    '${aca.prenom.isNotEmpty ? aca.prenom[0] : ''}${aca.nom.isNotEmpty ? aca.nom[0] : ''}',
-                photoUrl: aca.photoUrl,
-                color: const Color(0xFF3B82F6),
-                isDark: isDark,
-              ),
-            );
-          }
-          return _PersonChip(
-            label: 'Academicien ${index + 1}',
-            color: const Color(0xFF3B82F6),
-            isDark: isDark,
+          final aca = _academiciens[index];
+          return GestureDetector(
+            onTap: () => _ouvrirAnnotationAcademicien(aca),
+            child: _PersonChip(
+              label: '${aca.prenom} ${aca.nom}',
+              initials:
+                  '${aca.prenom.isNotEmpty ? aca.prenom[0] : ''}${aca.nom.isNotEmpty ? aca.nom[0] : ''}',
+              photoUrl: aca.photoUrl,
+              color: const Color(0xFF3B82F6),
+              isDark: isDark,
+            ),
           );
         },
       ),
@@ -743,6 +957,166 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       case SeanceStatus.aVenir:
         return Icons.schedule_rounded;
     }
+  }
+}
+
+class _AtelierPickerSheet extends StatelessWidget {
+  final Academicien academicien;
+  final List<Atelier> ateliers;
+
+  const _AtelierPickerSheet({
+    required this.academicien,
+    required this.ateliers,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
+      height: screenHeight * 0.7,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${academicien.prenom} ${academicien.nom}',
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: isDark
+                              ? AppColors.textMainDark
+                              : AppColors.textMainLight,
+                        ),
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.workshops,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 13,
+                          color: isDark
+                              ? AppColors.textMutedDark
+                              : AppColors.textMutedLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              itemCount: ateliers.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final atelier = ateliers[index];
+                final typeColor = _SeanceDetailPageState._getAtelierTypeColor(
+                  atelier.type,
+                );
+                final typeIcon = _SeanceDetailPageState._getAtelierTypeIcon(
+                  atelier.type,
+                );
+
+                return GestureDetector(
+                  onTap: () => Navigator.of(context).pop(atelier),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isDark ? colorScheme.surface : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: typeColor.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: typeColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(typeIcon, color: typeColor, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                atelier.nom,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                AtelierCompositionPage.getTypeLabel(
+                                  context,
+                                  atelier.type,
+                                ),
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 11,
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: colorScheme.onSurface.withValues(alpha: 0.2),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

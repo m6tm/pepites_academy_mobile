@@ -26,6 +26,15 @@ class PresenceLocalDatasource {
     return presence;
   }
 
+  Future<void> upsertAllFromRemote(List<Presence> remoteList) async {
+    final local = getAll();
+    final map = {for (final p in local) p.id: p};
+    for (final remote in remoteList) {
+      map[remote.id] = remote;
+    }
+    await _saveAll(map.values.toList());
+  }
+
   /// Recupere les presences d'une seance specifique.
   List<Presence> getBySeance(String seanceId) {
     return getAll().where((p) => p.seanceId == seanceId).toList();
