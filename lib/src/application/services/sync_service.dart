@@ -114,108 +114,122 @@ class SyncService {
     if (_isSyncing) return null;
     _isSyncing = true;
 
-    final pending = await _syncRepository.getPendingOperations();
-    if (pending.isEmpty) {
-      _isSyncing = false;
-      return SyncCycleResult(
-        totalOperations: 0,
-        successCount: 0,
-        failureCount: 0,
-        errors: [],
-      );
-    }
+    SyncCycleResult? cycleResult;
 
-    int successCount = 0;
-    int failureCount = 0;
-    final errors = <String>[];
-
-    for (final operation in pending) {
-      if (operation.retryCount >= maxRetryCount) {
-        final maxRetriesMsg =
-            _l10n?.serviceSyncMaxRetries ??
-            'Nombre maximum de tentatives atteint';
-        await _syncRepository.updateStatus(
-          operation.id,
-          SyncOperationStatus.failed,
-          errorMessage: maxRetriesMsg,
+    try {
+      final pending = await _syncRepository.getPendingOperations();
+      if (pending.isEmpty) {
+        cycleResult = SyncCycleResult(
+          totalOperations: 0,
+          successCount: 0,
+          failureCount: 0,
+          errors: [],
         );
-        failureCount++;
-        errors.add(
-          '${operation.entityType.name}/${operation.entityId}: '
-          '$maxRetriesMsg',
-        );
-        continue;
+        onSyncCompleted?.call(cycleResult);
+        return cycleResult;
       }
 
-      try {
-        await _syncRepository.updateStatus(
-          operation.id,
-          SyncOperationStatus.inProgress,
-        );
+      int successCount = 0;
+      int failureCount = 0;
+      final errors = <String>[];
 
-        final result = await _apiDatasource.pushOperation(operation);
-
-        if (result.success) {
-          await _syncRepository.markCompleted(operation.id);
-          successCount++;
-        } else if (result.isConflict) {
-          // Conflit (409): email/telephone deja existant
-          // Supprimer l'operation de la queue et l'enregistrement local
-          await _syncRepository.markCompleted(operation.id);
-          if (onConflictError != null) {
-            await onConflictError!(operation.entityType, operation.entityId);
-          }
+      for (final operation in pending) {
+        if (operation.retryCount >= maxRetryCount) {
+          final maxRetriesMsg =
+              _l10n?.serviceSyncMaxRetries ??
+              'Nombre maximum de tentatives atteint';
+          await _syncRepository.updateStatus(
+            operation.id,
+            SyncOperationStatus.failed,
+            errorMessage: maxRetriesMsg,
+          );
           failureCount++;
-          const conflictMsg = 'Donnee deja existante sur le serveur';
           errors.add(
             '${operation.entityType.name}/${operation.entityId}: '
-            '$conflictMsg - ${result.errorMessage}',
+            '$maxRetriesMsg',
           );
-        } else {
+          continue;
+        }
+
+        try {
+          await _syncRepository.updateStatus(
+            operation.id,
+            SyncOperationStatus.inProgress,
+          );
+
+          final result = await _apiDatasource.pushOperation(operation);
+
+          if (result.success) {
+            await _syncRepository.markCompleted(operation.id);
+            successCount++;
+          } else if (result.isConflict) {
+            // Conflit (409): email/telephone deja existant
+            // Supprimer l'operation de la queue et l'enregistrement local
+            await _syncRepository.markCompleted(operation.id);
+            if (onConflictError != null) {
+              await onConflictError!(operation.entityType, operation.entityId);
+            }
+            failureCount++;
+            const conflictMsg = 'Donnee deja existante sur le serveur';
+            errors.add(
+              '${operation.entityType.name}/${operation.entityId}: '
+              '$conflictMsg - ${result.errorMessage}',
+            );
+          } else {
+            await _syncRepository.incrementRetryCount(operation.id);
+            await _syncRepository.updateStatus(
+              operation.id,
+              SyncOperationStatus.pending,
+              errorMessage: result.errorMessage,
+            );
+            failureCount++;
+            if (result.errorMessage != null) {
+              errors.add(
+                '${operation.entityType.name}/${operation.entityId}: '
+                '${result.errorMessage}',
+              );
+            }
+          }
+        } catch (e) {
           await _syncRepository.incrementRetryCount(operation.id);
           await _syncRepository.updateStatus(
             operation.id,
             SyncOperationStatus.pending,
-            errorMessage: result.errorMessage,
+            errorMessage: e.toString(),
           );
           failureCount++;
-          if (result.errorMessage != null) {
-            errors.add(
-              '${operation.entityType.name}/${operation.entityId}: '
-              '${result.errorMessage}',
-            );
-          }
+          errors.add('${operation.entityType.name}/${operation.entityId}: $e');
         }
-      } catch (e) {
-        await _syncRepository.incrementRetryCount(operation.id);
-        await _syncRepository.updateStatus(
-          operation.id,
-          SyncOperationStatus.pending,
-          errorMessage: e.toString(),
-        );
-        failureCount++;
-        errors.add('${operation.entityType.name}/${operation.entityId}: $e');
       }
+
+      cycleResult = SyncCycleResult(
+        totalOperations: pending.length,
+        successCount: successCount,
+        failureCount: failureCount,
+        errors: errors,
+      );
+
+      onSyncCompleted?.call(cycleResult);
+
+      // Programme une nouvelle tentative si des operations ont echoue.
+      if (failureCount > 0) {
+        _scheduleRetry();
+      }
+
+      return cycleResult;
+    } catch (e) {
+      cycleResult = SyncCycleResult(
+        totalOperations: 0,
+        successCount: 0,
+        failureCount: 0,
+        errors: [e.toString()],
+      );
+      onSyncCompleted?.call(cycleResult);
+      rethrow;
+    } finally {
+      _isSyncing = false;
+      _notifyPendingCountChanged();
     }
-
-    _isSyncing = false;
-    _notifyPendingCountChanged();
-
-    final cycleResult = SyncCycleResult(
-      totalOperations: pending.length,
-      successCount: successCount,
-      failureCount: failureCount,
-      errors: errors,
-    );
-
-    onSyncCompleted?.call(cycleResult);
-
-    // Programme une nouvelle tentative si des operations ont echoue.
-    if (failureCount > 0) {
-      _scheduleRetry();
-    }
-
-    return cycleResult;
   }
 
   /// Recupere le nombre d'operations en attente.

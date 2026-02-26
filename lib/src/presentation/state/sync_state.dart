@@ -19,8 +19,8 @@ class SyncState extends ChangeNotifier {
   SyncState({
     required SyncService syncService,
     required ConnectivityState connectivityState,
-  })  : _syncService = syncService,
-        _connectivityState = connectivityState {
+  }) : _syncService = syncService,
+       _connectivityState = connectivityState {
     _init();
   }
 
@@ -74,7 +74,22 @@ class SyncState extends ChangeNotifier {
     _connectivityState.updateStatus(ConnectivityStatus.syncing);
     notifyListeners();
 
-    await _syncService.syncPendingOperations();
+    try {
+      final result = await _syncService.syncPendingOperations();
+
+      // Si le service renvoie null, c'est qu'une synchro etait deja en cours.
+      // Dans ce cas, on ne doit pas laisser l'UI bloquee en etat "syncing".
+      if (result == null) {
+        _isSyncing = false;
+        _connectivityState.updateStatus(ConnectivityStatus.connected);
+        notifyListeners();
+      }
+    } catch (_) {
+      _isSyncing = false;
+      _connectivityState.updateStatus(ConnectivityStatus.connected);
+      notifyListeners();
+      rethrow;
+    }
   }
 
   /// Recupere les operations en attente pour affichage.
