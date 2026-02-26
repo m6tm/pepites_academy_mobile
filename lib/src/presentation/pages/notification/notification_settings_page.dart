@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
+import '../../../injection_container.dart';
+import '../../../infrastructure/network/api_endpoints.dart';
 
 /// Page de reglages des notifications.
 /// Permet d'activer/desactiver les differents types de notifications.
@@ -21,6 +23,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   bool _notifMessages = true;
   bool _notifRappels = true;
   bool _isLoading = true;
+  bool _isSyncing = false;
 
   @override
   void initState() {
@@ -41,11 +44,102 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         _isLoading = false;
       });
     }
+
+    await _fetchRemoteIfConnected();
+  }
+
+  Future<void> _fetchRemoteIfConnected() async {
+    try {
+      final isConnected = await DependencyInjection.connectivityService
+          .isConnected();
+      if (!isConnected) return;
+
+      if (!mounted) return;
+      setState(() => _isSyncing = true);
+
+      final result = await DependencyInjection.dioClient.get<dynamic>(
+        ApiEndpoints.notificationPreferences,
+      );
+
+      await result.fold(
+        (failure) async {
+          if (!mounted) return;
+          setState(() => _isSyncing = false);
+        },
+        (data) async {
+          if (data is! Map<String, dynamic>) {
+            if (!mounted) return;
+            setState(() => _isSyncing = false);
+            return;
+          }
+
+          final prefs = await SharedPreferences.getInstance();
+          Future<void> setBool(String key, String jsonKey) async {
+            if (data.containsKey(jsonKey)) {
+              await prefs.setBool(key, (data[jsonKey] as bool?) ?? true);
+            }
+          }
+
+          await setBool('notif_globales', 'notif_globales');
+          await setBool('notif_seances', 'notif_seances');
+          await setBool('notif_presences', 'notif_presences');
+          await setBool('notif_annotations', 'notif_annotations');
+          await setBool('notif_messages', 'notif_messages');
+          await setBool('notif_rappels', 'notif_rappels');
+
+          if (!mounted) return;
+          setState(() {
+            _notificationsGlobales = prefs.getBool('notif_globales') ?? true;
+            _notifSeances = prefs.getBool('notif_seances') ?? true;
+            _notifPresences = prefs.getBool('notif_presences') ?? true;
+            _notifAnnotations = prefs.getBool('notif_annotations') ?? true;
+            _notifMessages = prefs.getBool('notif_messages') ?? true;
+            _notifRappels = prefs.getBool('notif_rappels') ?? true;
+            _isSyncing = false;
+          });
+        },
+      );
+    } catch (_) {
+      if (mounted) setState(() => _isSyncing = false);
+    }
   }
 
   Future<void> _sauvegarderPreference(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+  }
+
+  Future<void> _pushPreferencesIfConnected() async {
+    try {
+      final isConnected = await DependencyInjection.connectivityService
+          .isConnected();
+      if (!isConnected) return;
+
+      if (!mounted) return;
+      setState(() => _isSyncing = true);
+
+      final payload = {
+        'notif_globales': _notificationsGlobales,
+        'notif_seances': _notifSeances,
+        'notif_presences': _notifPresences,
+        'notif_annotations': _notifAnnotations,
+        'notif_messages': _notifMessages,
+        'notif_rappels': _notifRappels,
+      };
+
+      final result = await DependencyInjection.dioClient.put<dynamic>(
+        ApiEndpoints.notificationPreferences,
+        data: payload,
+      );
+
+      if (!mounted) return;
+      result.fold(
+        (failure) => setState(() => _isSyncing = false),
+        (data) => setState(() => _isSyncing = false),
+      );
+    } catch (_) {
+      if (mounted) setState(() => _isSyncing = false);
+    }
   }
 
   void _toggleGlobal(bool value) {
@@ -71,6 +165,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     _sauvegarderPreference('notif_annotations', _notifAnnotations);
     _sauvegarderPreference('notif_messages', _notifMessages);
     _sauvegarderPreference('notif_rappels', _notifRappels);
+
+    _pushPreferencesIfConnected();
   }
 
   @override
@@ -107,6 +203,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (_isSyncing) ...[
+                    const SizedBox(height: 8),
+                    const LinearProgressIndicator(minHeight: 2),
+                    const SizedBox(height: 16),
+                  ],
                   _buildGlobalToggle(colorScheme, isDark, l10n),
                   const SizedBox(height: 24),
                   _buildSectionLabel(l10n.categories, colorScheme),
@@ -244,6 +345,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ? (v) {
                     setState(() => _notifSeances = v);
                     _sauvegarderPreference('notif_seances', v);
+                    _pushPreferencesIfConnected();
                   }
                 : null,
             colorScheme: colorScheme,
@@ -259,6 +361,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ? (v) {
                     setState(() => _notifPresences = v);
                     _sauvegarderPreference('notif_presences', v);
+                    _pushPreferencesIfConnected();
                   }
                 : null,
             colorScheme: colorScheme,
@@ -274,6 +377,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ? (v) {
                     setState(() => _notifAnnotations = v);
                     _sauvegarderPreference('notif_annotations', v);
+                    _pushPreferencesIfConnected();
                   }
                 : null,
             colorScheme: colorScheme,
@@ -289,6 +393,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ? (v) {
                     setState(() => _notifMessages = v);
                     _sauvegarderPreference('notif_messages', v);
+                    _pushPreferencesIfConnected();
                   }
                 : null,
             colorScheme: colorScheme,
@@ -304,6 +409,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ? (v) {
                     setState(() => _notifRappels = v);
                     _sauvegarderPreference('notif_rappels', v);
+                    _pushPreferencesIfConnected();
                   }
                 : null,
             colorScheme: colorScheme,

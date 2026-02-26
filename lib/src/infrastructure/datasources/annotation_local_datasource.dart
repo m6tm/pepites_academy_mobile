@@ -15,7 +15,18 @@ class AnnotationLocalDatasource {
     final jsonStr = _prefs.getString(_key);
     if (jsonStr == null || jsonStr.isEmpty) return [];
     final List<dynamic> list = json.decode(jsonStr) as List<dynamic>;
-    return list.map((e) => Annotation.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => Annotation.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> upsertAll(List<Annotation> remoteList) async {
+    final local = getAll();
+    final merged = <String, Annotation>{for (final a in local) a.id: a};
+    for (final remote in remoteList) {
+      merged[remote.id] = remote;
+    }
+    await _saveAll(merged.values.toList());
   }
 
   /// Enregistre une nouvelle annotation.
@@ -47,25 +58,19 @@ class AnnotationLocalDatasource {
 
   /// Recupere les annotations d'un academicien.
   List<Annotation> getByAcademicien(String academicienId) {
-    return getAll()
-        .where((a) => a.academicienId == academicienId)
-        .toList()
+    return getAll().where((a) => a.academicienId == academicienId).toList()
       ..sort((a, b) => b.horodate.compareTo(a.horodate));
   }
 
   /// Recupere les annotations d'un atelier.
   List<Annotation> getByAtelier(String atelierId) {
-    return getAll()
-        .where((a) => a.atelierId == atelierId)
-        .toList()
+    return getAll().where((a) => a.atelierId == atelierId).toList()
       ..sort((a, b) => b.horodate.compareTo(a.horodate));
   }
 
   /// Recupere les annotations d'une seance.
   List<Annotation> getBySeance(String seanceId) {
-    return getAll()
-        .where((a) => a.seanceId == seanceId)
-        .toList()
+    return getAll().where((a) => a.seanceId == seanceId).toList()
       ..sort((a, b) => b.horodate.compareTo(a.horodate));
   }
 
@@ -75,7 +80,9 @@ class AnnotationLocalDatasource {
     String atelierId,
   ) {
     return getAll()
-        .where((a) => a.academicienId == academicienId && a.atelierId == atelierId)
+        .where(
+          (a) => a.academicienId == academicienId && a.atelierId == atelierId,
+        )
         .toList()
       ..sort((a, b) => b.horodate.compareTo(a.horodate));
   }

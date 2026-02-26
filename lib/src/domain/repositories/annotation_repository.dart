@@ -5,8 +5,14 @@ abstract class AnnotationRepository {
   /// Crée une nouvelle annotation.
   Future<Annotation> create(Annotation annotation);
 
+  /// Récupère toutes les annotations.
+  Future<List<Annotation>> getAll();
+
   /// Récupère les annotations d'un académicien.
   Future<List<Annotation>> getByAcademicien(String academicienId);
+
+  /// Récupère les annotations d'un encadreur.
+  Future<List<Annotation>> getByEncadreur(String encadreurId);
 
   /// Récupère les annotations faites lors d'un atelier spécifique.
   Future<List<Annotation>> getByAtelier(String atelierId);

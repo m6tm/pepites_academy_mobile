@@ -102,6 +102,8 @@ class DependencyInjection {
   static late AcademicienLocalDatasource _academicienDatasource;
   static late DioClient _dioClient;
 
+  static DioClient get dioClient => _dioClient;
+
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
     final sharedPrefs = await SharedPreferences.getInstance();
@@ -309,6 +311,7 @@ class DependencyInjection {
     atelierRepository.setSyncService(syncService);
     atelierRepository.setDioClient(dioClient);
     annotationRepository.setSyncService(syncService);
+    annotationRepository.setDioClient(dioClient);
     bulletinRepository.setSyncService(syncService);
     smsRepository.setSyncService(syncService);
     niveauRepository.setSyncService(syncService);

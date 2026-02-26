@@ -139,27 +139,6 @@ class EncadreurProfileScreen extends StatelessWidget {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                ProfileStat(value: '16', label: l10n.sessions, isDark: isDark),
-                ProfileStat(
-                  value: '127',
-                  label: l10n.annotationsStat,
-                  isDark: isDark,
-                ),
-                ProfileStat(
-                  value: '48',
-                  label: l10n.workshopsStat,
-                  isDark: isDark,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        SliverToBoxAdapter(
           child: _buildCoachSettings(context, colorScheme, isDark, l10n),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
