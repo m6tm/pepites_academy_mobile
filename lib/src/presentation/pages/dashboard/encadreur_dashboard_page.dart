@@ -13,6 +13,7 @@ import 'screens/encadreur_annotations_screen.dart';
 import 'screens/encadreur_communication_screen.dart';
 import 'screens/encadreur_profile_screen.dart';
 import 'widgets/encadreur_internal_widgets.dart';
+import '../../state/seance_state.dart';
 
 /// Dashboard principal pour le profil Encadreur (Coach).
 /// Optimise pour le travail terrain : seances, ateliers, annotations, scan QR.
@@ -36,10 +37,13 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
   String? _fullName;
+  late final SeanceState _seanceState;
 
   @override
   void initState() {
     super.initState();
+    _seanceState = SeanceState(DependencyInjection.seanceService);
+    _seanceState.chargerSeances();
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -62,6 +66,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
   @override
   void dispose() {
     _fadeController.dispose();
+    _seanceState.dispose();
     super.dispose();
   }
 
@@ -92,6 +97,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
                   index: _selectedNavIndex,
                   children: [
                     EncadreurHomeScreen(
+                      seanceState: _seanceState,
                       userName: widget.userName,
                       greeting: _getGreeting(),
                       photoUrl: widget.photoUrl,
@@ -99,7 +105,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
                       onNavigateToTab: (index) =>
                           setState(() => _selectedNavIndex = index),
                     ),
-                    const EncadreurSeancesScreen(),
+                    EncadreurSeancesScreen(seanceState: _seanceState),
                     const SizedBox(),
                     const EncadreurAnnotationsScreen(),
                     const EncadreurCommunicationScreen(),

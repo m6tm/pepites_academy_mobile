@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../l10n/app_localizations.dart';
 import '../../application/services/sync_service.dart';
 import '../../domain/entities/seance.dart';
@@ -40,9 +42,39 @@ class SeanceRepositoryImpl implements SeanceRepository {
     final local = _datasource.getAll();
     final localMap = {for (final s in local) s.id: s};
     for (final remote in remoteList) {
+      final existing = localMap[remote.id];
+      if (existing != null &&
+          existing.statut == SeanceStatus.fermee &&
+          remote.statut == SeanceStatus.ouverte) {
+        final preserveLocal = await _hasPendingLocalClose(remote.id);
+        if (preserveLocal) continue;
+      }
       localMap[remote.id] = remote;
     }
     await _datasource.saveAll(localMap.values.toList());
+  }
+
+  Future<bool> _hasPendingLocalClose(String seanceId) async {
+    final sync = _syncService;
+    if (sync == null) return false;
+
+    try {
+      final pending = await sync.getPendingOperations();
+      for (final op in pending) {
+        if (op.entityType != SyncEntityType.seance) continue;
+        if (op.entityId != seanceId) continue;
+        if (op.operationType != SyncOperationType.update) continue;
+
+        final decoded = json.decode(op.payload);
+        if (decoded is Map<String, dynamic>) {
+          final statut = decoded['statut']?.toString();
+          if (statut == 'fermee') return true;
+        }
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 
   @override

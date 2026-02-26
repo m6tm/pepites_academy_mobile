@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../domain/entities/academicien.dart';
+import '../../../../domain/entities/annotation.dart';
+import '../../../../domain/entities/atelier.dart';
+import '../../../../domain/entities/presence.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
@@ -27,6 +30,7 @@ import '../widgets/encadreur_internal_widgets.dart';
 /// Ecran d'accueil du dashboard encadreur.
 /// Affiche la seance en cours, statistiques terrain et academiciens supervises.
 class EncadreurHomeScreen extends StatefulWidget {
+  final SeanceState seanceState;
   final String userName;
   final String greeting;
   final String? photoUrl;
@@ -35,6 +39,7 @@ class EncadreurHomeScreen extends StatefulWidget {
 
   const EncadreurHomeScreen({
     super.key,
+    required this.seanceState,
     required this.userName,
     required this.greeting,
     this.photoUrl,
@@ -46,19 +51,50 @@ class EncadreurHomeScreen extends StatefulWidget {
   State<EncadreurHomeScreen> createState() => _EncadreurHomeScreenState();
 }
 
-class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
+class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
+    with WidgetsBindingObserver {
   late final SeanceState _seanceState;
   List<Academicien> _academiciens = [];
   bool _isLoadingAcademiciens = true;
 
+  DateTime? _lastSeanceRefreshAt;
+
+  String? _currentSeanceId;
+  int? _currentNbPresents;
+  int? _currentNbAteliers;
+  int? _currentNbAnnotations;
+
+  int? _sessionsConducted;
+  int? _totalAnnotations;
+  int? _workshopsCreated;
+  double? _averageAttendance;
+
+  double? _annotationsPerSession;
+  double? _closedSessionsRate;
+  double? _activityProgress;
+  int? _toNextLevel;
+
+  bool _isRefreshingCurrentSeanceStats = false;
+  bool _isRefreshingCoachActivityStats = false;
+
   @override
   void initState() {
     super.initState();
-    _seanceState = SeanceState(DependencyInjection.seanceService);
+    WidgetsBinding.instance.addObserver(this);
+    _seanceState = widget.seanceState;
     _seanceState.addListener(_onStateChanged);
-    _seanceState.chargerSeances();
     DependencyInjection.notificationState.chargerNotifications('encadreur');
     _chargerAcademiciens();
+    _refreshCoachActivityStats();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _seanceState.chargerSeances();
+      _refreshCurrentSeanceStats();
+      _refreshCoachActivityStats();
+    }
   }
 
   Future<void> _chargerAcademiciens() async {
@@ -72,8 +108,163 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     }
   }
 
+  Future<void> _refreshCoachActivityStats() async {
+    if (_isRefreshingCoachActivityStats) return;
+    _isRefreshingCoachActivityStats = true;
+
+    try {
+      final currentUserId = await DependencyInjection.preferences.getUserId();
+      final seances = await DependencyInjection.seanceRepository.getAll();
+
+      final seancesDirigees = currentUserId == null || currentUserId.isEmpty
+          ? seances
+          : seances
+                .where(
+                  (s) =>
+                      s.encadreurResponsableId == 'current_user' ||
+                      s.encadreurResponsableId == currentUserId,
+                )
+                .toList();
+
+      final seanceIds = seancesDirigees.map((s) => s.id).toList();
+
+      final closedCount = seancesDirigees.where((s) => s.estFermee).length;
+      final closedRate = seancesDirigees.isEmpty
+          ? 0.0
+          : (closedCount / seancesDirigees.length);
+
+      final annotationsFutures = seanceIds
+          .map(DependencyInjection.annotationService.getAnnotationsSeance)
+          .toList();
+      final ateliersFutures = seanceIds
+          .map(DependencyInjection.atelierService.getAteliersParSeance)
+          .toList();
+      final presencesFutures = seanceIds
+          .map(DependencyInjection.presenceRepository.getBySeance)
+          .toList();
+
+      final results = await Future.wait([
+        Future.wait(annotationsFutures),
+        Future.wait(ateliersFutures),
+        Future.wait(presencesFutures),
+      ]);
+
+      final annotationsParSeance = results[0] as List<List<dynamic>>;
+      final ateliersParSeance = results[1] as List<List<dynamic>>;
+      final presencesParSeance = results[2] as List<List<dynamic>>;
+
+      int totalAnnotations = 0;
+      int totalAteliers = 0;
+      for (final list in annotationsParSeance) {
+        totalAnnotations += list.length;
+      }
+      for (final list in ateliersParSeance) {
+        totalAteliers += list.length;
+      }
+
+      double? avgAttendance;
+      final ratios = <double>[];
+      for (int i = 0; i < seancesDirigees.length; i++) {
+        final seance = seancesDirigees[i];
+        final denom = seance.academicienIds.length;
+        if (denom <= 0) continue;
+
+        final presences = presencesParSeance[i].cast<Presence>();
+        final nbAcademiciensPresents = presences
+            .where((p) => p.typeProfil == ProfilType.academicien)
+            .length;
+        ratios.add(nbAcademiciensPresents / denom);
+      }
+
+      if (ratios.isNotEmpty) {
+        avgAttendance = ratios.reduce((a, b) => a + b) / ratios.length;
+      }
+
+      final annotationsPerSession = seancesDirigees.isEmpty
+          ? 0.0
+          : (totalAnnotations / seancesDirigees.length);
+
+      final sessionsProgress = (seancesDirigees.length / 20).clamp(0.0, 1.0);
+      final attendanceProgress = (avgAttendance ?? 0.0).clamp(0.0, 1.0);
+      final annotationsProgress = (annotationsPerSession / 10).clamp(0.0, 1.0);
+      final ateliersProgress = (totalAteliers / 50).clamp(0.0, 1.0);
+
+      final activityProgress =
+          (0.25 * sessionsProgress +
+                  0.25 * closedRate.clamp(0.0, 1.0) +
+                  0.25 * attendanceProgress +
+                  0.15 * annotationsProgress +
+                  0.10 * ateliersProgress)
+              .clamp(0.0, 1.0);
+
+      final toNextLevel = (100 - (activityProgress * 100).round()).clamp(
+        0,
+        100,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _sessionsConducted = seancesDirigees.length;
+        _totalAnnotations = totalAnnotations;
+        _workshopsCreated = totalAteliers;
+        _averageAttendance = avgAttendance;
+
+        _annotationsPerSession = annotationsPerSession;
+        _closedSessionsRate = closedRate;
+        _activityProgress = activityProgress;
+        _toNextLevel = toNextLevel;
+      });
+    } catch (_) {
+      return;
+    } finally {
+      _isRefreshingCoachActivityStats = false;
+    }
+  }
+
   void _onStateChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+
+    final seanceId = _seanceState.seanceOuverte?.id;
+    final shouldRefresh = seanceId != _currentSeanceId;
+    if (shouldRefresh) {
+      _currentSeanceId = seanceId;
+      _currentNbPresents = null;
+      _currentNbAteliers = null;
+      _currentNbAnnotations = null;
+      _refreshCurrentSeanceStats();
+    }
+
+    _refreshCoachActivityStats();
+
+    setState(() {});
+  }
+
+  Future<void> _refreshCurrentSeanceStats() async {
+    final seance = _seanceState.seanceOuverte;
+    if (seance == null) return;
+
+    if (_isRefreshingCurrentSeanceStats) return;
+    _isRefreshingCurrentSeanceStats = true;
+
+    try {
+      final results = await Future.wait([
+        DependencyInjection.presenceRepository.getBySeance(seance.id),
+        DependencyInjection.atelierService.getAteliersParSeance(seance.id),
+        DependencyInjection.annotationService.getAnnotationsSeance(seance.id),
+      ]);
+
+      if (!mounted) return;
+
+      setState(() {
+        _currentNbPresents = (results[0] as List<Presence>).length;
+        _currentNbAteliers = (results[1] as List<Atelier>).length;
+        _currentNbAnnotations = (results[2] as List<Annotation>).length;
+      });
+    } catch (_) {
+      return;
+    } finally {
+      _isRefreshingCurrentSeanceStats = false;
+    }
   }
 
   /// Verifie qu'une seance est ouverte avant d'ouvrir les ateliers.
@@ -109,6 +300,8 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
       ),
     );
     _seanceState.chargerSeances();
+    _refreshCurrentSeanceStats();
+    _refreshCoachActivityStats();
   }
 
   /// Ouvre la liste complete des academiciens.
@@ -171,17 +364,21 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
       ),
     );
     _seanceState.chargerSeances();
+    _refreshCurrentSeanceStats();
+    _refreshCoachActivityStats();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _seanceState.removeListener(_onStateChanged);
-    _seanceState.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    _scheduleSeanceRefreshIfStale();
+
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
@@ -251,6 +448,22 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
     );
+  }
+
+  void _scheduleSeanceRefreshIfStale() {
+    final now = DateTime.now();
+    final last = _lastSeanceRefreshAt;
+    if (last != null && now.difference(last) < const Duration(seconds: 2)) {
+      return;
+    }
+    _lastSeanceRefreshAt = now;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _seanceState.chargerSeances();
+      _refreshCurrentSeanceStats();
+      _refreshCoachActivityStats();
+    });
   }
 
   Widget _buildTerrainBanner(ColorScheme colorScheme) {
@@ -360,11 +573,18 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final seance = _seanceState.seanceOuverte!;
 
+    final nbPresents = _currentNbPresents ?? seance.nbPresents;
+    final nbAteliers = _currentNbAteliers ?? seance.atelierIds.length;
+    final nbAnnotations = _currentNbAnnotations ?? 0;
+
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
+      onTap: () async {
+        await Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => SeanceDetailPage(seance: seance)),
         );
+        _seanceState.chargerSeances();
+        _refreshCurrentSeanceStats();
+        _refreshCoachActivityStats();
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -443,21 +663,21 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
               children: [
                 SeanceStatChip(
                   icon: Icons.people_rounded,
-                  value: '${seance.nbPresents}',
+                  value: '$nbPresents',
                   label: AppLocalizations.of(context)!.present,
                   color: const Color(0xFF3B82F6),
                 ),
                 const SizedBox(width: 12),
                 SeanceStatChip(
                   icon: Icons.sports_soccer_rounded,
-                  value: '${seance.atelierIds.length}',
+                  value: '$nbAteliers',
                   label: AppLocalizations.of(context)!.workshops,
                   color: const Color(0xFF8B5CF6),
                 ),
                 const SizedBox(width: 12),
                 SeanceStatChip(
                   icon: Icons.edit_note_rounded,
-                  value: '0',
+                  value: '$nbAnnotations',
                   label: AppLocalizations.of(context)!.annotations,
                   color: const Color(0xFFF59E0B),
                 ),
@@ -579,9 +799,20 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
     } else {
       AcademyToast.show(context, title: result.message, isError: true);
     }
+
+    _seanceState.chargerSeances();
+    _refreshCurrentSeanceStats();
+    _refreshCoachActivityStats();
   }
 
   Widget _buildCoachStats(AppLocalizations l10n) {
+    final sessionsValue = (_sessionsConducted ?? 0).toString();
+    final annotationsValue = (_totalAnnotations ?? 0).toString();
+    final ateliersValue = (_workshopsCreated ?? 0).toString();
+    final attendanceValue = _averageAttendance == null
+        ? '0%'
+        : '${(_averageAttendance! * 100).round()}%';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -594,35 +825,27 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         children: [
           StatCard(
             label: l10n.sessionsConducted,
-            value: '16',
+            value: sessionsValue,
             icon: Icons.sports_soccer_rounded,
             color: Color(0xFF3B82F6),
-            trend: '+4',
-            trendUp: true,
           ),
           StatCard(
             label: l10n.annotations,
-            value: '127',
+            value: annotationsValue,
             icon: Icons.edit_note_rounded,
             color: Color(0xFF8B5CF6),
-            trend: '+23',
-            trendUp: true,
           ),
           StatCard(
             label: l10n.workshopsCreated,
-            value: '48',
+            value: ateliersValue,
             icon: Icons.fitness_center_rounded,
             color: Color(0xFFF59E0B),
-            trend: '+8',
-            trendUp: true,
           ),
           StatCard(
             label: l10n.averageAttendanceShort,
-            value: '89%',
+            value: attendanceValue,
             icon: Icons.check_circle_rounded,
             color: Color(0xFF10B981),
-            trend: '+2%',
-            trendUp: true,
           ),
         ],
       ),
@@ -749,6 +972,16 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final attendanceRate = _averageAttendance ?? 0.0;
+    final attendanceText = '${(attendanceRate * 100).round()}%';
+
+    final annPerSession = _annotationsPerSession ?? 0.0;
+    final annText = annPerSession.toStringAsFixed(1);
+    final annProgress = (annPerSession / 10).clamp(0.0, 1.0);
+
+    final closedRate = _closedSessionsRate ?? 0.0;
+    final closedText = '${(closedRate * 100).round()}%';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
@@ -772,25 +1005,25 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               CircularProgressWidget(
-                progress: 0.89,
+                progress: attendanceRate.clamp(0.0, 1.0),
                 label: l10n.attendanceRateLabel,
-                centerText: '89%',
+                centerText: attendanceText,
                 color: Color(0xFF10B981),
                 size: 80,
                 strokeWidth: 7,
               ),
               CircularProgressWidget(
-                progress: 0.76,
+                progress: annProgress,
                 label: l10n.annotationsPerSession,
-                centerText: '7.6',
+                centerText: annText,
                 color: Color(0xFF8B5CF6),
                 size: 80,
                 strokeWidth: 7,
               ),
               CircularProgressWidget(
-                progress: 0.95,
+                progress: closedRate.clamp(0.0, 1.0),
                 label: l10n.closedSessions,
-                centerText: '95%',
+                centerText: closedText,
                 color: Color(0xFF3B82F6),
                 size: 80,
                 strokeWidth: 7,
@@ -805,6 +1038,13 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
   }
 
   Widget _buildExpBar(ColorScheme colorScheme, AppLocalizations l10n) {
+    final progress = (_activityProgress ?? 0.0).clamp(0.0, 1.0);
+    final toNext = _toNextLevel ?? 100;
+
+    final badgeText = progress >= 0.75
+        ? l10n.expert
+        : '${(progress * 100).round()}%';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -826,7 +1066,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                l10n.expert,
+                badgeText,
                 style: GoogleFonts.montserrat(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
@@ -840,7 +1080,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
-            value: 0.78,
+            value: progress,
             backgroundColor: colorScheme.onSurface.withValues(alpha: 0.06),
             valueColor: const AlwaysStoppedAnimation(Color(0xFFF59E0B)),
             minHeight: 8,
@@ -848,7 +1088,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          l10n.toNextLevel(78),
+          l10n.toNextLevel(toNext),
           style: GoogleFonts.montserrat(
             fontSize: 10,
             color: colorScheme.onSurface.withValues(alpha: 0.35),

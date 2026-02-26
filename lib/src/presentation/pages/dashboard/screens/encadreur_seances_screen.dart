@@ -15,7 +15,9 @@ import '../widgets/seance_card.dart';
 /// Affiche la liste chronologique des seances avec filtres par statut,
 /// boutons d'ouverture/fermeture et navigation vers le detail.
 class EncadreurSeancesScreen extends StatefulWidget {
-  const EncadreurSeancesScreen({super.key});
+  final SeanceState seanceState;
+
+  const EncadreurSeancesScreen({super.key, required this.seanceState});
 
   @override
   State<EncadreurSeancesScreen> createState() => _EncadreurSeancesScreenState();
@@ -28,14 +30,9 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
   @override
   void initState() {
     super.initState();
-    _seanceState = SeanceState(_getSeanceService());
+    _seanceState = widget.seanceState;
     _seanceState.addListener(_onStateChanged);
     _refreshFromApiIfOnlineThenLoad();
-  }
-
-  SeanceService _getSeanceService() {
-    // Import dynamique via le DI container
-    return _SeanceServiceLocator.get();
   }
 
   void _onStateChanged() {
@@ -80,7 +77,6 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
   @override
   void dispose() {
     _seanceState.removeListener(_onStateChanged);
-    _seanceState.dispose();
     super.dispose();
   }
 
@@ -1059,11 +1055,6 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
         return SeanceCardStatus.aVenir;
     }
   }
-}
-
-/// Localisateur de service via le DI container.
-class _SeanceServiceLocator {
-  static SeanceService get() => DependencyInjection.seanceService;
 }
 
 /// Widget pour selectionner une heure.
