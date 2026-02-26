@@ -15,8 +15,7 @@ class NotificationLocalDatasource {
   List<NotificationItem> getAll() {
     final jsonStr = _prefs.getString(_key);
     if (jsonStr == null || jsonStr.isEmpty) {
-      _genererNotificationsDemo();
-      return getAll();
+      return [];
     }
     final List<dynamic> list = json.decode(jsonStr) as List<dynamic>;
     return list
@@ -88,6 +87,12 @@ class NotificationLocalDatasource {
     await _saveAll(merged);
   }
 
+  Future<void> replaceAll(List<NotificationItem> items) async {
+    final sorted = items.toList()
+      ..sort((a, b) => b.dateCreation.compareTo(a.dateCreation));
+    await _saveAll(sorted);
+  }
+
   /// Supprime une notification.
   Future<void> delete(String id) async {
     final list = getAll();
@@ -112,120 +117,5 @@ class NotificationLocalDatasource {
   Future<void> _saveAll(List<NotificationItem> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
-  }
-
-  /// Genere des notifications de demonstration pour le premier lancement.
-  void _genererNotificationsDemo() {
-    final now = DateTime.now();
-    final demos = <NotificationItem>[
-      NotificationItem(
-        id: 'notif_001',
-        titre: 'Nouvelle seance programmee',
-        description:
-            'Une seance d\'entrainement a ete programmee pour demain a 15h00 au terrain principal.',
-        type: NotificationType.seance,
-        priorite: NotificationPriority.haute,
-        dateCreation: now.subtract(const Duration(minutes: 15)),
-        cibleRole: 'tous',
-      ),
-      NotificationItem(
-        id: 'notif_002',
-        titre: 'Taux de presence en baisse',
-        description:
-            'Le taux de presence de cette semaine est de 72%, en baisse de 8% par rapport a la semaine precedente.',
-        type: NotificationType.presence,
-        priorite: NotificationPriority.haute,
-        dateCreation: now.subtract(const Duration(hours: 2)),
-        cibleRole: 'admin',
-      ),
-      NotificationItem(
-        id: 'notif_003',
-        titre: 'Nouvel academicien inscrit',
-        description:
-            'Mamadou Diallo a ete inscrit avec succes dans la categorie U13.',
-        type: NotificationType.inscription,
-        priorite: NotificationPriority.normale,
-        dateCreation: now.subtract(const Duration(hours: 5)),
-        cibleRole: 'admin',
-      ),
-      NotificationItem(
-        id: 'notif_004',
-        titre: 'Rappel : Evaluation trimestrielle',
-        description:
-            'Les evaluations trimestrielles doivent etre completees avant le 28 de ce mois.',
-        type: NotificationType.rappel,
-        priorite: NotificationPriority.urgente,
-        dateCreation: now.subtract(const Duration(hours: 8)),
-        cibleRole: 'encadreur',
-      ),
-      NotificationItem(
-        id: 'notif_005',
-        titre: 'SMS envoyes avec succes',
-        description:
-            '12 SMS ont ete envoyes aux parents des academiciens du groupe A.',
-        type: NotificationType.sms,
-        priorite: NotificationPriority.basse,
-        dateCreation: now.subtract(const Duration(days: 1)),
-        estLue: true,
-        cibleRole: 'admin',
-      ),
-      NotificationItem(
-        id: 'notif_006',
-        titre: 'Bulletin genere',
-        description:
-            'Le bulletin de Moussa Keita (U15) a ete genere et est pret a etre consulte.',
-        type: NotificationType.bulletin,
-        priorite: NotificationPriority.normale,
-        dateCreation: now.subtract(const Duration(days: 1, hours: 3)),
-        cibleRole: 'tous',
-      ),
-      NotificationItem(
-        id: 'notif_007',
-        titre: 'Mise a jour systeme',
-        description:
-            'L\'application a ete mise a jour vers la version 1.2.0 avec de nouvelles fonctionnalites.',
-        type: NotificationType.systeme,
-        priorite: NotificationPriority.basse,
-        dateCreation: now.subtract(const Duration(days: 2)),
-        estLue: true,
-        cibleRole: 'tous',
-      ),
-      NotificationItem(
-        id: 'notif_008',
-        titre: 'Seance annulee',
-        description:
-            'La seance du mercredi 12 a ete annulee en raison des conditions meteorologiques.',
-        type: NotificationType.seance,
-        priorite: NotificationPriority.haute,
-        dateCreation: now.subtract(const Duration(days: 3)),
-        estLue: true,
-        cibleRole: 'tous',
-      ),
-      NotificationItem(
-        id: 'notif_009',
-        titre: 'Nouveau coach assigne',
-        description:
-            'Coach Ibrahim a ete assigne au groupe des U11 pour la saison en cours.',
-        type: NotificationType.inscription,
-        priorite: NotificationPriority.normale,
-        dateCreation: now.subtract(const Duration(days: 4)),
-        estLue: true,
-        cibleRole: 'encadreur',
-      ),
-      NotificationItem(
-        id: 'notif_010',
-        titre: 'Rappel : Reunion d\'equipe',
-        description:
-            'Reunion de coordination prevue vendredi a 10h00 dans la salle de reunion.',
-        type: NotificationType.rappel,
-        priorite: NotificationPriority.normale,
-        dateCreation: now.subtract(const Duration(days: 5)),
-        estLue: true,
-        cibleRole: 'tous',
-      ),
-    ];
-
-    final jsonList = demos.map((e) => e.toJson()).toList();
-    _prefs.setString(_key, json.encode(jsonList));
   }
 }

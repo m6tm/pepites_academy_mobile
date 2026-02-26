@@ -236,20 +236,6 @@ class DependencyInjection {
     qrScannerService.setActivityService(activityService);
     referentielService.setActivityService(activityService);
 
-    // Initialisation du module Notifications
-    final notificationDatasource = NotificationLocalDatasource(sharedPrefs);
-    notificationRepository = NotificationRepositoryImpl(
-      notificationDatasource,
-      dioClient: _dioClient,
-    );
-    notificationRepository.setSyncService(syncService);
-    notificationService = NotificationService(
-      notificationRepository: notificationRepository,
-    );
-    notificationState = NotificationState(
-      notificationService: notificationService,
-    );
-
     // Initialisation du ThemeState
     themeState = ThemeState();
     await themeState.charger();
@@ -293,6 +279,20 @@ class DependencyInjection {
 
     // Configuration du callback pour les erreurs de conflit (409)
     syncService.onConflictError = _handleConflictError;
+
+    // Initialisation du module Notifications
+    final notificationDatasource = NotificationLocalDatasource(sharedPrefs);
+    notificationRepository = NotificationRepositoryImpl(
+      notificationDatasource,
+      dioClient: _dioClient,
+    );
+    notificationRepository.setSyncService(syncService);
+    notificationService = NotificationService(
+      notificationRepository: notificationRepository,
+    );
+    notificationState = NotificationState(
+      notificationService: notificationService,
+    );
 
     // Initialisation de l'authentification
     final authRepository = AuthRepositoryImpl(dioClient, preferences);

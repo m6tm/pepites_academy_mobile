@@ -274,35 +274,39 @@ class _NotificationsPageState extends State<NotificationsPage>
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: filtres.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 8),
+            separatorBuilder: (context, index) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final filtre = filtres[index];
               final isSelected = state.filtreType == filtre.type;
-              return GestureDetector(
-                onTap: () => state.setFiltreType(filtre.type),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
+              return Center(
+                child: GestureDetector(
+                  onTap: () => state.setFiltreType(filtre.type),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primary
-                          : colorScheme.onSurface.withValues(alpha: 0.08),
+                          : colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.primary
+                            : colorScheme.onSurface.withValues(alpha: 0.08),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    filtre.label,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? Colors.white
-                          : colorScheme.onSurface.withValues(alpha: 0.6),
+                    child: Text(
+                      filtre.label,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? Colors.white
+                            : colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
                     ),
                   ),
                 ),

@@ -179,6 +179,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
       (data) async {
         if (data is! List) return _datasource.getAll();
 
+        final localById = {for (final n in _datasource.getAll()) n.id: n};
+
         NotificationItem? mapItem(dynamic raw) {
           if (raw is! Map) return null;
           final json = raw.cast<String, dynamic>();
@@ -225,10 +227,15 @@ class NotificationRepositoryImpl implements NotificationRepository {
         final items = <NotificationItem>[];
         for (final raw in data) {
           final item = mapItem(raw);
-          if (item != null) items.add(item);
+          if (item != null) {
+            final local = localById[item.id];
+            items.add(
+              item.copyWith(estLue: item.estLue || (local?.estLue ?? false)),
+            );
+          }
         }
 
-        await _datasource.upsertAll(items);
+        await _datasource.replaceAll(items);
         return _datasource.getAll();
       },
     );
