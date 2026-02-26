@@ -44,6 +44,9 @@ class ApiEndpoints {
   /// Chemins pour les preferences de notifications.
   static const String notificationPreferences = '/notification-preferences';
 
+  /// Chemins pour les tokens FCM (Firebase Cloud Messaging).
+  static const String fcmToken = '/fcm/token';
+
   /// Chemins pour les présences.
   static const String presences = '/presences';
 

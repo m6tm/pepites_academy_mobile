@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>_comment</key>
+	<string>Ce fichier est un exemple. Remplacez par votre GoogleService-Info.plist depuis Firebase Console.</string>
+	<key>_instructions</key>
+	<array>
+		<string>1. Allez sur Firebase Console: https://console.firebase.google.com</string>
+		<string>2. Sélectionnez votre projet (pepites-academy)</string>
+		<string>3. Paramètres du projet &gt; Vos applications &gt; iOS</string>
+		<string>4. Téléchargez GoogleService-Info.plist</string>
+		<string>5. Placez-le dans: ios/Runner/GoogleService-Info.plist</string>
+		<string>6. Ce fichier contient votre API key iOS - NE LE COMMITEZ PAS</string>
+	</array>
+	<key>API_KEY</key>
+	<string>YOUR_IOS_API_KEY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>YOUR_SENDER_ID</string>
+	<key>PROJECT_ID</key>
+	<string>pepites-academy</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>YOUR_IOS_APP_ID</string>
+	<key>BUNDLE_ID</key>
+	<string>com.pepitesacademy.app</string>
+</dict>
+</plist>

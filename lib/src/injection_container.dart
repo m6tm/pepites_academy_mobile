@@ -50,6 +50,7 @@ import 'infrastructure/repositories/auth_repository_impl.dart';
 import 'infrastructure/repositories/notification_repository_impl.dart';
 import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
+import 'infrastructure/services/firebase_push_notification_service.dart';
 import 'presentation/state/connectivity_state.dart';
 import 'presentation/state/search_state.dart';
 import 'presentation/state/sms_state.dart';
@@ -91,6 +92,8 @@ class DependencyInjection {
   static late final NotificationState notificationState;
   static late final ThemeState themeState;
   static late final LanguageState languageState;
+  static late final FirebasePushNotificationService
+  firebasePushNotificationService;
   static late final ApiSyncDatasourceImpl apiSyncDatasource;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -103,6 +106,8 @@ class DependencyInjection {
   static late DioClient _dioClient;
 
   static DioClient get dioClient => _dioClient;
+
+  static late NotificationLocalDatasource notificationDatasource;
 
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
@@ -281,7 +286,7 @@ class DependencyInjection {
     syncService.onConflictError = _handleConflictError;
 
     // Initialisation du module Notifications
-    final notificationDatasource = NotificationLocalDatasource(sharedPrefs);
+    notificationDatasource = NotificationLocalDatasource(sharedPrefs);
     notificationRepository = NotificationRepositoryImpl(
       notificationDatasource,
       dioClient: _dioClient,
@@ -292,6 +297,12 @@ class DependencyInjection {
     );
     notificationState = NotificationState(
       notificationService: notificationService,
+    );
+
+    // Initialisation du service de notifications push Firebase
+    firebasePushNotificationService = FirebasePushNotificationService(
+      notificationDatasource,
+      sharedPrefs,
     );
 
     // Initialisation de l'authentification

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../../infrastructure/network/api_endpoints.dart';
+import '../../../infrastructure/services/firebase_push_notification_service.dart';
 
 /// Page de reglages des notifications.
 /// Permet d'activer/desactiver les differents types de notifications.
@@ -142,7 +143,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     }
   }
 
-  void _toggleGlobal(bool value) {
+  void _toggleGlobal(bool value) async {
     setState(() {
       _notificationsGlobales = value;
       if (!value) {
@@ -165,6 +166,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     _sauvegarderPreference('notif_annotations', _notifAnnotations);
     _sauvegarderPreference('notif_messages', _notifMessages);
     _sauvegarderPreference('notif_rappels', _notifRappels);
+
+    // Synchroniser avec Firebase Push Notification Service
+    await DependencyInjection.firebasePushNotificationService
+        .setNotificationsEnabled(value);
 
     _pushPreferencesIfConnected();
   }
@@ -342,9 +347,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             color: const Color(0xFF3B82F6),
             value: _notifSeances,
             onChanged: _notificationsGlobales
-                ? (v) {
+                ? (v) async {
                     setState(() => _notifSeances = v);
                     _sauvegarderPreference('notif_seances', v);
+                    await DependencyInjection.firebasePushNotificationService
+                        .setCategoryEnabled(NotificationTopic.seances, v);
                     _pushPreferencesIfConnected();
                   }
                 : null,
@@ -358,9 +365,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             color: const Color(0xFF10B981),
             value: _notifPresences,
             onChanged: _notificationsGlobales
-                ? (v) {
+                ? (v) async {
                     setState(() => _notifPresences = v);
                     _sauvegarderPreference('notif_presences', v);
+                    await DependencyInjection.firebasePushNotificationService
+                        .setCategoryEnabled(NotificationTopic.presences, v);
                     _pushPreferencesIfConnected();
                   }
                 : null,
@@ -374,9 +383,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             color: const Color(0xFF8B5CF6),
             value: _notifAnnotations,
             onChanged: _notificationsGlobales
-                ? (v) {
+                ? (v) async {
                     setState(() => _notifAnnotations = v);
                     _sauvegarderPreference('notif_annotations', v);
+                    await DependencyInjection.firebasePushNotificationService
+                        .setCategoryEnabled(NotificationTopic.annotations, v);
                     _pushPreferencesIfConnected();
                   }
                 : null,
@@ -390,9 +401,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             color: const Color(0xFFEC4899),
             value: _notifMessages,
             onChanged: _notificationsGlobales
-                ? (v) {
+                ? (v) async {
                     setState(() => _notifMessages = v);
                     _sauvegarderPreference('notif_messages', v);
+                    await DependencyInjection.firebasePushNotificationService
+                        .setCategoryEnabled(NotificationTopic.messages, v);
                     _pushPreferencesIfConnected();
                   }
                 : null,
@@ -406,9 +419,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             color: const Color(0xFFF59E0B),
             value: _notifRappels,
             onChanged: _notificationsGlobales
-                ? (v) {
+                ? (v) async {
                     setState(() => _notifRappels = v);
                     _sauvegarderPreference('notif_rappels', v);
+                    await DependencyInjection.firebasePushNotificationService
+                        .setCategoryEnabled(NotificationTopic.rappels, v);
                     _pushPreferencesIfConnected();
                   }
                 : null,

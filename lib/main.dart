@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'src/presentation/pages/splash/splash_page.dart';
@@ -8,6 +10,9 @@ import 'src/injection_container.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialisation de Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   // Verrouillage de l'orientation en mode portrait uniquement
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -16,6 +21,9 @@ void main() async {
 
   // Initialisation des dépendances
   await DependencyInjection.init();
+
+  // Initialisation du service de notifications push
+  await DependencyInjection.firebasePushNotificationService.initialize();
 
   runApp(const MyApp());
 }

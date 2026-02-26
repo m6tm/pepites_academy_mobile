@@ -94,7 +94,20 @@ cd pepites_academy_mobile
 flutter pub get
 ```
 
-3. Lancer l'application :
+3. Configurer Firebase :
+
+```bash
+# Installer Firebase CLI
+npm install -g firebase-tools
+
+# Installer FlutterFire CLI
+dart pub global activate flutterfire_cli
+
+# Configurer Firebase pour Flutter dans powershell
+flutterfire configure --project=pepites-academy
+```
+
+4. Lancer l'application :
 
 ```bash
 flutter run
