@@ -38,6 +38,9 @@ class ApiEndpoints {
   /// Chemins pour les annotations.
   static const String annotations = '/annotations';
 
+  /// Chemins pour les notifications.
+  static const String notifications = '/notifications';
+
   /// Chemins pour les preferences de notifications.
   static const String notificationPreferences = '/notification-preferences';
 

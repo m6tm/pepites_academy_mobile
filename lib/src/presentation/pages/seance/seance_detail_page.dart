@@ -297,22 +297,23 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       return;
     }
 
-    while (mounted) {
-      final atelier = await showModalBottomSheet<Atelier>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) =>
-            _AtelierPickerSheet(academicien: academicien, ateliers: _ateliers),
-      );
-
-      if (atelier == null || !mounted) return;
-
-      await _ouvrirAnnotationAcademicienPourAtelier(
+    if (!mounted) return;
+    showModalBottomSheet<Atelier>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) =>
+          _AtelierPickerSheet(academicien: academicien, ateliers: _ateliers),
+    ).then((atelier) {
+      if (!mounted || atelier == null) return;
+      _ouvrirAnnotationAcademicienPourAtelier(
         academicien: academicien,
         atelier: atelier,
-      );
-    }
+      ).then((_) {
+        if (!mounted) return;
+        _ouvrirAnnotationAcademicien(academicien);
+      });
+    });
   }
 
   Future<void> _ouvrirAnnotationAcademicienPourAtelier({
@@ -1039,7 +1040,7 @@ class _AtelierPickerSheet extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               itemCount: ateliers.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final atelier = ateliers[index];
                 final typeColor = _SeanceDetailPageState._getAtelierTypeColor(

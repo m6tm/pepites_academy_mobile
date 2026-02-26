@@ -9,6 +9,7 @@ enum SyncEntityType {
   seance,
   academicien,
   bulletin,
+  notification,
   encadreur,
   niveauScolaire,
   posteFootball,

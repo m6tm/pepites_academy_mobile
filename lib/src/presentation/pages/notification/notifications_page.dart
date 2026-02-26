@@ -24,6 +24,8 @@ class _NotificationsPageState extends State<NotificationsPage>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
+  bool _isSyncing = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +39,27 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
     _fadeController.forward();
     DependencyInjection.notificationState.chargerNotifications(widget.userRole);
+    _syncIfConnected();
+  }
+
+  Future<void> _syncIfConnected({bool force = false}) async {
+    try {
+      final isConnected = await DependencyInjection.connectivityService
+          .isConnected();
+      if (!isConnected && !force) return;
+
+      if (!mounted) return;
+      setState(() => _isSyncing = true);
+
+      await DependencyInjection.notificationState.syncNotifications(
+        nonLuesOnly: false,
+      );
+      await DependencyInjection.notificationState.chargerNotifications(
+        widget.userRole,
+      );
+    } finally {
+      if (mounted) setState(() => _isSyncing = false);
+    }
   }
 
   @override
@@ -60,34 +83,52 @@ class _NotificationsPageState extends State<NotificationsPage>
               final state = DependencyInjection.notificationState;
               final notifications = state.notificationsFiltrees;
 
-              return CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  SliverToBoxAdapter(child: _buildHeader(colorScheme, isDark)),
-                  SliverToBoxAdapter(child: _buildFilters(colorScheme, isDark)),
-                  if (state.isLoading)
-                    const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else if (notifications.isEmpty)
-                    SliverFillRemaining(child: _buildEmptyState(colorScheme))
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final notification = notifications[index];
-                          return _buildNotificationTile(
-                            notification,
-                            colorScheme,
-                            isDark,
-                            isLast: index == notifications.length - 1,
-                          );
-                        }, childCount: notifications.length),
+              return RefreshIndicator(
+                onRefresh: _syncIfConnected,
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Column(
+                        children: [
+                          if (_isSyncing || state.isSyncing) ...[
+                            const SizedBox(height: 4),
+                            const LinearProgressIndicator(minHeight: 2),
+                          ],
+                          _buildHeader(colorScheme, isDark),
+                        ],
                       ),
                     ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                ],
+                    SliverToBoxAdapter(
+                      child: _buildFilters(colorScheme, isDark),
+                    ),
+                    if (state.isLoading)
+                      const SliverFillRemaining(
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else if (notifications.isEmpty)
+                      SliverFillRemaining(child: _buildEmptyState(colorScheme))
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final notification = notifications[index];
+                            return _buildNotificationTile(
+                              notification,
+                              colorScheme,
+                              isDark,
+                              isLast: index == notifications.length - 1,
+                            );
+                          }, childCount: notifications.length),
+                        ),
+                      ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  ],
+                ),
               );
             },
           ),

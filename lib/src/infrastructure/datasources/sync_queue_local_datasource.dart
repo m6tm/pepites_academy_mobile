@@ -126,6 +126,8 @@ class SyncQueueLocalDatasource {
         return 7;
       case SyncEntityType.smsMessage:
         return 8;
+      case SyncEntityType.notification:
+        return 9;
       case SyncEntityType.niveauScolaire:
         return 0;
       case SyncEntityType.posteFootball:

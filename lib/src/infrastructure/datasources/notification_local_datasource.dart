@@ -67,6 +67,27 @@ class NotificationLocalDatasource {
     await _saveAll(updated);
   }
 
+  /// Fusionne une liste de notifications distantes dans le cache local (par id).
+  /// Concilie l'etat de lecture (local ou distant) sans perdre une lecture locale
+  /// en attente de synchronisation.
+  Future<void> upsertAll(List<NotificationItem> remote) async {
+    final local = getAll();
+    final byId = {for (final n in local) n.id: n};
+
+    for (final r in remote) {
+      final existing = byId[r.id];
+      if (existing == null) {
+        byId[r.id] = r;
+      } else {
+        byId[r.id] = r.copyWith(estLue: r.estLue || existing.estLue);
+      }
+    }
+
+    final merged = byId.values.toList()
+      ..sort((a, b) => b.dateCreation.compareTo(a.dateCreation));
+    await _saveAll(merged);
+  }
+
   /// Supprime une notification.
   Future<void> delete(String id) async {
     final list = getAll();

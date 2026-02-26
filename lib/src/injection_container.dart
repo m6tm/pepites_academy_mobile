@@ -238,7 +238,11 @@ class DependencyInjection {
 
     // Initialisation du module Notifications
     final notificationDatasource = NotificationLocalDatasource(sharedPrefs);
-    notificationRepository = NotificationRepositoryImpl(notificationDatasource);
+    notificationRepository = NotificationRepositoryImpl(
+      notificationDatasource,
+      dioClient: _dioClient,
+    );
+    notificationRepository.setSyncService(syncService);
     notificationService = NotificationService(
       notificationRepository: notificationRepository,
     );

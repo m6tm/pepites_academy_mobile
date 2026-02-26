@@ -21,6 +21,9 @@ class NotificationState extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isSyncing = false;
+  bool get isSyncing => _isSyncing;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -62,6 +65,20 @@ class NotificationState extends ChangeNotifier {
       _errorMessage = 'Erreur lors du chargement des notifications : $e';
     } finally {
       _isLoading = false;
+      _safeNotifyListeners();
+    }
+  }
+
+  Future<void> syncNotifications({bool nonLuesOnly = false}) async {
+    _isSyncing = true;
+    _safeNotifyListeners();
+
+    try {
+      await _notificationService.syncFromApi(nonLuesOnly: nonLuesOnly);
+    } catch (_) {
+      // ignore
+    } finally {
+      _isSyncing = false;
       _safeNotifyListeners();
     }
   }

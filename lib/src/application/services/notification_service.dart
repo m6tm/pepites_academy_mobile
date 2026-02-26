@@ -16,6 +16,10 @@ class NotificationService {
     return _notificationRepository.getByRole(role);
   }
 
+  Future<List<NotificationItem>> syncFromApi({bool nonLuesOnly = false}) async {
+    return _notificationRepository.syncFromApi(nonLuesOnly: nonLuesOnly);
+  }
+
   /// Recupere les notifications non lues pour un role.
   Future<List<NotificationItem>> getNotificationsNonLues(String role) async {
     return _notificationRepository.getNonLues(role);

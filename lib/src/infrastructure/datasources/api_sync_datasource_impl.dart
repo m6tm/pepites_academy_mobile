@@ -18,6 +18,10 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     final endpoint = _getEndpointForEntity(operation.entityType);
     final payload = json.decode(operation.payload) as Map<String, dynamic>;
 
+    if (operation.entityType == SyncEntityType.notification) {
+      return _handleNotificationOperation(operation, endpoint, payload);
+    }
+
     switch (operation.operationType) {
       case SyncOperationType.create:
         return _handleCreate(endpoint, payload);
@@ -25,6 +29,94 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return _handleUpdate(endpoint, operation.entityId, payload);
       case SyncOperationType.delete:
         return _handleDelete(endpoint, operation.entityId);
+    }
+  }
+
+  Future<SyncResult> _handleNotificationOperation(
+    SyncOperation operation,
+    String endpoint,
+    Map<String, dynamic> payload,
+  ) async {
+    final action = payload['action']?.toString();
+
+    try {
+      if (operation.operationType == SyncOperationType.update) {
+        if (action == 'mark_read') {
+          final result = await _dioClient.patch<dynamic>(
+            '$endpoint/${operation.entityId}/lire',
+          );
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage:
+                  failure.message ?? 'Erreur lors du marquage comme lu',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        }
+
+        if (action == 'mark_all_read') {
+          final result = await _dioClient.patch<dynamic>('$endpoint/lire-tout');
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage: failure.message ?? 'Erreur lors du marquage global',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        }
+      }
+
+      if (operation.operationType == SyncOperationType.delete) {
+        if (action == 'delete_read') {
+          final result = await _dioClient.delete<dynamic>('$endpoint/lues');
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage:
+                  failure.message ?? 'Erreur lors de la suppression des lues',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        }
+
+        // Suppression d'une notification par id
+        final result = await _dioClient.delete<dynamic>(
+          '$endpoint/${operation.entityId}',
+        );
+        return result.fold(
+          (failure) => SyncResult(
+            success: false,
+            errorMessage: failure.message ?? 'Erreur lors de la suppression',
+            statusCode: failure.statusCode,
+          ),
+          (response) => SyncResult(
+            success: true,
+            serverResponse: response as Map<String, dynamic>?,
+          ),
+        );
+      }
+
+      return SyncResult(
+        success: false,
+        errorMessage: 'Operation notification non supportee',
+      );
+    } on SocketException {
+      return SyncResult(success: false, errorMessage: 'Pas de connexion');
+    } catch (e) {
+      return SyncResult(success: false, errorMessage: 'Exception: $e');
     }
   }
 
@@ -119,6 +211,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.niveauxScolaires;
       case SyncEntityType.smsMessage:
         return '/sms';
+      case SyncEntityType.notification:
+        return ApiEndpoints.notifications;
     }
   }
 
