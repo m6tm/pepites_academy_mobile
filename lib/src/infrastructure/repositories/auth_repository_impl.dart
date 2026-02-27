@@ -35,11 +35,21 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<NetworkFailure?> login({
     required String email,
     required String password,
+    String? deviceType,
+    String? deviceName,
+    String? model,
+    String? location,
   }) async {
-    final result = await _dioClient.post(
-      ApiEndpoints.login,
-      data: {'email': email, 'mot_de_passe': password},
-    );
+    final data = <String, dynamic>{
+      'email': email,
+      'mot_de_passe': password,
+      if (deviceType != null) 'device_type': deviceType,
+      if (deviceName != null) 'device_name': deviceName,
+      if (model != null) 'model': model,
+      if (location != null) 'location': location,
+    };
+
+    final result = await _dioClient.post(ApiEndpoints.login, data: data);
 
     return result.fold((failure) => failure, (data) {
       if (data is Map<String, dynamic>) {
@@ -70,9 +80,9 @@ class AuthRepositoryImpl implements AuthRepository {
           // Utiliser uniquement le nom pour l'affichage dans le header
           String displayName = nom.trim();
           if (displayName.isEmpty) {
-            // Si pas de nom, extraire le prénom de l'email (avant @)
+            // Si pas de nom, extraire le prenom de l'email (avant @)
             final emailPrefix = emailResponse.split('@').first;
-            // Capitaliser la première lettre
+            // Capitaliser la premiere lettre
             displayName = emailPrefix.isNotEmpty
                 ? emailPrefix[0].toUpperCase() + emailPrefix.substring(1)
                 : emailResponse;

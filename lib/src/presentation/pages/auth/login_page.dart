@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../../application/services/biometric_service.dart';
+import '../../../application/services/device_info_service.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
@@ -41,9 +42,16 @@ class _LoginPageState extends State<LoginPage> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
+      // Recuperer les infos de l'appareil
+      final deviceInfoService = DeviceInfoService();
+      final deviceInfo = await deviceInfoService.getDeviceInfo();
+
       final failure = await DependencyInjection.authService.login(
         email: email,
         password: password,
+        deviceType: deviceInfo.deviceType,
+        deviceName: deviceInfo.deviceName,
+        model: deviceInfo.model,
       );
 
       if (!mounted) return;

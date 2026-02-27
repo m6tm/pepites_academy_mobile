@@ -1078,148 +1078,408 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     ColorScheme colorScheme,
     AppLocalizations l10n,
   ) {
+    bool isLoading = true;
+    List<ActiveSession> sessions = [];
+
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          // Charger les donnees une seule fois
+          if (isLoading && sessions.isEmpty) {
+            DependencyInjection.securityService.getActiveSessions().then((
+              result,
+            ) {
+              setModalState(() {
+                sessions = result;
+                isLoading = false;
+              });
+            });
+          }
+
+          return Container(
+            padding: const EdgeInsets.all(20),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onSurface.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+                Text(
+                  l10n.connectedDevices,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (isLoading)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Chargement...',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (sessions.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Text(
+                        'Aucune session active',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: sessions.length,
+                      itemBuilder: (context, index) {
+                        final session = sessions[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildDeviceItem(session, colorScheme, () {
+                            _revokeSessionAndRefresh(
+                              session.id,
+                              session.deviceName,
+                              sessions,
+                              setModalState,
+                            );
+                          }),
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 20),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.connectedDevices,
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildDeviceItem(
-              Icons.phone_android_rounded,
-              l10n.thisDevice,
-              'Dakar, Senegal',
-              true,
-              colorScheme,
-            ),
-            const SizedBox(height: 12),
-            _buildDeviceItem(
-              Icons.tablet_rounded,
-              'Tablette Android',
-              'Dakar, Senegal',
-              false,
-              colorScheme,
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
+  /// Retourne l'icone correspondant au type d'appareil.
+  IconData _getDeviceIcon(DeviceType type) {
+    switch (type) {
+      case DeviceType.browser:
+        return Icons.language_rounded;
+      case DeviceType.smartphoneAndroid:
+      case DeviceType.smartphoneIos:
+        return Icons.smartphone_rounded;
+      case DeviceType.tabletAndroid:
+      case DeviceType.tabletIos:
+        return Icons.tablet_rounded;
+      case DeviceType.macComputer:
+        return Icons.laptop_mac_rounded;
+      case DeviceType.windowsComputer:
+        return Icons.laptop_windows_rounded;
+      case DeviceType.unknown:
+        return Icons.devices_rounded;
+    }
+  }
+
+  /// Retourne le libelle du type d'appareil.
+  String _getDeviceTypeLabel(DeviceType type) {
+    switch (type) {
+      case DeviceType.browser:
+        return 'Navigateur web';
+      case DeviceType.smartphoneAndroid:
+        return 'Smartphone Android';
+      case DeviceType.smartphoneIos:
+        return 'Smartphone iOS';
+      case DeviceType.tabletAndroid:
+        return 'Tablette Android';
+      case DeviceType.tabletIos:
+        return 'Tablette iOS';
+      case DeviceType.macComputer:
+        return 'Mac';
+      case DeviceType.windowsComputer:
+        return 'PC Windows';
+      case DeviceType.unknown:
+        return 'Appareil inconnu';
+    }
+  }
+
   Widget _buildDeviceItem(
-    IconData icon,
-    String name,
-    String location,
-    bool isCurrent,
+    ActiveSession session,
     ColorScheme colorScheme,
+    VoidCallback onRevoke,
   ) {
+    final isCurrent = session.isCurrent;
+    final deviceIcon = _getDeviceIcon(session.deviceType);
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isCurrent
-            ? AppColors.success.withValues(alpha: 0.06)
+            ? AppColors.success.withValues(alpha: 0.08)
             : colorScheme.onSurface.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isCurrent
-              ? AppColors.success.withValues(alpha: 0.2)
-              : Colors.transparent,
+              ? AppColors.success.withValues(alpha: 0.3)
+              : colorScheme.onSurface.withValues(alpha: 0.08),
+          width: isCurrent ? 1.5 : 1,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            color: isCurrent
-                ? AppColors.success
-                : colorScheme.onSurface.withValues(alpha: 0.5),
-            size: 24,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      name,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (isCurrent) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'ACTIF',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.success,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isCurrent
+                      ? AppColors.success.withValues(alpha: 0.15)
+                      : colorScheme.onSurface.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                Text(
-                  location,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 11,
-                    color: colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!isCurrent)
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'Deconnecter',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  color: AppColors.error,
+                child: Icon(
+                  deviceIcon,
+                  color: isCurrent
+                      ? AppColors.success
+                      : colorScheme.onSurface.withValues(alpha: 0.6),
+                  size: 22,
                 ),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            session.deviceName,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isCurrent) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 12,
+                                  color: AppColors.success,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'CET APPAREIL',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.success,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _getDeviceTypeLabel(session.deviceType),
+                      style: GoogleFonts.montserrat(
+                        fontSize: 11,
+                        color: colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (!isCurrent)
+                TextButton(
+                  onPressed: onRevoke,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  child: Text(
+                    'Deconnecter',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: AppColors.error,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 16,
+            runSpacing: 6,
+            children: [
+              if (session.model != null)
+                _buildInfoChip(
+                  Icons.devices_rounded,
+                  session.model!,
+                  colorScheme,
+                ),
+              if (session.ipAddress != null)
+                _buildInfoChip(
+                  Icons.wifi_rounded,
+                  session.ipAddress!,
+                  colorScheme,
+                ),
+              if (session.location != null)
+                _buildInfoChip(
+                  Icons.location_on_outlined,
+                  session.location!,
+                  colorScheme,
+                ),
+              if (session.macAddress != null)
+                _buildInfoChip(
+                  Icons.perm_identity_rounded,
+                  session.macAddress!,
+                  colorScheme,
+                  isMonospace: true,
+                ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildInfoChip(
+    IconData icon,
+    String value,
+    ColorScheme colorScheme, {
+    bool isMonospace = false,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 12,
+          color: colorScheme.onSurface.withValues(alpha: 0.4),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: isMonospace
+              ? TextStyle(
+                  fontSize: 10,
+                  fontFamily: 'monospace',
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                )
+              : GoogleFonts.montserrat(
+                  fontSize: 10,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+        ),
+      ],
+    );
+  }
+
+  /// Revoque une session et rafraichit la liste.
+  void _revokeSessionAndRefresh(
+    String sessionId,
+    String deviceName,
+    List<ActiveSession> sessions,
+    void Function(void Function()) setModalState,
+  ) async {
+    // Confirmation avant deconnexion
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Deconnecter l\'appareil',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Voulez-vous deconnecter "$deviceName" ?',
+          style: GoogleFonts.montserrat(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Deconnecter'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final (success, error) = await DependencyInjection.securityService
+        .revokeSession(sessionId);
+
+    if (success) {
+      _showSuccessSnackBar('$deviceName deconnecte');
+      // Rafraichir la liste des sessions
+      final newSessions = await DependencyInjection.securityService
+          .getActiveSessions();
+      setModalState(() {
+        sessions.clear();
+        sessions.addAll(newSessions);
+      });
+    } else {
+      _showErrorSnackBar(error ?? 'Erreur lors de la deconnexion');
+    }
   }
 
   void _showSignOutAllDialog(ColorScheme colorScheme, AppLocalizations l10n) {
@@ -1241,14 +1501,25 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             child: Text(l10n.cancel),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.allDevicesSignedOut),
-                  backgroundColor: AppColors.success,
-                ),
-              );
+              setState(() => _isLoading = true);
+
+              final count = await DependencyInjection.securityService
+                  .logoutAllDevices();
+
+              if (mounted) {
+                setState(() => _isLoading = false);
+                if (count >= 0) {
+                  _showSuccessSnackBar(
+                    count > 0
+                        ? '$count appareil(s) deconnecte(s)'
+                        : l10n.allDevicesSignedOut,
+                  );
+                } else {
+                  _showErrorSnackBar('Erreur lors de la deconnexion');
+                }
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,

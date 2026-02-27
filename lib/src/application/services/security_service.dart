@@ -107,6 +107,18 @@ class PasswordHistoryEntry {
   }
 }
 
+/// Type d'appareil.
+enum DeviceType {
+  browser,
+  smartphoneAndroid,
+  smartphoneIos,
+  tabletAndroid,
+  tabletIos,
+  macComputer,
+  windowsComputer,
+  unknown,
+}
+
 /// Session active d'un utilisateur.
 class ActiveSession {
   final String id;
@@ -114,6 +126,10 @@ class ActiveSession {
   final String? location;
   final DateTime lastActive;
   final bool isCurrent;
+  final DeviceType deviceType;
+  final String? ipAddress;
+  final String? model;
+  final String? macAddress;
 
   const ActiveSession({
     required this.id,
@@ -121,6 +137,10 @@ class ActiveSession {
     this.location,
     required this.lastActive,
     this.isCurrent = false,
+    this.deviceType = DeviceType.unknown,
+    this.ipAddress,
+    this.model,
+    this.macAddress,
   });
 
   factory ActiveSession.fromJson(Map<String, dynamic> json) {
@@ -132,6 +152,32 @@ class ActiveSession {
           DateTime.tryParse(json['last_active'] as String? ?? '') ??
           DateTime.now(),
       isCurrent: json['is_current'] as bool? ?? false,
+      deviceType: _parseDeviceType(json['device_type'] as String?),
+      ipAddress: json['ip_address'] as String?,
+      model: json['model'] as String?,
+      macAddress: json['mac_address'] as String?,
     );
+  }
+
+  static DeviceType _parseDeviceType(String? type) {
+    if (type == null) return DeviceType.unknown;
+    switch (type.toLowerCase()) {
+      case 'browser':
+        return DeviceType.browser;
+      case 'smartphone_android':
+        return DeviceType.smartphoneAndroid;
+      case 'smartphone_ios':
+        return DeviceType.smartphoneIos;
+      case 'tablet_android':
+        return DeviceType.tabletAndroid;
+      case 'tablet_ios':
+        return DeviceType.tabletIos;
+      case 'mac_computer':
+        return DeviceType.macComputer;
+      case 'windows_computer':
+        return DeviceType.windowsComputer;
+      default:
+        return DeviceType.unknown;
+    }
   }
 }
