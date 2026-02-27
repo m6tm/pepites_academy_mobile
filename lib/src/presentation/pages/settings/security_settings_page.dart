@@ -4,6 +4,7 @@ import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
 import '../../../injection_container.dart';
 import '../../../application/services/biometric_service.dart';
+import '../../../application/services/security_service.dart';
 
 /// Page de parametres de securite.
 /// Permet de gerer le mot de passe, l'authentification biometrique
@@ -20,6 +21,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   bool _isLoading = false;
   bool _biometricAvailable = false;
   String _biometricTypeName = 'biometrie';
+  List<PasswordHistoryEntry> _passwordHistory = [];
 
   @override
   void initState() {
@@ -622,75 +624,279 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
+    bool isPasswordVisible = false;
+    bool isNewPasswordVisible = false;
+    double passwordStrength = 0;
+
+    void updatePasswordStrength(String password) {
+      double strength = 0;
+      if (password.isEmpty) {
+        strength = 0;
+      } else {
+        if (password.length >= 8) strength += 0.25;
+        if (password.contains(RegExp(r'[A-Z]'))) strength += 0.25;
+        if (password.contains(RegExp(r'[0-9]'))) strength += 0.25;
+        if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+          strength += 0.25;
+        }
+      }
+      passwordStrength = strength;
+    }
+
+    Color getStrengthColor() {
+      if (passwordStrength <= 0.25) return Colors.red;
+      if (passwordStrength <= 0.5) return Colors.orange;
+      if (passwordStrength <= 0.75) return Colors.blue;
+      return Colors.green;
+    }
+
+    String getStrengthText() {
+      if (passwordStrength <= 0.25) return l10n.passwordStrengthWeak;
+      if (passwordStrength <= 0.5) return l10n.passwordStrengthMedium;
+      if (passwordStrength <= 0.75) return l10n.passwordStrengthStrong;
+      return l10n.passwordStrengthExcellent;
+    }
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          l10n.changePassword,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: currentPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.currentPassword,
-                labelStyle: GoogleFonts.montserrat(),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            l10n.changePassword,
+            style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: currentPasswordController,
+                  obscureText: !isPasswordVisible,
+                  decoration: InputDecoration(
+                    labelText: l10n.currentPassword,
+                    labelStyle: GoogleFonts.montserrat(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        isPasswordVisible
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setDialogState(
+                          () => isPasswordVisible = !isPasswordVisible,
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: newPasswordController,
+                  obscureText: !isNewPasswordVisible,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      updatePasswordStrength(value);
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: l10n.newPasswordLabel,
+                    labelStyle: GoogleFonts.montserrat(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        isNewPasswordVisible
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setDialogState(
+                          () => isNewPasswordVisible = !isNewPasswordVisible,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Indicateur de force du mot de passe
+                if (newPasswordController.text.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: passwordStrength,
+                            backgroundColor: colorScheme.onSurface.withValues(
+                              alpha: 0.1,
+                            ),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              getStrengthColor(),
+                            ),
+                            minHeight: 4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        getStrengthText(),
+                        style: GoogleFonts.montserrat(
+                          color: getStrengthColor(),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Checklist des criteres de securite
+                  _buildPasswordRequirement(
+                    l10n.passwordMinChars,
+                    newPasswordController.text.length >= 8,
+                    colorScheme,
+                  ),
+                  _buildPasswordRequirement(
+                    l10n.passwordUppercase,
+                    newPasswordController.text.contains(RegExp(r'[A-Z]')),
+                    colorScheme,
+                  ),
+                  _buildPasswordRequirement(
+                    l10n.passwordDigit,
+                    newPasswordController.text.contains(RegExp(r'[0-9]')),
+                    colorScheme,
+                  ),
+                  _buildPasswordRequirement(
+                    l10n.passwordSpecialChar,
+                    newPasswordController.text.contains(
+                      RegExp(r'[!@#$%^&*(),.?":{}|<>]'),
+                    ),
+                    colorScheme,
+                  ),
+                ],
+                const SizedBox(height: 12),
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.confirmPassword,
+                    labelStyle: GoogleFonts.montserrat(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: newPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.newPasswordLabel,
-                labelStyle: GoogleFonts.montserrat(),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.confirmPassword,
-                labelStyle: GoogleFonts.montserrat(),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+            ElevatedButton(
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      // Validation des champs
+                      if (currentPasswordController.text.isEmpty ||
+                          newPasswordController.text.isEmpty ||
+                          confirmPasswordController.text.isEmpty) {
+                        _showErrorSnackBar('Veuillez remplir tous les champs');
+                        return;
+                      }
+
+                      if (passwordStrength < 0.75) {
+                        _showErrorSnackBar(
+                          'Le mot de passe doit repondre aux criteres minimaux',
+                        );
+                        return;
+                      }
+
+                      if (newPasswordController.text !=
+                          confirmPasswordController.text) {
+                        _showErrorSnackBar(
+                          'Les mots de passe ne correspondent pas',
+                        );
+                        return;
+                      }
+
+                      Navigator.pop(context);
+                      setState(() => _isLoading = true);
+
+                      final (success, error) = await DependencyInjection
+                          .securityService
+                          .changePassword(
+                            oldPassword: currentPasswordController.text,
+                            newPassword: newPasswordController.text,
+                          );
+
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                        if (success) {
+                          _showSuccessSnackBar(l10n.passwordChangedSuccess);
+                        } else {
+                          _showErrorSnackBar(
+                            error ?? 'Erreur lors du changement',
+                          );
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
               ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(l10n.confirm),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
+      ),
+    );
+  }
+
+  Widget _buildPasswordRequirement(
+    String text,
+    bool isMet,
+    ColorScheme colorScheme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle_rounded : Icons.circle_outlined,
+            size: 14,
+            color: isMet
+                ? Colors.green
+                : colorScheme.onSurface.withValues(alpha: 0.3),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.passwordChangedSuccess),
-                  backgroundColor: AppColors.success,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: GoogleFonts.montserrat(
+              color: isMet
+                  ? colorScheme.onSurface
+                  : colorScheme.onSurface.withValues(alpha: 0.5),
+              fontSize: 12,
             ),
-            child: Text(l10n.confirm),
           ),
         ],
       ),
@@ -700,7 +906,16 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   void _showPasswordHistorySheet(
     ColorScheme colorScheme,
     AppLocalizations l10n,
-  ) {
+  ) async {
+    final history = await DependencyInjection.securityService
+        .getPasswordHistory();
+
+    if (mounted) {
+      setState(() {
+        _passwordHistory = history;
+      });
+    }
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -731,34 +946,59 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            _buildHistoryItem(
-              l10n.passwordChanged,
-              '15 Fevrier 2026',
-              Icons.check_circle_rounded,
-              AppColors.success,
-              colorScheme,
-            ),
-            const SizedBox(height: 12),
-            _buildHistoryItem(
-              l10n.passwordChanged,
-              '10 Janvier 2026',
-              Icons.check_circle_rounded,
-              AppColors.success,
-              colorScheme,
-            ),
-            const SizedBox(height: 12),
-            _buildHistoryItem(
-              l10n.passwordCreated,
-              '05 Decembre 2025',
-              Icons.info_rounded,
-              const Color(0xFF3B82F6),
-              colorScheme,
-            ),
+            if (_passwordHistory.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    'Aucun historique disponible',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              )
+            else
+              ..._passwordHistory.map(
+                (entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildHistoryItem(
+                    entry.action,
+                    _formatDate(entry.date),
+                    entry.action.toLowerCase().contains('creation')
+                        ? Icons.info_rounded
+                        : Icons.check_circle_rounded,
+                    entry.action.toLowerCase().contains('creation')
+                        ? const Color(0xFF3B82F6)
+                        : AppColors.success,
+                    colorScheme,
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
           ],
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'Janvier',
+      'Fevrier',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Aout',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Decembre',
+    ];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
   Widget _buildHistoryItem(

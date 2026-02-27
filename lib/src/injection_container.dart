@@ -17,6 +17,7 @@ import 'application/services/notification_service.dart';
 import 'application/services/sync_service.dart';
 import 'application/services/auth_service.dart';
 import 'application/services/biometric_service.dart';
+import 'application/services/security_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
@@ -98,6 +99,7 @@ class DependencyInjection {
   static late final FirebasePushNotificationService
   firebasePushNotificationService;
   static late final BiometricService biometricService;
+  static late final SecurityService securityService;
   static late final SecurityRepositoryImpl securityRepository;
   static late final ApiSyncDatasourceImpl apiSyncDatasource;
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -324,6 +326,7 @@ class DependencyInjection {
       getBiometricEnabled: preferences.getBiometricEnabled,
       setBiometricEnabled: preferences.setBiometricEnabled,
     );
+    securityService = SecurityService(repository: securityRepository);
 
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,
