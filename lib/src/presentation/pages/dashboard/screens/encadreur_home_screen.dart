@@ -18,7 +18,6 @@ import '../../academy/academicien_profile_page.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../scanner/qr_scanner_page.dart';
 import '../../notification/notifications_page.dart';
-import '../../search/search_page.dart';
 import '../../../widgets/academy_toast.dart';
 import '../../seance/seance_detail_page.dart';
 import '../../seance/atelier_composition_page.dart';
@@ -463,11 +462,12 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
                 photoUrl: widget.photoUrl,
                 notificationCount:
                     DependencyInjection.notificationState.nonLuesCount,
-                onSearchTap: () {
-                  Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
-                },
+                // TODO: Activer la recherche plus tard
+                // onSearchTap: () {
+                //   Navigator.of(
+                //     context,
+                //   ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
+                // },
                 onSmsTap: widget.onSmsTap,
                 onNotificationTap: () {
                   Navigator.of(context).push(

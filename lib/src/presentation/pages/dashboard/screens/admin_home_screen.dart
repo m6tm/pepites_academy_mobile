@@ -15,7 +15,6 @@ import '../../../../domain/entities/global_stats.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
 import '../../notification/notifications_page.dart';
-import '../../search/search_page.dart';
 import '../../seance/seance_detail_page.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/seance_card.dart';
@@ -128,11 +127,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 photoUrl: widget.photoUrl,
                 notificationCount:
                     DependencyInjection.notificationState.nonLuesCount,
-                onSearchTap: () {
-                  Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
-                },
+                // TODO: Activer la recherche plus tard
+                // onSearchTap: () {
+                //   Navigator.of(
+                //     context,
+                //   ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
+                // },
                 onNotificationTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
