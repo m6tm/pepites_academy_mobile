@@ -21,7 +21,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   bool _isLoading = false;
   bool _biometricAvailable = false;
   String _biometricTypeName = 'biometrie';
-  List<PasswordHistoryEntry> _passwordHistory = [];
 
   @override
   void initState() {
@@ -906,79 +905,110 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   void _showPasswordHistorySheet(
     ColorScheme colorScheme,
     AppLocalizations l10n,
-  ) async {
-    final history = await DependencyInjection.securityService
-        .getPasswordHistory();
-
-    if (mounted) {
-      setState(() {
-        _passwordHistory = history;
-      });
-    }
+  ) {
+    bool isLoading = true;
+    List<PasswordHistoryEntry> history = [];
 
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.passwordHistory,
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (_passwordHistory.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: Center(
-                  child: Text(
-                    'Aucun historique disponible',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          // Charger les donnees une seule fois
+          if (isLoading && history.isEmpty) {
+            DependencyInjection.securityService.getPasswordHistory().then((
+              result,
+            ) {
+              setModalState(() {
+                history = result;
+                isLoading = false;
+              });
+            });
+          }
+
+          return Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onSurface.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-              )
-            else
-              ..._passwordHistory.map(
-                (entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildHistoryItem(
-                    entry.action,
-                    _formatDate(entry.date),
-                    entry.action.toLowerCase().contains('creation')
-                        ? Icons.info_rounded
-                        : Icons.check_circle_rounded,
-                    entry.action.toLowerCase().contains('creation')
-                        ? const Color(0xFF3B82F6)
-                        : AppColors.success,
-                    colorScheme,
+                const SizedBox(height: 20),
+                Text(
+                  l10n.passwordHistory,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            const SizedBox(height: 20),
-          ],
-        ),
+                const SizedBox(height: 16),
+                if (isLoading)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Chargement...',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (history.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Text(
+                        'Aucun historique disponible',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  ...history.map(
+                    (entry) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildHistoryItem(
+                        entry.action,
+                        _formatDate(entry.date),
+                        entry.action.toLowerCase().contains('creation')
+                            ? Icons.info_rounded
+                            : Icons.check_circle_rounded,
+                        entry.action.toLowerCase().contains('creation')
+                            ? const Color(0xFF3B82F6)
+                            : AppColors.success,
+                        colorScheme,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
