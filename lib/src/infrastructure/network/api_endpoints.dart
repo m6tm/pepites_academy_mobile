@@ -4,9 +4,9 @@ class ApiEndpoints {
   /// À modifier en fonction de l'environnement (Dev, Staging, Prod).
   // Utiliser 10.0.2.2 pour l'émulateur Android, localhost pour iOS ou le Web.
   // static const String baseUrl = 'http://10.0.2.2:5000/v1';
-  // static const String baseUrl = 'https://apipepites-academy.vercel.app/v1';
+  static const String baseUrl = 'https://apipepites-academy.vercel.app/v1';
   // static const String baseUrl = 'http://192.168.75.148:5000/v1';
-  static const String baseUrl = 'http://192.168.1.119:5000/v1';
+  // static const String baseUrl = 'http://192.168.1.119:5000/v1';
 
   /// Chemin pour la synchronisation des données.
   static const String sync = '/sync';
@@ -59,6 +59,16 @@ class ApiEndpoints {
 
   /// Chemin pour la vérification de santé du serveur.
   static const String health = '/health';
+
+  /// Chemins pour la securite.
+  static const String security = '/security';
+  static const String changePassword = '/security/change-password';
+  static const String passwordHistory = '/security/password-history';
+  static const String biometric = '/security/biometric';
+  static const String logoutAllDevices = '/security/sessions/logout-all';
+
+  /// Chemins pour les sessions.
+  static const String sessions = '/sessions';
 
   /// Délais d'expiration des requêtes (en millisecondes).
   static const int receiveTimeout = 15000;

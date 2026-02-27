@@ -6,4 +6,5 @@ export 'encadreur_repository.dart';
 export 'presence_repository.dart';
 export 'referentiel_repository.dart';
 export 'seance_repository.dart';
+export 'security_repository.dart';
 export 'sms_repository.dart';

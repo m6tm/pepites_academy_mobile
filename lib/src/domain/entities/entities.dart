@@ -1,11 +1,14 @@
 export 'academicien.dart';
 export 'annotation.dart';
 export 'atelier.dart';
+export 'biometric_preferences.dart';
 export 'bulletin.dart';
 export 'encadreur.dart';
 export 'niveau_scolaire.dart';
+export 'password_history.dart';
 export 'poste_football.dart';
 export 'presence.dart';
 export 'seance.dart';
 export 'sms_message.dart';
 export 'user_role.dart';
+export 'user_session.dart';
