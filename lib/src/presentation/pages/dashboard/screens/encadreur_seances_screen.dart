@@ -32,7 +32,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     super.initState();
     _seanceState = widget.seanceState;
     _seanceState.addListener(_onStateChanged);
-    _refreshFromApiIfOnlineThenLoad();
+    // Retarde l'appel apres la phase de build pour eviter setState() during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshFromApiIfOnlineThenLoad();
+    });
   }
 
   void _onStateChanged() {

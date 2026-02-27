@@ -45,6 +45,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   _saveNotificationToDb(message, localDb);
 }
 
+/// Handler de niveau supérieur pour les notifications en arrière-plan
+@pragma('vm:entry-point')
+void _onBackgroundNotificationResponse(NotificationResponse response) {
+  if (response.payload != null) {
+    debugPrint('Background notification payload: ${response.payload}');
+  }
+}
+
 void _saveNotificationToDb(
   RemoteMessage message,
   NotificationLocalDatasource localDb,
@@ -138,7 +146,8 @@ class FirebasePushNotificationService {
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         _onSelectNotification(response);
       },
-      onDidReceiveBackgroundNotificationResponse: _onSelectNotification,
+      onDidReceiveBackgroundNotificationResponse:
+          _onBackgroundNotificationResponse,
     );
 
     // Créer le channel Android
