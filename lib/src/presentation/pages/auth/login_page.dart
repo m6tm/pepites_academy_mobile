@@ -146,9 +146,11 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             Icon(Icons.fingerprint_rounded, color: AppColors.primary, size: 28),
             const SizedBox(width: 12),
-            Text(
-              'Activer la biomitrie',
-              style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+            Expanded(
+              child: Text(
+                'Activer la biomitrie',
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
