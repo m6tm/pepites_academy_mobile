@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../../domain/entities/user_role.dart';
+import '../../../application/services/app_preferences.dart';
 import '../onboarding/onboarding_page.dart';
 import '../auth/login_page.dart';
 import '../dashboard/admin_dashboard_page.dart';
@@ -55,6 +56,29 @@ class _SplashPageState extends State<SplashPage>
       final bool isLoggedIn = await preferences.isUserLoggedIn();
 
       if (isLoggedIn && mounted) {
+        // Verifier si l'authentification biometrique est activee
+        final bool biometricEnabled = await DependencyInjection.biometricService
+            .isBiometricEnabled();
+
+        if (biometricEnabled) {
+          // Demander l'authentification biometrique
+          final (
+            authenticated,
+            error,
+          ) = await DependencyInjection.biometricService.authenticate(
+            localizedReason:
+                'Authentifiez-vous pour acceder a votre compte Pepites Academy',
+          );
+
+          if (!authenticated) {
+            // Echec de l'authentification biometrique
+            if (mounted) {
+              _showBiometricFailedDialog(preferences, error);
+            }
+            return;
+          }
+        }
+
         // Synchroniser les referentiels et académiciens depuis le backend
         await DependencyInjection.syncReferentiels();
         await DependencyInjection.syncAcademiciens();
@@ -97,6 +121,113 @@ class _SplashPageState extends State<SplashPage>
         );
       }
     });
+  }
+
+  /// Affiche un dialogue lors de l'echec de l'authentification biometrique.
+  void _showBiometricFailedDialog(AppPreferences preferences, [String? error]) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Authentification echouee',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'L\'authentification biometrique a echoue. Voulez-vous vous connecter '
+              'avec vos identifiants ou reessayer ?',
+              style: GoogleFonts.montserrat(),
+            ),
+            if (error != null && error.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Raison: $error',
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              // Desactiver la biometrie et deconnecter
+              await DependencyInjection.biometricService.disableBiometric();
+              await preferences.logout();
+              if (mounted) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (ctx) => const LoginPage()),
+                );
+              }
+            },
+            child: Text(
+              'Se connecter',
+              style: GoogleFonts.montserrat(color: AppColors.primary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              // Relancer le processus d'authentification biometrique
+              _retryBiometricAuth(preferences);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Reessayer', style: GoogleFonts.montserrat()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Relance l'authentification biometrique.
+  Future<void> _retryBiometricAuth(AppPreferences preferences) async {
+    final (authenticated, error) = await DependencyInjection.biometricService
+        .authenticate(
+          localizedReason:
+              'Authentifiez-vous pour acceder a votre compte Pepites Academy',
+        );
+
+    if (!authenticated) {
+      if (mounted) {
+        _showBiometricFailedDialog(preferences, error);
+      }
+      return;
+    }
+
+    // Authentification reussie, continuer vers le dashboard
+    if (!mounted) return;
+
+    await DependencyInjection.syncReferentiels();
+    await DependencyInjection.syncAcademiciens();
+    DependencyInjection.syncState.syncNow();
+
+    final roleId = await preferences.getUserRole();
+    final savedName = await preferences.getUserName();
+    final photoUrl = await preferences.getUserPhoto();
+
+    if (roleId != null && mounted) {
+      final l10n = AppLocalizations.of(context);
+      final userName = savedName ?? l10n?.defaultUser ?? 'Utilisateur';
+      final role = UserRole.fromId(roleId);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => role == UserRole.admin
+              ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
+              : EncadreurDashboardPage(userName: userName, photoUrl: photoUrl),
+        ),
+      );
+    }
   }
 
   @override

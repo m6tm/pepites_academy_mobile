@@ -51,5 +51,8 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
+	<!-- Authentification biometrique (Face ID / Touch ID) -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Pepites Academy utilise Face ID ou Touch ID pour vous authentifier de maniere securisee.</string>
 </dict>
 </plist>

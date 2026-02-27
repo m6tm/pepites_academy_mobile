@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
+import '../../../injection_container.dart';
+import '../../../application/services/biometric_service.dart';
 
 /// Page de parametres de securite.
 /// Permet de gerer le mot de passe, l'authentification biometrique
@@ -16,16 +18,110 @@ class SecuritySettingsPage extends StatefulWidget {
 class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   bool _biometricEnabled = false;
   bool _isLoading = false;
+  bool _biometricAvailable = false;
+  String _biometricTypeName = 'biometrie';
 
-  Future<void> _toggleBiometric(bool value) async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 500));
+  @override
+  void initState() {
+    super.initState();
+    _loadBiometricState();
+  }
+
+  Future<void> _loadBiometricState() async {
+    final availability = await DependencyInjection.biometricService
+        .checkAvailability();
+    final isEnabled = await DependencyInjection.biometricService
+        .isBiometricEnabled();
+    final typeName = await DependencyInjection.biometricService
+        .getPrimaryBiometricTypeName();
+
     if (mounted) {
       setState(() {
-        _biometricEnabled = value;
-        _isLoading = false;
+        _biometricAvailable = availability == BiometricAvailability.available;
+        _biometricEnabled = isEnabled;
+        _biometricTypeName = typeName;
       });
     }
+  }
+
+  Future<void> _toggleBiometric(bool value) async {
+    if (!_biometricAvailable) {
+      _showBiometricUnavailableDialog();
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      if (value) {
+        final (success, error) = await DependencyInjection.biometricService
+            .enableBiometric();
+        if (mounted) {
+          if (success) {
+            setState(() {
+              _biometricEnabled = true;
+            });
+            _showSuccessSnackBar('Authentification biometrique activee');
+          } else {
+            _showErrorSnackBar(error ?? 'Erreur lors de l\'activation');
+          }
+        }
+      } else {
+        final (success, error) = await DependencyInjection.biometricService
+            .disableBiometric();
+        if (mounted) {
+          if (success) {
+            setState(() {
+              _biometricEnabled = false;
+            });
+            _showSuccessSnackBar('Authentification biometrique desactivee');
+          } else {
+            _showErrorSnackBar(error ?? 'Erreur lors de la desactivation');
+          }
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showBiometricUnavailableDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Biomitrie non disponible',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Votre appareil ne supporte pas l\'authentification biometrique '
+          'ou aucune biomitrie n\'est configuree. Veuillez verifier '
+          'les paramitres de votre appareil.',
+          style: GoogleFonts.montserrat(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.success),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+    );
   }
 
   @override
@@ -193,10 +289,14 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     ),
                   ),
                   Text(
-                    l10n.biometricAuthDesc,
+                    _biometricAvailable
+                        ? 'Utiliser $_biometricTypeName pour vous connecter'
+                        : 'Non disponible sur cet appareil',
                     style: GoogleFonts.montserrat(
                       fontSize: 11,
-                      color: colorScheme.onSurface.withValues(alpha: 0.4),
+                      color: colorScheme.onSurface.withValues(
+                        alpha: _biometricAvailable ? 0.4 : 0.6,
+                      ),
                     ),
                   ),
                 ],
@@ -208,11 +308,17 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            else
+            else if (_biometricAvailable)
               Switch(
                 value: _biometricEnabled,
                 onChanged: _toggleBiometric,
                 activeThumbColor: const Color(0xFF10B981),
+              )
+            else
+              Icon(
+                Icons.info_outline_rounded,
+                color: colorScheme.onSurface.withValues(alpha: 0.3),
+                size: 20,
               ),
           ],
         ),

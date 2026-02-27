@@ -148,6 +148,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
               onPressed: () async {
                 final navigator = Navigator.of(context);
                 navigator.pop();
+                // Désactiver la biométrie sur le backend avant déconnexion
+                await DependencyInjection.biometricService.disableBiometric();
                 await DependencyInjection.authService.logout();
                 if (mounted) {
                   navigator.pushAndRemoveUntil(

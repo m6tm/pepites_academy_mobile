@@ -120,12 +120,16 @@ class AppPreferences {
 
   /// Déconnexion de l'utilisateur.
   /// Efface toutes les préférences sauf l'état de l'onboarding.
+  /// Désactive également l'authentification biométrique.
   Future<void> logout() async {
     final onboardingCompleted = await isOnboardingCompleted();
     await _repository.clear();
     if (onboardingCompleted) {
       await setOnboardingCompleted();
     }
+    // Désactiver la biométrie localement pour éviter qu'un autre utilisateur
+    // puisse s'authentifier avec les données biométriques de l'ancien utilisateur
+    await setBiometricEnabled(false);
   }
 
   /// Force la déconnexion et renvoie l'utilisateur à la page de connexion.

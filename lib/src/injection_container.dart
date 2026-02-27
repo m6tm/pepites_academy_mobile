@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import 'application/services/activity_service.dart';
@@ -15,6 +16,7 @@ import 'application/services/sms_service.dart';
 import 'application/services/notification_service.dart';
 import 'application/services/sync_service.dart';
 import 'application/services/auth_service.dart';
+import 'application/services/biometric_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
@@ -48,6 +50,7 @@ import 'infrastructure/repositories/seance_repository_impl.dart';
 import 'infrastructure/repositories/sms_repository_impl.dart';
 import 'infrastructure/repositories/auth_repository_impl.dart';
 import 'infrastructure/repositories/notification_repository_impl.dart';
+import 'infrastructure/repositories/security_repository_impl.dart';
 import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'infrastructure/services/firebase_push_notification_service.dart';
@@ -94,6 +97,8 @@ class DependencyInjection {
   static late final LanguageState languageState;
   static late final FirebasePushNotificationService
   firebasePushNotificationService;
+  static late final BiometricService biometricService;
+  static late final SecurityRepositoryImpl securityRepository;
   static late final ApiSyncDatasourceImpl apiSyncDatasource;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -309,6 +314,16 @@ class DependencyInjection {
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);
     authService.setSyncService(syncService);
+
+    // Initialisation du module de securite et biometrie
+    securityRepository = SecurityRepositoryImpl(dioClient);
+    final localAuth = LocalAuthentication();
+    biometricService = BiometricService(
+      localAuth: localAuth,
+      securityRepository: securityRepository,
+      getBiometricEnabled: preferences.getBiometricEnabled,
+      setBiometricEnabled: preferences.setBiometricEnabled,
+    );
 
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,

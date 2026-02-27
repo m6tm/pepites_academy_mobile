@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
+import '../../../application/services/biometric_service.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
 import '../dashboard/admin_dashboard_page.dart';
 import '../dashboard/encadreur_dashboard_page.dart';
+import '../../theme/app_colors.dart';
 
 /// Page de connexion pour Pépites Academy.
 /// Design premium, minimaliste et high-end pour le secteur sportif.
@@ -71,21 +73,28 @@ class _LoginPageState extends State<LoginPage> {
           isSuccess: true,
         );
 
+        // Proposer l'activation biométrique si disponible
+        final shouldNavigate = await _proposeBiometricActivation();
+
+        if (!mounted) return;
+
         // Navigation vers le dashboard selon le role
-        await Future.delayed(const Duration(milliseconds: 500));
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) =>
-                  (roleStr.toLowerCase() == 'admin' ||
-                      roleStr.toLowerCase() == 'administrateur')
-                  ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
-                  : EncadreurDashboardPage(
-                      userName: userName,
-                      photoUrl: photoUrl,
-                    ),
-            ),
-          );
+        if (shouldNavigate) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) =>
+                    (roleStr.toLowerCase() == 'admin' ||
+                        roleStr.toLowerCase() == 'administrateur')
+                    ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
+                    : EncadreurDashboardPage(
+                        userName: userName,
+                        photoUrl: photoUrl,
+                      ),
+              ),
+            );
+          }
         }
       } else {
         // Erreur
@@ -97,6 +106,130 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     }
+  }
+
+  /// Propose l'activation de l'authentification biometrique apres une connexion reussie.
+  /// Retourne true si la navigation vers le dashboard doit continuer.
+  Future<bool> _proposeBiometricActivation() async {
+    // Verifier si la biometrie est disponible sur l'appareil
+    final availability = await DependencyInjection.biometricService
+        .checkAvailability();
+
+    if (availability != BiometricAvailability.available) {
+      // Biometrie non disponible, continuer normalement
+      return true;
+    }
+
+    // Verifier si la biometrie est deja activee
+    final alreadyEnabled = await DependencyInjection.biometricService
+        .isBiometricEnabled();
+
+    if (alreadyEnabled) {
+      // Deja activee, continuer normalement
+      return true;
+    }
+
+    // Proposer l'activation via un dialogue
+    if (!mounted) return true;
+
+    final typeName = await DependencyInjection.biometricService
+        .getPrimaryBiometricTypeName();
+
+    if (!mounted) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.fingerprint_rounded, color: AppColors.primary, size: 28),
+            const SizedBox(width: 12),
+            Text(
+              'Activer la biomitrie',
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Voulez-vous activer la connexion par $typeName ?',
+              style: GoogleFonts.montserrat(fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Cela vous permettra de vous connecter rapidement et securisement '
+              'sans saisir vos identifiants.',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Non, merci',
+              style: GoogleFonts.montserrat(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Activer',
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return true;
+
+    if (result == true) {
+      // L'utilisateur accepte - activer la biometrie
+      final (success, error) = await DependencyInjection.biometricService
+          .enableBiometric();
+
+      if (success) {
+        if (mounted) {
+          AcademyToast.show(
+            context,
+            title: 'Biomitrie activee',
+            description:
+                'Vous pouvez maintenant vous connecter avec votre $typeName',
+            isSuccess: true,
+          );
+        }
+      } else {
+        if (mounted) {
+          AcademyToast.show(
+            context,
+            title: 'Erreur',
+            description: error ?? 'Impossible d\'activer la biomitrie',
+            isError: true,
+          );
+        }
+      }
+    } else {
+      // L'utilisateur refuse - desactiver et synchroniser avec le backend
+      await DependencyInjection.biometricService.disableBiometric();
+    }
+
+    return true;
   }
 
   @override
