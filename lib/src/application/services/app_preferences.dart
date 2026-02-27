@@ -18,6 +18,8 @@ class AppPreferences {
   static const String _keyUserPhoto = 'user_photo';
   static const String _keyToken = 'access_token';
   static const String _keyRefreshToken = 'refresh_token';
+  static const String _keyBiometricEnabled = 'biometric_enabled';
+  static const String _keyAutoLockMinutes = 'auto_lock_minutes';
 
   AppPreferences(this._repository);
 
@@ -146,5 +148,29 @@ class AppPreferences {
         (route) => false,
       );
     }
+  }
+
+  // --- Gestion de la sécurité ---
+
+  /// Vérifie si l'authentification biométrique est activée.
+  Future<bool> getBiometricEnabled() async {
+    final result = await _repository.getBool(_keyBiometricEnabled);
+    return result ?? false;
+  }
+
+  /// Active ou désactive l'authentification biométrique.
+  Future<void> setBiometricEnabled(bool enabled) async {
+    await _repository.setBool(_keyBiometricEnabled, enabled);
+  }
+
+  /// Récupère le délai de verrouillage automatique en minutes.
+  Future<int> getAutoLockMinutes() async {
+    final result = await _repository.getInt(_keyAutoLockMinutes);
+    return result ?? 5;
+  }
+
+  /// Définit le délai de verrouillage automatique en minutes.
+  Future<void> setAutoLockMinutes(int minutes) async {
+    await _repository.setInt(_keyAutoLockMinutes, minutes);
   }
 }

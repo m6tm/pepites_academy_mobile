@@ -2956,4 +2956,108 @@ class AppLocalizationsEn extends AppLocalizations {
   String bulletinObservationsResume(int count, String content) {
     return '$count observations. Last: $content';
   }
+
+  @override
+  String get security => 'Security';
+
+  @override
+  String get securityTitle => 'Account protection';
+
+  @override
+  String get securitySubtitle => 'Manage your security and privacy options';
+
+  @override
+  String get authentication => 'Authentication';
+
+  @override
+  String get passwordManagement => 'Password';
+
+  @override
+  String get activeSessions => 'Active sessions';
+
+  @override
+  String get biometricAuth => 'Biometric authentication';
+
+  @override
+  String get biometricAuthDesc => 'Use fingerprint or face to sign in';
+
+  @override
+  String get autoLock => 'Auto-lock';
+
+  @override
+  String get autoLockDesc => 'Lock the app after inactivity';
+
+  @override
+  String get immediately => 'Immediately';
+
+  @override
+  String get after1Minute => 'After 1 minute';
+
+  @override
+  String get after5Minutes => 'After 5 minutes';
+
+  @override
+  String get after15Minutes => 'After 15 minutes';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get changePasswordDesc => 'Update your password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get passwordChangedSuccess => 'Password changed successfully';
+
+  @override
+  String get passwordHistory => 'Password history';
+
+  @override
+  String get passwordHistoryDesc => 'View recent changes';
+
+  @override
+  String get passwordChanged => 'Password changed';
+
+  @override
+  String get passwordCreated => 'Password created';
+
+  @override
+  String get thisDevice => 'This device';
+
+  @override
+  String get currentSessionActive => 'Currently active session';
+
+  @override
+  String get connectedDevices => 'Connected devices';
+
+  @override
+  String get connectedDevicesDesc => 'Manage authorized devices';
+
+  @override
+  String get signOutAllDevices => 'Sign out all devices';
+
+  @override
+  String get signOutAllDevicesDesc => 'End all other sessions';
+
+  @override
+  String get signOutAllConfirmation =>
+      'Are you sure you want to sign out all other devices? You will need to sign in again on each device.';
+
+  @override
+  String get allDevicesSignedOut => 'All devices have been signed out';
+
+  @override
+  String get securityTips => 'Security tips';
+
+  @override
+  String get securityTip1 => 'Use a unique password of at least 8 characters';
+
+  @override
+  String get securityTip2 =>
+      'Enable biometric authentication for extra security';
+
+  @override
+  String get securityTip3 => 'Regularly check your connected devices';
 }

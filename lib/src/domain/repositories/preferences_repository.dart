@@ -19,6 +19,14 @@ abstract class PreferencesRepository {
   /// Lève une [CacheException] en cas d'erreur.
   Future<void> setString(String key, String value);
 
+  /// Récupère une valeur de type int associée à une clé.
+  /// Lève une [CacheException] en cas d'erreur.
+  Future<int?> getInt(String key);
+
+  /// Enregistre une valeur de type int associée à une clé.
+  /// Lève une [CacheException] en cas d'erreur.
+  Future<void> setInt(String key, int value);
+
   /// Vérifie si une clé existe dans les préférences.
   Future<bool> containsKey(String key);
 

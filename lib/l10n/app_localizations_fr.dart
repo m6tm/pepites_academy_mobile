@@ -2969,4 +2969,111 @@ class AppLocalizationsFr extends AppLocalizations {
   String bulletinObservationsResume(int count, String content) {
     return '$count observations. Derniere : $content';
   }
+
+  @override
+  String get security => 'Securite';
+
+  @override
+  String get securityTitle => 'Protection de votre compte';
+
+  @override
+  String get securitySubtitle =>
+      'Gerer vos options de securite et confidentialite';
+
+  @override
+  String get authentication => 'Authentification';
+
+  @override
+  String get passwordManagement => 'Mot de passe';
+
+  @override
+  String get activeSessions => 'Sessions actives';
+
+  @override
+  String get biometricAuth => 'Authentification biometrique';
+
+  @override
+  String get biometricAuthDesc =>
+      'Utiliser l\'empreinte ou le visage pour se connecter';
+
+  @override
+  String get autoLock => 'Verrouillage automatique';
+
+  @override
+  String get autoLockDesc => 'Verrouiller l\'application apres inactivite';
+
+  @override
+  String get immediately => 'Immediatement';
+
+  @override
+  String get after1Minute => 'Apres 1 minute';
+
+  @override
+  String get after5Minutes => 'Apres 5 minutes';
+
+  @override
+  String get after15Minutes => 'Apres 15 minutes';
+
+  @override
+  String get changePassword => 'Changer le mot de passe';
+
+  @override
+  String get changePasswordDesc => 'Mettre a jour votre mot de passe';
+
+  @override
+  String get currentPassword => 'Mot de passe actuel';
+
+  @override
+  String get passwordChangedSuccess => 'Mot de passe modifie avec succes';
+
+  @override
+  String get passwordHistory => 'Historique du mot de passe';
+
+  @override
+  String get passwordHistoryDesc => 'Voir les modifications recentes';
+
+  @override
+  String get passwordChanged => 'Mot de passe modifie';
+
+  @override
+  String get passwordCreated => 'Mot de passe cree';
+
+  @override
+  String get thisDevice => 'Cet appareil';
+
+  @override
+  String get currentSessionActive => 'Session active actuellement';
+
+  @override
+  String get connectedDevices => 'Appareils connectes';
+
+  @override
+  String get connectedDevicesDesc => 'Gerer les appareils autorises';
+
+  @override
+  String get signOutAllDevices => 'Deconnecter tous les appareils';
+
+  @override
+  String get signOutAllDevicesDesc => 'Terminer toutes les autres sessions';
+
+  @override
+  String get signOutAllConfirmation =>
+      'Voulez-vous deconnecter tous les autres appareils ? Vous devrez vous reconnecter sur chaque appareil.';
+
+  @override
+  String get allDevicesSignedOut => 'Tous les appareils ont ete deconnectes';
+
+  @override
+  String get securityTips => 'Conseils de securite';
+
+  @override
+  String get securityTip1 =>
+      'Utilisez un mot de passe unique d\'au moins 8 caracteres';
+
+  @override
+  String get securityTip2 =>
+      'Activez l\'authentification biometrique pour plus de securite';
+
+  @override
+  String get securityTip3 => 'Verifiez regulierement vos appareils connectes';
 }

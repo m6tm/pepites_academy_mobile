@@ -9,6 +9,7 @@ import '../../referentiel/referentiel_hub_page.dart';
 import '../../settings/about_page.dart';
 import '../../settings/theme_settings_page.dart';
 import '../../settings/language_settings_page.dart';
+import '../../settings/security_settings_page.dart';
 import '../../../../injection_container.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
@@ -234,6 +235,21 @@ class EncadreurProfileScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => const NotificationSettingsPage(),
                 ),
+              ),
+            ),
+            Divider(
+              height: 1,
+              indent: 60,
+              color: colorScheme.onSurface.withValues(alpha: 0.05),
+            ),
+            SettingsTile(
+              icon: Icons.shield_rounded,
+              label: l10n.security,
+              value: l10n.securitySubtitle,
+              color: const Color(0xFFDC2626),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SecuritySettingsPage()),
               ),
             ),
             Divider(

@@ -5329,6 +5329,210 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{count} observations. Derniere : {content}'**
   String bulletinObservationsResume(int count, String content);
+
+  /// No description provided for @security.
+  ///
+  /// In fr, this message translates to:
+  /// **'Securite'**
+  String get security;
+
+  /// No description provided for @securityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection de votre compte'**
+  String get securityTitle;
+
+  /// No description provided for @securitySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gerer vos options de securite et confidentialite'**
+  String get securitySubtitle;
+
+  /// No description provided for @authentication.
+  ///
+  /// In fr, this message translates to:
+  /// **'Authentification'**
+  String get authentication;
+
+  /// No description provided for @passwordManagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get passwordManagement;
+
+  /// No description provided for @activeSessions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sessions actives'**
+  String get activeSessions;
+
+  /// No description provided for @biometricAuth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Authentification biometrique'**
+  String get biometricAuth;
+
+  /// No description provided for @biometricAuthDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser l\'empreinte ou le visage pour se connecter'**
+  String get biometricAuthDesc;
+
+  /// No description provided for @autoLock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verrouillage automatique'**
+  String get autoLock;
+
+  /// No description provided for @autoLockDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verrouiller l\'application apres inactivite'**
+  String get autoLockDesc;
+
+  /// No description provided for @immediately.
+  ///
+  /// In fr, this message translates to:
+  /// **'Immediatement'**
+  String get immediately;
+
+  /// No description provided for @after1Minute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apres 1 minute'**
+  String get after1Minute;
+
+  /// No description provided for @after5Minutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apres 5 minutes'**
+  String get after5Minutes;
+
+  /// No description provided for @after15Minutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apres 15 minutes'**
+  String get after15Minutes;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer le mot de passe'**
+  String get changePassword;
+
+  /// No description provided for @changePasswordDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre a jour votre mot de passe'**
+  String get changePasswordDesc;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe actuel'**
+  String get currentPassword;
+
+  /// No description provided for @passwordChangedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe modifie avec succes'**
+  String get passwordChangedSuccess;
+
+  /// No description provided for @passwordHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique du mot de passe'**
+  String get passwordHistory;
+
+  /// No description provided for @passwordHistoryDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les modifications recentes'**
+  String get passwordHistoryDesc;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe modifie'**
+  String get passwordChanged;
+
+  /// No description provided for @passwordCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe cree'**
+  String get passwordCreated;
+
+  /// No description provided for @thisDevice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet appareil'**
+  String get thisDevice;
+
+  /// No description provided for @currentSessionActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session active actuellement'**
+  String get currentSessionActive;
+
+  /// No description provided for @connectedDevices.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appareils connectes'**
+  String get connectedDevices;
+
+  /// No description provided for @connectedDevicesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gerer les appareils autorises'**
+  String get connectedDevicesDesc;
+
+  /// No description provided for @signOutAllDevices.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deconnecter tous les appareils'**
+  String get signOutAllDevices;
+
+  /// No description provided for @signOutAllDevicesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer toutes les autres sessions'**
+  String get signOutAllDevicesDesc;
+
+  /// No description provided for @signOutAllConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous deconnecter tous les autres appareils ? Vous devrez vous reconnecter sur chaque appareil.'**
+  String get signOutAllConfirmation;
+
+  /// No description provided for @allDevicesSignedOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les appareils ont ete deconnectes'**
+  String get allDevicesSignedOut;
+
+  /// No description provided for @securityTips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conseils de securite'**
+  String get securityTips;
+
+  /// No description provided for @securityTip1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisez un mot de passe unique d\'au moins 8 caracteres'**
+  String get securityTip1;
+
+  /// No description provided for @securityTip2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activez l\'authentification biometrique pour plus de securite'**
+  String get securityTip2;
+
+  /// No description provided for @securityTip3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verifiez regulierement vos appareils connectes'**
+  String get securityTip3;
 }
 
 class _AppLocalizationsDelegate

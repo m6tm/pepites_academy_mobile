@@ -9,6 +9,7 @@ import '../../referentiel/referentiel_hub_page.dart';
 import '../../settings/about_page.dart';
 import '../../settings/theme_settings_page.dart';
 import '../../settings/language_settings_page.dart';
+import '../../settings/security_settings_page.dart';
 import '../../../../injection_container.dart';
 import '../widgets/admin_internal_widgets.dart';
 
@@ -108,6 +109,18 @@ class AdminSettingsScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const NotificationSettingsPage(),
+                  ),
+                ),
+              ),
+              SettingsItemData(
+                Icons.shield_rounded,
+                l10n.security,
+                l10n.securitySubtitle,
+                const Color(0xFFDC2626),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SecuritySettingsPage(),
                   ),
                 ),
               ),

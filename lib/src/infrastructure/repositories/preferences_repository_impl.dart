@@ -65,6 +65,30 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   }
 
   @override
+  Future<int?> getInt(String key) async {
+    try {
+      return _prefs.getInt(key);
+    } catch (e) {
+      throw CacheException(
+        _l10n?.exceptionCacheReadKey(key, e.toString()) ??
+            "Erreur lors de la lecture de la cle '$key' : $e",
+      );
+    }
+  }
+
+  @override
+  Future<void> setInt(String key, int value) async {
+    try {
+      await _prefs.setInt(key, value);
+    } catch (e) {
+      throw CacheException(
+        _l10n?.exceptionCacheWriteKey(key, e.toString()) ??
+            "Erreur lors de l'ecriture de la cle '$key' : $e",
+      );
+    }
+  }
+
+  @override
   Future<bool> containsKey(String key) async {
     return _prefs.containsKey(key);
   }
