@@ -49,34 +49,51 @@ class ConnectivityIndicator extends StatelessWidget {
     int pendingCount,
     bool isSyncing,
   ) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        _buildStatusIcon(status, isSyncing),
-        if (pendingCount > 0)
-          Positioned(
-            right: -6,
-            top: -4,
-            child: Container(
-              padding: const EdgeInsets.all(3),
-              decoration: const BoxDecoration(
-                color: AppColors.warning,
-                shape: BoxShape.circle,
-              ),
-              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-              child: Text(
-                pendingCount > 99 ? '99+' : '$pendingCount',
-                style: const TextStyle(
-                  color: AppColors.accent,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () => _handleCompactTap(status, pendingCount, isSyncing),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          _buildStatusIcon(status, isSyncing),
+          if (pendingCount > 0)
+            Positioned(
+              right: -6,
+              top: -4,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: AppColors.warning,
+                  shape: BoxShape.circle,
                 ),
-                textAlign: TextAlign.center,
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                child: Text(
+                  pendingCount > 99 ? '99+' : '$pendingCount',
+                  style: const TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
+  }
+
+  /// Gère le clic sur l'indicateur compact.
+  /// Lance la synchronisation si connecté avec des opérations en attente.
+  void _handleCompactTap(
+    ConnectivityStatus status,
+    int pendingCount,
+    bool isSyncing,
+  ) {
+    if (status == ConnectivityStatus.connected &&
+        pendingCount > 0 &&
+        !isSyncing) {
+      syncState.syncNow();
+    }
   }
 
   Widget _buildFullIndicator(
