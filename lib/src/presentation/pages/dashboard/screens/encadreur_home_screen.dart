@@ -10,7 +10,6 @@ import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../../../presentation/widgets/stat_card.dart';
 import '../../../../presentation/widgets/quick_action_tile.dart';
-import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../state/seance_state.dart';
@@ -77,6 +76,11 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
   bool _isRefreshingCurrentSeanceStats = false;
   bool _isRefreshingCoachActivityStats = false;
 
+  // Annotations recentes pour la section home
+  List<Annotation> _recentAnnotations = [];
+  final Map<String, Academicien?> _academicienCache = {};
+  final Map<String, Atelier?> _atelierCache = {};
+
   @override
   void initState() {
     super.initState();
@@ -86,6 +90,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     DependencyInjection.notificationState.chargerNotifications('encadreur');
     _chargerAcademiciens();
     _refreshCoachActivityStats();
+    _loadRecentAnnotations();
   }
 
   @override
@@ -235,6 +240,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     }
 
     _refreshCoachActivityStats();
+    _loadRecentAnnotations();
 
     setState(() {});
   }
@@ -265,6 +271,67 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     } finally {
       _isRefreshingCurrentSeanceStats = false;
     }
+  }
+
+  /// Charge les 5 dernieres annotations de l'encadreur connecte.
+  Future<void> _loadRecentAnnotations() async {
+    try {
+      final encadreurId = await DependencyInjection.preferences.getUserId();
+      if (encadreurId == null || encadreurId.isEmpty) {
+        return;
+      }
+
+      final allAnnotations = await DependencyInjection.annotationRepository
+          .getByEncadreur(encadreurId);
+
+      // Trier par date decroissante et prendre les 5 dernieres
+      allAnnotations.sort((a, b) => b.horodate.compareTo(a.horodate));
+      final recent = allAnnotations.take(5).toList();
+
+      // Charger les caches pour les academiciens et ateliers
+      for (final a in recent) {
+        _academicienCache[a.academicienId] ??= await DependencyInjection
+            .academicienRepository
+            .getById(a.academicienId);
+        _atelierCache[a.atelierId] ??= await DependencyInjection
+            .atelierRepository
+            .getById(a.atelierId);
+      }
+
+      if (!mounted) return;
+      setState(() => _recentAnnotations = recent);
+    } catch (_) {
+      // Erreur silencieuse - on garde les donnees existantes
+    }
+  }
+
+  /// Formate une date en temps relatif.
+  String _formatTimeAgo(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inMinutes < 60) return 'Il y a ${diff.inMinutes}min';
+    if (diff.inHours < 24) return 'Il y a ${diff.inHours}h';
+    if (diff.inDays == 1) return 'Hier';
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  /// Construit les view models pour les annotations.
+  List<AnnotationData> _buildAnnotationViewModels(List<Annotation> list) {
+    return list.map((a) {
+      final academicien = _academicienCache[a.academicienId];
+      final atelier = _atelierCache[a.atelierId];
+      final academicienNom = academicien == null
+          ? a.academicienId
+          : '${academicien.prenom} ${academicien.nom}'.trim();
+      final atelierNom = atelier?.nom ?? a.atelierId;
+      return AnnotationData(
+        academicienNom,
+        atelierNom,
+        a.contenu,
+        a.tags,
+        _formatTimeAgo(a.horodate),
+      );
+    }).toList();
   }
 
   /// Verifie qu'une seance est ouverte avant d'ouvrir les ateliers.
@@ -1099,43 +1166,30 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
   }
 
   Widget _buildRecentAnnotations() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          ActivityCard(
-            title: 'Amadou Keita - Dribbles',
-            subtitle: 'Excellent controle de balle, progres constants.',
-            time: l10n.hoursAgo(1),
-            icon: Icons.star_rounded,
-            iconColor: const Color(0xFFF59E0B),
+
+    if (_recentAnnotations.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Text(
+          l10n.noAnnotationRecorded,
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
           ),
-          ActivityCard(
-            title: 'Ibrahim Traore - Passes',
-            subtitle:
-                'Bonne vision du jeu, precis sur les transmissions longues.',
-            time: l10n.hoursAgo(1),
-            icon: Icons.thumb_up_rounded,
-            iconColor: const Color(0xFF10B981),
-          ),
-          ActivityCard(
-            title: 'Sekou Coulibaly - Defense',
-            subtitle: 'Positionnement a travailler dans les duels aeriens.',
-            time: l10n.hoursAgo(2),
-            icon: Icons.warning_rounded,
-            iconColor: const Color(0xFFF59E0B),
-          ),
-          ActivityCard(
-            title: 'Moussa Diaby - Finition',
-            subtitle: 'En net progres devant le but, frappe puissante.',
-            time: l10n.yesterday,
-            icon: Icons.sports_soccer_rounded,
-            iconColor: const Color(0xFF3B82F6),
-            isLast: true,
-          ),
-        ],
-      ),
+        ),
+      );
+    }
+
+    final viewModels = _buildAnnotationViewModels(_recentAnnotations);
+
+    return Column(
+      children: viewModels.asMap().entries.map((entry) {
+        return AnnotationListItem(data: entry.value, isDark: isDark);
+      }).toList(),
     );
   }
 }
