@@ -11,13 +11,12 @@ import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../injection_container.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
+import '../../../../domain/entities/global_stats.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
 import '../../notification/notifications_page.dart';
 import '../../search/search_page.dart';
-import '../../scanner/qr_scanner_page.dart';
 import '../../seance/seance_detail_page.dart';
-import '../../../widgets/academy_toast.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/seance_card.dart';
 
@@ -46,12 +45,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   bool _seanceLoading = true;
   List<Activity> _activites = [];
   bool _activitesLoading = true;
+  GlobalStats? _globalStats;
 
   @override
   void initState() {
     super.initState();
     _chargerDerniereSeance();
     _chargerActivitesRecentes();
+    _chargerGlobalStats();
     DependencyInjection.notificationState.chargerNotifications('admin');
   }
 
@@ -91,6 +92,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           _seanceLoading = false;
         });
       }
+    }
+  }
+
+  /// Charge les statistiques globales depuis le backend.
+  Future<void> _chargerGlobalStats() async {
+    try {
+      final stats = await DependencyInjection.dashboardService.getGlobalStats();
+      if (mounted) {
+        setState(() {
+          _globalStats = stats;
+        });
+      }
+    } catch (_) {
+      // Erreur silencieuse, les stats restent a null
     }
   }
 
@@ -248,6 +263,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildStatsGrid(AppLocalizations l10n) {
+    final stats = _globalStats;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -260,35 +276,27 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         children: [
           StatCard(
             label: l10n.academicians,
-            value: '47',
+            value: stats?.nbAcademiciens.toString() ?? '-',
             icon: Icons.school_rounded,
             color: Color(0xFF3B82F6),
-            trend: '+5',
-            trendUp: true,
           ),
           StatCard(
             label: l10n.coaches,
-            value: '8',
+            value: stats?.nbEncadreurs.toString() ?? '-',
             icon: Icons.sports_rounded,
             color: Color(0xFF8B5CF6),
-            trend: '+1',
-            trendUp: true,
           ),
           StatCard(
             label: l10n.sessionsMonth,
-            value: '24',
+            value: stats?.nbSeancesMois.toString() ?? '-',
             icon: Icons.calendar_today_rounded,
             color: AppColors.primary,
-            trend: '+12%',
-            trendUp: true,
           ),
           StatCard(
             label: l10n.attendanceRate,
-            value: '87%',
+            value: '${(stats?.tauxPresenceMoyen ?? 0).toStringAsFixed(0)}%',
             icon: Icons.check_circle_rounded,
             color: Color(0xFF10B981),
-            trend: '+3%',
-            trendUp: true,
           ),
         ],
       ),
@@ -320,13 +328,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ),
               );
             },
-          ),
-          QuickActionTile(
-            title: l10n.scanQr,
-            description: l10n.accessControl,
-            icon: Icons.qr_code_scanner_rounded,
-            color: AppColors.primary,
-            onTap: () => _ouvrirScanner(context),
           ),
           QuickActionTile(
             title: l10n.players,
@@ -364,6 +365,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     AppLocalizations l10n,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final stats = _globalStats;
+
+    // Calcul des valeurs dynamiques
+    final tauxPresence = (stats?.tauxPresenceMoyen ?? 0) / 100.0;
+    final objectifs = (stats?.objectifsAtteints ?? 0) / 100.0;
+    final satisfaction = (stats?.satisfactionCoachs ?? 0) / 100.0;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -388,25 +395,25 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               CircularProgressWidget(
-                progress: 0.87,
+                progress: tauxPresence,
                 label: l10n.averageAttendance,
-                centerText: '87%',
+                centerText: '${(tauxPresence * 100).toStringAsFixed(0)}%',
                 color: Color(0xFF10B981),
                 size: 80,
                 strokeWidth: 7,
               ),
               CircularProgressWidget(
-                progress: 0.74,
+                progress: objectifs,
                 label: l10n.goalsAchieved,
-                centerText: '74%',
+                centerText: '${(objectifs * 100).toStringAsFixed(0)}%',
                 color: Color(0xFF3B82F6),
                 size: 80,
                 strokeWidth: 7,
               ),
               CircularProgressWidget(
-                progress: 0.92,
+                progress: satisfaction,
                 label: l10n.coachSatisfaction,
-                centerText: '92%',
+                centerText: '${(satisfaction * 100).toStringAsFixed(0)}%',
                 color: Color(0xFF8B5CF6),
                 size: 80,
                 strokeWidth: 7,
@@ -640,32 +647,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           MaterialPageRoute(builder: (_) => SeanceDetailPage(seance: seance)),
         );
       },
-    );
-  }
-
-  /// Verifie qu'une seance est ouverte avant de lancer le scanner.
-  Future<void> _ouvrirScanner(BuildContext context) async {
-    final seanceOuverte = await DependencyInjection.seanceRepository
-        .getSeanceOuverte();
-    if (!context.mounted) return;
-
-    if (seanceOuverte == null) {
-      final l10n = AppLocalizations.of(context)!;
-      AcademyToast.show(
-        context,
-        title: l10n.noSessionInProgress,
-        description: l10n.openSessionBeforeScan,
-        icon: Icons.warning_amber_rounded,
-        isError: true,
-      );
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => QrScannerPage(seanceId: seanceOuverte.id),
-      ),
     );
   }
 }

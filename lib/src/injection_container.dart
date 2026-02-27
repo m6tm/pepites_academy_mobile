@@ -18,6 +18,7 @@ import 'application/services/sync_service.dart';
 import 'application/services/auth_service.dart';
 import 'application/services/biometric_service.dart';
 import 'application/services/security_service.dart';
+import 'application/services/dashboard_service.dart';
 import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
@@ -102,6 +103,7 @@ class DependencyInjection {
   static late final SecurityService securityService;
   static late final SecurityRepositoryImpl securityRepository;
   static late final ApiSyncDatasourceImpl apiSyncDatasource;
+  static late final DashboardService dashboardService;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
   static late PreferencesRepositoryImpl _preferencesRepository;
@@ -327,6 +329,9 @@ class DependencyInjection {
       setBiometricEnabled: preferences.setBiometricEnabled,
     );
     securityService = SecurityService(repository: securityRepository);
+
+    // Initialisation du service Dashboard
+    dashboardService = DashboardService(dioClient: _dioClient);
 
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,

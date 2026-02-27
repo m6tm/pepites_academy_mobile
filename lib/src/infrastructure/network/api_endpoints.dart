@@ -70,6 +70,9 @@ class ApiEndpoints {
   /// Chemins pour les sessions.
   static const String sessions = '/sessions';
 
+  /// Chemins pour le dashboard.
+  static const String dashboardStats = '/dashboard/stats';
+
   /// Délais d'expiration des requêtes (en millisecondes).
   static const int receiveTimeout = 15000;
   static const int connectionTimeout = 15000;
