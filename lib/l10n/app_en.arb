@@ -614,6 +614,20 @@
   "generateBulletin": "Generate Bulletin",
   "generatingInProgress": "Generating...",
   "exportImage": "Export image",
+  "exportPdf": "Export PDF",
+  "bulletinCaptured": "Bulletin captured",
+  "bulletinExported": "Bulletin exported as PDF",
+  "bulletinShareSubject": "Bulletin for {nom} {prenom}",
+  "@bulletinShareSubject": {
+    "placeholders": {
+      "nom": {
+        "type": "String"
+      },
+      "prenom": {
+        "type": "String"
+      }
+    }
+  },
   "noAppreciation": "No assessment available",
   "appreciationGenerationNote": "Assessments will be generated from annotations.",
   "noObservation": "No remarks written.",

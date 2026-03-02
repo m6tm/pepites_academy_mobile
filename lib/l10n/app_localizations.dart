@@ -2696,6 +2696,30 @@ abstract class AppLocalizations {
   /// **'Exporter image'**
   String get exportImage;
 
+  /// No description provided for @exportPdf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter PDF'**
+  String get exportPdf;
+
+  /// No description provided for @bulletinCaptured.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin capturé. Fonctionnalité de partage disponible prochainement.'**
+  String get bulletinCaptured;
+
+  /// No description provided for @bulletinExported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin exporté en PDF'**
+  String get bulletinExported;
+
+  /// No description provided for @bulletinShareSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletin de {nom} {prenom}'**
+  String bulletinShareSubject(String nom, String prenom);
+
   /// No description provided for @noAppreciation.
   ///
   /// In fr, this message translates to:
@@ -2809,12 +2833,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Saison {start}-{end}'**
   String seasonLabel(int start, int end);
-
-  /// No description provided for @bulletinCaptured.
-  ///
-  /// In fr, this message translates to:
-  /// **'Bulletin capturé. Fonctionnalité de partage disponible prochainement.'**
-  String get bulletinCaptured;
 
   /// No description provided for @exportError.
   ///

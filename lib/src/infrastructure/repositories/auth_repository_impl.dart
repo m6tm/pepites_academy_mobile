@@ -43,10 +43,14 @@ class AuthRepositoryImpl implements AuthRepository {
     final data = <String, dynamic>{
       'email': email,
       'mot_de_passe': password,
-      if (deviceType != null) 'device_type': deviceType,
-      if (deviceName != null) 'device_name': deviceName,
-      if (model != null) 'model': model,
-      if (location != null) 'location': location,
+      ...?(deviceType == null
+          ? null
+          : <String, dynamic>{'device_type': deviceType}),
+      ...?(deviceName == null
+          ? null
+          : <String, dynamic>{'device_name': deviceName}),
+      ...?(model == null ? null : <String, dynamic>{'model': model}),
+      ...?(location == null ? null : <String, dynamic>{'location': location}),
     };
 
     final result = await _dioClient.post(ApiEndpoints.login, data: data);

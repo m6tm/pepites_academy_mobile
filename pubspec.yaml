@@ -48,6 +48,9 @@ dependencies:
   dio: ^5.7.0
   dartz: ^0.10.1
   pretty_dio_logger: ^1.4.0
+  pdf: ^3.11.1
+  path_provider: ^2.1.5
+  share_plus: ^10.1.4
   firebase_core: ^4.4.0
   firebase_messaging: ^16.1.1
   flutter_local_notifications: ^20.1.0

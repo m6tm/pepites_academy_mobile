@@ -6,12 +6,15 @@ import '../../domain/entities/seance.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/seance_repository.dart';
 import '../datasources/seance_local_datasource.dart';
+import '../network/api_endpoints.dart';
+import '../network/dio_client.dart';
 
 /// Implementation locale du repository de seances.
 /// Delegue les operations au datasource local.
 class SeanceRepositoryImpl implements SeanceRepository {
   final SeanceLocalDatasource _datasource;
   SyncService? _syncService;
+  DioClient? _dioClient;
   AppLocalizations? _l10n;
 
   SeanceRepositoryImpl(this._datasource);
@@ -19,6 +22,11 @@ class SeanceRepositoryImpl implements SeanceRepository {
   /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
     _syncService = service;
+  }
+
+  /// Injecte le client HTTP.
+  void setDioClient(DioClient client) {
+    _dioClient = client;
   }
 
   /// Met a jour les traductions.
@@ -153,5 +161,101 @@ class SeanceRepositoryImpl implements SeanceRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  /// Synchronise les seances depuis le backend.
+  /// Fusionne les donnees distantes dans le cache local.
+  /// Retourne false si le serveur est inaccessible ou en cas d'erreur.
+  Future<bool> syncFromApi() async {
+    if (_dioClient == null) return false;
+
+    try {
+      final result = await _dioClient!.get<dynamic>(ApiEndpoints.seances);
+
+      return result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[Seance] Sync failed: ${failure.message}');
+          return false;
+        },
+        (data) async {
+          final List<dynamic> rawList;
+          if (data is List) {
+            rawList = data;
+          } else if (data is Map<String, dynamic>) {
+            rawList = data.values.whereType<List>().expand((e) => e).toList();
+          } else {
+            return false;
+          }
+
+          final remote = rawList
+              .whereType<Map<String, dynamic>>()
+              .map((map) {
+                return Seance(
+                  id: map['id'] as String,
+                  titre: (map['titre'] as String?) ?? '',
+                  date: DateTime.parse(
+                    (map['date'] as String?) ??
+                        (map['date_debut'] as String?) ??
+                        DateTime.now().toIso8601String(),
+                  ),
+                  heureDebut: DateTime.parse(
+                    (map['heure_debut'] as String?) ??
+                        (map['heureDebut'] as String?) ??
+                        '1970-01-01T09:00:00',
+                  ),
+                  heureFin: DateTime.parse(
+                    (map['heure_fin'] as String?) ??
+                        (map['heureFin'] as String?) ??
+                        '1970-01-01T11:00:00',
+                  ),
+                  statut: _parseStatut(map['statut'] as String?),
+                  encadreurResponsableId:
+                      (map['encadreur_responsable_id'] as String?) ??
+                      (map['encadreurResponsableId'] as String?) ??
+                      '',
+                  encadreurIds:
+                      (map['encadreur_ids'] as List<dynamic>?)
+                          ?.map((e) => e as String)
+                          .toList() ??
+                      [],
+                  academicienIds:
+                      (map['academicien_ids'] as List<dynamic>?)
+                          ?.map((e) => e as String)
+                          .toList() ??
+                      [],
+                  atelierIds:
+                      (map['atelier_ids'] as List<dynamic>?)
+                          ?.map((e) => e as String)
+                          .toList() ??
+                      [],
+                );
+              })
+              .where((s) => s.id.isNotEmpty)
+              .toList();
+
+          await _datasource.upsertAll(remote);
+          // ignore: avoid_print
+          print('[Seance] Synced ${remote.length} items from backend');
+          return true;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[Seance] Sync exception: $e');
+      return false;
+    }
+  }
+
+  /// Parse le statut depuis la reponse API.
+  SeanceStatus _parseStatut(String? statut) {
+    switch (statut?.toLowerCase()) {
+      case 'ouverte':
+        return SeanceStatus.ouverte;
+      case 'fermee':
+        return SeanceStatus.fermee;
+      default:
+        return SeanceStatus.fermee;
+    }
   }
 }

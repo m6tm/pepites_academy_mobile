@@ -1,8 +1,10 @@
 import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/annotation.dart';
 import '../../domain/entities/bulletin.dart';
+import '../../domain/entities/presence.dart';
 import '../../infrastructure/repositories/annotation_repository_impl.dart';
 import '../../infrastructure/repositories/bulletin_repository_impl.dart';
+import '../../infrastructure/repositories/presence_repository_impl.dart';
 import '../../infrastructure/repositories/seance_repository_impl.dart';
 import 'activity_service.dart';
 
@@ -13,6 +15,7 @@ class BulletinService {
   final BulletinRepositoryImpl _bulletinRepository;
   final AnnotationRepositoryImpl _annotationRepository;
   final SeanceRepositoryImpl _seanceRepository;
+  final PresenceRepositoryImpl _presenceRepository;
   ActivityService? _activityService;
   AppLocalizations? _l10n;
 
@@ -20,9 +23,11 @@ class BulletinService {
     required BulletinRepositoryImpl bulletinRepository,
     required AnnotationRepositoryImpl annotationRepository,
     required SeanceRepositoryImpl seanceRepository,
+    required PresenceRepositoryImpl presenceRepository,
   }) : _bulletinRepository = bulletinRepository,
        _annotationRepository = annotationRepository,
-       _seanceRepository = seanceRepository;
+       _seanceRepository = seanceRepository,
+       _presenceRepository = presenceRepository;
 
   /// Injecte le service d'activites.
   void setActivityService(ActivityService service) {
@@ -57,8 +62,18 @@ class BulletinService {
       return !s.date.isBefore(dateDebut) && !s.date.isAfter(dateFin);
     }).toList();
 
-    final seancesPresent = seancesPeriode
-        .where((s) => s.academicienIds.contains(academicienId))
+    // Recuperer les presences reelles de l'academicien pour la periode
+    final presences = await _presenceRepository.getByProfil(academicienId);
+    final presencesPeriode = presences.where((p) {
+      return !p.horodateArrivee.isBefore(dateDebut) &&
+          !p.horodateArrivee.isAfter(dateFin) &&
+          p.typeProfil == ProfilType.academicien;
+    }).toList();
+
+    // Compter les seances auxquelles l'academicien etait reellement present
+    final seancesPresent = presencesPeriode
+        .map((p) => p.seanceId)
+        .toSet()
         .length;
 
     final competences = _calculerCompetences(annotationsPeriode);

@@ -10,11 +10,13 @@ import '../../../theme/app_colors.dart';
 /// aux periodes precedentes.
 class EvolutionChartWidget extends StatelessWidget {
   final List<Bulletin> bulletins;
+  final PeriodeType typePeriode;
   final double height;
 
   const EvolutionChartWidget({
     super.key,
     required this.bulletins,
+    required this.typePeriode,
     this.height = 220,
   });
 
@@ -23,11 +25,16 @@ class EvolutionChartWidget extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
 
-    if (bulletins.isEmpty) {
+    // Filtrer par type de periode selectionne
+    final filtered = bulletins
+        .where((b) => b.typePeriode == typePeriode)
+        .toList();
+
+    if (filtered.isEmpty) {
       return _buildEmptyState(isDark, l10n);
     }
 
-    final sorted = List<Bulletin>.from(bulletins)
+    final sorted = List<Bulletin>.from(filtered)
       ..sort((a, b) => a.dateDebutPeriode.compareTo(b.dateDebutPeriode));
 
     final maxBulletins = sorted.length > 6

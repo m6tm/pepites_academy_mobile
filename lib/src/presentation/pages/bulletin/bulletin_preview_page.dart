@@ -1,9 +1,14 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/bulletin.dart';
 import '../../../domain/entities/encadreur.dart';
@@ -90,6 +95,64 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     }
   }
 
+  /// Exporte le bulletin en PDF.
+  /// Capture l'image puis l'insere dans un PDF a la taille de l'image.
+  Future<void> _exporterPdf(AppLocalizations l10n) async {
+    try {
+      final boundary =
+          _bulletinKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+
+      // Capturer l'image du bulletin
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+
+      final pngBytes = byteData.buffer.asUint8List();
+
+      // Creer le PDF avec l'image
+      final pdf = pw.Document();
+      final pdfImage = pw.MemoryImage(pngBytes);
+
+      // Calculer les dimensions pour garder le ratio
+      final imageWidth = image.width.toDouble();
+      final imageHeight = image.height.toDouble();
+      final pageFormat = PdfPageFormat.a4;
+      final scale = pageFormat.width / imageWidth;
+      final scaledHeight = imageHeight * scale;
+
+      pdf.addPage(
+        pw.Page(
+          pageFormat: pageFormat.copyWith(height: scaledHeight),
+          build: (context) =>
+              pw.Center(child: pw.Image(pdfImage, fit: pw.BoxFit.contain)),
+        ),
+      );
+
+      // Sauvegarder le fichier
+      final dir = await getApplicationDocumentsDirectory();
+      final fileName =
+          'bulletin_${academicien.nom}_${academicien.prenom}_${bulletin.periodeLabel.replaceAll(' ', '_')}.pdf';
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsBytes(await pdf.save());
+
+      // Partage natif (affiche toutes les options du telephone)
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: l10n.bulletinShareSubject(academicien.nom, academicien.prenom),
+      );
+    } catch (e) {
+      if (mounted) {
+        AcademyToast.show(
+          context,
+          title: l10n.exportError(e.toString()),
+          isError: true,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -152,7 +215,7 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
       actions: [
         IconButton(
           icon: const Icon(Icons.share_rounded),
-          onPressed: () => _exporterImage(l10n),
+          onPressed: () => _exporterPdf(l10n),
           tooltip: l10n.shareLabel,
         ),
       ],
@@ -740,10 +803,10 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () => _exporterImage(l10n),
-                icon: const Icon(Icons.share_rounded, size: 18),
+                onPressed: () => _exporterPdf(l10n),
+                icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
                 label: Text(
-                  l10n.shareLabel,
+                  l10n.exportPdf,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

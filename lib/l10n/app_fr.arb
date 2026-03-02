@@ -679,6 +679,20 @@
   "generateBulletin": "Générer le bulletin",
   "generatingInProgress": "Génération en cours...",
   "exportImage": "Exporter image",
+  "exportPdf": "Exporter PDF",
+  "bulletinCaptured": "Bulletin capturé",
+  "bulletinExported": "Bulletin exporté en PDF",
+  "bulletinShareSubject": "Bulletin de {nom} {prenom}",
+  "@bulletinShareSubject": {
+    "placeholders": {
+      "nom": {
+        "type": "String"
+      },
+      "prenom": {
+        "type": "String"
+      }
+    }
+  },
   "noAppreciation": "Aucune appréciation disponible",
   "appreciationGenerationNote": "Les appréciations seront générées à partir des annotations.",
   "noObservation": "Aucune observation rédigée.",

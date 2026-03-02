@@ -56,10 +56,19 @@ class BulletinLocalDatasource {
 
   /// Recupere les bulletins d'un academicien.
   List<Bulletin> getByAcademicien(String academicienId) {
-    return getAll()
-        .where((b) => b.academicienId == academicienId)
-        .toList()
+    return getAll().where((b) => b.academicienId == academicienId).toList()
       ..sort((a, b) => b.dateGeneration.compareTo(a.dateGeneration));
+  }
+
+  /// Fusionne une liste de bulletins distants dans le cache local.
+  /// Les donnees distantes ecrasent les locales pour les memes IDs.
+  Future<void> upsertAll(List<Bulletin> remoteList) async {
+    final local = getAll();
+    final merged = <String, Bulletin>{for (final b in local) b.id: b};
+    for (final remote in remoteList) {
+      merged[remote.id] = remote;
+    }
+    await _saveAll(merged.values.toList());
   }
 
   Future<void> _saveAll(List<Bulletin> list) async {

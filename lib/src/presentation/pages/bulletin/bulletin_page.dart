@@ -137,6 +137,7 @@ class _BulletinPageState extends State<BulletinPage> {
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
                 child: EvolutionChartWidget(
                   bulletins: _bulletinState.bulletins,
+                  typePeriode: _bulletinState.typePeriode,
                 ),
               ),
             ),

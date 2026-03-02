@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../application/services/bulletin_service.dart';
 import '../../domain/entities/bulletin.dart';
+import '../../injection_container.dart';
 
 /// State management pour les bulletins de formation.
 /// Gere la generation, la consultation et la navigation
@@ -47,12 +48,21 @@ class BulletinState extends ChangeNotifier {
   }
 
   /// Charge les bulletins d'un academicien.
+  /// Synchronise d'abord avec le backend si possible.
   Future<void> chargerBulletins(String academicienId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
+      // Synchroniser avec le backend d'abord
+      await DependencyInjection.syncBulletins();
+      // Synchroniser aussi les annotations, seances et presences pour la generation
+      await DependencyInjection.syncAnnotations();
+      await DependencyInjection.syncSeances();
+      await DependencyInjection.syncPresences();
+
+      // Puis charger les donnees locales
       _bulletins = await _service.getBulletinsAcademicien(academicienId);
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des bulletins : $e';

@@ -1406,6 +1406,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportImage => 'Export image';
 
   @override
+  String get exportPdf => 'Export PDF';
+
+  @override
+  String get bulletinCaptured =>
+      'Bulletin captured. Sharing feature available soon.';
+
+  @override
+  String get bulletinExported => 'Bulletin exported as PDF';
+
+  @override
+  String bulletinShareSubject(String nom, String prenom) {
+    return 'Bulletin for $nom $prenom';
+  }
+
+  @override
   String get noAppreciation => 'No assessment available';
 
   @override
@@ -1476,10 +1491,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String seasonLabel(int start, int end) {
     return 'Season $start-$end';
   }
-
-  @override
-  String get bulletinCaptured =>
-      'Bulletin captured. Sharing feature available soon.';
 
   @override
   String exportError(String error) {

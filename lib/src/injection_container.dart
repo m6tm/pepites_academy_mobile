@@ -35,6 +35,7 @@ import 'infrastructure/datasources/sms_local_datasource.dart';
 import 'infrastructure/datasources/notification_local_datasource.dart';
 import 'infrastructure/datasources/sync_queue_local_datasource.dart';
 import 'infrastructure/datasources/api_sync_datasource_impl.dart';
+import 'infrastructure/network/api_endpoints.dart';
 import 'infrastructure/network/dio_client.dart';
 import 'infrastructure/network/auth_interceptor.dart';
 import 'infrastructure/repositories/activity_repository_impl.dart';
@@ -53,6 +54,7 @@ import 'infrastructure/repositories/sms_repository_impl.dart';
 import 'infrastructure/repositories/auth_repository_impl.dart';
 import 'infrastructure/repositories/notification_repository_impl.dart';
 import 'infrastructure/repositories/security_repository_impl.dart';
+import 'domain/entities/presence.dart';
 import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'infrastructure/services/firebase_push_notification_service.dart';
@@ -190,6 +192,7 @@ class DependencyInjection {
       bulletinRepository: bulletinRepository,
       annotationRepository: annotationRepository,
       seanceRepository: seanceRepository,
+      presenceRepository: presenceRepository,
     );
 
     // Initialisation du module SMS
@@ -346,11 +349,13 @@ class DependencyInjection {
     encadreurRepoImpl.setSyncService(syncService);
     presenceRepository.setSyncService(syncService);
     seanceRepository.setSyncService(syncService);
+    seanceRepository.setDioClient(dioClient);
     atelierRepository.setSyncService(syncService);
     atelierRepository.setDioClient(dioClient);
     annotationRepository.setSyncService(syncService);
     annotationRepository.setDioClient(dioClient);
     bulletinRepository.setSyncService(syncService);
+    bulletinRepository.setDioClient(dioClient);
     smsRepository.setSyncService(syncService);
     niveauRepository.setSyncService(syncService);
     posteRepository.setSyncService(syncService);
@@ -445,6 +450,112 @@ class DependencyInjection {
       // ignore: avoid_print
       print('[DI] Erreur sync academiciens: $e');
       return false;
+    }
+  }
+
+  /// Synchronise les seances depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncSeances() async {
+    try {
+      return await seanceRepository.syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync seances: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les annotations depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncAnnotations() async {
+    try {
+      return await annotationRepository.syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync annotations: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les bulletins depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncBulletins() async {
+    try {
+      return await bulletinRepository.syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync bulletins: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les presences depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncPresences() async {
+    try {
+      final result = await _dioClient.get<dynamic>(ApiEndpoints.presences);
+      return result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[DI] Erreur sync presences: ${failure.message}');
+          return false;
+        },
+        (data) async {
+          final List<dynamic> rawList;
+          if (data is List) {
+            rawList = data;
+          } else if (data is Map<String, dynamic>) {
+            rawList = data.values.whereType<List>().expand((e) => e).toList();
+          } else {
+            return false;
+          }
+
+          final presences = rawList
+              .whereType<Map<String, dynamic>>()
+              .map(
+                (map) => Presence(
+                  id: map['id'] as String,
+                  horodateArrivee: DateTime.parse(
+                    (map['horodate_arrivee'] as String?) ??
+                        (map['horodateArrivee'] as String?) ??
+                        DateTime.now().toIso8601String(),
+                  ),
+                  typeProfil: _parseProfilType(map['type_profil'] as String?),
+                  profilId:
+                      (map['profil_id'] as String?) ??
+                      (map['profilId'] as String?) ??
+                      '',
+                  seanceId:
+                      (map['seance_id'] as String?) ??
+                      (map['seanceId'] as String?) ??
+                      '',
+                ),
+              )
+              .where((p) => p.id.isNotEmpty)
+              .toList();
+
+          await presenceRepository.upsertAllFromRemote(presences);
+          // ignore: avoid_print
+          print('[DI] Synced ${presences.length} presences from backend');
+          return true;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync presences: $e');
+      return false;
+    }
+  }
+
+  /// Parse le type de profil.
+  static ProfilType _parseProfilType(String? type) {
+    switch (type?.toLowerCase()) {
+      case 'academicien':
+        return ProfilType.academicien;
+      case 'encadreur':
+        return ProfilType.encadreur;
+      default:
+        return ProfilType.academicien;
     }
   }
 

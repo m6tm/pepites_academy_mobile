@@ -73,4 +73,15 @@ class SeanceLocalDatasource {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
   }
+
+  /// Fusionne une liste de seances distantes dans le cache local.
+  /// Les donnees distantes ecrasent les locales pour les memes IDs.
+  Future<void> upsertAll(List<Seance> remoteList) async {
+    final local = getAll();
+    final merged = <String, Seance>{for (final s in local) s.id: s};
+    for (final remote in remoteList) {
+      merged[remote.id] = remote;
+    }
+    await saveAll(merged.values.toList());
+  }
 }
