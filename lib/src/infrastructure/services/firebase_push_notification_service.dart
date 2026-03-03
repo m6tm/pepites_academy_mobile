@@ -109,6 +109,10 @@ class FirebasePushNotificationService {
   final NotificationLocalDatasource _localDatasource;
   final SharedPreferences _prefs;
 
+  /// Callback appelé quand une notification est reçue en foreground
+  /// Permet de notifier l'UI pour rafraîchir la liste des notifications
+  VoidCallback? onNotificationReceived;
+
   FirebasePushNotificationService(this._localDatasource, this._prefs);
 
   Future<void> initialize() async {
@@ -382,6 +386,9 @@ class FirebasePushNotificationService {
     }
 
     _saveNotificationToDb(message, _localDatasource);
+
+    // Notifier l'UI qu'une nouvelle notification a été reçue
+    onNotificationReceived?.call();
 
     final notification = message.notification;
     final android = message.notification?.android;

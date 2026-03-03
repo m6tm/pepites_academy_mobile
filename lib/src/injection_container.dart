@@ -317,6 +317,11 @@ class DependencyInjection {
       sharedPrefs,
     );
 
+    // Connexion du callback pour rafraîchir les notifications in-app en temps réel
+    firebasePushNotificationService.onNotificationReceived = () {
+      notificationState.rafraichirDepuisCache();
+    };
+
     // Initialisation de l'authentification
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);

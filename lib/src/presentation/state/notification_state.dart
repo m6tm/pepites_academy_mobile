@@ -15,6 +15,10 @@ class NotificationState extends ChangeNotifier {
   List<NotificationItem> _notifications = [];
   List<NotificationItem> get notifications => _notifications;
 
+  /// Rôle de l'utilisateur actuellement connecté
+  String _currentUserRole = 'encadreur';
+  String get currentUserRole => _currentUserRole;
+
   int _nonLuesCount = 0;
   int get nonLuesCount => _nonLuesCount;
 
@@ -54,6 +58,8 @@ class NotificationState extends ChangeNotifier {
 
   /// Charge les notifications pour un role donne.
   Future<void> chargerNotifications(String role) async {
+    _currentUserRole =
+        role; // Stocker le rôle pour le rafraîchissement automatique
     _isLoading = true;
     _errorMessage = null;
     _safeNotifyListeners();
@@ -162,5 +168,23 @@ class NotificationState extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Rafraîchit les notifications depuis le cache local.
+  /// Utilisé quand une notification push est reçue pour mettre à jour l'UI
+  /// sans rechargement manuel.
+  Future<void> rafraichirDepuisCache() async {
+    try {
+      // Recharger depuis le cache local avec le rôle courant
+      _notifications = await _notificationService.getNotifications(
+        _currentUserRole,
+      );
+      _nonLuesCount = await _notificationService.compterNonLues(
+        _currentUserRole,
+      );
+      _safeNotifyListeners();
+    } catch (e) {
+      // Ignorer silencieusement les erreurs
+    }
   }
 }

@@ -166,6 +166,7 @@ class _BulletinPageState extends State<BulletinPage> {
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             fontSize: 16,
+            color: Colors.white,
           ),
         ),
         background: Container(
