@@ -27,6 +27,12 @@ class ReferentielService {
   }) : _posteRepository = posteRepository,
        _niveauRepository = niveauRepository;
 
+  /// Acces au repository des postes pour la synchronisation.
+  PosteFootballRepository get posteRepository => _posteRepository;
+
+  /// Acces au repository des niveaux pour la synchronisation.
+  NiveauScolaireRepository get niveauRepository => _niveauRepository;
+
   /// Injecte le service d'activites (injection tardive pour eviter les dependances circulaires).
   void setActivityService(ActivityService service) {
     _activityService = service;

@@ -81,6 +81,12 @@ class SmsLocalDatasource {
     return getAll().where((m) => m.statut == StatutEnvoi.echec).length;
   }
 
+  /// Sauvegarde la liste complete des SMS.
+  Future<void> saveAll(List<SmsMessage> list) async {
+    final jsonList = list.map((e) => e.toJson()).toList();
+    await _prefs.setString(_key, json.encode(jsonList));
+  }
+
   Future<void> _saveAll(List<SmsMessage> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));

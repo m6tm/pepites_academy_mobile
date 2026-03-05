@@ -43,7 +43,9 @@ class SmsService {
   }
 
   /// Recupere l'historique complet des SMS.
+  /// Tente d'abord de synchroniser depuis le backend, puis retourne le cache local.
   Future<List<SmsMessage>> getHistorique() async {
+    await _smsRepository.syncFromApi();
     return _smsRepository.getHistory();
   }
 

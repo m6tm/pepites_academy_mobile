@@ -108,9 +108,6 @@ class DependencyInjection {
   static late PreferencesRepositoryImpl _preferencesRepository;
   static late SeanceLocalDatasource _seanceDatasource;
   static late SmsLocalDatasource _smsDatasource;
-  static late PosteFootballLocalDatasource _posteDatasource;
-  static late NiveauScolaireLocalDatasource _niveauDatasource;
-  // AcademicienLocalDatasource non utilisé - syncFromApi déplacé dans le repository
   static late DioClient _dioClient;
 
   static DioClient get dioClient => _dioClient;
@@ -224,10 +221,6 @@ class DependencyInjection {
       niveauDatasource,
       academicienDatasource,
     );
-
-    // Conserver les datasources pour la synchronisation ulterieure
-    _posteDatasource = posteDatasource;
-    _niveauDatasource = niveauDatasource;
 
     referentielService = ReferentielService(
       posteRepository: posteRepository,
@@ -362,8 +355,11 @@ class DependencyInjection {
     bulletinRepository.setSyncService(syncService);
     bulletinRepository.setDioClient(dioClient);
     smsRepository.setSyncService(syncService);
+    smsRepository.setDioClient(dioClient);
     niveauRepository.setSyncService(syncService);
+    niveauRepository.setDioClient(dioClient);
     posteRepository.setSyncService(syncService);
+    posteRepository.setDioClient(dioClient);
   }
 
   /// Gere les erreurs de conflit (409) en supprimant l'enregistrement local.
@@ -414,8 +410,14 @@ class DependencyInjection {
   /// Retourne true si la synchronisation a reussi.
   static Future<bool> syncReferentiels() async {
     try {
-      final postesOk = await _posteDatasource.syncFromApi(_dioClient);
-      final niveauxOk = await _niveauDatasource.syncFromApi(_dioClient);
+      final postesOk =
+          await (referentielService.posteRepository
+                  as PosteFootballRepositoryImpl)
+              .syncFromApi();
+      final niveauxOk =
+          await (referentielService.niveauRepository
+                  as NiveauScolaireRepositoryImpl)
+              .syncFromApi();
       return postesOk && niveauxOk;
     } catch (e) {
       // ignore: avoid_print
@@ -427,7 +429,9 @@ class DependencyInjection {
   /// Synchronise uniquement les postes de football depuis le backend.
   static Future<bool> syncPostesFootball() async {
     try {
-      return await _posteDatasource.syncFromApi(_dioClient);
+      return await (referentielService.posteRepository
+              as PosteFootballRepositoryImpl)
+          .syncFromApi();
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync postes: $e');
@@ -438,7 +442,9 @@ class DependencyInjection {
   /// Synchronise uniquement les niveaux scolaires depuis le backend.
   static Future<bool> syncNiveauxScolaires() async {
     try {
-      return await _niveauDatasource.syncFromApi(_dioClient);
+      return await (referentielService.niveauRepository
+              as NiveauScolaireRepositoryImpl)
+          .syncFromApi();
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync niveaux: $e');
@@ -502,6 +508,18 @@ class DependencyInjection {
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync presences: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les SMS depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncSms() async {
+    try {
+      return await smsRepository.syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync sms: $e');
       return false;
     }
   }

@@ -57,6 +57,9 @@ class ApiEndpoints {
   static const String postesFootball = '/referentiels/postes';
   static const String niveauxScolaires = '/referentiels/niveaux';
 
+  /// Chemins pour les SMS.
+  static const String sms = '/sms';
+
   /// Chemin pour la vérification de santé du serveur.
   static const String health = '/health';
 
