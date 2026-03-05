@@ -6,8 +6,40 @@ import '../datasources/sms_local_datasource.dart';
 import '../network/dio_client.dart';
 import '../network/api_endpoints.dart';
 
+/// Resultat de l'envoi SMS via l'API NEXAH.
+class SmsSendResult {
+  final bool succes;
+  final String message;
+  final int? nbSucces;
+  final int? nbEchecs;
+  final String? erreur;
+  final String? backendSmsId;
+
+  const SmsSendResult({
+    required this.succes,
+    required this.message,
+    this.nbSucces,
+    this.nbEchecs,
+    this.erreur,
+    this.backendSmsId,
+  });
+}
+
+/// Informations sur le credit SMS.
+class SmsCreditInfo {
+  final int credit;
+  final String? accountExpDate;
+  final String? balanceExpDate;
+
+  const SmsCreditInfo({
+    required this.credit,
+    this.accountExpDate,
+    this.balanceExpDate,
+  });
+}
+
 /// Implementation locale du repository SMS.
-/// Delegue les operations au datasource local.
+/// Delegue les operations au datasource local et appelle l'API backend NEXAH.
 class SmsRepositoryImpl implements SmsRepository {
   final SmsLocalDatasource _datasource;
   DioClient? _dioClient;
@@ -27,14 +59,104 @@ class SmsRepositoryImpl implements SmsRepository {
 
   @override
   Future<SmsMessage> send(SmsMessage message) async {
-    final sent = await _datasource.add(message);
+    // Enregistrer d'abord localement avec statut en attente
+    final pendingMessage = message.copyWith(statut: StatutEnvoi.enAttente);
+    await _datasource.add(pendingMessage);
+
+    // Tenter l'envoi via l'API backend
+    final result = await _sendViaApi(pendingMessage);
+
+    // Mettre a jour le message avec le resultat
+    final updatedMessage = pendingMessage.copyWith(
+      statut: result.succes ? StatutEnvoi.envoye : StatutEnvoi.echec,
+    );
+
+    // Mettre a jour le datasource local
+    await _datasource.update(updatedMessage);
+
+    // Enregistrer l'operation de synchronisation
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.smsMessage,
-      entityId: sent.id,
+      entityId: updatedMessage.id,
       operationType: SyncOperationType.create,
-      data: sent.toJson(),
+      data: updatedMessage.toJson(),
     );
-    return sent;
+
+    return updatedMessage;
+  }
+
+  /// Envoie le SMS via l'API backend NEXAH.
+  Future<SmsSendResult> _sendViaApi(SmsMessage message) async {
+    final client = _dioClient;
+    if (client == null) {
+      return const SmsSendResult(
+        succes: false,
+        message: 'Client HTTP non initialise',
+        erreur: 'Client HTTP non initialise',
+      );
+    }
+
+    try {
+      final response = await client.post<dynamic>(
+        ApiEndpoints.sms,
+        data: {
+          'contenu': message.contenu,
+          'destinataires': message.destinataires
+              .map((d) => d.toJson())
+              .toList(),
+        },
+      );
+
+      return response.fold(
+        (failure) {
+          return SmsSendResult(
+            succes: false,
+            message: failure.message ?? 'Erreur inconnue',
+            erreur: failure.message,
+          );
+        },
+        (data) {
+          final responseData = data as Map<String, dynamic>;
+          final succes = responseData['message'] != null;
+          final smsData = responseData['sms'] as Map<String, dynamic>?;
+
+          return SmsSendResult(
+            succes: succes,
+            message: responseData['message']?.toString() ?? 'SMS envoye',
+            nbSucces: responseData['nb_succes'] as int?,
+            nbEchecs: responseData['nb_echecs'] as int?,
+            backendSmsId: smsData?['id']?.toString(),
+          );
+        },
+      );
+    } catch (e) {
+      return SmsSendResult(
+        succes: false,
+        message: 'Erreur lors de l\'envoi: $e',
+        erreur: e.toString(),
+      );
+    }
+  }
+
+  /// Obtient le credit SMS restant depuis l'API backend.
+  Future<SmsCreditInfo?> getCredit() async {
+    final client = _dioClient;
+    if (client == null) return null;
+
+    try {
+      final response = await client.get<dynamic>('${ApiEndpoints.sms}/credit');
+
+      return response.fold((failure) => null, (data) {
+        final responseData = data as Map<String, dynamic>;
+        return SmsCreditInfo(
+          credit: responseData['credit'] as int? ?? 0,
+          accountExpDate: responseData['accountexpdate']?.toString(),
+          balanceExpDate: responseData['balanceexpdate']?.toString(),
+        );
+      });
+    } catch (e) {
+      return null;
+    }
   }
 
   @override

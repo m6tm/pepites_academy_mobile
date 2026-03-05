@@ -184,7 +184,7 @@ class SmsState extends ChangeNotifier {
 
   // --- Envoi ---
 
-  /// Envoie le SMS aux destinataires selectionnes.
+  /// Envoie le SMS aux destinataires selectionnes via l'API NEXAH.
   Future<bool> envoyerSms() async {
     if (_contenuMessage.trim().isEmpty) {
       _errorMessage = 'Le message ne peut pas etre vide.';
@@ -203,24 +203,36 @@ class SmsState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _smsService.envoyerSms(
+      final result = await _smsService.envoyerSms(
         contenu: _contenuMessage.trim(),
         destinataires: List.from(_destinatairesSelectionnes),
       );
 
-      _successMessage =
-          'SMS envoye a ${_destinatairesSelectionnes.length} destinataire(s).';
+      if (result.succes) {
+        final nbSucces = result.nbSucces ?? _destinatairesSelectionnes.length;
+        final nbEchecs = result.nbEchecs ?? 0;
 
-      // Reinitialiser apres envoi
-      _contenuMessage = '';
-      _destinatairesSelectionnes.clear();
+        if (nbEchecs > 0) {
+          _successMessage =
+              'SMS envoye a $nbSucces destinataire(s) sur ${_destinatairesSelectionnes.length}.';
+        } else {
+          _successMessage =
+              'SMS envoye avec succes a $nbSucces destinataire(s).';
+        }
+
+        // Reinitialiser apres envoi
+        _contenuMessage = '';
+        _destinatairesSelectionnes.clear();
+      } else {
+        _errorMessage = result.erreur ?? result.message;
+      }
 
       // Rafraichir les stats
       _statistiques = await _smsService.getStatistiques();
       _historique = await _smsService.getHistorique();
 
       notifyListeners();
-      return true;
+      return result.succes;
     } catch (e) {
       _errorMessage = 'Erreur lors de l\'envoi : $e';
       notifyListeners();
