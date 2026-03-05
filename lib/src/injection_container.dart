@@ -19,7 +19,6 @@ import 'application/services/auth_service.dart';
 import 'application/services/biometric_service.dart';
 import 'application/services/security_service.dart';
 import 'application/services/dashboard_service.dart';
-import 'domain/repositories/encadreur_repository.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
@@ -35,7 +34,6 @@ import 'infrastructure/datasources/sms_local_datasource.dart';
 import 'infrastructure/datasources/notification_local_datasource.dart';
 import 'infrastructure/datasources/sync_queue_local_datasource.dart';
 import 'infrastructure/datasources/api_sync_datasource_impl.dart';
-import 'infrastructure/network/api_endpoints.dart';
 import 'infrastructure/network/dio_client.dart';
 import 'infrastructure/network/auth_interceptor.dart';
 import 'infrastructure/repositories/activity_repository_impl.dart';
@@ -54,7 +52,6 @@ import 'infrastructure/repositories/sms_repository_impl.dart';
 import 'infrastructure/repositories/auth_repository_impl.dart';
 import 'infrastructure/repositories/notification_repository_impl.dart';
 import 'infrastructure/repositories/security_repository_impl.dart';
-import 'domain/entities/presence.dart';
 import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'infrastructure/services/firebase_push_notification_service.dart';
@@ -72,7 +69,7 @@ class DependencyInjection {
   static late final ActivityService activityService;
   static late final AppPreferences preferences;
   static late final AuthService authService;
-  static late final EncadreurRepository encadreurRepository;
+  static late final EncadreurRepositoryImpl encadreurRepository;
   static late final AcademicienRepositoryImpl academicienRepository;
   static late final PresenceRepositoryImpl presenceRepository;
   static late final SeanceRepositoryImpl seanceRepository;
@@ -113,7 +110,7 @@ class DependencyInjection {
   static late SmsLocalDatasource _smsDatasource;
   static late PosteFootballLocalDatasource _posteDatasource;
   static late NiveauScolaireLocalDatasource _niveauDatasource;
-  static late AcademicienLocalDatasource _academicienDatasource;
+  // AcademicienLocalDatasource non utilisé - syncFromApi déplacé dans le repository
   static late DioClient _dioClient;
 
   static DioClient get dioClient => _dioClient;
@@ -138,7 +135,6 @@ class DependencyInjection {
 
     // Initialisation du Repository Academicien
     final academicienDatasource = AcademicienLocalDatasource(sharedPrefs);
-    _academicienDatasource = academicienDatasource;
     academicienRepository = AcademicienRepositoryImpl(academicienDatasource);
 
     // Initialisation du Repository Presence
@@ -301,6 +297,7 @@ class DependencyInjection {
     notificationDatasource = NotificationLocalDatasource(sharedPrefs);
     notificationRepository = NotificationRepositoryImpl(
       notificationDatasource,
+      sharedPrefs,
       dioClient: _dioClient,
     );
     notificationRepository.setSyncService(syncService);
@@ -351,8 +348,11 @@ class DependencyInjection {
 
     // Injection du service de synchronisation dans les repositories
     academicienRepository.setSyncService(syncService);
+    academicienRepository.setDioClient(dioClient);
     encadreurRepoImpl.setSyncService(syncService);
+    encadreurRepoImpl.setDioClient(dioClient);
     presenceRepository.setSyncService(syncService);
+    presenceRepository.setDioClient(dioClient);
     seanceRepository.setSyncService(syncService);
     seanceRepository.setDioClient(dioClient);
     atelierRepository.setSyncService(syncService);
@@ -450,7 +450,7 @@ class DependencyInjection {
   /// Doit etre appelee apres l'authentification reussie.
   static Future<bool> syncAcademiciens() async {
     try {
-      return await _academicienDatasource.syncFromApi(_dioClient);
+      return await academicienRepository.syncFromApi();
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync academiciens: $e');
@@ -498,53 +498,7 @@ class DependencyInjection {
   /// Doit etre appelee apres l'authentification reussie.
   static Future<bool> syncPresences() async {
     try {
-      final result = await _dioClient.get<dynamic>(ApiEndpoints.presences);
-      return result.fold(
-        (failure) {
-          // ignore: avoid_print
-          print('[DI] Erreur sync presences: ${failure.message}');
-          return false;
-        },
-        (data) async {
-          final List<dynamic> rawList;
-          if (data is List) {
-            rawList = data;
-          } else if (data is Map<String, dynamic>) {
-            rawList = data.values.whereType<List>().expand((e) => e).toList();
-          } else {
-            return false;
-          }
-
-          final presences = rawList
-              .whereType<Map<String, dynamic>>()
-              .map(
-                (map) => Presence(
-                  id: map['id'] as String,
-                  horodateArrivee: DateTime.parse(
-                    (map['horodate_arrivee'] as String?) ??
-                        (map['horodateArrivee'] as String?) ??
-                        DateTime.now().toIso8601String(),
-                  ),
-                  typeProfil: _parseProfilType(map['type_profil'] as String?),
-                  profilId:
-                      (map['profil_id'] as String?) ??
-                      (map['profilId'] as String?) ??
-                      '',
-                  seanceId:
-                      (map['seance_id'] as String?) ??
-                      (map['seanceId'] as String?) ??
-                      '',
-                ),
-              )
-              .where((p) => p.id.isNotEmpty)
-              .toList();
-
-          await presenceRepository.upsertAllFromRemote(presences);
-          // ignore: avoid_print
-          print('[DI] Synced ${presences.length} presences from backend');
-          return true;
-        },
-      );
+      return await presenceRepository.syncFromApi();
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync presences: $e');
@@ -552,15 +506,39 @@ class DependencyInjection {
     }
   }
 
-  /// Parse le type de profil.
-  static ProfilType _parseProfilType(String? type) {
-    switch (type?.toLowerCase()) {
-      case 'academicien':
-        return ProfilType.academicien;
-      case 'encadreur':
-        return ProfilType.encadreur;
-      default:
-        return ProfilType.academicien;
+  /// Synchronise les encadreurs depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncEncadreurs() async {
+    try {
+      return await encadreurRepository.syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync encadreurs: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les preferences de notifications depuis le backend.
+  /// Doit etre appelee apres l'authentification reussie.
+  static Future<bool> syncNotificationPreferences() async {
+    try {
+      return await notificationRepository.syncPreferencesFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync preferences notifications: $e');
+      return false;
+    }
+  }
+
+  /// Envoie les preferences de notifications au backend.
+  /// Doit etre appelee apres modification des preferences.
+  static Future<bool> pushNotificationPreferences() async {
+    try {
+      return await notificationRepository.syncPreferencesToApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur envoi preferences notifications: $e');
+      return false;
     }
   }
 

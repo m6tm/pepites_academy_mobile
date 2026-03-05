@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../infrastructure/repositories/encadreur_repository_impl.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
@@ -80,10 +79,9 @@ class _EncadreurListPageState extends State<EncadreurListPage>
 
           if (remoteList.isNotEmpty) {
             // Accès direct à l'impl pour éviter l'interface abstraite
-            final repo = DependencyInjection.encadreurRepository;
-            if (repo is EncadreurRepositoryImpl) {
-              await repo.upsertAllFromRemote(remoteList);
-            }
+            await DependencyInjection.encadreurRepository.upsertAllFromRemote(
+              remoteList,
+            );
           }
         }
       } catch (_) {

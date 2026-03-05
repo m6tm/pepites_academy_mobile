@@ -71,4 +71,14 @@ class NotificationService {
     );
     return _notificationRepository.add(notification);
   }
+
+  /// Synchronise les preferences de notifications depuis le backend.
+  Future<bool> syncPreferencesFromApi() async {
+    return _notificationRepository.syncPreferencesFromApi();
+  }
+
+  /// Envoie les preferences de notifications au backend.
+  Future<bool> syncPreferencesToApi() async {
+    return _notificationRepository.syncPreferencesToApi();
+  }
 }

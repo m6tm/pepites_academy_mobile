@@ -8,7 +8,6 @@ import '../../../domain/entities/presence.dart';
 import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
 import '../../../infrastructure/network/api_endpoints.dart';
-import '../../../infrastructure/repositories/encadreur_repository_impl.dart';
 import '../../state/annotation_state.dart';
 import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
@@ -139,9 +138,9 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           .fetchAll(ApiEndpoints.encadreurs);
       if (encadreursJson != null) {
         final remote = encadreursJson.map(Encadreur.fromJson).toList();
-        final encRepo =
-            DependencyInjection.encadreurRepository as EncadreurRepositoryImpl;
-        await encRepo.upsertAllFromRemote(remote);
+        await DependencyInjection.encadreurRepository.upsertAllFromRemote(
+          remote,
+        );
       }
     } catch (_) {
       return;

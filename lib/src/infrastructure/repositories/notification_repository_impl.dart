@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/notification_item.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/notification_repository.dart';
@@ -10,11 +11,15 @@ import '../network/api_endpoints.dart';
 /// Delegue les operations au datasource local.
 class NotificationRepositoryImpl implements NotificationRepository {
   final NotificationLocalDatasource _datasource;
+  final SharedPreferences _prefs;
   final DioClient? _dioClient;
   SyncService? _syncService;
 
-  NotificationRepositoryImpl(this._datasource, {DioClient? dioClient})
-    : _dioClient = dioClient;
+  NotificationRepositoryImpl(
+    this._datasource,
+    this._prefs, {
+    DioClient? dioClient,
+  }) : _dioClient = dioClient;
 
   void setSyncService(SyncService service) {
     _syncService = service;
@@ -239,5 +244,97 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return _datasource.getAll();
       },
     );
+  }
+
+  /// Envoie les preferences de notifications au backend.
+  /// Retourne true si la synchronisation a reussi.
+  Future<bool> syncPreferencesToApi() async {
+    final client = _dioClient;
+    if (client == null) return false;
+
+    final preferences = <String, dynamic>{
+      'globales': _prefs.getBool('notif_globales') ?? true,
+      'seances': _prefs.getBool('notif_seances') ?? true,
+      'presences': _prefs.getBool('notif_presences') ?? true,
+      'annotations': _prefs.getBool('notif_annotations') ?? true,
+      'messages': _prefs.getBool('notif_messages') ?? true,
+      'rappels': _prefs.getBool('notif_rappels') ?? true,
+    };
+
+    try {
+      final result = await client.put<dynamic>(
+        ApiEndpoints.notificationPreferences,
+        data: preferences,
+      );
+
+      return result.fold((failure) {
+        // ignore: avoid_print
+        print('[NotificationRepo] Erreur sync preferences: ${failure.message}');
+        return false;
+      }, (_) => true);
+    } catch (e) {
+      // ignore: avoid_print
+      print('[NotificationRepo] Exception sync preferences: $e');
+      return false;
+    }
+  }
+
+  /// Recupere les preferences de notifications depuis le backend.
+  /// Met a jour les preferences locales.
+  /// Retourne true si la synchronisation a reussi.
+  Future<bool> syncPreferencesFromApi() async {
+    final client = _dioClient;
+    if (client == null) return false;
+
+    try {
+      final result = await client.get<dynamic>(
+        ApiEndpoints.notificationPreferences,
+      );
+
+      return await result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print(
+            '[NotificationRepo] Erreur recuperation preferences: ${failure.message}',
+          );
+          return false;
+        },
+        (data) async {
+          if (data is! Map<String, dynamic>) return false;
+
+          final globales = data['globales'] as bool?;
+          final seances = data['seances'] as bool?;
+          final presences = data['presences'] as bool?;
+          final annotations = data['annotations'] as bool?;
+          final messages = data['messages'] as bool?;
+          final rappels = data['rappels'] as bool?;
+
+          if (globales != null) {
+            await _prefs.setBool('notif_globales', globales);
+          }
+          if (seances != null) {
+            await _prefs.setBool('notif_seances', seances);
+          }
+          if (presences != null) {
+            await _prefs.setBool('notif_presences', presences);
+          }
+          if (annotations != null) {
+            await _prefs.setBool('notif_annotations', annotations);
+          }
+          if (messages != null) {
+            await _prefs.setBool('notif_messages', messages);
+          }
+          if (rappels != null) {
+            await _prefs.setBool('notif_rappels', rappels);
+          }
+
+          return true;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[NotificationRepo] Exception recuperation preferences: $e');
+      return false;
+    }
   }
 }
