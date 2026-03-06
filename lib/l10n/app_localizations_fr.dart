@@ -3087,4 +3087,121 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get securityTip3 => 'Verifiez regulierement vos appareils connectes';
+
+  @override
+  String get birthPlaceLabel => 'Lieu de naissance';
+
+  @override
+  String get birthPlaceHint => 'Ville, Pays';
+
+  @override
+  String get nationalityLabel => 'Nationalite';
+
+  @override
+  String get nationalityHint => 'Ex: Senegalaise';
+
+  @override
+  String get genderLabel => 'Sexe';
+
+  @override
+  String get male => 'Masculin';
+
+  @override
+  String get female => 'Feminin';
+
+  @override
+  String get contactLabel => 'Contact';
+
+  @override
+  String get contactSubtitle => 'Informations de contact';
+
+  @override
+  String get studentPhoneLabel => 'Telephone eleve';
+
+  @override
+  String get heightLabel => 'Taille (cm)';
+
+  @override
+  String get heightHint => 'Ex: 175';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get facebookHint => 'URL du profil Facebook';
+
+  @override
+  String get parentInfoLabel => 'Parent / Tuteur';
+
+  @override
+  String get parentInfoSubtitle => 'Informations du parent ou tuteur';
+
+  @override
+  String get parentNameLabel => 'Nom du parent';
+
+  @override
+  String get parentNameHint => 'Nom complet du parent';
+
+  @override
+  String get parentFunctionLabel => 'Fonction';
+
+  @override
+  String get parentFunctionHint => 'Profession ou occupation';
+
+  @override
+  String get parentEmailLabel => 'Email du parent';
+
+  @override
+  String get parentAddressLabel => 'Adresse';
+
+  @override
+  String get parentAddressHint => 'Adresse complete';
+
+  @override
+  String get strengthsLabel => 'Atouts';
+
+  @override
+  String get strengthsHint => 'Points forts du joueur';
+
+  @override
+  String get weaknessesLabel => 'Faiblesses';
+
+  @override
+  String get weaknessesHint => 'Axes d\'amelioration';
+
+  @override
+  String get performanceDescriptionLabel => 'Description des performances';
+
+  @override
+  String get performanceDescriptionHint => 'Observations sur les performances';
+
+  @override
+  String get sportsHistoryLabel => 'Historique sportif';
+
+  @override
+  String get sportsHistorySubtitle => 'Parcours dans les centres de formation';
+
+  @override
+  String get addHistoryEntry => 'Ajouter une entree';
+
+  @override
+  String get historyEntry => 'Entree';
+
+  @override
+  String get centerLabel => 'Centre';
+
+  @override
+  String get centerHint => 'Nom du centre';
+
+  @override
+  String get categoryLabel => 'Categorie';
+
+  @override
+  String get categoryHint => 'Ex: U15, U17';
+
+  @override
+  String get observationLabel => 'Observation';
+
+  @override
+  String get observationHint => 'Remarques sur cette periode';
 }

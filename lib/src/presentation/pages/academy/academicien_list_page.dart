@@ -174,7 +174,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
       result = result.where((a) {
         return a.nom.toLowerCase().contains(query) ||
             a.prenom.toLowerCase().contains(query) ||
-            a.telephoneParent.contains(query) ||
+            (a.telephoneParent?.contains(query) ?? false) ||
             _getPosteName(a.posteFootballId).toLowerCase().contains(query);
       }).toList();
     }

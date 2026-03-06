@@ -1,27 +1,66 @@
-/// Représente un élève inscrit à l'académie (Pépites Academy).
+import 'historique_parcours_sportif.dart';
+
+/// Represente un eleve inscrit a l'academie (Pepites Academy).
 class Academicien {
   final String id;
   final String nom;
   final String prenom;
   final DateTime dateNaissance;
+  final String? lieuNaissance;
+  final String? nationalite;
+  final String? sexe;
   final String photoUrl;
-  final String telephoneParent;
-  final String posteFootballId; // Référence à l'id du poste
-  final String niveauScolaireId; // Référence à l'id du niveau scolaire
+  final String? telephoneEleve;
+  final String? telephoneParent;
+  final int? taille;
+  final String? email;
+  final String? whatsapp;
+  final String? twitter;
+  final String? facebook;
+  final String posteFootballId;
+  final String niveauScolaireId;
   final String codeQrUnique;
-  final String? piedFort; // Optionnel (Gaucher, Droitier, Ambidextre)
+  final String? piedFort;
+  // Informations du parent/tuteur
+  final String? nomParent;
+  final String? fonctionParent;
+  final String? emailParent;
+  final String? adresseParent;
+  // Autres informations football
+  final String? atouts;
+  final String? faiblesses;
+  final String? descriptionPerformances;
+  // Historique du parcours sportif
+  final List<HistoriqueParcoursSportif> historiqueParcours;
 
   Academicien({
     required this.id,
     required this.nom,
     required this.prenom,
     required this.dateNaissance,
+    this.lieuNaissance,
+    this.nationalite,
+    this.sexe,
     required this.photoUrl,
-    required this.telephoneParent,
+    this.telephoneEleve,
+    this.telephoneParent,
+    this.taille,
+    this.email,
+    this.whatsapp,
+    this.twitter,
+    this.facebook,
     required this.posteFootballId,
     required this.niveauScolaireId,
     required this.codeQrUnique,
     this.piedFort,
+    this.nomParent,
+    this.fonctionParent,
+    this.emailParent,
+    this.adresseParent,
+    this.atouts,
+    this.faiblesses,
+    this.descriptionPerformances,
+    this.historiqueParcours = const [],
   });
 
   /// Serialise l'academicien en Map JSON.
@@ -31,12 +70,29 @@ class Academicien {
       'nom': nom,
       'prenom': prenom,
       'dateNaissance': dateNaissance.toIso8601String(),
+      'lieuNaissance': lieuNaissance,
+      'nationalite': nationalite,
+      'sexe': sexe,
       'photoUrl': photoUrl,
+      'telephoneEleve': telephoneEleve,
       'telephoneParent': telephoneParent,
+      'taille': taille,
+      'email': email,
+      'whatsapp': whatsapp,
+      'twitter': twitter,
+      'facebook': facebook,
       'posteFootballId': posteFootballId,
       'niveauScolaireId': niveauScolaireId,
       'codeQrUnique': codeQrUnique,
       'piedFort': piedFort,
+      'nomParent': nomParent,
+      'fonctionParent': fonctionParent,
+      'emailParent': emailParent,
+      'adresseParent': adresseParent,
+      'atouts': atouts,
+      'faiblesses': faiblesses,
+      'descriptionPerformances': descriptionPerformances,
+      'historiqueParcours': historiqueParcours.map((h) => h.toJson()).toList(),
     };
   }
 
@@ -50,12 +106,23 @@ class Academicien {
             json['date_naissance'] as String? ??
             DateTime.now().toIso8601String(),
       ),
+      lieuNaissance:
+          json['lieuNaissance'] as String? ?? json['lieu_naissance'] as String?,
+      nationalite: json['nationalite'] as String?,
+      sexe: json['sexe'] as String?,
       photoUrl:
           json['photoUrl'] as String? ?? json['photo_url'] as String? ?? '',
+      telephoneEleve:
+          json['telephoneEleve'] as String? ??
+          json['telephone_eleve'] as String?,
       telephoneParent:
           json['telephoneParent'] as String? ??
-          json['telephone_parent'] as String? ??
-          '',
+          json['telephone_parent'] as String?,
+      taille: json['taille'] as int?,
+      email: json['email'] as String?,
+      whatsapp: json['whatsapp'] as String?,
+      twitter: json['twitter'] as String?,
+      facebook: json['facebook'] as String?,
       posteFootballId:
           json['posteFootballId'] as String? ??
           json['poste_football_id'] as String? ??
@@ -69,6 +136,29 @@ class Academicien {
           json['code_qr_unique'] as String? ??
           '',
       piedFort: json['piedFort'] as String? ?? json['pied_fort'] as String?,
+      nomParent: json['nomParent'] as String? ?? json['nom_parent'] as String?,
+      fonctionParent:
+          json['fonctionParent'] as String? ??
+          json['fonction_parent'] as String?,
+      emailParent:
+          json['emailParent'] as String? ?? json['email_parent'] as String?,
+      adresseParent:
+          json['adresseParent'] as String? ?? json['adresse_parent'] as String?,
+      atouts: json['atouts'] as String?,
+      faiblesses: json['faiblesses'] as String?,
+      descriptionPerformances:
+          json['descriptionPerformances'] as String? ??
+          json['description_performances'] as String?,
+      historiqueParcours:
+          (json['historiqueParcours'] as List<dynamic>? ??
+                  json['historique_parcours'] as List<dynamic>? ??
+                  [])
+              .map(
+                (h) => HistoriqueParcoursSportif.fromJson(
+                  h as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
     );
   }
 }

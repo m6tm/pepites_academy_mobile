@@ -3071,4 +3071,121 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get securityTip3 => 'Regularly check your connected devices';
+
+  @override
+  String get birthPlaceLabel => 'Place of birth';
+
+  @override
+  String get birthPlaceHint => 'City, Country';
+
+  @override
+  String get nationalityLabel => 'Nationality';
+
+  @override
+  String get nationalityHint => 'E.g.: Senegalese';
+
+  @override
+  String get genderLabel => 'Gender';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get contactLabel => 'Contact';
+
+  @override
+  String get contactSubtitle => 'Contact information';
+
+  @override
+  String get studentPhoneLabel => 'Student phone';
+
+  @override
+  String get heightLabel => 'Height (cm)';
+
+  @override
+  String get heightHint => 'E.g.: 175';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get facebookHint => 'Facebook profile URL';
+
+  @override
+  String get parentInfoLabel => 'Parent / Guardian';
+
+  @override
+  String get parentInfoSubtitle => 'Parent or guardian information';
+
+  @override
+  String get parentNameLabel => 'Parent name';
+
+  @override
+  String get parentNameHint => 'Parent full name';
+
+  @override
+  String get parentFunctionLabel => 'Occupation';
+
+  @override
+  String get parentFunctionHint => 'Profession or occupation';
+
+  @override
+  String get parentEmailLabel => 'Parent email';
+
+  @override
+  String get parentAddressLabel => 'Address';
+
+  @override
+  String get parentAddressHint => 'Full address';
+
+  @override
+  String get strengthsLabel => 'Strengths';
+
+  @override
+  String get strengthsHint => 'Player strengths';
+
+  @override
+  String get weaknessesLabel => 'Weaknesses';
+
+  @override
+  String get weaknessesHint => 'Areas for improvement';
+
+  @override
+  String get performanceDescriptionLabel => 'Performance description';
+
+  @override
+  String get performanceDescriptionHint => 'Performance observations';
+
+  @override
+  String get sportsHistoryLabel => 'Sports history';
+
+  @override
+  String get sportsHistorySubtitle => 'Training center career';
+
+  @override
+  String get addHistoryEntry => 'Add entry';
+
+  @override
+  String get historyEntry => 'Entry';
+
+  @override
+  String get centerLabel => 'Center';
+
+  @override
+  String get centerHint => 'Center name';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get categoryHint => 'E.g.: U15, U17';
+
+  @override
+  String get observationLabel => 'Observation';
+
+  @override
+  String get observationHint => 'Remarks for this period';
 }

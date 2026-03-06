@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
+import '../../../domain/entities/historique_parcours_sportif.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../injection_container.dart';
@@ -28,7 +29,7 @@ class _AcademicienRegistrationPageState
   final PageController _pageController = PageController();
   AppLocalizations get l10n => AppLocalizations.of(context)!;
   int _currentStep = 0;
-  final int _totalSteps = 4;
+  final int _totalSteps = 7;
   bool _isLoading = false;
   Academicien? _createdAcademicien;
 
@@ -39,18 +40,41 @@ class _AcademicienRegistrationPageState
   // Form keys
   final _step1Key = GlobalKey<FormState>();
 
-  // Data Controllers - Step 1
+  // Data Controllers - Step 1 (Informations personnelles)
   final _nomController = TextEditingController();
   final _prenomController = TextEditingController();
   final _dateNaissanceController = TextEditingController();
-  final _telephoneParentController = TextEditingController();
+  final _lieuNaissanceController = TextEditingController();
+  final _nationaliteController = TextEditingController();
   DateTime? _selectedDate;
+  String? _selectedSexe;
 
-  // Data - Step 2
+  // Data Controllers - Step 2 (Contact)
+  final _telephoneEleveController = TextEditingController();
+  final _telephoneParentController = TextEditingController();
+  final _tailleController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _whatsappController = TextEditingController();
+  final _twitterController = TextEditingController();
+  final _facebookController = TextEditingController();
+
+  // Data Controllers - Step 3 (Parent/Tuteur)
+  final _nomParentController = TextEditingController();
+  final _fonctionParentController = TextEditingController();
+  final _emailParentController = TextEditingController();
+  final _adresseParentController = TextEditingController();
+
+  // Data - Step 4 (Football)
   String? _selectedPosteId;
   String? _selectedPiedFort;
+  final _atoutsController = TextEditingController();
+  final _faiblessesController = TextEditingController();
+  final _descriptionPerformancesController = TextEditingController();
 
-  // Data - Step 3
+  // Data - Step 5 (Historique sportif)
+  final List<HistoriqueParcoursSportif> _historiqueParcours = [];
+
+  // Data - Step 6 (Scolaire)
   String? _selectedNiveauId;
 
   // Donnees chargees dynamiquement depuis les referentiels
@@ -81,7 +105,22 @@ class _AcademicienRegistrationPageState
     _nomController.dispose();
     _prenomController.dispose();
     _dateNaissanceController.dispose();
+    _lieuNaissanceController.dispose();
+    _nationaliteController.dispose();
+    _telephoneEleveController.dispose();
     _telephoneParentController.dispose();
+    _tailleController.dispose();
+    _emailController.dispose();
+    _whatsappController.dispose();
+    _twitterController.dispose();
+    _facebookController.dispose();
+    _nomParentController.dispose();
+    _fonctionParentController.dispose();
+    _emailParentController.dispose();
+    _adresseParentController.dispose();
+    _atoutsController.dispose();
+    _faiblessesController.dispose();
+    _descriptionPerformancesController.dispose();
     super.dispose();
   }
 
@@ -90,7 +129,11 @@ class _AcademicienRegistrationPageState
     if (_currentStep == 0) {
       isValid = _step1Key.currentState!.validate();
     } else if (_currentStep == 1) {
-      if (_selectedPosteId == null || _selectedPiedFort == null) {
+      isValid = true; // Contact step - optional fields
+    } else if (_currentStep == 2) {
+      isValid = true; // Parent step - optional fields
+    } else if (_currentStep == 3) {
+      if (_selectedPosteId == null) {
         AcademyToast.show(
           context,
           title: l10n.requiredLabel,
@@ -100,7 +143,9 @@ class _AcademicienRegistrationPageState
       } else {
         isValid = true;
       }
-    } else if (_currentStep == 2) {
+    } else if (_currentStep == 4) {
+      isValid = true; // Historique step - optional
+    } else if (_currentStep == 5) {
       if (_selectedNiveauId == null) {
         AcademyToast.show(
           context,
@@ -114,7 +159,7 @@ class _AcademicienRegistrationPageState
     }
 
     if (isValid && _currentStep < _totalSteps - 1) {
-      if (_currentStep == 2) {
+      if (_currentStep == 5) {
         _confirmAndCreate();
       } else {
         _pageController.nextPage(
@@ -136,12 +181,62 @@ class _AcademicienRegistrationPageState
         nom: _nomController.text.trim(),
         prenom: _prenomController.text.trim(),
         dateNaissance: _selectedDate!,
+        lieuNaissance: _lieuNaissanceController.text.trim().isNotEmpty
+            ? _lieuNaissanceController.text.trim()
+            : null,
+        nationalite: _nationaliteController.text.trim().isNotEmpty
+            ? _nationaliteController.text.trim()
+            : null,
+        sexe: _selectedSexe,
         photoUrl: _photoFile?.path ?? '',
-        telephoneParent: _telephoneParentController.text.trim(),
+        telephoneEleve: _telephoneEleveController.text.trim().isNotEmpty
+            ? _telephoneEleveController.text.trim()
+            : null,
+        telephoneParent: _telephoneParentController.text.trim().isNotEmpty
+            ? _telephoneParentController.text.trim()
+            : null,
+        taille: _tailleController.text.trim().isNotEmpty
+            ? int.tryParse(_tailleController.text.trim())
+            : null,
+        email: _emailController.text.trim().isNotEmpty
+            ? _emailController.text.trim()
+            : null,
+        whatsapp: _whatsappController.text.trim().isNotEmpty
+            ? _whatsappController.text.trim()
+            : null,
+        twitter: _twitterController.text.trim().isNotEmpty
+            ? _twitterController.text.trim()
+            : null,
+        facebook: _facebookController.text.trim().isNotEmpty
+            ? _facebookController.text.trim()
+            : null,
         posteFootballId: _selectedPosteId!,
         niveauScolaireId: _selectedNiveauId!,
         codeQrUnique: qrCode,
         piedFort: _selectedPiedFort,
+        nomParent: _nomParentController.text.trim().isNotEmpty
+            ? _nomParentController.text.trim()
+            : null,
+        fonctionParent: _fonctionParentController.text.trim().isNotEmpty
+            ? _fonctionParentController.text.trim()
+            : null,
+        emailParent: _emailParentController.text.trim().isNotEmpty
+            ? _emailParentController.text.trim()
+            : null,
+        adresseParent: _adresseParentController.text.trim().isNotEmpty
+            ? _adresseParentController.text.trim()
+            : null,
+        atouts: _atoutsController.text.trim().isNotEmpty
+            ? _atoutsController.text.trim()
+            : null,
+        faiblesses: _faiblessesController.text.trim().isNotEmpty
+            ? _faiblessesController.text.trim()
+            : null,
+        descriptionPerformances:
+            _descriptionPerformancesController.text.trim().isNotEmpty
+            ? _descriptionPerformancesController.text.trim()
+            : null,
+        historiqueParcours: _historiqueParcours,
       );
 
       final created = await DependencyInjection.academicienRepository.create(
@@ -276,6 +371,9 @@ class _AcademicienRegistrationPageState
                 _buildStep2(theme, colorScheme),
                 _buildStep3(theme, colorScheme),
                 _buildStep4(theme, colorScheme),
+                _buildStep5(theme, colorScheme),
+                _buildStep6(theme, colorScheme),
+                _buildStep7(theme, colorScheme),
               ],
             ),
           ),
@@ -576,13 +674,48 @@ class _AcademicienRegistrationPageState
             ),
             const SizedBox(height: 20),
             _buildTextField(
-              controller: _telephoneParentController,
-              label: l10n.parentPhoneLabel,
-              hint: l10n.phoneHint,
-              icon: Icons.phone_android_outlined,
-              keyboardType: TextInputType.phone,
-              validator: (v) =>
-                  v == null || v.isEmpty ? l10n.requiredField : null,
+              controller: _lieuNaissanceController,
+              label: l10n.birthPlaceLabel,
+              hint: l10n.birthPlaceHint,
+              icon: Icons.place_outlined,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _nationaliteController,
+              label: l10n.nationalityLabel,
+              hint: l10n.nationalityHint,
+              icon: Icons.flag_outlined,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.genderLabel,
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildChoiceChip(
+                  label: l10n.male,
+                  icon: Icons.male_outlined,
+                  isSelected: _selectedSexe == l10n.male,
+                  onSelected: (s) =>
+                      setState(() => _selectedSexe = s ? l10n.male : null),
+                  colorScheme: colorScheme,
+                ),
+                const SizedBox(width: 12),
+                _buildChoiceChip(
+                  label: l10n.female,
+                  icon: Icons.female_outlined,
+                  isSelected: _selectedSexe == l10n.female,
+                  onSelected: (s) =>
+                      setState(() => _selectedSexe = s ? l10n.female : null),
+                  colorScheme: colorScheme,
+                ),
+              ],
             ),
           ],
         ),
@@ -590,8 +723,117 @@ class _AcademicienRegistrationPageState
     );
   }
 
-  // --- Step 2: Sport ---
+  // --- Step 2: Contact ---
   Widget _buildStep2(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(l10n.contactLabel, l10n.contactSubtitle),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _telephoneEleveController,
+            label: l10n.studentPhoneLabel,
+            hint: l10n.phoneHint,
+            icon: Icons.phone_android_outlined,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _telephoneParentController,
+            label: l10n.parentPhoneLabel,
+            hint: l10n.phoneHint,
+            icon: Icons.phone_android_outlined,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _tailleController,
+            label: l10n.heightLabel,
+            hint: l10n.heightHint,
+            icon: Icons.height_outlined,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _emailController,
+            label: l10n.emailLabel,
+            hint: l10n.emailHint,
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _whatsappController,
+            label: 'WhatsApp',
+            hint: l10n.phoneHint,
+            icon: Icons.chat_outlined,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _twitterController,
+            label: 'Twitter',
+            hint: '@username',
+            icon: Icons.alternate_email,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _facebookController,
+            label: 'Facebook',
+            hint: l10n.facebookHint,
+            icon: Icons.facebook_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Step 3: Parent/Tuteur ---
+  Widget _buildStep3(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(l10n.parentInfoLabel, l10n.parentInfoSubtitle),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _nomParentController,
+            label: l10n.parentNameLabel,
+            hint: l10n.parentNameHint,
+            icon: Icons.person_outline,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _fonctionParentController,
+            label: l10n.parentFunctionLabel,
+            hint: l10n.parentFunctionHint,
+            icon: Icons.work_outline,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _emailParentController,
+            label: l10n.parentEmailLabel,
+            hint: l10n.emailHint,
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _adresseParentController,
+            label: l10n.parentAddressLabel,
+            hint: l10n.parentAddressHint,
+            icon: Icons.home_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Step 4: Football ---
+  Widget _buildStep4(ThemeData theme, ColorScheme colorScheme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -665,13 +907,180 @@ class _AcademicienRegistrationPageState
               ),
             ],
           ),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _atoutsController,
+            label: l10n.strengthsLabel,
+            hint: l10n.strengthsHint,
+            icon: Icons.star_outline,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _faiblessesController,
+            label: l10n.weaknessesLabel,
+            hint: l10n.weaknessesHint,
+            icon: Icons.trending_down_outlined,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _descriptionPerformancesController,
+            label: l10n.performanceDescriptionLabel,
+            hint: l10n.performanceDescriptionHint,
+            icon: Icons.notes_outlined,
+          ),
         ],
       ),
     );
   }
 
-  // --- Step 3: Scolaire ---
-  Widget _buildStep3(ThemeData theme, ColorScheme colorScheme) {
+  // --- Step 5: Historique sportif ---
+  Widget _buildStep5(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            l10n.sportsHistoryLabel,
+            l10n.sportsHistorySubtitle,
+          ),
+          const SizedBox(height: 32),
+          ..._historiqueParcours.asMap().entries.map((entry) {
+            final index = entry.key;
+            final historique = entry.value;
+            return _buildHistoriqueCard(
+              index,
+              historique,
+              colorScheme,
+              theme.brightness == Brightness.dark,
+            );
+          }),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: () {
+              setState(() {
+                _historiqueParcours.add(HistoriqueParcoursSportif());
+              });
+            },
+            icon: const Icon(Icons.add_rounded),
+            label: Text(l10n.addHistoryEntry),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoriqueCard(
+    int index,
+    HistoriqueParcoursSportif historique,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surface : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${l10n.historyEntry} ${index + 1}',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _historiqueParcours.removeAt(index);
+                  });
+                },
+                icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.centre,
+            label: l10n.centerLabel,
+            hint: l10n.centerHint,
+            icon: Icons.sports_soccer_outlined,
+            onChanged: (v) {
+              _historiqueParcours[index] = HistoriqueParcoursSportif(
+                centre: v,
+                categorie: _historiqueParcours[index].categorie,
+                observation: _historiqueParcours[index].observation,
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.categorie,
+            label: l10n.categoryLabel,
+            hint: l10n.categoryHint,
+            icon: Icons.category_outlined,
+            onChanged: (v) {
+              _historiqueParcours[index] = HistoriqueParcoursSportif(
+                centre: _historiqueParcours[index].centre,
+                categorie: v,
+                observation: _historiqueParcours[index].observation,
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.observation,
+            label: l10n.observationLabel,
+            hint: l10n.observationHint,
+            icon: Icons.notes_outlined,
+            onChanged: (v) {
+              _historiqueParcours[index] = HistoriqueParcoursSportif(
+                centre: _historiqueParcours[index].centre,
+                categorie: _historiqueParcours[index].categorie,
+                observation: v,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInlineTextField({
+    String? initialValue,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required Function(String) onChanged,
+  }) {
+    return TextFormField(
+      initialValue: initialValue,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, size: 20),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  // --- Step 6: Scolaire ---
+  Widget _buildStep6(ThemeData theme, ColorScheme colorScheme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -748,7 +1157,7 @@ class _AcademicienRegistrationPageState
     );
   }
 
-  // --- Step 4: Recap & QR ---
+  // --- Step 7: Recap & QR ---
 
   String? _generatedQrCode;
 
@@ -787,7 +1196,7 @@ class _AcademicienRegistrationPageState
         .nom;
   }
 
-  Widget _buildStep4(ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildStep7(ThemeData theme, ColorScheme colorScheme) {
     if (_createdAcademicien == null) {
       return const Center(child: CircularProgressIndicator());
     }

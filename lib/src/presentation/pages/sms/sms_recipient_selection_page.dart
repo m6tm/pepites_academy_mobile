@@ -303,7 +303,8 @@ class _SmsRecipientSelectionPageState extends State<SmsRecipientSelectionPage>
           ),
         ),
         subtitle: Text(
-          academicien.telephoneParent,
+          academicien.telephoneParent ??
+              AppLocalizations.of(context)!.notSpecified,
           style: GoogleFonts.montserrat(
             fontSize: 11,
             color: colorScheme.onSurface.withValues(alpha: 0.4),

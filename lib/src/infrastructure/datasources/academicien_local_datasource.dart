@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/academicien.dart';
+import '../../domain/entities/historique_parcours_sportif.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
 
@@ -66,7 +67,7 @@ class AcademicienLocalDatasource {
     return all.where((e) {
       return e.nom.toLowerCase().contains(q) ||
           e.prenom.toLowerCase().contains(q) ||
-          e.telephoneParent.contains(q);
+          (e.telephoneParent?.contains(q) ?? false);
     }).toList();
   }
 
@@ -81,12 +82,31 @@ class AcademicienLocalDatasource {
       'nom': a.nom,
       'prenom': a.prenom,
       'dateNaissance': a.dateNaissance.toIso8601String(),
+      'lieuNaissance': a.lieuNaissance,
+      'nationalite': a.nationalite,
+      'sexe': a.sexe,
       'photoUrl': a.photoUrl,
+      'telephoneEleve': a.telephoneEleve,
       'telephoneParent': a.telephoneParent,
+      'taille': a.taille,
+      'email': a.email,
+      'whatsapp': a.whatsapp,
+      'twitter': a.twitter,
+      'facebook': a.facebook,
       'posteFootballId': a.posteFootballId,
       'niveauScolaireId': a.niveauScolaireId,
       'codeQrUnique': a.codeQrUnique,
       'piedFort': a.piedFort,
+      'nomParent': a.nomParent,
+      'fonctionParent': a.fonctionParent,
+      'emailParent': a.emailParent,
+      'adresseParent': a.adresseParent,
+      'atouts': a.atouts,
+      'faiblesses': a.faiblesses,
+      'descriptionPerformances': a.descriptionPerformances,
+      'historiqueParcours': a.historiqueParcours
+          .map((h) => h.toJson())
+          .toList(),
     };
   }
 
@@ -96,12 +116,37 @@ class AcademicienLocalDatasource {
       nom: json['nom'] as String,
       prenom: json['prenom'] as String,
       dateNaissance: DateTime.parse(json['dateNaissance'] as String),
-      photoUrl: json['photoUrl'] as String,
-      telephoneParent: json['telephoneParent'] as String,
-      posteFootballId: json['posteFootballId'] as String,
-      niveauScolaireId: json['niveauScolaireId'] as String,
-      codeQrUnique: json['codeQrUnique'] as String,
+      lieuNaissance: json['lieuNaissance'] as String?,
+      nationalite: json['nationalite'] as String?,
+      sexe: json['sexe'] as String?,
+      photoUrl: json['photoUrl'] as String? ?? '',
+      telephoneEleve: json['telephoneEleve'] as String?,
+      telephoneParent: json['telephoneParent'] as String?,
+      taille: json['taille'] as int?,
+      email: json['email'] as String?,
+      whatsapp: json['whatsapp'] as String?,
+      twitter: json['twitter'] as String?,
+      facebook: json['facebook'] as String?,
+      posteFootballId: json['posteFootballId'] as String? ?? '',
+      niveauScolaireId: json['niveauScolaireId'] as String? ?? '',
+      codeQrUnique: json['codeQrUnique'] as String? ?? '',
       piedFort: json['piedFort'] as String?,
+      nomParent: json['nomParent'] as String?,
+      fonctionParent: json['fonctionParent'] as String?,
+      emailParent: json['emailParent'] as String?,
+      adresseParent: json['adresseParent'] as String?,
+      atouts: json['atouts'] as String?,
+      faiblesses: json['faiblesses'] as String?,
+      descriptionPerformances: json['descriptionPerformances'] as String?,
+      historiqueParcours:
+          (json['historiqueParcours'] as List<dynamic>?)
+              ?.map(
+                (h) => HistoriqueParcoursSportif.fromJson(
+                  h as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          [],
     );
   }
 

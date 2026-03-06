@@ -5551,6 +5551,240 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Verifiez regulierement vos appareils connectes'**
   String get securityTip3;
+
+  /// No description provided for @birthPlaceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lieu de naissance'**
+  String get birthPlaceLabel;
+
+  /// No description provided for @birthPlaceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville, Pays'**
+  String get birthPlaceHint;
+
+  /// No description provided for @nationalityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nationalite'**
+  String get nationalityLabel;
+
+  /// No description provided for @nationalityHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Senegalaise'**
+  String get nationalityHint;
+
+  /// No description provided for @genderLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sexe'**
+  String get genderLabel;
+
+  /// No description provided for @male.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masculin'**
+  String get male;
+
+  /// No description provided for @female.
+  ///
+  /// In fr, this message translates to:
+  /// **'Feminin'**
+  String get female;
+
+  /// No description provided for @contactLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contact'**
+  String get contactLabel;
+
+  /// No description provided for @contactSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations de contact'**
+  String get contactSubtitle;
+
+  /// No description provided for @studentPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Telephone eleve'**
+  String get studentPhoneLabel;
+
+  /// No description provided for @heightLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille (cm)'**
+  String get heightLabel;
+
+  /// No description provided for @heightHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: 175'**
+  String get heightHint;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @facebookHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'URL du profil Facebook'**
+  String get facebookHint;
+
+  /// No description provided for @parentInfoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parent / Tuteur'**
+  String get parentInfoLabel;
+
+  /// No description provided for @parentInfoSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations du parent ou tuteur'**
+  String get parentInfoSubtitle;
+
+  /// No description provided for @parentNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du parent'**
+  String get parentNameLabel;
+
+  /// No description provided for @parentNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom complet du parent'**
+  String get parentNameHint;
+
+  /// No description provided for @parentFunctionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonction'**
+  String get parentFunctionLabel;
+
+  /// No description provided for @parentFunctionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profession ou occupation'**
+  String get parentFunctionHint;
+
+  /// No description provided for @parentEmailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email du parent'**
+  String get parentEmailLabel;
+
+  /// No description provided for @parentAddressLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse'**
+  String get parentAddressLabel;
+
+  /// No description provided for @parentAddressHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse complete'**
+  String get parentAddressHint;
+
+  /// No description provided for @strengthsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Atouts'**
+  String get strengthsLabel;
+
+  /// No description provided for @strengthsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points forts du joueur'**
+  String get strengthsHint;
+
+  /// No description provided for @weaknessesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faiblesses'**
+  String get weaknessesLabel;
+
+  /// No description provided for @weaknessesHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Axes d\'amelioration'**
+  String get weaknessesHint;
+
+  /// No description provided for @performanceDescriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description des performances'**
+  String get performanceDescriptionLabel;
+
+  /// No description provided for @performanceDescriptionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Observations sur les performances'**
+  String get performanceDescriptionHint;
+
+  /// No description provided for @sportsHistoryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique sportif'**
+  String get sportsHistoryLabel;
+
+  /// No description provided for @sportsHistorySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours dans les centres de formation'**
+  String get sportsHistorySubtitle;
+
+  /// No description provided for @addHistoryEntry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une entree'**
+  String get addHistoryEntry;
+
+  /// No description provided for @historyEntry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entree'**
+  String get historyEntry;
+
+  /// No description provided for @centerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Centre'**
+  String get centerLabel;
+
+  /// No description provided for @centerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du centre'**
+  String get centerHint;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Categorie'**
+  String get categoryLabel;
+
+  /// No description provided for @categoryHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: U15, U17'**
+  String get categoryHint;
+
+  /// No description provided for @observationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Observation'**
+  String get observationLabel;
+
+  /// No description provided for @observationHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remarques sur cette periode'**
+  String get observationHint;
 }
 
 class _AppLocalizationsDelegate
