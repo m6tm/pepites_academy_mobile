@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../../injection_container.dart';
+import '../../../application/services/registration_form_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/academy_toast.dart';
 import '../bulletin/bulletin_page.dart';
 import 'academicien_edit_page.dart';
 
@@ -188,6 +191,43 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
         setState(() => _academicien = updated);
       }
     });
+  }
+
+  Future<void> _genererFicheInscription() async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      final service = RegistrationFormService();
+      final file = await service.genererFicheInscription(
+        academicien: _academicien,
+        posteName: _getPosteName(),
+        niveauName: _getNiveauName(),
+      );
+
+      if (mounted) {
+        AcademyToast.show(
+          context,
+          title: 'Fiche générée',
+          description: 'La fiche d\'inscription a été générée avec succès',
+        );
+
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          subject:
+              'Fiche d\'inscription - ${_academicien.prenom} ${_academicien.nom}',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AcademyToast.show(
+          context,
+          title: l10n.error,
+          description:
+              'Erreur lors de la génération de la fiche: ${e.toString()}',
+          isError: true,
+        );
+      }
+    }
   }
 
   void _showQrFullScreen() {
@@ -961,6 +1001,15 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             onTap: () {
               Navigator.pop(context);
               _ouvrirEdition();
+            },
+          ),
+          _OptionItem(
+            icon: Icons.description_rounded,
+            label: 'Générer la fiche d\'inscription',
+            color: const Color(0xFF8B5CF6),
+            onTap: () {
+              Navigator.pop(context);
+              _genererFicheInscription();
             },
           ),
           _OptionItem(

@@ -170,13 +170,71 @@ class AcademicienLocalDatasource {
               id: map['id'] as String,
               nom: map['nom'] as String,
               prenom: map['prenom'] as String,
-              dateNaissance: DateTime.parse(map['date_naissance'] as String),
-              photoUrl: (map['photo_url'] as String?) ?? '',
-              telephoneParent: map['telephone_parent'] as String,
-              posteFootballId: (map['poste_football_id'] as String?) ?? '',
-              niveauScolaireId: (map['niveau_scolaire_id'] as String?) ?? '',
-              codeQrUnique: map['code_qr_unique'] as String,
-              piedFort: map['pied_fort'] as String?,
+              dateNaissance: DateTime.parse(
+                map['date_naissance'] as String? ??
+                    map['dateNaissance'] as String? ??
+                    DateTime.now().toIso8601String(),
+              ),
+              lieuNaissance:
+                  map['lieu_naissance'] as String? ??
+                  map['lieuNaissance'] as String?,
+              nationalite: map['nationalite'] as String?,
+              sexe: map['sexe'] as String?,
+              photoUrl:
+                  (map['photo_url'] as String?) ??
+                  (map['photoUrl'] as String?) ??
+                  '',
+              telephoneEleve:
+                  map['telephone_eleve'] as String? ??
+                  map['telephoneEleve'] as String?,
+              telephoneParent:
+                  map['telephone_parent'] as String? ??
+                  map['telephoneParent'] as String?,
+              taille: map['taille'] as int?,
+              email: map['email'] as String?,
+              whatsapp: map['whatsapp'] as String?,
+              twitter: map['twitter'] as String?,
+              facebook: map['facebook'] as String?,
+              posteFootballId:
+                  (map['poste_football_id'] as String?) ??
+                  (map['posteFootballId'] as String?) ??
+                  '',
+              niveauScolaireId:
+                  (map['niveau_scolaire_id'] as String?) ??
+                  (map['niveauScolaireId'] as String?) ??
+                  '',
+              codeQrUnique:
+                  (map['code_qr_unique'] as String?) ??
+                  (map['codeQrUnique'] as String?) ??
+                  '',
+              piedFort:
+                  map['pied_fort'] as String? ?? map['piedFort'] as String?,
+              nomParent:
+                  map['nom_parent'] as String? ?? map['nomParent'] as String?,
+              fonctionParent:
+                  map['fonction_parent'] as String? ??
+                  map['fonctionParent'] as String?,
+              emailParent:
+                  map['email_parent'] as String? ??
+                  map['emailParent'] as String?,
+              adresseParent:
+                  map['adresse_parent'] as String? ??
+                  map['adresseParent'] as String?,
+              atouts: map['atouts'] as String?,
+              faiblesses: map['faiblesses'] as String?,
+              descriptionPerformances:
+                  map['description_performances'] as String? ??
+                  map['descriptionPerformances'] as String?,
+              historiqueParcours:
+                  (map['historique_parcours'] as List<dynamic>? ??
+                          map['historiqueParcours'] as List<dynamic>? ??
+                          [])
+                      .map(
+                        (h) => HistoriqueParcoursSportif.fromJson(
+                          h as Map<String, dynamic>,
+                        ),
+                      )
+                      .toList(),
             );
           }).toList();
           await saveAll(academiciens);
