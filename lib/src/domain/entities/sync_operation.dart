@@ -14,6 +14,7 @@ enum SyncEntityType {
   niveauScolaire,
   posteFootball,
   smsMessage,
+  fcmToken,
 }
 
 /// Statuts possibles d'une operation de synchronisation.

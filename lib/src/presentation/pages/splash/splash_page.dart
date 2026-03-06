@@ -83,6 +83,10 @@ class _SplashPageState extends State<SplashPage>
         await DependencyInjection.syncReferentiels();
         await DependencyInjection.syncAcademiciens();
 
+        // Envoyer le token FCM au serveur (session active)
+        await DependencyInjection.firebasePushNotificationService
+            .sendTokenToServer();
+
         // Synchroniser les opérations en attente (présences, etc.)
         DependencyInjection.syncState.syncNow();
 
@@ -210,6 +214,11 @@ class _SplashPageState extends State<SplashPage>
 
     await DependencyInjection.syncReferentiels();
     await DependencyInjection.syncAcademiciens();
+
+    // Envoyer le token FCM au serveur (session active)
+    await DependencyInjection.firebasePushNotificationService
+        .sendTokenToServer();
+
     DependencyInjection.syncState.syncNow();
 
     final roleId = await preferences.getUserRole();

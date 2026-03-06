@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/notification_item.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../datasources/notification_local_datasource.dart';
 import '../network/api_endpoints.dart';
 import '../../injection_container.dart';
@@ -293,9 +294,18 @@ class FirebasePushNotificationService {
     return _prefs.getBool('notif_globales') ?? true;
   }
 
-  /// Envoie le token FCM au serveur backend
+  /// Envoie le token FCM au serveur backend via la queue de synchronisation.
+  /// Retourne true si l'operation a ete mise en file d'attente, false sinon.
+  /// Si aucune session n'est active, l'envoi est ignore.
   Future<bool> sendTokenToServer() async {
     try {
+      // Verifier si une session est active avant d'envoyer le token
+      final isLoggedIn = _prefs.getBool('user_role') != null;
+      if (!isLoggedIn) {
+        debugPrint('Session non active, envoi token FCM differe');
+        return false;
+      }
+
       final token = await _firebaseMessaging.getToken();
       if (token == null) {
         debugPrint('Aucun token FCM disponible');
@@ -308,8 +318,11 @@ class FirebasePushNotificationService {
           ? 'ios'
           : 'web';
 
-      final result = await DependencyInjection.dioClient.post<dynamic>(
-        ApiEndpoints.fcmToken,
+      // Ajouter l'operation dans la queue de synchronisation (non bloquant)
+      await DependencyInjection.syncService.enqueueOperation(
+        entityType: SyncEntityType.fcmToken,
+        entityId: token,
+        operationType: SyncOperationType.create,
         data: {
           'token': token,
           'platform': platform,
@@ -318,18 +331,10 @@ class FirebasePushNotificationService {
         },
       );
 
-      return result.fold(
-        (failure) {
-          debugPrint('Erreur envoi token FCM au serveur: $failure');
-          return false;
-        },
-        (data) {
-          debugPrint('Token FCM envoyé au serveur avec succès');
-          return true;
-        },
-      );
+      debugPrint('Token FCM mis en file d\'attente pour envoi');
+      return true;
     } catch (e) {
-      debugPrint('Exception envoi token FCM: $e');
+      debugPrint('Exception mise en file token FCM: $e');
       return false;
     }
   }
@@ -362,10 +367,11 @@ class FirebasePushNotificationService {
   }
 
   /// Écoute les changements de token FCM et les envoie au serveur
+  /// L'envoi n'est effectue que si une session est active.
   void setupTokenRefreshListener() {
-    _firebaseMessaging.onTokenRefresh.listen((newToken) {
+    _firebaseMessaging.onTokenRefresh.listen((newToken) async {
       debugPrint('FCM Token rafraîchi: $newToken');
-      sendTokenToServer();
+      await sendTokenToServer();
     });
   }
 

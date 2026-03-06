@@ -63,6 +63,10 @@ class _LoginPageState extends State<LoginPage> {
         await DependencyInjection.syncReferentiels();
         await DependencyInjection.syncAcademiciens();
 
+        // Envoyer le token FCM au serveur maintenant que la session est active
+        await DependencyInjection.firebasePushNotificationService
+            .sendTokenToServer();
+
         // Synchroniser les opérations en attente (présences, etc.)
         DependencyInjection.syncState.syncNow();
 

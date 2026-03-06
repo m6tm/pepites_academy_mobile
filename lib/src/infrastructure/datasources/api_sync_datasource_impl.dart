@@ -22,6 +22,10 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
       return _handleNotificationOperation(operation, endpoint, payload);
     }
 
+    if (operation.entityType == SyncEntityType.fcmToken) {
+      return _handleFcmTokenOperation(operation, endpoint, payload);
+    }
+
     switch (operation.operationType) {
       case SyncOperationType.create:
         return _handleCreate(endpoint, payload);
@@ -120,6 +124,33 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     }
   }
 
+  /// Gère l'envoi du token FCM au serveur.
+  Future<SyncResult> _handleFcmTokenOperation(
+    SyncOperation operation,
+    String endpoint,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      // Pour le token FCM, on utilise toujours POST (create/update)
+      final result = await _dioClient.post(endpoint, data: payload);
+
+      return result.fold(
+        (failure) => SyncResult(
+          success: false,
+          errorMessage:
+              failure.message ?? 'Erreur lors de l\'envoi du token FCM',
+          statusCode: failure.statusCode,
+        ),
+        (response) => SyncResult(
+          success: true,
+          serverResponse: response as Map<String, dynamic>?,
+        ),
+      );
+    } catch (e) {
+      return SyncResult(success: false, errorMessage: 'Exception: $e');
+    }
+  }
+
   /// Gère la création d'une entité via POST.
   Future<SyncResult> _handleCreate(
     String endpoint,
@@ -213,6 +244,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return '/sms';
       case SyncEntityType.notification:
         return ApiEndpoints.notifications;
+      case SyncEntityType.fcmToken:
+        return ApiEndpoints.fcmToken;
     }
   }
 
