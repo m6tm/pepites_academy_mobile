@@ -4,6 +4,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../../application/services/biometric_service.dart';
 import '../../../application/services/device_info_service.dart';
+import '../../../application/services/role_service.dart';
+import '../../../domain/entities/role.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
@@ -70,8 +72,8 @@ class _LoginPageState extends State<LoginPage> {
         // Synchroniser les opérations en attente (présences, etc.)
         DependencyInjection.syncState.syncNow();
 
-        final roleStr =
-            await DependencyInjection.preferences.getUserRole() ?? 'encadreur';
+        // Récupérer le rôle via le RoleService (avec cache local pour hors-ligne)
+        final role = await DependencyInjection.roleService.getCurrentUserRole();
         final userName =
             await DependencyInjection.preferences.getUserName() ?? email;
         final photoUrl = await DependencyInjection.preferences.getUserPhoto();
@@ -81,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
         AcademyToast.show(
           context,
           title: l10n.welcomeBack,
-          description: l10n.connectedAs(roleStr),
+          description: l10n.connectedAs(role.displayName),
           isSuccess: true,
         );
 
@@ -90,22 +92,11 @@ class _LoginPageState extends State<LoginPage> {
 
         if (!mounted) return;
 
-        // Navigation vers le dashboard selon le role
+        // Navigation vers le dashboard selon le rôle
         if (shouldNavigate) {
           await Future.delayed(const Duration(milliseconds: 500));
           if (mounted) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) =>
-                    (roleStr.toLowerCase() == 'admin' ||
-                        roleStr.toLowerCase() == 'administrateur')
-                    ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
-                    : EncadreurDashboardPage(
-                        userName: userName,
-                        photoUrl: photoUrl,
-                      ),
-              ),
-            );
+            _navigateToDashboard(role, userName, photoUrl);
           }
         }
       } else {
@@ -244,6 +235,58 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     return true;
+  }
+
+  /// Navigation vers le dashboard approprié selon le rôle de l'utilisateur.
+  void _navigateToDashboard(Role role, String userName, String? photoUrl) {
+    final dashboardType = DependencyInjection.roleService.getDashboardForRole(
+      role,
+    );
+
+    Widget dashboardPage;
+    switch (dashboardType) {
+      case DashboardType.admin:
+        // Les rôles admin (supAdmin, admin) vont vers le dashboard admin
+        dashboardPage = AdminDashboardPage(
+          userName: userName,
+          photoUrl: photoUrl,
+        );
+        break;
+      case DashboardType.encadreur:
+        // Les rôles encadreur (encadreurChef, encadreur) vont vers le dashboard encadreur
+        dashboardPage = EncadreurDashboardPage(
+          userName: userName,
+          photoUrl: photoUrl,
+        );
+        break;
+      case DashboardType.medecin:
+        // Le rôle medecinChef utilise le dashboard encadreur pour l'instant
+        // TODO: Créer un dashboard spécifique pour les médecins
+        dashboardPage = EncadreurDashboardPage(
+          userName: userName,
+          photoUrl: photoUrl,
+        );
+        break;
+      case DashboardType.surveillant:
+        // Le rôle surveillantGeneral utilise le dashboard encadreur pour l'instant
+        // TODO: Créer un dashboard spécifique pour les surveillants
+        dashboardPage = EncadreurDashboardPage(
+          userName: userName,
+          photoUrl: photoUrl,
+        );
+        break;
+      case DashboardType.visiteur:
+        // Le rôle visiteur a un accès limité, utilise le dashboard encadreur en lecture seule
+        dashboardPage = EncadreurDashboardPage(
+          userName: userName,
+          photoUrl: photoUrl,
+        );
+        break;
+    }
+
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => dashboardPage));
   }
 
   @override

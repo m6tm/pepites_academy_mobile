@@ -15,6 +15,7 @@ class AppPreferences {
   static const String _keyUserId = 'user_id';
   static const String _keyUserName = 'user_name';
   static const String _keyUserPrenom = 'user_prenom';
+  static const String _keyUserEmail = 'user_email';
   static const String _keyUserPhoto = 'user_photo';
   static const String _keyToken = 'access_token';
   static const String _keyRefreshToken = 'refresh_token';
@@ -47,6 +48,7 @@ class AppPreferences {
     required String userId,
     required String userName,
     String? userPrenom,
+    String? userEmail,
     String? photoUrl,
   }) async {
     await _repository.setString(_keyUserRole, role);
@@ -54,6 +56,9 @@ class AppPreferences {
     await _repository.setString(_keyUserName, userName);
     if (userPrenom != null && userPrenom.isNotEmpty) {
       await _repository.setString(_keyUserPrenom, userPrenom);
+    }
+    if (userEmail != null && userEmail.isNotEmpty) {
+      await _repository.setString(_keyUserEmail, userEmail);
     }
     if (photoUrl != null && photoUrl.isNotEmpty) {
       await _repository.setString(_keyUserPhoto, photoUrl);
@@ -84,6 +89,11 @@ class AppPreferences {
   /// Récupère le prénom de l'utilisateur connecté.
   Future<String?> getUserPrenom() async {
     return _repository.getString(_keyUserPrenom);
+  }
+
+  /// Récupère l'email de l'utilisateur connecté.
+  Future<String?> getUserEmail() async {
+    return _repository.getString(_keyUserEmail);
   }
 
   /// Récupère le nom complet (prénom + nom) de l'utilisateur connecté.

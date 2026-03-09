@@ -76,6 +76,12 @@ class ApiEndpoints {
   /// Chemins pour le dashboard.
   static const String dashboardStats = '/dashboard/stats';
 
+  /// Chemins pour les rôles et permissions.
+  static const String roles = '/roles';
+  static const String rolePermissions = '/roles/permissions';
+  static const String roleUsers = '/roles/users';
+  static const String roleStats = '/roles/stats';
+
   /// Délais d'expiration des requêtes (en millisecondes).
   static const int receiveTimeout = 15000;
   static const int connectionTimeout = 15000;

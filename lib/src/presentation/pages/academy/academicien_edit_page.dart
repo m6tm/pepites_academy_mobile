@@ -661,11 +661,14 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                           ? Image.network(
                               widget.academicien.photoUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                Icons.person_outline_rounded,
-                                size: 50,
-                                color: AppColors.primary.withValues(alpha: 0.4),
-                              ),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(
+                                    Icons.person_outline_rounded,
+                                    size: 50,
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                  ),
                             )
                           : Icon(
                               Icons.person_outline_rounded,

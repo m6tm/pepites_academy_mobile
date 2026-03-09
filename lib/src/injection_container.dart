@@ -19,6 +19,7 @@ import 'application/services/auth_service.dart';
 import 'application/services/biometric_service.dart';
 import 'application/services/security_service.dart';
 import 'application/services/dashboard_service.dart';
+import 'application/services/role_service.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
@@ -54,6 +55,7 @@ import 'infrastructure/repositories/notification_repository_impl.dart';
 import 'infrastructure/repositories/security_repository_impl.dart';
 import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
+import 'infrastructure/repositories/role_repository_impl.dart';
 import 'infrastructure/services/firebase_push_notification_service.dart';
 import 'presentation/state/connectivity_state.dart';
 import 'presentation/state/search_state.dart';
@@ -103,6 +105,8 @@ class DependencyInjection {
   static late final SecurityRepositoryImpl securityRepository;
   static late final ApiSyncDatasourceImpl apiSyncDatasource;
   static late final DashboardService dashboardService;
+  static late final RoleService roleService;
+  static late final RoleRepositoryImpl roleRepository;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
   static late PreferencesRepositoryImpl _preferencesRepository;
@@ -330,6 +334,10 @@ class DependencyInjection {
 
     // Initialisation du service Dashboard
     dashboardService = DashboardService(dioClient: _dioClient);
+
+    // Initialisation du module de rôles et permissions
+    roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
+    roleService = RoleService(roleRepository: roleRepository);
 
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,

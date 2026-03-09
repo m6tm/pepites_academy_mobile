@@ -44,8 +44,6 @@ class ExceptionMapper {
       );
     }
 
-    // TODO: Ajouter la gestion des erreurs Dio/Http ici une fois les dependances ajoutees.
-
     return UnknownException(
       "Une erreur inattendue est survenue (technique).",
       error.toString(),

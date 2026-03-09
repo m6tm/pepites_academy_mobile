@@ -97,6 +97,7 @@ class AuthRepositoryImpl implements AuthRepository {
             userId: encadreurId,
             userName: displayName,
             userPrenom: prenom,
+            userEmail: emailResponse,
             photoUrl: photoUrl,
           );
         }
