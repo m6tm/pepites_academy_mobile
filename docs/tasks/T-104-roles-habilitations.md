@@ -47,7 +47,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 
 ---
 
-### [T-104.4] Interface de gestion des rôles
+### [T-104.4] Interface de gestion des rôles [DONE]
 
 - **Objectif :** Permettre aux administrateurs de gérer les rôles utilisateurs.
 - **Pré-requis :** Permission `user:assign_role` (SupAdmin, Admin)
@@ -61,7 +61,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 
 ---
 
-### [T-104.5] Composants UI conditionnels
+### [T-104.5] Composants UI conditionnels [DONE]
 
 - **Objectif :** Afficher/masquer les éléments UI selon les permissions.
 - **Actions :**
@@ -69,6 +69,11 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Badge visuel pour afficher le rôle de l'utilisateur
   - Sélecteur de rôle pour les formulaires
   - Page d'erreur pour accès non autorisé
+- **Fichiers créés :**
+  - `lib/src/presentation/widgets/permission_guard.dart` - Widget d'affichage conditionnel
+  - `lib/src/presentation/widgets/role_badge.dart` - Badge visuel pour les rôles
+  - `lib/src/presentation/widgets/role_selector.dart` - Sélecteur de rôle pour formulaires
+  - `lib/src/presentation/pages/error/unauthorized_page.dart` - Page d'erreur accès non autorisé
 - **Important :**
   - L'UI masque les éléments non autorisés, mais la validation finale reste côté serveur.
   - Les permissions doivent être vérifiées côté backend pour des raisons de sécurité.

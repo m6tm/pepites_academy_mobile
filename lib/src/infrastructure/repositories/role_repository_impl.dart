@@ -35,6 +35,12 @@ class RoleRepositoryImpl implements RoleRepository {
 
   RoleRepositoryImpl(this._dioClient, this._sharedPrefs);
 
+  /// Retourne le rôle en cache de manière synchrone.
+  ///
+  /// Utile pour les vérifications de permissions sans appel asynchrone.
+  /// Retourne null si le rôle n'est pas encore chargé.
+  Role? get cachedRole => _cachedRole;
+
   @override
   Future<Role> getCurrentUserRole() async {
     // Retourner le rôle en cache si disponible
