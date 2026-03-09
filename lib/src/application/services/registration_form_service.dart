@@ -51,22 +51,22 @@ class RegistrationFormService {
                 child: _buildBottomBand(),
               ),
               pw.Padding(
-                padding: pw.EdgeInsets.fromLTRB(40, headerHeight + 20, 40, 28),
+                padding: pw.EdgeInsets.fromLTRB(40, headerHeight + 12, 40, 20),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     _buildTitle(),
-                    pw.SizedBox(height: 15),
+                    pw.SizedBox(height: 8),
                     _buildAnneeSportive(),
-                    pw.SizedBox(height: 20),
+                    pw.SizedBox(height: 10),
                     _buildIdentificationSection(academicien),
-                    pw.SizedBox(height: 15),
+                    pw.SizedBox(height: 8),
                     _buildParentSection(academicien),
-                    pw.SizedBox(height: 15),
+                    pw.SizedBox(height: 8),
                     _buildHistoriqueSection(academicien),
-                    pw.SizedBox(height: 15),
+                    pw.SizedBox(height: 8),
                     _buildFootballSection(academicien, posteName),
-                    pw.SizedBox(height: 40),
+                    pw.SizedBox(height: 10),
                     _buildSignatureSection(),
                   ],
                 ),
@@ -245,7 +245,7 @@ class RegistrationFormService {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
-          'HISTORIQUE DU PARCOURS SPORTIF DES 3 DERNIÈRES ANNÉES',
+          'INFORMATIONS SCOLAIRES',
           style: pw.TextStyle(
             fontSize: 9,
             fontWeight: pw.FontWeight.bold,
@@ -259,9 +259,11 @@ class RegistrationFormService {
             pw.TableRow(
               decoration: pw.BoxDecoration(color: PdfColors.grey200),
               children: [
-                _buildTableCell('CENTRE', isHeader: true),
-                _buildTableCell('CATÉGORIE', isHeader: true),
-                _buildTableCell('OBSERVATION', isHeader: true),
+                _buildTableCell('Centres', isHeader: true),
+                _buildTableCell('Catégories', isHeader: true),
+                _buildTableCell('Etablissements', isHeader: true),
+                _buildTableCell('Années scolaire', isHeader: true),
+                _buildTableCell('Classes', isHeader: true),
               ],
             ),
             ...academicien.historiqueParcours.map(
@@ -269,7 +271,9 @@ class RegistrationFormService {
                 children: [
                   _buildTableCell(h.centre ?? ''),
                   _buildTableCell(h.categorie ?? ''),
-                  _buildTableCell(h.observation ?? ''),
+                  _buildTableCell(h.etablissement ?? ''),
+                  _buildTableCell(h.anneeScolaire ?? ''),
+                  _buildTableCell(h.classe ?? ''),
                 ],
               ),
             ),
@@ -278,6 +282,8 @@ class RegistrationFormService {
                 5 - academicien.historiqueParcours.length,
                 (index) => pw.TableRow(
                   children: [
+                    _buildTableCell(''),
+                    _buildTableCell(''),
                     _buildTableCell(''),
                     _buildTableCell(''),
                     _buildTableCell(''),
@@ -318,6 +324,32 @@ class RegistrationFormService {
           academicien.faiblesses ?? '',
           380,
         ),
+        pw.SizedBox(height: 6),
+        pw.Text(
+          'INFORMATIONS SUR LA SANTÉ ET LE COMPORTEMENT DE L\'ACADEMICIEN',
+          style: pw.TextStyle(
+            fontSize: 9,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.black,
+          ),
+        ),
+        pw.SizedBox(height: 4),
+        _buildYesNoQuestion(
+          'L\'académicien a-t-il des problèmes de peau ?',
+          value: academicien.aProblemesPeau,
+        ),
+        _buildYesNoQuestion(
+          'Est-il allergique à une substance ou aliment ?',
+          value: academicien.aAllergie,
+          trailingLabel: 'Si OUI, à quelle.',
+          trailingWidth: 130,
+          trailingValue: academicien.allergieDetails ?? '',
+        ),
+        _buildYesNoQuestion(
+          'Aime-t-il le travail de groupe ?',
+          value: academicien.aimeTravailGroupe,
+        ),
+        pw.SizedBox(height: 6),
         _buildQuestionField(
           'Décrivez en quelques mots les performances de l\'enfant',
           academicien.descriptionPerformances ?? '',
@@ -363,6 +395,60 @@ class RegistrationFormService {
           _buildUnderline(width, value),
         ],
       ),
+    );
+  }
+
+  pw.Widget _buildYesNoQuestion(
+    String label, {
+    bool? value,
+    String? trailingLabel,
+    double trailingWidth = 120,
+    String trailingValue = '',
+  }) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 3),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
+        children: [
+          pw.Text(label, style: const pw.TextStyle(fontSize: 8)),
+          pw.SizedBox(width: 6),
+          _buildCheckboxLabel('OUI', isChecked: value == true),
+          pw.SizedBox(width: 10),
+          _buildCheckboxLabel('NON', isChecked: value == false),
+          if (trailingLabel != null) ...[
+            pw.SizedBox(width: 10),
+            pw.Text(trailingLabel, style: const pw.TextStyle(fontSize: 8)),
+            pw.SizedBox(width: 5),
+            _buildUnderline(trailingWidth, trailingValue),
+          ],
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildCheckboxLabel(String label, {bool isChecked = false}) {
+    return pw.Row(
+      children: [
+        pw.Container(
+          width: 8,
+          height: 8,
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(color: PdfColors.black, width: 0.5),
+          ),
+          alignment: pw.Alignment.center,
+          child: isChecked
+              ? pw.Text(
+                  'X',
+                  style: pw.TextStyle(
+                    fontSize: 6,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                )
+              : null,
+        ),
+        pw.SizedBox(width: 3),
+        pw.Text(label, style: const pw.TextStyle(fontSize: 8)),
+      ],
     );
   }
 

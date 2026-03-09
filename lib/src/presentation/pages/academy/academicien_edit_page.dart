@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
+import '../../../domain/entities/historique_parcours_sportif.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
@@ -11,8 +14,8 @@ import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 
-/// Page de modification des informations d'un academicien.
-/// Formulaire pre-rempli avec les donnees actuelles.
+/// Page de modification du profil d'un académicien.
+/// Formulaire pré-rempli avec les données actuelles.
 class AcademicienEditPage extends StatefulWidget {
   final Academicien academicien;
   final AcademicienRepositoryImpl repository;
@@ -32,45 +35,107 @@ class AcademicienEditPage extends StatefulWidget {
 }
 
 class _AcademicienEditPageState extends State<AcademicienEditPage> {
-  final _formKey = GlobalKey<FormState>();
+  final PageController _pageController = PageController();
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+  int _currentStep = 0;
+  final int _totalSteps = 7;
   bool _isLoading = false;
+  Academicien? _updatedAcademicien;
 
-  late TextEditingController _nomController;
-  late TextEditingController _prenomController;
-  late TextEditingController _dateNaissanceController;
-  late TextEditingController _telephoneParentController;
-
-  DateTime? _selectedDate;
-  String? _selectedPosteId;
-  String? _selectedPiedFort;
-  String? _selectedNiveauId;
+  // Photo
   File? _photoFile;
   final _picker = ImagePicker();
 
+  // Form keys
+  final _step1Key = GlobalKey<FormState>();
+
+  // Data Controllers - Step 1 (Informations personnelles)
+  final _nomController = TextEditingController();
+  final _prenomController = TextEditingController();
+  final _dateNaissanceController = TextEditingController();
+  final _lieuNaissanceController = TextEditingController();
+  final _nationaliteController = TextEditingController();
+  DateTime? _selectedDate;
+  String? _selectedSexe;
+
+  // Data Controllers - Step 2 (Contact)
+  final _telephoneEleveController = TextEditingController();
+  final _telephoneParentController = TextEditingController();
+  final _tailleController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _whatsappController = TextEditingController();
+  final _twitterController = TextEditingController();
+  final _facebookController = TextEditingController();
+
+  // Data Controllers - Step 3 (Parent/Tuteur)
+  final _nomParentController = TextEditingController();
+  final _fonctionParentController = TextEditingController();
+  final _emailParentController = TextEditingController();
+  final _adresseParentController = TextEditingController();
+
+  // Data - Step 4 (Football)
+  String? _selectedPosteId;
+  String? _selectedPiedFort;
+  final _atoutsController = TextEditingController();
+  final _faiblessesController = TextEditingController();
+  bool? _aProblemesPeau;
+  bool? _aAllergie;
+  final _allergieDetailsController = TextEditingController();
+  bool? _aimeTravailGroupe;
+  final _descriptionPerformancesController = TextEditingController();
+
+  // Data - Step 5 (Historique sportif)
+  final List<HistoriqueParcoursSportif> _historiqueParcours = [];
+
+  // Data - Step 6 (Scolaire)
+  String? _selectedNiveauId;
+
+  // Donnees chargees dynamiquement depuis les referentiels
   List<PosteFootball> _postes = [];
   List<NiveauScolaire> _niveaux = [];
 
   @override
   void initState() {
     super.initState();
+    _loadAcademicienData();
+    _chargerReferentiels();
+  }
+
+  void _loadAcademicienData() {
     final a = widget.academicien;
-    _nomController = TextEditingController(text: a.nom);
-    _prenomController = TextEditingController(text: a.prenom);
+    _nomController.text = a.nom;
+    _prenomController.text = a.prenom;
     _selectedDate = a.dateNaissance;
-    _dateNaissanceController = TextEditingController(
-      text:
-          '${a.dateNaissance.day.toString().padLeft(2, '0')}/${a.dateNaissance.month.toString().padLeft(2, '0')}/${a.dateNaissance.year}',
-    );
-    _telephoneParentController = TextEditingController(text: a.telephoneParent);
+    _dateNaissanceController.text =
+        '${a.dateNaissance.day.toString().padLeft(2, '0')}/${a.dateNaissance.month.toString().padLeft(2, '0')}/${a.dateNaissance.year}';
+    _lieuNaissanceController.text = a.lieuNaissance ?? '';
+    _nationaliteController.text = a.nationalite ?? '';
+    _selectedSexe = a.sexe;
+    _telephoneEleveController.text = a.telephoneEleve ?? '';
+    _telephoneParentController.text = a.telephoneParent ?? '';
+    _tailleController.text = a.taille?.toString() ?? '';
+    _emailController.text = a.email ?? '';
+    _whatsappController.text = a.whatsapp ?? '';
+    _twitterController.text = a.twitter ?? '';
+    _facebookController.text = a.facebook ?? '';
+    _nomParentController.text = a.nomParent ?? '';
+    _fonctionParentController.text = a.fonctionParent ?? '';
+    _emailParentController.text = a.emailParent ?? '';
+    _adresseParentController.text = a.adresseParent ?? '';
     _selectedPosteId = a.posteFootballId;
     _selectedPiedFort = a.piedFort;
     _selectedNiveauId = a.niveauScolaireId;
-
+    _atoutsController.text = a.atouts ?? '';
+    _faiblessesController.text = a.faiblesses ?? '';
+    _descriptionPerformancesController.text = a.descriptionPerformances ?? '';
+    _aProblemesPeau = a.aProblemesPeau;
+    _aAllergie = a.aAllergie;
+    _allergieDetailsController.text = a.allergieDetails ?? '';
+    _aimeTravailGroupe = a.aimeTravailGroupe;
+    _historiqueParcours.addAll(a.historiqueParcours);
     if (a.photoUrl.isNotEmpty && File(a.photoUrl).existsSync()) {
       _photoFile = File(a.photoUrl);
     }
-
-    _chargerReferentiels();
   }
 
   Future<void> _chargerReferentiels() async {
@@ -87,11 +152,205 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
 
   @override
   void dispose() {
+    _pageController.dispose();
     _nomController.dispose();
     _prenomController.dispose();
     _dateNaissanceController.dispose();
+    _lieuNaissanceController.dispose();
+    _nationaliteController.dispose();
+    _telephoneEleveController.dispose();
     _telephoneParentController.dispose();
+    _tailleController.dispose();
+    _emailController.dispose();
+    _whatsappController.dispose();
+    _twitterController.dispose();
+    _facebookController.dispose();
+    _nomParentController.dispose();
+    _fonctionParentController.dispose();
+    _emailParentController.dispose();
+    _adresseParentController.dispose();
+    _atoutsController.dispose();
+    _faiblessesController.dispose();
+    _allergieDetailsController.dispose();
+    _descriptionPerformancesController.dispose();
     super.dispose();
+  }
+
+  void _nextStep() {
+    bool isValid = false;
+    if (_currentStep == 0) {
+      isValid = _step1Key.currentState!.validate();
+    } else if (_currentStep == 1) {
+      isValid = true; // Contact step - optional fields
+    } else if (_currentStep == 2) {
+      isValid = true; // Parent step - optional fields
+    } else if (_currentStep == 3) {
+      if (_selectedPosteId == null) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.selectPosteAndPiedError,
+          isError: true,
+        );
+      } else {
+        isValid = true;
+      }
+    } else if (_currentStep == 4) {
+      isValid = true; // Historique step - optional
+    } else if (_currentStep == 5) {
+      if (_selectedNiveauId == null) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.selectSchoolLevelError,
+          isError: true,
+        );
+      } else {
+        isValid = true;
+      }
+    }
+
+    if (isValid && _currentStep < _totalSteps - 1) {
+      if (_currentStep == 5) {
+        _saveChanges();
+      } else {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final current = widget.academicien;
+
+      final academicien = Academicien(
+        id: current.id,
+        nom: _nomController.text.trim(),
+        prenom: _prenomController.text.trim(),
+        dateNaissance: _selectedDate!,
+        lieuNaissance: _lieuNaissanceController.text.trim().isNotEmpty
+            ? _lieuNaissanceController.text.trim()
+            : null,
+        nationalite: _nationaliteController.text.trim().isNotEmpty
+            ? _nationaliteController.text.trim()
+            : null,
+        sexe: _selectedSexe,
+        photoUrl: _photoFile?.path ?? current.photoUrl,
+        telephoneEleve: _telephoneEleveController.text.trim().isNotEmpty
+            ? _telephoneEleveController.text.trim()
+            : null,
+        telephoneParent: _telephoneParentController.text.trim().isNotEmpty
+            ? _telephoneParentController.text.trim()
+            : null,
+        taille: _tailleController.text.trim().isNotEmpty
+            ? int.tryParse(_tailleController.text.trim())
+            : null,
+        email: _emailController.text.trim().isNotEmpty
+            ? _emailController.text.trim()
+            : null,
+        whatsapp: _whatsappController.text.trim().isNotEmpty
+            ? _whatsappController.text.trim()
+            : null,
+        twitter: _twitterController.text.trim().isNotEmpty
+            ? _twitterController.text.trim()
+            : null,
+        facebook: _facebookController.text.trim().isNotEmpty
+            ? _facebookController.text.trim()
+            : null,
+        posteFootballId: _selectedPosteId!,
+        niveauScolaireId: _selectedNiveauId!,
+        codeQrUnique: current.codeQrUnique,
+        piedFort: _selectedPiedFort,
+        nomParent: _nomParentController.text.trim().isNotEmpty
+            ? _nomParentController.text.trim()
+            : null,
+        fonctionParent: _fonctionParentController.text.trim().isNotEmpty
+            ? _fonctionParentController.text.trim()
+            : null,
+        emailParent: _emailParentController.text.trim().isNotEmpty
+            ? _emailParentController.text.trim()
+            : null,
+        adresseParent: _adresseParentController.text.trim().isNotEmpty
+            ? _adresseParentController.text.trim()
+            : null,
+        atouts: _atoutsController.text.trim().isNotEmpty
+            ? _atoutsController.text.trim()
+            : null,
+        faiblesses: _faiblessesController.text.trim().isNotEmpty
+            ? _faiblessesController.text.trim()
+            : null,
+        descriptionPerformances:
+            _descriptionPerformancesController.text.trim().isNotEmpty
+            ? _descriptionPerformancesController.text.trim()
+            : null,
+        aProblemesPeau: _aProblemesPeau,
+        aAllergie: _aAllergie,
+        allergieDetails: _allergieDetailsController.text.trim().isNotEmpty
+            ? _allergieDetailsController.text.trim()
+            : null,
+        aimeTravailGroupe: _aimeTravailGroupe,
+        historiqueParcours: _historiqueParcours,
+      );
+
+      final updated = await widget.repository.update(academicien);
+
+      if (mounted) {
+        setState(() {
+          _updatedAcademicien = updated;
+          _isLoading = false;
+        });
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        AcademyToast.show(
+          context,
+          title: l10n.error,
+          description: l10n.academicianSaveError(e.toString()),
+          isError: true,
+        );
+      }
+    }
+  }
+
+  void _prevStep() {
+    if (_currentStep > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (pickedFile != null) {
+        setState(() => _photoFile = File(pickedFile.path));
+      }
+    } catch (e) {
+      debugPrint('Erreur selection image: $e');
+      if (mounted) {
+        AcademyToast.show(
+          context,
+          title: l10n.error,
+          description: l10n.galleryOpenError,
+          isError: true,
+        );
+      }
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -122,94 +381,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     }
   }
 
-  Future<void> _pickImage() async {
-    try {
-      final pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 70,
-      );
-      if (pickedFile != null) {
-        setState(() => _photoFile = File(pickedFile.path));
-      }
-    } catch (e) {
-      debugPrint('Erreur selection image: $e');
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        AcademyToast.show(
-          context,
-          title: l10n.error,
-          description: l10n.galleryOpenError,
-          isError: true,
-        );
-      }
-    }
-  }
-
-  Future<void> _enregistrerModifications() async {
-    if (!_formKey.currentState!.validate()) return;
-    final l10n = AppLocalizations.of(context)!;
-
-    if (_selectedPosteId == null || _selectedPiedFort == null) {
-      AcademyToast.show(
-        context,
-        title: AppLocalizations.of(context)!.requiredFields,
-        description: AppLocalizations.of(context)!.selectPosteAndPiedError,
-        isError: true,
-      );
-      return;
-    }
-
-    if (_selectedNiveauId == null) {
-      AcademyToast.show(
-        context,
-        title: AppLocalizations.of(context)!.requiredField,
-        description: AppLocalizations.of(context)!.selectSchoolLevelError,
-        isError: true,
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final updated = Academicien(
-        id: widget.academicien.id,
-        nom: _nomController.text.trim(),
-        prenom: _prenomController.text.trim(),
-        dateNaissance: _selectedDate!,
-        photoUrl: _photoFile?.path ?? widget.academicien.photoUrl,
-        telephoneParent: _telephoneParentController.text.trim(),
-        posteFootballId: _selectedPosteId!,
-        niveauScolaireId: _selectedNiveauId!,
-        codeQrUnique: widget.academicien.codeQrUnique,
-        piedFort: _selectedPiedFort,
-      );
-
-      await widget.repository.update(updated);
-
-      if (mounted) {
-        AcademyToast.show(
-          context,
-          title: l10n.modificationsSaved,
-          description: l10n.playerUpdatedSuccess(
-            '${updated.prenom} ${updated.nom}',
-          ),
-        );
-        Navigator.pop(context, updated);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        AcademyToast.show(
-          context,
-          title: l10n.error,
-          description: l10n.updateError(e.toString()),
-          isError: true,
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -223,10 +394,16 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: colorScheme.onSurface),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (_currentStep > 0 && _currentStep < _totalSteps - 1) {
+              _prevStep();
+            } else {
+              Navigator.pop(context);
+            }
+          },
         ),
         title: Text(
-          AppLocalizations.of(context)!.editProfile,
+          l10n.editProfile,
           style: GoogleFonts.montserrat(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -234,260 +411,212 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           ),
         ),
         centerTitle: true,
-        actions: [
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.check_rounded, color: AppColors.primary),
-              onPressed: _enregistrerModifications,
+      ),
+      body: Column(
+        children: [
+          // Barre de progression custom
+          _buildProgressBar(colorScheme),
+
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) => setState(() => _currentStep = index),
+              children: [
+                _buildStep1(theme, colorScheme),
+                _buildStep2(theme, colorScheme),
+                _buildStep3(theme, colorScheme),
+                _buildStep4(theme, colorScheme),
+                _buildStep5(theme, colorScheme),
+                _buildStep6(theme, colorScheme),
+                _buildStep7(theme, colorScheme),
+              ],
             ),
+          ),
+
+          // Navigation dock
+          if (_currentStep < _totalSteps - 1)
+            _buildNavigationDock(colorScheme, isDark),
         ],
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPhotoPicker(isDark),
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                AppLocalizations.of(context)!.identityLabel,
-                Icons.person_rounded,
+    );
+  }
+
+  Widget _buildBooleanSelector({
+    required String label,
+    required bool? value,
+    required ValueChanged<bool?> onChanged,
+    required ColorScheme colorScheme,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            _buildChoiceChip(
+              label: 'Oui',
+              isSelected: value == true,
+              onSelected: (selected) => onChanged(selected ? true : null),
+              colorScheme: colorScheme,
+            ),
+            _buildChoiceChip(
+              label: 'Non',
+              isSelected: value == false,
+              onSelected: (selected) => onChanged(selected ? false : null),
+              colorScheme: colorScheme,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProgressBar(ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Stack(
+        children: [
+          Container(
+            height: 6,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurface.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            height: 6,
+            width:
+                MediaQuery.of(context).size.width *
+                    ((_currentStep + 1) / _totalSteps) -
+                48,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.primary, AppColors.secondary],
               ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                controller: _nomController,
-                label: AppLocalizations.of(context)!.lastName,
-                hint: AppLocalizations.of(context)!.enterLastName,
-                icon: Icons.person_outline,
-                validator: (v) => v!.isEmpty
-                    ? AppLocalizations.of(context)!.requiredLabel
-                    : null,
+              borderRadius: BorderRadius.circular(3),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavigationDock(ColorScheme colorScheme, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surface : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (_currentStep > 0 && _currentStep < _totalSteps - 1)
+            _buildSecondaryButton(l10n.previousLabel, _prevStep, colorScheme),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildPrimaryButton(
+              _currentStep == _totalSteps - 2
+                  ? l10n.confirm_label
+                  : l10n.continue_label,
+              _nextStep,
+              colorScheme,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton(
+    String text,
+    VoidCallback onPressed,
+    ColorScheme colorScheme,
+  ) {
+    return ElevatedButton(
+      onPressed: _isLoading ? null : onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+        minimumSize: const Size(double.infinity, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+        shadowColor: AppColors.primary.withValues(alpha: 0.4),
+      ),
+      child: _isLoading
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
               ),
-              const SizedBox(height: 20),
-              _buildTextField(
-                controller: _prenomController,
-                label: AppLocalizations.of(context)!.firstName,
-                hint: AppLocalizations.of(context)!.enterFirstName,
-                icon: Icons.person_outline,
-                validator: (v) => v!.isEmpty
-                    ? AppLocalizations.of(context)!.requiredLabel
-                    : null,
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: () => _selectDate(context),
-                child: AbsorbPointer(
-                  child: _buildTextField(
-                    controller: _dateNaissanceController,
-                    label: AppLocalizations.of(context)!.birthDateLabel,
-                    hint: AppLocalizations.of(context)!.birthDateFormat,
-                    icon: Icons.calendar_today_outlined,
-                    validator: (v) => v!.isEmpty
-                        ? AppLocalizations.of(context)!.requiredLabel
-                        : null,
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  text,
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              _buildTextField(
-                controller: _telephoneParentController,
-                label: AppLocalizations.of(context)!.parentPhoneLabel,
-                hint: AppLocalizations.of(context)!.phoneHint,
-                icon: Icons.phone_android_outlined,
-                keyboardType: TextInputType.phone,
-                validator: (v) => v!.isEmpty
-                    ? AppLocalizations.of(context)!.requiredLabel
-                    : null,
-              ),
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                AppLocalizations.of(context)!.footballLabel,
-                Icons.sports_soccer_rounded,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.preferredPositionLabel,
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: _postes
-                    .map(
-                      (p) => _buildChoiceChip(
-                        label: p.nom,
-                        icon: Icons.sports_soccer_rounded,
-                        isSelected: _selectedPosteId == p.id,
-                        onSelected: (selected) {
-                          setState(
-                            () => _selectedPosteId = selected ? p.id : null,
-                          );
-                        },
-                        colorScheme: colorScheme,
-                      ),
-                    )
-                    .toList(),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                AppLocalizations.of(context)!.strongFootLabel,
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _buildChoiceChip(
-                    label: AppLocalizations.of(context)!.rightFooted,
-                    isSelected: _selectedPiedFort == 'Droitier',
-                    onSelected: (s) => setState(
-                      () => _selectedPiedFort = s ? 'Droitier' : null,
-                    ),
-                    colorScheme: colorScheme,
-                  ),
-                  _buildChoiceChip(
-                    label: AppLocalizations.of(context)!.leftFooted,
-                    isSelected: _selectedPiedFort == 'Gaucher',
-                    onSelected: (s) => setState(
-                      () => _selectedPiedFort = s ? 'Gaucher' : null,
-                    ),
-                    colorScheme: colorScheme,
-                  ),
-                  _buildChoiceChip(
-                    label: AppLocalizations.of(context)!.ambidextrous,
-                    isSelected: _selectedPiedFort == 'Ambidextre',
-                    onSelected: (s) => setState(
-                      () => _selectedPiedFort = s ? 'Ambidextre' : null,
-                    ),
-                    colorScheme: colorScheme,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                AppLocalizations.of(context)!.schoolingLabel,
-                Icons.school_rounded,
-              ),
-              const SizedBox(height: 16),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _niveaux.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final n = _niveaux[index];
-                  final isSelected = _selectedNiveauId == n.id;
-                  return InkWell(
-                    onTap: () => setState(() => _selectedNiveauId = n.id),
-                    borderRadius: BorderRadius.circular(14),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 18,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.primary.withValues(alpha: 0.08)
-                            : colorScheme.surface,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.primary
-                              : colorScheme.onSurface.withValues(alpha: 0.1),
-                          width: isSelected ? 2 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.school_outlined,
-                            color: isSelected
-                                ? AppColors.primary
-                                : colorScheme.onSurface.withValues(alpha: 0.4),
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            n.nom,
-                            style: GoogleFonts.montserrat(
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : colorScheme.onSurface,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check_circle_rounded,
-                              color: AppColors.primary,
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _enregistrerModifications,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          AppLocalizations.of(context)!.saveModifications,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                ),
-              ),
-              const SizedBox(height: 40),
-            ],
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_forward_rounded, size: 18),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildSecondaryButton(
+    String text,
+    VoidCallback onPressed,
+    ColorScheme colorScheme,
+  ) {
+    return Expanded(
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 48),
+          side: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: colorScheme.onSurface,
           ),
         ),
       ),
@@ -495,58 +624,204 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   }
 
   Widget _buildPhotoPicker(bool isDark) {
+    final baseColor = isDark ? Colors.white : Colors.black;
+
     return Center(
-      child: GestureDetector(
-        onTap: _pickImage,
-        child: Stack(
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
-                child: _photoFile != null && _photoFile!.existsSync()
-                    ? Image.file(_photoFile!, fit: BoxFit.cover)
-                    : Container(
-                        color: isDark ? Colors.grey[800] : Colors.grey[100],
-                        child: Icon(
-                          Icons.person_rounded,
-                          size: 48,
-                          color: Colors.grey[400],
-                        ),
+      child: Column(
+        children: [
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(60),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: baseColor.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(60),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                        width: 3,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(57),
+                      child: _photoFile != null
+                          ? Image.file(_photoFile!, fit: BoxFit.cover)
+                          : widget.academicien.photoUrl.isNotEmpty
+                          ? Image.network(
+                              widget.academicien.photoUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.person_outline_rounded,
+                                size: 50,
+                                color: AppColors.primary.withValues(alpha: 0.4),
+                              ),
+                            )
+                          : Icon(
+                              Icons.person_outline_rounded,
+                              size: 50,
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.academicianPhotoLabel,
+            style: GoogleFonts.montserrat(
+              color: isDark
+                  ? AppColors.textMutedDark
+                  : AppColors.textMutedLight,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            l10n.optionalLabel,
+            style: GoogleFonts.montserrat(
+              color: isDark
+                  ? AppColors.textMutedDark.withValues(alpha: 0.6)
+                  : AppColors.textMutedLight.withValues(alpha: 0.6),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Step 1: Identité ---
+  Widget _buildStep1(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Form(
+        key: _step1Key,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(
+              l10n.identityLabel,
+              l10n.academicianPersonalDetails,
+            ),
+            const SizedBox(height: 32),
+
+            _buildPhotoPicker(theme.brightness == Brightness.dark),
+            const SizedBox(height: 32),
+
+            _buildTextField(
+              controller: _nomController,
+              label: l10n.lastName,
+              hint: l10n.enterLastName,
+              icon: Icons.badge_outlined,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _prenomController,
+              label: l10n.firstName,
+              hint: l10n.enterFirstName,
+              icon: Icons.person_outline,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () => _selectDate(context),
+              child: AbsorbPointer(
+                child: _buildTextField(
+                  controller: _dateNaissanceController,
+                  label: l10n.birthDateLabel,
+                  hint: l10n.birthDateFormat,
+                  icon: Icons.calendar_today_outlined,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? l10n.requiredField : null,
+                ),
               ),
             ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: const Icon(
-                  Icons.camera_alt_rounded,
-                  size: 16,
-                  color: Colors.white,
-                ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _lieuNaissanceController,
+              label: l10n.birthPlaceLabel,
+              hint: l10n.birthPlaceHint,
+              icon: Icons.place_outlined,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _nationaliteController,
+              label: l10n.nationalityLabel,
+              hint: l10n.nationalityHint,
+              icon: Icons.flag_outlined,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.genderLabel,
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildChoiceChip(
+                  label: l10n.male,
+                  icon: Icons.male_outlined,
+                  isSelected: _selectedSexe == l10n.male,
+                  onSelected: (s) =>
+                      setState(() => _selectedSexe = s ? l10n.male : null),
+                  colorScheme: colorScheme,
+                ),
+                const SizedBox(width: 12),
+                _buildChoiceChip(
+                  label: l10n.female,
+                  icon: Icons.female_outlined,
+                  isSelected: _selectedSexe == l10n.female,
+                  onSelected: (s) =>
+                      setState(() => _selectedSexe = s ? l10n.female : null),
+                  colorScheme: colorScheme,
+                ),
+              ],
             ),
           ],
         ),
@@ -554,25 +829,938 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     );
   }
 
-  Widget _buildSectionTitle(String title, IconData icon) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
+  // --- Step 2: Contact ---
+  Widget _buildStep2(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(l10n.contactLabel, l10n.contactSubtitle),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _telephoneEleveController,
+            label: l10n.studentPhoneLabel,
+            hint: l10n.phoneHint,
+            icon: Icons.phone_android_outlined,
+            keyboardType: TextInputType.phone,
           ),
-          child: Icon(icon, color: AppColors.primary, size: 20),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _telephoneParentController,
+            label: l10n.parentPhoneLabel,
+            hint: l10n.phoneHint,
+            icon: Icons.phone_android_outlined,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _tailleController,
+            label: l10n.heightLabel,
+            hint: l10n.heightHint,
+            icon: Icons.height_outlined,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _emailController,
+            label: l10n.emailLabel,
+            hint: l10n.emailHint,
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _whatsappController,
+            label: 'WhatsApp',
+            hint: l10n.phoneHint,
+            icon: Icons.chat_outlined,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _twitterController,
+            label: 'Twitter',
+            hint: '@username',
+            icon: Icons.alternate_email,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _facebookController,
+            label: 'Facebook',
+            hint: l10n.facebookHint,
+            icon: Icons.facebook_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Step 3: Parent/Tuteur ---
+  Widget _buildStep3(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(l10n.parentInfoLabel, l10n.parentInfoSubtitle),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _nomParentController,
+            label: l10n.parentNameLabel,
+            hint: l10n.parentNameHint,
+            icon: Icons.person_outline,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _fonctionParentController,
+            label: l10n.parentFunctionLabel,
+            hint: l10n.parentFunctionHint,
+            icon: Icons.work_outline,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _emailParentController,
+            label: l10n.parentEmailLabel,
+            hint: l10n.emailHint,
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _adresseParentController,
+            label: l10n.parentAddressLabel,
+            hint: l10n.parentAddressHint,
+            icon: Icons.home_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Step 4: Football ---
+  Widget _buildStep4(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(l10n.footballLabel, l10n.sportsProfileSubtitle),
+          const SizedBox(height: 32),
+          Text(
+            l10n.preferredPositionLabel,
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: _postes
+                .map(
+                  (p) => _buildChoiceChip(
+                    label: p.nom,
+                    icon: Icons.sports_soccer_rounded,
+                    isSelected: _selectedPosteId == p.id,
+                    onSelected: (selected) {
+                      setState(() => _selectedPosteId = selected ? p.id : null);
+                    },
+                    colorScheme: colorScheme,
+                  ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            l10n.strongFootLabel,
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildChoiceChip(
+                label: l10n.rightFooted,
+                isSelected: _selectedPiedFort == l10n.rightFooted,
+                onSelected: (s) => setState(
+                  () => _selectedPiedFort = s ? l10n.rightFooted : null,
+                ),
+                colorScheme: colorScheme,
+              ),
+              const SizedBox(width: 12),
+              _buildChoiceChip(
+                label: l10n.leftFooted,
+                isSelected: _selectedPiedFort == l10n.leftFooted,
+                onSelected: (s) => setState(
+                  () => _selectedPiedFort = s ? l10n.leftFooted : null,
+                ),
+                colorScheme: colorScheme,
+              ),
+              const SizedBox(width: 12),
+              _buildChoiceChip(
+                label: l10n.ambidextrous,
+                isSelected: _selectedPiedFort == l10n.ambidextrous,
+                onSelected: (s) => setState(
+                  () => _selectedPiedFort = s ? l10n.ambidextrous : null,
+                ),
+                colorScheme: colorScheme,
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _atoutsController,
+            label: l10n.strengthsLabel,
+            hint: l10n.strengthsHint,
+            icon: Icons.star_outline,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _faiblessesController,
+            label: l10n.weaknessesLabel,
+            hint: l10n.weaknessesHint,
+            icon: Icons.trending_down_outlined,
+          ),
+          const SizedBox(height: 20),
+          _buildBooleanSelector(
+            label: 'L\'académicien a-t-il des problèmes de peau ?',
+            value: _aProblemesPeau,
+            onChanged: (value) => setState(() => _aProblemesPeau = value),
+            colorScheme: colorScheme,
+          ),
+          const SizedBox(height: 20),
+          _buildBooleanSelector(
+            label: 'Est-il allergique à une substance ou aliment ?',
+            value: _aAllergie,
+            onChanged: (value) => setState(() => _aAllergie = value),
+            colorScheme: colorScheme,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _allergieDetailsController,
+            label:
+                'Si oui, à quelle substance ou aliment ?'
+                '',
+            hint: 'Détaillez l\'allergie si nécessaire',
+            icon: Icons.medical_information_outlined,
+          ),
+          const SizedBox(height: 20),
+          _buildBooleanSelector(
+            label: 'Aime-t-il le travail de groupe ?',
+            value: _aimeTravailGroupe,
+            onChanged: (value) => setState(() => _aimeTravailGroupe = value),
+            colorScheme: colorScheme,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _descriptionPerformancesController,
+            label: l10n.performanceDescriptionLabel,
+            hint: l10n.performanceDescriptionHint,
+            icon: Icons.notes_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Step 5: Historique sportif ---
+  Widget _buildStep5(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            l10n.sportsHistoryLabel,
+            l10n.sportsHistorySubtitle,
+          ),
+          const SizedBox(height: 32),
+          ..._historiqueParcours.asMap().entries.map((entry) {
+            final index = entry.key;
+            final historique = entry.value;
+            return _buildHistoriqueCard(
+              index,
+              historique,
+              colorScheme,
+              theme.brightness == Brightness.dark,
+            );
+          }),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: () {
+              setState(() {
+                _historiqueParcours.add(HistoriqueParcoursSportif());
+              });
+            },
+            icon: const Icon(Icons.add_rounded),
+            label: Text(l10n.addHistoryEntry),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoriqueCard(
+    int index,
+    HistoriqueParcoursSportif historique,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surface : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${l10n.historyEntry} ${index + 1}',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _historiqueParcours.removeAt(index);
+                  });
+                },
+                icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.centre,
+            label: l10n.centerLabel,
+            hint: l10n.centerHint,
+            icon: Icons.sports_soccer_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, centre: v);
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.categorie,
+            label: l10n.categoryLabel,
+            hint: l10n.categoryHint,
+            icon: Icons.category_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, categorie: v);
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.etablissement,
+            label: 'Etablissement',
+            hint: 'Nom de l\'établissement',
+            icon: Icons.school_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, etablissement: v);
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.anneeScolaire,
+            label: 'Année scolaire',
+            hint: 'Ex: 2024-2025',
+            icon: Icons.calendar_month_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, anneeScolaire: v);
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.classe,
+            label: 'Classe',
+            hint: 'Ex: 3ème, Terminale',
+            icon: Icons.class_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, classe: v);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _updateHistoriqueEntry(
+    int index, {
+    String? centre,
+    String? categorie,
+    String? etablissement,
+    String? anneeScolaire,
+    String? classe,
+  }) {
+    final current = _historiqueParcours[index];
+    _historiqueParcours[index] = HistoriqueParcoursSportif(
+      id: current.id,
+      academicienId: current.academicienId,
+      centre: centre ?? current.centre,
+      categorie: categorie ?? current.categorie,
+      etablissement: etablissement ?? current.etablissement,
+      anneeScolaire: anneeScolaire ?? current.anneeScolaire,
+      classe: classe ?? current.classe,
+    );
+  }
+
+  Widget _buildInlineTextField({
+    String? initialValue,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required Function(String) onChanged,
+  }) {
+    return TextFormField(
+      initialValue: initialValue,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, size: 20),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  // --- Step 6: Scolaire ---
+  Widget _buildStep6(ThemeData theme, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            l10n.schoolingLabel,
+            l10n.currentAcademicLevelSubtitle,
+          ),
+          const SizedBox(height: 32),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _niveaux.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final n = _niveaux[index];
+              final isSelected = _selectedNiveauId == n.id;
+              return InkWell(
+                onTap: () => setState(() => _selectedNiveauId = n.id),
+                borderRadius: BorderRadius.circular(14),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withValues(alpha: 0.08)
+                        : colorScheme.surface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.1),
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.school_outlined,
+                        color: isSelected
+                            ? AppColors.primary
+                            : colorScheme.onSurface.withValues(alpha: 0.4),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        n.nom,
+                        style: GoogleFonts.montserrat(
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.primary
+                              : colorScheme.onSurface,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (isSelected)
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: AppColors.primary,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Step 7: Recap & QR ---
+
+  String _getPosteName() {
+    if (_selectedPosteId == null) {
+      return l10n.notSpecified;
+    }
+    return _postes
+        .firstWhere(
+          (p) => p.id == _selectedPosteId,
+          orElse: () => PosteFootball(id: '', nom: l10n.notSpecified),
+        )
+        .nom;
+  }
+
+  String _getNiveauName() {
+    if (_selectedNiveauId == null) {
+      return l10n.notSpecified;
+    }
+    return _niveaux
+        .firstWhere(
+          (n) => n.id == _selectedNiveauId,
+          orElse: () =>
+              NiveauScolaire(id: '', nom: l10n.notSpecified, ordre: 0),
+        )
+        .nom;
+  }
+
+  Widget _buildStep7(ThemeData theme, ColorScheme colorScheme) {
+    if (_updatedAcademicien == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final isDark = theme.brightness == Brightness.dark;
+    final aca = _updatedAcademicien!;
+    final qrCode = aca.codeQrUnique;
+    final nomComplet = '${aca.prenom} ${aca.nom}';
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          // Animation de succes
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.elasticOut,
+            builder: (context, value, child) {
+              return Transform.scale(scale: value, child: child);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF10B981),
+                size: 56,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.modificationsSaved,
+            style: GoogleFonts.montserrat(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: colorScheme.onSurface,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.playerUpdatedSuccess(nomComplet),
+            style: GoogleFonts.montserrat(
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+              fontSize: 13,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+
+          // Badge QR premium
+          _buildQrBadgeCard(qrCode, nomComplet, colorScheme, isDark),
+          const SizedBox(height: 24),
+
+          // Recapitulatif detaille
+          _buildRecapCard(nomComplet, colorScheme, isDark),
+          const SizedBox(height: 32),
+
+          // Boutons d'action
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.share_rounded, size: 20),
+                  label: Text(
+                    l10n.shareLabel,
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    side: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.pop(context, true),
+                  icon: const Icon(Icons.check_rounded, size: 20),
+                  label: Text(
+                    l10n.finishLabel,
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 4,
+                    shadowColor: const Color(0xFF10B981).withValues(alpha: 0.3),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQrBadgeCard(
+    String qrCode,
+    String nomComplet,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // En-tete badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'PEPITES ACADEMY',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
+                  letterSpacing: 3,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              l10n.academicianBadgeType,
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.w700,
+                fontSize: 10,
+                letterSpacing: 2,
+                color: const Color(0xFF3B82F6),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // QR Code reel
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: QrImageView(
+              data: qrCode,
+              version: QrVersions.auto,
+              size: 180,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: Color(0xFF1C1C1C),
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: Color(0xFF1C1C1C),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Nom complet
+          Text(
+            nomComplet,
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: const Color(0xFF1C1C1C),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _getPosteName(),
+            style: GoogleFonts.montserrat(
+              color: Colors.grey[600],
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Code QR texte
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              qrCode,
+              style: GoogleFonts.sourceCodePro(
+                fontSize: 11,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecapCard(
+    String nomComplet,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
+    final dateInscription = DateTime.now();
+    final dateStr =
+        '${dateInscription.day.toString().padLeft(2, '0')}/${dateInscription.month.toString().padLeft(2, '0')}/${dateInscription.year}';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surface : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colorScheme.onSurface.withValues(alpha: 0.06),
         ),
-        const SizedBox(width: 12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.recapTitle,
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildRecapRow(
+            Icons.person_outline,
+            l10n.fullNameLabel,
+            nomComplet,
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.cake_outlined,
+            l10n.birthDateLabel,
+            _dateNaissanceController.text.isNotEmpty
+                ? _dateNaissanceController.text
+                : l10n.notProvided,
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.phone_android_outlined,
+            l10n.parentPhoneLabel,
+            _telephoneParentController.text.isNotEmpty
+                ? _telephoneParentController.text
+                : l10n.notProvided,
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.sports_soccer_rounded,
+            l10n.posteLabel,
+            _getPosteName(),
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.directions_run_rounded,
+            l10n.strongFootLabel,
+            _selectedPiedFort ?? l10n.notSpecified,
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.school_outlined,
+            l10n.schoolLevels,
+            _getNiveauName(),
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.shield_outlined,
+            l10n.roleLabel,
+            l10n.profileAcademician,
+            colorScheme,
+          ),
+          _buildRecapRow(
+            Icons.calendar_today_outlined,
+            l10n.registrationDateLabel,
+            dateStr,
+            colorScheme,
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecapRow(
+    IconData icon,
+    String label,
+    String value,
+    ColorScheme colorScheme, {
+    bool isLast = false,
+  }) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: AppColors.primary.withValues(alpha: 0.7),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  value,
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!isLast)
+          Divider(
+            color: colorScheme.onSurface.withValues(alpha: 0.05),
+            height: 1,
+          ),
+      ],
+    );
+  }
+
+  // --- Widgets Utilitaires ---
+
+  Widget _buildSectionHeader(String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Text(
           title,
           style: GoogleFonts.montserrat(
-            fontSize: 18,
+            fontSize: 24,
             fontWeight: FontWeight.w800,
-            letterSpacing: -0.3,
+            letterSpacing: -0.5,
           ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: GoogleFonts.montserrat(color: Colors.grey, fontSize: 14),
         ),
       ],
     );

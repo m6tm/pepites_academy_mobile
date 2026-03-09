@@ -158,6 +158,16 @@ class AcademicienListPageState extends State<AcademicienListPage> {
         descriptionPerformances:
             json['descriptionPerformances'] as String? ??
             json['description_performances'] as String?,
+        aProblemesPeau:
+            json['aProblemesPeau'] as bool? ??
+            json['a_problemes_peau'] as bool?,
+        aAllergie: json['aAllergie'] as bool? ?? json['a_allergie'] as bool?,
+        allergieDetails:
+            json['allergieDetails'] as String? ??
+            json['allergie_details'] as String?,
+        aimeTravailGroupe:
+            json['aimeTravailGroupe'] as bool? ??
+            json['aime_travail_groupe'] as bool?,
         historiqueParcours: historiqueParcours,
       );
     } catch (_) {

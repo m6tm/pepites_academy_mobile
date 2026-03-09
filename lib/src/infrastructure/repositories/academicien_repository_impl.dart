@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../../application/services/sync_service.dart';
 import '../../domain/entities/academicien.dart';
 import '../../domain/entities/historique_parcours_sportif.dart';
@@ -113,23 +114,21 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
               .whereType<Map<String, dynamic>>()
               .map((map) {
                 // Log pour voir les donnees brutes recues
-                print('[AcademicienRepo] RAW DATA for ${map['id']}: $map');
+                debugPrint('[AcademicienRepo] RAW DATA for ${map['id']}: $map');
                 return _parseAcademicien(map);
               })
               .where((a) => a.id.isNotEmpty)
               .toList();
 
           await upsertAllFromRemote(academiciens);
-          // ignore: avoid_print
-          print(
+          debugPrint(
             '[AcademicienRepo] Synced ${academiciens.length} academiciens from backend',
           );
           return true;
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[AcademicienRepo] Exception sync: $e');
+      debugPrint('[AcademicienRepo] Exception sync: $e');
       return false;
     }
   }
@@ -204,6 +203,16 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
       descriptionPerformances:
           (map['description_performances'] as String?) ??
           (map['descriptionPerformances'] as String?),
+      aProblemesPeau:
+          (map['a_problemes_peau'] as bool?) ??
+          (map['aProblemesPeau'] as bool?),
+      aAllergie: (map['a_allergie'] as bool?) ?? (map['aAllergie'] as bool?),
+      allergieDetails:
+          (map['allergie_details'] as String?) ??
+          (map['allergieDetails'] as String?),
+      aimeTravailGroupe:
+          (map['aime_travail_groupe'] as bool?) ??
+          (map['aimeTravailGroupe'] as bool?),
       historiqueParcours: historiqueParcours,
     );
   }

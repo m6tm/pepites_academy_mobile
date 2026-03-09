@@ -30,6 +30,10 @@ class Academicien {
   final String? atouts;
   final String? faiblesses;
   final String? descriptionPerformances;
+  final bool? aProblemesPeau;
+  final bool? aAllergie;
+  final String? allergieDetails;
+  final bool? aimeTravailGroupe;
   // Historique du parcours sportif
   final List<HistoriqueParcoursSportif> historiqueParcours;
 
@@ -60,6 +64,10 @@ class Academicien {
     this.atouts,
     this.faiblesses,
     this.descriptionPerformances,
+    this.aProblemesPeau,
+    this.aAllergie,
+    this.allergieDetails,
+    this.aimeTravailGroupe,
     this.historiqueParcours = const [],
   });
 
@@ -92,6 +100,10 @@ class Academicien {
       'atouts': atouts,
       'faiblesses': faiblesses,
       'descriptionPerformances': descriptionPerformances,
+      'aProblemesPeau': aProblemesPeau,
+      'aAllergie': aAllergie,
+      'allergieDetails': allergieDetails,
+      'aimeTravailGroupe': aimeTravailGroupe,
       'historiqueParcours': historiqueParcours.map((h) => h.toJson()).toList(),
     };
   }
@@ -149,6 +161,15 @@ class Academicien {
       descriptionPerformances:
           json['descriptionPerformances'] as String? ??
           json['description_performances'] as String?,
+      aProblemesPeau:
+          json['aProblemesPeau'] as bool? ?? json['a_problemes_peau'] as bool?,
+      aAllergie: json['aAllergie'] as bool? ?? json['a_allergie'] as bool?,
+      allergieDetails:
+          json['allergieDetails'] as String? ??
+          json['allergie_details'] as String?,
+      aimeTravailGroupe:
+          json['aimeTravailGroupe'] as bool? ??
+          json['aime_travail_groupe'] as bool?,
       historiqueParcours:
           (json['historiqueParcours'] as List<dynamic>? ??
                   json['historique_parcours'] as List<dynamic>? ??

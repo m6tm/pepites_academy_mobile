@@ -69,6 +69,10 @@ class _AcademicienRegistrationPageState
   String? _selectedPiedFort;
   final _atoutsController = TextEditingController();
   final _faiblessesController = TextEditingController();
+  bool? _aProblemesPeau;
+  bool? _aAllergie;
+  final _allergieDetailsController = TextEditingController();
+  bool? _aimeTravailGroupe;
   final _descriptionPerformancesController = TextEditingController();
 
   // Data - Step 5 (Historique sportif)
@@ -120,6 +124,7 @@ class _AcademicienRegistrationPageState
     _adresseParentController.dispose();
     _atoutsController.dispose();
     _faiblessesController.dispose();
+    _allergieDetailsController.dispose();
     _descriptionPerformancesController.dispose();
     super.dispose();
   }
@@ -236,6 +241,12 @@ class _AcademicienRegistrationPageState
             _descriptionPerformancesController.text.trim().isNotEmpty
             ? _descriptionPerformancesController.text.trim()
             : null,
+        aProblemesPeau: _aProblemesPeau,
+        aAllergie: _aAllergie,
+        allergieDetails: _allergieDetailsController.text.trim().isNotEmpty
+            ? _allergieDetailsController.text.trim()
+            : null,
+        aimeTravailGroupe: _aimeTravailGroupe,
         historiqueParcours: _historiqueParcours,
       );
 
@@ -383,6 +394,46 @@ class _AcademicienRegistrationPageState
             _buildNavigationDock(colorScheme, isDark),
         ],
       ),
+    );
+  }
+
+  Widget _buildBooleanSelector({
+    required String label,
+    required bool? value,
+    required ValueChanged<bool?> onChanged,
+    required ColorScheme colorScheme,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            _buildChoiceChip(
+              label: 'Oui',
+              isSelected: value == true,
+              onSelected: (selected) => onChanged(selected ? true : null),
+              colorScheme: colorScheme,
+            ),
+            _buildChoiceChip(
+              label: 'Non',
+              isSelected: value == false,
+              onSelected: (selected) => onChanged(selected ? false : null),
+              colorScheme: colorScheme,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -922,6 +973,36 @@ class _AcademicienRegistrationPageState
             icon: Icons.trending_down_outlined,
           ),
           const SizedBox(height: 20),
+          _buildBooleanSelector(
+            label: 'L\'académicien a-t-il des problèmes de peau ?',
+            value: _aProblemesPeau,
+            onChanged: (value) => setState(() => _aProblemesPeau = value),
+            colorScheme: colorScheme,
+          ),
+          const SizedBox(height: 20),
+          _buildBooleanSelector(
+            label: 'Est-il allergique à une substance ou aliment ?',
+            value: _aAllergie,
+            onChanged: (value) => setState(() => _aAllergie = value),
+            colorScheme: colorScheme,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _allergieDetailsController,
+            label:
+                'Si oui, à quelle substance ou aliment ?'
+                '',
+            hint: 'Détaillez l\'allergie si nécessaire',
+            icon: Icons.medical_information_outlined,
+          ),
+          const SizedBox(height: 20),
+          _buildBooleanSelector(
+            label: 'Aime-t-il le travail de groupe ?',
+            value: _aimeTravailGroupe,
+            onChanged: (value) => setState(() => _aimeTravailGroupe = value),
+            colorScheme: colorScheme,
+          ),
+          const SizedBox(height: 20),
           _buildTextField(
             controller: _descriptionPerformancesController,
             label: l10n.performanceDescriptionLabel,
@@ -1020,11 +1101,7 @@ class _AcademicienRegistrationPageState
             hint: l10n.centerHint,
             icon: Icons.sports_soccer_outlined,
             onChanged: (v) {
-              _historiqueParcours[index] = HistoriqueParcoursSportif(
-                centre: v,
-                categorie: _historiqueParcours[index].categorie,
-                observation: _historiqueParcours[index].observation,
-              );
+              _updateHistoriqueEntry(index, centre: v);
             },
           ),
           const SizedBox(height: 12),
@@ -1034,29 +1111,61 @@ class _AcademicienRegistrationPageState
             hint: l10n.categoryHint,
             icon: Icons.category_outlined,
             onChanged: (v) {
-              _historiqueParcours[index] = HistoriqueParcoursSportif(
-                centre: _historiqueParcours[index].centre,
-                categorie: v,
-                observation: _historiqueParcours[index].observation,
-              );
+              _updateHistoriqueEntry(index, categorie: v);
             },
           ),
           const SizedBox(height: 12),
           _buildInlineTextField(
-            initialValue: historique.observation,
-            label: l10n.observationLabel,
-            hint: l10n.observationHint,
-            icon: Icons.notes_outlined,
+            initialValue: historique.etablissement,
+            label: 'Etablissement',
+            hint: 'Nom de l\'établissement',
+            icon: Icons.school_outlined,
             onChanged: (v) {
-              _historiqueParcours[index] = HistoriqueParcoursSportif(
-                centre: _historiqueParcours[index].centre,
-                categorie: _historiqueParcours[index].categorie,
-                observation: v,
-              );
+              _updateHistoriqueEntry(index, etablissement: v);
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.anneeScolaire,
+            label: 'Année scolaire',
+            hint: 'Ex: 2024-2025',
+            icon: Icons.calendar_month_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, anneeScolaire: v);
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
+            initialValue: historique.classe,
+            label: 'Classe',
+            hint: 'Ex: 3ème, Terminale',
+            icon: Icons.class_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, classe: v);
             },
           ),
         ],
       ),
+    );
+  }
+
+  void _updateHistoriqueEntry(
+    int index, {
+    String? centre,
+    String? categorie,
+    String? etablissement,
+    String? anneeScolaire,
+    String? classe,
+  }) {
+    final current = _historiqueParcours[index];
+    _historiqueParcours[index] = HistoriqueParcoursSportif(
+      id: current.id,
+      academicienId: current.academicienId,
+      centre: centre ?? current.centre,
+      categorie: categorie ?? current.categorie,
+      etablissement: etablissement ?? current.etablissement,
+      anneeScolaire: anneeScolaire ?? current.anneeScolaire,
+      classe: classe ?? current.classe,
     );
   }
 

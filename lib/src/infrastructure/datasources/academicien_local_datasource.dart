@@ -109,6 +109,10 @@ class AcademicienLocalDatasource {
       'atouts': a.atouts,
       'faiblesses': a.faiblesses,
       'descriptionPerformances': a.descriptionPerformances,
+      'aProblemesPeau': a.aProblemesPeau,
+      'aAllergie': a.aAllergie,
+      'allergieDetails': a.allergieDetails,
+      'aimeTravailGroupe': a.aimeTravailGroupe,
       'historiqueParcours': a.historiqueParcours
           .map((h) => h.toJson())
           .toList(),
@@ -143,6 +147,10 @@ class AcademicienLocalDatasource {
       atouts: json['atouts'] as String?,
       faiblesses: json['faiblesses'] as String?,
       descriptionPerformances: json['descriptionPerformances'] as String?,
+      aProblemesPeau: json['aProblemesPeau'] as bool?,
+      aAllergie: json['aAllergie'] as bool?,
+      allergieDetails: json['allergieDetails'] as String?,
+      aimeTravailGroupe: json['aimeTravailGroupe'] as bool?,
       historiqueParcours:
           (json['historiqueParcours'] as List<dynamic>?)
               ?.map(
@@ -230,6 +238,17 @@ class AcademicienLocalDatasource {
               descriptionPerformances:
                   map['description_performances'] as String? ??
                   map['descriptionPerformances'] as String?,
+              aProblemesPeau:
+                  map['a_problemes_peau'] as bool? ??
+                  map['aProblemesPeau'] as bool?,
+              aAllergie:
+                  map['a_allergie'] as bool? ?? map['aAllergie'] as bool?,
+              allergieDetails:
+                  map['allergie_details'] as String? ??
+                  map['allergieDetails'] as String?,
+              aimeTravailGroupe:
+                  map['aime_travail_groupe'] as bool? ??
+                  map['aimeTravailGroupe'] as bool?,
               historiqueParcours:
                   (map['historique_parcours'] as List<dynamic>? ??
                           map['historiqueParcours'] as List<dynamic>? ??
