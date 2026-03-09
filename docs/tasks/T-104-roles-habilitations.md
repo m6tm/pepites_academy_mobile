@@ -10,7 +10,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 
 ## Sous-tickets
 
-### [T-104.1] Modèle de données - Rôles et Permissions
+### [T-104.1] Modèle de données - Rôles et Permissions [DONE]
 
 - **Objectif :** Créer les entités métier pour les rôles et permissions.
 - **Actions :**
@@ -21,7 +21,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 
 ---
 
-### [T-104.2] Service d'autorisation
+### [T-104.2] Service d'autorisation [DONE]
 
 - **Objectif :** Mettre en place la logique de vérification des permissions.
 - **Actions :**
