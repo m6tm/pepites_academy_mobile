@@ -1644,5 +1644,6 @@
   "categoryLabel": "Category",
   "categoryHint": "E.g.: U15, U17",
   "observationLabel": "Observation",
-  "observationHint": "Remarks for this period"
+  "observationHint": "Remarks for this period",
+  "pressAgainToExit": "Press again to exit"
 }

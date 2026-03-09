@@ -1717,5 +1717,6 @@
   "categoryLabel": "Categorie",
   "categoryHint": "Ex: U15, U17",
   "observationLabel": "Observation",
-  "observationHint": "Remarques sur cette periode"
+  "observationHint": "Remarques sur cette periode",
+  "pressAgainToExit": "Appuyez encore pour quitter"
 }

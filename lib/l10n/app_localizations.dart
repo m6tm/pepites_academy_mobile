@@ -5785,6 +5785,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Remarques sur cette periode'**
   String get observationHint;
+
+  /// No description provided for @pressAgainToExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez encore pour quitter'**
+  String get pressAgainToExit;
 }
 
 class _AppLocalizationsDelegate

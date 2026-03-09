@@ -3188,4 +3188,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get observationHint => 'Remarks for this period';
+
+  @override
+  String get pressAgainToExit => 'Press again to exit';
 }

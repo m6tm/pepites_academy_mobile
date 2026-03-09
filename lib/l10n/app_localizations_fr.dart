@@ -3204,4 +3204,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get observationHint => 'Remarques sur cette periode';
+
+  @override
+  String get pressAgainToExit => 'Appuyez encore pour quitter';
 }
