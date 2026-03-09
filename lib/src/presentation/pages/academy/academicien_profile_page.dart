@@ -45,12 +45,20 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
     super.initState();
     _academicien = widget.academicien;
     _tabController = TabController(length: 3, vsync: this);
+    _rechargerAcademicien();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _rechargerAcademicien() async {
+    final academicienComplet = await widget.repository.getById(_academicien.id);
+    if (academicienComplet != null && mounted) {
+      setState(() => _academicien = academicienComplet);
+    }
   }
 
   String _getPosteName() {
@@ -197,6 +205,13 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
     final l10n = AppLocalizations.of(context)!;
 
     try {
+      final academicienComplet = await widget.repository.getById(
+        _academicien.id,
+      );
+      if (academicienComplet != null) {
+        _academicien = academicienComplet;
+      }
+
       final service = RegistrationFormService();
       final file = await service.genererFicheInscription(
         academicien: _academicien,

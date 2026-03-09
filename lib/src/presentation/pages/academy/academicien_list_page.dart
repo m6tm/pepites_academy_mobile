@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../domain/entities/academicien.dart';
+import '../../../domain/entities/historique_parcours_sportif.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../infrastructure/network/api_endpoints.dart';
@@ -91,6 +92,16 @@ class AcademicienListPageState extends State<AcademicienListPage> {
   /// Convertit un JSON API en entité Academicien (supporte snake_case et camelCase).
   Academicien? _academicienFromApiJson(Map<String, dynamic> json) {
     try {
+      // Parse l'historique du parcours sportif
+      final historiqueRaw =
+          json['historique_parcours'] as List<dynamic>? ??
+          json['historiqueParcours'] as List<dynamic>? ??
+          [];
+      final historiqueParcours = historiqueRaw
+          .whereType<Map<String, dynamic>>()
+          .map((h) => HistoriqueParcoursSportif.fromJson(h))
+          .toList();
+
       return Academicien(
         id: json['id'] as String,
         nom: json['nom'] as String? ?? '',
@@ -100,12 +111,25 @@ class AcademicienListPageState extends State<AcademicienListPage> {
               json['date_naissance'] as String? ??
               DateTime.now().toIso8601String(),
         ),
+        lieuNaissance:
+            json['lieuNaissance'] as String? ??
+            json['lieu_naissance'] as String?,
+        nationalite: json['nationalite'] as String?,
+        sexe: json['sexe'] as String?,
         photoUrl:
             json['photoUrl'] as String? ?? json['photo_url'] as String? ?? '',
+        telephoneEleve:
+            json['telephoneEleve'] as String? ??
+            json['telephone_eleve'] as String?,
         telephoneParent:
             json['telephoneParent'] as String? ??
             json['telephone_parent'] as String? ??
             '',
+        taille: json['taille'] as int?,
+        email: json['email'] as String?,
+        whatsapp: json['whatsapp'] as String?,
+        twitter: json['twitter'] as String?,
+        facebook: json['facebook'] as String?,
         posteFootballId:
             json['posteFootballId'] as String? ??
             json['poste_football_id'] as String? ??
@@ -119,6 +143,22 @@ class AcademicienListPageState extends State<AcademicienListPage> {
             json['code_qr_unique'] as String? ??
             '',
         piedFort: json['piedFort'] as String? ?? json['pied_fort'] as String?,
+        nomParent:
+            json['nomParent'] as String? ?? json['nom_parent'] as String?,
+        fonctionParent:
+            json['fonctionParent'] as String? ??
+            json['fonction_parent'] as String?,
+        emailParent:
+            json['emailParent'] as String? ?? json['email_parent'] as String?,
+        adresseParent:
+            json['adresseParent'] as String? ??
+            json['adresse_parent'] as String?,
+        atouts: json['atouts'] as String?,
+        faiblesses: json['faiblesses'] as String?,
+        descriptionPerformances:
+            json['descriptionPerformances'] as String? ??
+            json['description_performances'] as String?,
+        historiqueParcours: historiqueParcours,
       );
     } catch (_) {
       return null;

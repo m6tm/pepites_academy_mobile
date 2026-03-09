@@ -71,6 +71,11 @@ class AcademicienLocalDatasource {
     }).toList();
   }
 
+  /// Vide le cache local.
+  Future<void> clear() async {
+    await _prefs.remove(_key);
+  }
+
   Future<void> saveAll(List<Academicien> list) async {
     final jsonList = list.map((e) => _toJson(e)).toList();
     await _prefs.setString(_key, json.encode(jsonList));

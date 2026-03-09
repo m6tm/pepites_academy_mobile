@@ -1,5 +1,6 @@
 import '../../application/services/sync_service.dart';
 import '../../domain/entities/academicien.dart';
+import '../../domain/entities/historique_parcours_sportif.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/academicien_repository.dart';
 import '../datasources/academicien_local_datasource.dart';
@@ -110,7 +111,11 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
 
           final academiciens = rawList
               .whereType<Map<String, dynamic>>()
-              .map((map) => _parseAcademicien(map))
+              .map((map) {
+                // Log pour voir les donnees brutes recues
+                print('[AcademicienRepo] RAW DATA for ${map['id']}: $map');
+                return _parseAcademicien(map);
+              })
               .where((a) => a.id.isNotEmpty)
               .toList();
 
@@ -131,6 +136,16 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
 
   /// Parse un academicien depuis les donnees du backend.
   Academicien _parseAcademicien(Map<String, dynamic> map) {
+    // Parse l'historique du parcours sportif
+    final historiqueRaw =
+        map['historique_parcours'] as List<dynamic>? ??
+        map['historiqueParcours'] as List<dynamic>? ??
+        [];
+    final historiqueParcours = historiqueRaw
+        .whereType<Map<String, dynamic>>()
+        .map((h) => HistoriqueParcoursSportif.fromJson(h))
+        .toList();
+
     return Academicien(
       id: (map['id']?.toString() ?? ''),
       nom: (map['nom'] as String?) ?? '',
@@ -142,12 +157,25 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
                 DateTime.now().toIso8601String(),
           ) ??
           DateTime.now(),
+      lieuNaissance:
+          (map['lieu_naissance'] as String?) ??
+          (map['lieuNaissance'] as String?),
+      nationalite: map['nationalite'] as String?,
+      sexe: map['sexe'] as String?,
       photoUrl:
           (map['photo_url'] as String?) ?? (map['photoUrl'] as String?) ?? '',
+      telephoneEleve:
+          (map['telephone_eleve'] as String?) ??
+          (map['telephoneEleve'] as String?),
       telephoneParent:
           (map['telephone_parent'] as String?) ??
           (map['telephoneParent'] as String?) ??
           '',
+      taille: map['taille'] as int?,
+      email: map['email'] as String?,
+      whatsapp: map['whatsapp'] as String?,
+      twitter: map['twitter'] as String?,
+      facebook: map['facebook'] as String?,
       posteFootballId:
           (map['poste_football_id'] as String?) ??
           (map['posteFootballId'] as String?) ??
@@ -161,6 +189,22 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
           (map['codeQrUnique'] as String?) ??
           '',
       piedFort: (map['pied_fort'] as String?) ?? (map['piedFort'] as String?),
+      nomParent:
+          (map['nom_parent'] as String?) ?? (map['nomParent'] as String?),
+      fonctionParent:
+          (map['fonction_parent'] as String?) ??
+          (map['fonctionParent'] as String?),
+      emailParent:
+          (map['email_parent'] as String?) ?? (map['emailParent'] as String?),
+      adresseParent:
+          (map['adresse_parent'] as String?) ??
+          (map['adresseParent'] as String?),
+      atouts: map['atouts'] as String?,
+      faiblesses: map['faiblesses'] as String?,
+      descriptionPerformances:
+          (map['description_performances'] as String?) ??
+          (map['descriptionPerformances'] as String?),
+      historiqueParcours: historiqueParcours,
     );
   }
 }
