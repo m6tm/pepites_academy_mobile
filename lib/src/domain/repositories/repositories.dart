@@ -2,6 +2,7 @@ export 'academicien_repository.dart';
 export 'annotation_repository.dart';
 export 'atelier_repository.dart';
 export 'bulletin_repository.dart';
+export 'dashboard_repository.dart';
 export 'encadreur_repository.dart';
 export 'presence_repository.dart';
 export 'referentiel_repository.dart';

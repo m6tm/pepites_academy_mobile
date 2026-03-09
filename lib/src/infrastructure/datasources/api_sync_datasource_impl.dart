@@ -246,6 +246,10 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.notifications;
       case SyncEntityType.fcmToken:
         return ApiEndpoints.fcmToken;
+      case SyncEntityType.dashboard:
+        return ApiEndpoints.dashboardStats;
+      case SyncEntityType.season:
+        return ApiEndpoints.seasons;
     }
   }
 

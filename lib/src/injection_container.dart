@@ -56,6 +56,7 @@ import 'infrastructure/repositories/security_repository_impl.dart';
 import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'infrastructure/repositories/role_repository_impl.dart';
+import 'infrastructure/repositories/dashboard_repository_impl.dart';
 import 'infrastructure/services/firebase_push_notification_service.dart';
 import 'presentation/state/connectivity_state.dart';
 import 'presentation/state/search_state.dart';
@@ -107,6 +108,7 @@ class DependencyInjection {
   static late final DashboardService dashboardService;
   static late final RoleService roleService;
   static late final RoleRepositoryImpl roleRepository;
+  static late final DashboardRepositoryImpl dashboardRepository;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
   static late PreferencesRepositoryImpl _preferencesRepository;
@@ -338,6 +340,10 @@ class DependencyInjection {
     // Initialisation du module de rôles et permissions
     roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
     roleService = RoleService(roleRepository: roleRepository);
+
+    // Initialisation du repository Dashboard
+    dashboardRepository = DashboardRepositoryImpl(dioClient, sharedPrefs);
+    dashboardRepository.setSyncService(syncService);
 
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,

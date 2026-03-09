@@ -134,6 +134,10 @@ class SyncQueueLocalDatasource {
         return 0;
       case SyncEntityType.fcmToken:
         return 0; // Token FCM en priorite haute
+      case SyncEntityType.dashboard:
+        return 10; // Dashboard en faible priorite (donnees agrégées)
+      case SyncEntityType.season:
+        return 1; // Saison en haute priorite (impact global)
     }
   }
 

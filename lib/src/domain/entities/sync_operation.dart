@@ -15,6 +15,8 @@ enum SyncEntityType {
   posteFootball,
   smsMessage,
   fcmToken,
+  dashboard,
+  season,
 }
 
 /// Statuts possibles d'une operation de synchronisation.

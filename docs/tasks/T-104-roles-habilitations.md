@@ -92,6 +92,209 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Tous les modules de l'application
   - Statistiques globales
 
+##### T-104.6.1.1 - Modèle de données Dashboard Stats [DONE]
+
+- **Objectif :** Créer l'entité domaine pour les statistiques globales du dashboard SupAdmin.
+- **Actions :**
+  - Créer l'entité `DashboardStats` dans `lib/src/domain/entities/`
+  - Inclure les champs : nombre total académiciens, encadreurs, séances, annotations, présences
+  - Inclure les métriques saison en cours (ouverte/fermée)
+  - Définir le contrat de repository `DashboardRepository`
+- **Connexion Backend :**
+  - Endpoint : `GET /dashboard/stats` (existant dans `ApiEndpoints.dashboardStats`)
+- **Backend à implémenter :**
+  - Le backend doit retourner un JSON avec la structure définie dans `DashboardStats.toJson()`
+  - Vérifier que l'endpoint `/dashboard/stats` existe côté backend et retourne les bonnes données
+- **Cache :**
+  - Persistance locale via `SharedPreferences` pour mode hors-ligne
+  - Durée de validité : 5 minutes
+
+##### T-104.6.1.2 - Repository Dashboard avec Cache [DONE]
+
+- **Objectif :** Implémenter le repository avec gestion du cache et synchronisation.
+- **Actions :**
+  - Créer `DashboardRepositoryImpl` dans `lib/src/infrastructure/repositories/`
+  - Implémenter la stratégie cache-first : vérifier le cache local avant appel API
+  - Gérer l'invalidation du cache lors des mutations (nouvelle séance, présence, etc.)
+  - Intégrer avec `SyncService` pour les opérations hors-ligne
+- **Connexion Backend :**
+  - Appel `DioClient.get(ApiEndpoints.dashboardStats)`
+  - Gestion des erreurs réseau avec fallback sur cache
+- **Backend à implémenter :**
+  - S'assurer que l'endpoint `GET /dashboard/stats` est fonctionnel
+  - Le backend doit calculer et retourner les statistiques agrégées
+- **Synchronisation :**
+  - Ajouter `SyncEntityType.dashboard` si modifications locales
+  - Synchronisation automatique au retour de connexion via `ConnectivityService`
+
+##### T-104.6.1.3 - Service Dashboard SupAdmin
+
+- **Objectif :** Créer le service applicatif pour la logique métier du dashboard.
+- **Actions :**
+  - Étendre `DashboardService` dans `lib/src/application/services/`
+  - Méthode `getGlobalStats()` avec support cache/refresh
+  - Méthode `getSeasonStatus()` pour l'état de la saison en cours
+  - Méthode `refreshStats()` pour forcer le rafraîchissement
+- **Backend à implémenter :**
+  - Vérifier l'existence de `GET /seasons/current` côté backend
+  - Si non existant, le backend doit exposer la saison active courante
+- **Cache :**
+  - Exposer un `Stream<DashboardStats>` pour réactivité UI
+  - Notifier les changements via callback `onStatsUpdated`
+- **Synchronisation :**
+  - Déclencher une synchronisation au démarrage si données en attente
+
+##### T-104.6.1.4 - Vue Globale de l'Académie
+
+- **Objectif :** Afficher les KPIs globaux sur le dashboard SupAdmin.
+- **Actions :**
+  - Créer le widget `GlobalStatsCard` dans `lib/src/presentation/widgets/`
+  - Afficher : total académiciens, encadreurs, séances du jour
+  - Indicateur visuel de connectivité (via `ConnectivityIndicator`)
+  - Bouton de rafraîchissement avec animation de chargement
+- **Connexion Backend :**
+  - Charger les données via `DashboardService.getGlobalStats()`
+  - Afficher les données en cache immédiatement, puis rafraîchir
+- **Backend à implémenter :**
+  - Aucun endpoint direct, dépend de `GET /dashboard/stats`
+  - S'assurer que les données retournées incluent `nbSeancesJour` et `nbPresencesJour`
+- **Cache :**
+  - Afficher les données en cache pendant le chargement
+  - Indiquer si les données proviennent du cache (badge "Hors-ligne")
+
+##### T-104.6.1.5 - Gestion des Saisons (Ouverture/Fermeture)
+
+- **Objectif :** Permettre au SupAdmin d'ouvrir/fermer une saison.
+- **Actions :**
+  - L'entité `Season` est déjà créée dans `dashboard_stats.dart`
+  - Utiliser `DashboardRepository` existant pour les opérations saison
+  - Widget `SeasonManagementCard` avec boutons ouvrir/fermer
+  - Modal de confirmation avant action
+- **Connexion Backend :**
+  - Endpoint `GET/POST /seasons` déjà ajouté dans `ApiEndpoints`
+  - Validation des permissions côté backend (`season:manage`)
+- **Backend à implémenter :**
+  - `GET /seasons/current` : Retourner la saison active courante
+  - `POST /seasons` : Créer/ouvrir une nouvelle saison (body: `{name, start_date, status}`)
+  - `PUT /seasons/:id/close` : Fermer une saison (body: `{end_date}`)
+  - Ajouter la permission `season:manage` pour SupAdmin uniquement
+  - Vérifier qu'une seule saison peut être active à la fois
+- **Synchronisation :**
+  - Ajouter `SyncEntityType.season` dans l'enum existant
+  - File d'attente pour opérations hors-ligne
+  - Notification de confirmation après synchronisation
+
+##### T-104.6.1.6 - Gestion des Utilisateurs et Rôles
+
+- **Objectif :** Interface de gestion des utilisateurs avec attribution de rôles.
+- **Actions :**
+  - Intégrer la page existante `UsersRolesPage` dans le dashboard
+  - Ajouter filtres par rôle avec badges visuels
+  - Formulaire de modification de rôle avec validation
+  - Historique des changements de rôle
+- **Connexion Backend :**
+  - Endpoints existants : `GET/PUT ${ApiEndpoints.roleUsers}/:id/role`
+  - Pagination avec chargement progressif
+- **Backend à implémenter :**
+  - `GET /roles/users/history/:userId` : Historique des changements de rôle (à créer si non existant)
+  - Vérifier que la pagination fonctionne correctement sur `GET /roles/users`
+- **Cache :**
+  - Utiliser le cache existant dans `RoleRepositoryImpl.getCachedUsersSync()`
+  - Invalider le cache après modification (`invalidateUsersCache()`)
+
+##### T-104.6.1.7 - Accès à Tous les Modules
+
+- **Objectif :** Navigation rapide vers tous les modules de l'application.
+- **Actions :**
+  - Créer `SupAdminModuleGrid` avec icônes pour chaque module
+  - Modules : Académiciens, Encadreurs, Séances, Ateliers, Bulletins, SMS, Référentiels
+  - Badge indiquant le nombre d'éléments en attente de synchronisation
+  - Indicateur d'accès autorisé via `PermissionGuard`
+- **Connexion Backend :**
+  - Pas d'appel direct, navigation vers les pages existantes
+- **Backend à implémenter :**
+  - Aucun endpoint requis, utilise les données de synchronisation locales
+- **Synchronisation :**
+  - Afficher le compteur d'opérations en attente via `SyncService.getPendingCount()`
+
+##### T-104.6.1.8 - Statistiques Globales avec Graphiques
+
+- **Objectif :** Afficher des graphiques de statistiques globales.
+- **Actions :**
+  - Créer `StatsChartWidget` avec graphiques (fl_chart ou équivalent)
+  - Graphiques : évolution des présences, répartition par poste, performance mensuelle
+  - Export des statistiques en PDF/Image
+- **Connexion Backend :**
+  - Endpoint : `GET /dashboard/stats/charts` (à ajouter dans `ApiEndpoints`)
+  - Paramètres : période (mois, trimestre, saison)
+- **Backend à implémenter :**
+  - `GET /dashboard/stats/charts?period=month|quarter|season` : Retourner les données graphiques
+  - Structure de réponse attendue :
+    ```json
+    {
+      "presence_evolution": [{"date": "2024-01", "count": 45}, ...],
+      "repartition_postes": [{"poste": "Gardien", "count": 5}, ...],
+      "performance_mensuelle": [{"mois": "Janvier", "moyenne": 78.5}, ...]
+    }
+    ```
+  - Ajouter l'endpoint dans `ApiEndpoints.dashboardStatsCharts`
+- **Cache :**
+  - Cache des données graphiques avec TTL de 10 minutes
+  - Régénération au rafraîchissement
+
+##### T-104.6.1.9 - Indicateur de Synchronisation
+
+- **Objectif :** Afficher le statut de synchronisation en temps réel.
+- **Actions :**
+  - Intégrer `SyncNotificationBanner` existant dans le dashboard
+  - Badge avec nombre d'opérations en attente
+  - Animation pendant la synchronisation
+  - Notification de succès/échec après synchronisation
+- **Backend à implémenter :**
+  - Aucun endpoint requis, utilise le système de synchronisation existant
+- **Synchronisation :**
+  - Écouter `SyncService.onPendingCountChanged`
+  - Écouter `SyncService.onSyncCompleted` pour les notifications
+  - Déclencher `SyncService.syncPendingOperations()` au démarrage
+
+##### T-104.6.1.10 - Page Dashboard SupAdmin Finale
+
+- **Objectif :** Assembler tous les composants dans la page finale.
+- **Actions :**
+  - Créer `SupAdminDashboardPage` dans `lib/src/presentation/pages/dashboard/`
+  - Layout responsive avec `ScrollView` et sections organisées
+  - Intégrer tous les widgets créés (stats, saisons, utilisateurs, modules, graphiques)
+  - Gestion du refresh avec `RefreshIndicator`
+- **Connexion Backend :**
+  - Chargement initial des données au montage
+  - Rafraîchissement périodique configurable
+- **Backend à implémenter :**
+  - Récapitulatif des endpoints backend à créer/vérifier :
+    - `GET /dashboard/stats` - Vérifier existence et format
+    - `GET /seasons/current` - À créer
+    - `POST /seasons` - À créer
+    - `PUT /seasons/:id/close` - À créer
+    - `GET /dashboard/stats/charts` - À créer
+    - `GET /roles/users/history/:userId` - À créer (optionnel)
+- **Cache :**
+  - Affichage immédiat du cache pendant le chargement
+  - État de chargement géré par `AsyncValue`
+
+###### Dépendances T-104.6.1
+
+| Sous-ticket | Dépendances |
+|------------|-------------|
+| T-104.6.1.1 | Aucune |
+| T-104.6.1.2 | T-104.6.1.1 |
+| T-104.6.1.3 | T-104.6.1.2 |
+| T-104.6.1.4 | T-104.6.1.3 |
+| T-104.6.1.5 | T-104.6.1.3 |
+| T-104.6.1.6 | T-104.6.1.3 (existant partiel) |
+| T-104.6.1.7 | T-104.6.1.3 |
+| T-104.6.1.8 | T-104.6.1.3 |
+| T-104.6.1.9 | Aucune (existant) |
+| T-104.6.1.10 | Tous les précédents |
+
 #### T-104.6.2 - Dashboard Admin
 
 - **Objectif :** Dashboard administratif avec gestion complète.
