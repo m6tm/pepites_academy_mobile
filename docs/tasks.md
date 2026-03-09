@@ -32,6 +32,34 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Finalisation des dossiers `lib/src` (domain, application, infrastructure, presentation).
   - Création des constantes de spacing et radius basées sur le cahier des charges.
 
+### [T-104] Système de Rôles et Habilitations
+
+- **Objectif :** L'application gère plusieurs types d'utilisateurs avec des responsabilités et des accès différents. Ce ticket définit et implémente le système de rôles qui permet de contrôler les autorisations et les fonctionnalités accessibles à chaque profil. Le système distingue 7 rôles principaux :
+  - **SupAdmin** : Super Administrateur avec tous les droits sur l'application.
+  - **Admin** : Administrateur principal de l'application.
+  - **EncadreurChef** : Chef des encadreurs, peut structurer l'entraînement et valider les évaluations.
+  - **MedecinChef** : Chef médical, gère les fiches médicales et le suivi sanitaire.
+  - **Encadreur** : Coach terrain, applique les entraînements et suit les académiciens.
+  - **SurveillantGeneral** : Gestionnaire du matériel et de la discipline.
+  - **Visiteur** : Utilisateur en lecture seule, consulte les résultats.
+- **Description détaillée des rôles :**
+  - **SupAdmin** : Super Administrateur avec tous les droits sur l'application. Accès complet à toutes les fonctionnalités : gestion des utilisateurs, configuration système, référentiels, saisons, rapports, etc. C'est le rôle le plus élevé dans la hiérarchie.
+  - **Admin** : Vient immédiatement après SupAdmin. Administrateur principal de l'application avec des droits étendus sur la gestion quotidienne : utilisateurs, académiciens, encadreurs, séances, etc.
+  - **EncadreurChef** : Peut créer un encadreur, un académicien, un entraînement, un atelier, un exercice. Il peut structurer le programme d'entraînement, ouvrir et fermer une séance d'entraînement, faire des évaluations ou encore valider les évaluations faites par les encadreurs.
+  - **MedecinChef** : Prépare les fiches médicales des académiciens et encadreurs, fait le suivi sanitaire de tout le monde, et conseille les encadreurs sur les aspects médicaux (blessures, récupération, etc.).
+  - **Encadreur** : Peut créer un académicien, appliquer un entraînement avec tous les exercices et ateliers prévus, et doit faire le suivi des académiciens à sa charge (annotations, observations, présences).
+  - **SurveillantGeneral** : Doit gérer le matériel en fonction des entraînements et faire le suivi de celui-ci. Il doit surveiller la discipline et faire le suivi des encadreurs et académiciens sur le plan comportemental.
+  - **Visiteur** : Rôle en lecture seule. Peut seulement voir les résultats comme les académiciens, les encadreurs, les entraînements, les exercices, les ateliers, les statistiques, etc. Aucune action de création ou modification autorisée.
+- **Sous-tâches :**
+  - Création de l'entité `Role` dans `lib/src/domain/entities/` avec les 7 rôles définis.
+  - Création de l'entité `Permission` pour définir les habilitations granulaires.
+  - Mise en place d'un système de permissions par rôle (RBAC - Role-Based Access Control).
+  - Intégration du rôle dans l'entité `User` et lors de l'authentification (T-201).
+  - Redirection automatique vers le dashboard approprié selon le rôle connecté.
+  - Interface de gestion des rôles pour Admin (attribution/modification des rôles utilisateurs).
+  - Middleware de vérification des permissions sur les actions sensibles.
+  - Documentation des permissions par rôle dans l'API backend.
+
 ## PHASE 2 : Authentification & Inscriptions (Points 6, 7)
 
 ### [T-201] Système d'Authentification
