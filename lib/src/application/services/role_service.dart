@@ -55,16 +55,34 @@ class RoleService {
   }
 
   /// Récupère la liste de tous les utilisateurs avec leurs rôles.
-  Future<(List<User>?, NetworkFailure?)> getAllUsersWithRoles({
+  ///
+  /// Si [forceRefresh] est true, ignore le cache et force l'appel API.
+  /// Retourne un tuple (utilisateurs, erreur, isFromCache).
+  Future<(List<User>?, NetworkFailure?, bool isFromCache)>
+  getAllUsersWithRoles({
     int page = 1,
     int limit = 20,
     Role? filterByRole,
+    bool forceRefresh = false,
   }) async {
     return _roleRepository.getAllUsersWithRoles(
       page: page,
       limit: limit,
       filterByRole: filterByRole,
+      forceRefresh: forceRefresh,
     );
+  }
+
+  /// Récupère les utilisateurs en cache de manière synchrone.
+  ///
+  /// Retourne le cache mémoire si disponible, null sinon.
+  /// Le filtrage se fait côté UI.
+  List<User>? getCachedUsersSync() {
+    final repo = _roleRepository;
+    if (repo is RoleRepositoryImpl) {
+      return repo.getCachedUsersSync();
+    }
+    return null;
   }
 
   /// Vérifie si l'utilisateur actuel possède une permission spécifique.

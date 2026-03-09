@@ -35,7 +35,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 
 ---
 
-### [T-104.3] Intégration avec l'authentification
+### [T-104.3] Intégration avec l'authentification [DONE]
 
 - **Objectif :** Intégrer le système de rôles au système d'authentification existant (T-201).
 - **Actions :**

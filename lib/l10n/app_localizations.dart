@@ -4637,7 +4637,7 @@ abstract class AppLocalizations {
   /// No description provided for @unknownError.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur inconnue'**
+  /// **'Une erreur inconnue est survenue'**
   String get unknownError;
 
   /// No description provided for @attendanceRecordedSuccess.
@@ -5791,6 +5791,144 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Appuyez encore pour quitter'**
   String get pressAgainToExit;
+
+  /// No description provided for @usersRolesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des rôles'**
+  String get usersRolesTitle;
+
+  /// No description provided for @usersRolesSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attribuez et modifiez les rôles des utilisateurs'**
+  String get usersRolesSubtitle;
+
+  /// No description provided for @searchUserHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un utilisateur...'**
+  String get searchUserHint;
+
+  /// No description provided for @administrators.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administrateurs'**
+  String get administrators;
+
+  /// No description provided for @inactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inactif'**
+  String get inactive;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun utilisateur trouvé'**
+  String get noUsersFound;
+
+  /// No description provided for @noUsersRegistered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun utilisateur enregistré dans le système.'**
+  String get noUsersRegistered;
+
+  /// No description provided for @retry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get retry;
+
+  /// No description provided for @changeUserRoleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le rôle'**
+  String get changeUserRoleTitle;
+
+  /// No description provided for @selectNewRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner le nouveau rôle'**
+  String get selectNewRole;
+
+  /// No description provided for @roleChangeWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le changement de rôle modifie les permissions de l\'utilisateur.'**
+  String get roleChangeWarning;
+
+  /// No description provided for @confirmChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le changement'**
+  String get confirmChange;
+
+  /// No description provided for @permissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permission refusée'**
+  String get permissionDenied;
+
+  /// No description provided for @updatingRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour du rôle...'**
+  String get updatingRole;
+
+  /// No description provided for @roleChangeError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du changement de rôle'**
+  String get roleChangeError;
+
+  /// No description provided for @roleChangeSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rôle modifié avec succès'**
+  String get roleChangeSuccess;
+
+  /// No description provided for @roleSupAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Super Admin'**
+  String get roleSupAdmin;
+
+  /// No description provided for @roleAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administrateur'**
+  String get roleAdmin;
+
+  /// No description provided for @roleEncadreurChef.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur Chef'**
+  String get roleEncadreurChef;
+
+  /// No description provided for @roleMedecinChef.
+  ///
+  /// In fr, this message translates to:
+  /// **'Médecin Chef'**
+  String get roleMedecinChef;
+
+  /// No description provided for @roleEncadreur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreur'**
+  String get roleEncadreur;
+
+  /// No description provided for @roleSurveillantGeneral.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surveillant Général'**
+  String get roleSurveillantGeneral;
+
+  /// No description provided for @roleVisiteur.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visiteur'**
+  String get roleVisiteur;
 }
 
 class _AppLocalizationsDelegate

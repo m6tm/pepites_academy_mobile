@@ -1,3 +1,4 @@
+import 'dart:convert';
 import '../../domain/entities/permission.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/entities/user.dart';
@@ -22,8 +23,15 @@ class RoleRepositoryImpl implements RoleRepository {
   static const String _keyUserEmail = 'user_email';
   static const String _keyUserPhoto = 'user_photo';
 
+  // Clés pour le cache des utilisateurs avec rôles
+  static const String _keyCachedUsers = 'cached_users_with_roles';
+  static const String _keyCachedUsersTimestamp = 'cached_users_timestamp';
+  static const String _keyCachedUsersFilter = 'cached_users_filter';
+  static const Duration _cacheValidityDuration = Duration(minutes: 5);
+
   Role? _cachedRole;
   User? _cachedUser;
+  List<User>? _cachedUsersList;
 
   RoleRepositoryImpl(this._dioClient, this._sharedPrefs);
 
@@ -137,11 +145,23 @@ class RoleRepositoryImpl implements RoleRepository {
   }
 
   @override
-  Future<(List<User>?, NetworkFailure?)> getAllUsersWithRoles({
+  Future<(List<User>?, NetworkFailure?, bool isFromCache)>
+  getAllUsersWithRoles({
     int page = 1,
     int limit = 20,
     Role? filterByRole,
+    bool forceRefresh = false,
   }) async {
+    // Vérifier si on peut utiliser le cache (première page uniquement)
+    if (!forceRefresh && page == 1) {
+      final cachedUsers = await _getCachedUsers(filterByRole);
+      if (cachedUsers != null) {
+        // Retourner le cache avec l'indicateur isFromCache = true
+        return (cachedUsers, null, true);
+      }
+    }
+
+    // Si pas de cache ou forceRefresh, charger depuis l'API
     try {
       final params = <String, dynamic>{'page': page, 'limit': limit};
       if (filterByRole != null) {
@@ -153,18 +173,25 @@ class RoleRepositoryImpl implements RoleRepository {
         queryParameters: params,
       );
 
-      return result.fold((failure) => (null, failure), (data) {
+      return result.fold((failure) => (null, failure, false), (data) {
         if (data is Map<String, dynamic> && data['items'] is List) {
           final users = (data['items'] as List)
               .map((json) => User.fromJson(json as Map<String, dynamic>))
               .toList();
-          return (users, null);
+          // Sauvegarder en cache si c'est la première page
+          if (page == 1) {
+            _saveCachedUsers(users, filterByRole);
+          }
+          return (users, null, false);
         }
         if (data is List) {
           final users = data
               .map((json) => User.fromJson(json as Map<String, dynamic>))
               .toList();
-          return (users, null);
+          if (page == 1) {
+            _saveCachedUsers(users, filterByRole);
+          }
+          return (users, null, false);
         }
         return (
           null,
@@ -172,6 +199,7 @@ class RoleRepositoryImpl implements RoleRepository {
             type: NetworkFailureType.serverError,
             message: 'Format de réponse invalide',
           ),
+          false,
         );
       });
     } catch (e) {
@@ -181,6 +209,7 @@ class RoleRepositoryImpl implements RoleRepository {
           type: NetworkFailureType.serverError,
           message: 'Erreur lors de la récupération des utilisateurs',
         ),
+        false,
       );
     }
   }
@@ -339,6 +368,129 @@ class RoleRepositoryImpl implements RoleRepository {
         }
         return null;
       });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ===== Méthodes de cache pour les utilisateurs avec rôles =====
+
+  /// Récupère les utilisateurs en cache si disponibles et valides.
+  ///
+  /// Retourne null si le cache n'existe pas ou est expiré.
+  Future<List<User>?> _getCachedUsers(Role? filterByRole) async {
+    // Vérifier d'abord le cache mémoire
+    if (_cachedUsersList != null) {
+      final cachedFilter = _sharedPrefs.getString(_keyCachedUsersFilter);
+      if ((filterByRole == null && cachedFilter == null) ||
+          (filterByRole != null && cachedFilter == filterByRole.id)) {
+        return _cachedUsersList;
+      }
+    }
+
+    // Vérifier le cache persistant
+    final cachedJson = _sharedPrefs.getString(_keyCachedUsers);
+    if (cachedJson == null || cachedJson.isEmpty) {
+      return null;
+    }
+
+    // Vérifier si le cache est expiré
+    final timestampStr = _sharedPrefs.getString(_keyCachedUsersTimestamp);
+    if (timestampStr != null) {
+      final timestamp = DateTime.tryParse(timestampStr);
+      if (timestamp != null) {
+        final now = DateTime.now();
+        if (now.difference(timestamp) > _cacheValidityDuration) {
+          return null; // Cache expiré
+        }
+      }
+    }
+
+    // Vérifier le filtre
+    final cachedFilter = _sharedPrefs.getString(_keyCachedUsersFilter);
+    if ((filterByRole == null && cachedFilter != null) ||
+        (filterByRole != null && cachedFilter != filterByRole.id)) {
+      return null; // Filtre différent
+    }
+
+    try {
+      final List<dynamic> jsonList = jsonDecode(cachedJson) as List<dynamic>;
+      final users = jsonList
+          .map((json) => User.fromJson(json as Map<String, dynamic>))
+          .toList();
+      _cachedUsersList = users;
+      return users;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Sauvegarde les utilisateurs en cache.
+  Future<void> _saveCachedUsers(List<User> users, Role? filterByRole) async {
+    _cachedUsersList = users;
+
+    final jsonList = users.map((u) => u.toJson()).toList();
+    await _sharedPrefs.setString(_keyCachedUsers, jsonEncode(jsonList));
+    await _sharedPrefs.setString(
+      _keyCachedUsersTimestamp,
+      DateTime.now().toIso8601String(),
+    );
+    if (filterByRole != null) {
+      await _sharedPrefs.setString(_keyCachedUsersFilter, filterByRole.id);
+    } else {
+      await _sharedPrefs.remove(_keyCachedUsersFilter);
+    }
+  }
+
+  /// Invalide le cache des utilisateurs.
+  Future<void> invalidateUsersCache() async {
+    _cachedUsersList = null;
+    await _sharedPrefs.remove(_keyCachedUsers);
+    await _sharedPrefs.remove(_keyCachedUsersTimestamp);
+    await _sharedPrefs.remove(_keyCachedUsersFilter);
+  }
+
+  /// Vérifie si le cache des utilisateurs existe et est valide.
+  bool hasValidUsersCache() {
+    return _cachedUsersList != null && _cachedUsersList!.isNotEmpty;
+  }
+
+  /// Récupère les utilisateurs en cache de manière synchrone.
+  ///
+  /// Retourne le cache mémoire si disponible, null sinon.
+  /// Ne vérifie pas le filtre - le filtrage se fait côté UI.
+  /// Utile pour un affichage immédiat avant le rafraîchissement.
+  List<User>? getCachedUsersSync() {
+    // Vérifier d'abord le cache mémoire
+    if (_cachedUsersList != null && _cachedUsersList!.isNotEmpty) {
+      return _cachedUsersList;
+    }
+
+    // Essayer de charger depuis SharedPreferences
+    final cachedJson = _sharedPrefs.getString(_keyCachedUsers);
+    if (cachedJson == null || cachedJson.isEmpty) {
+      return null;
+    }
+
+    // Vérifier si le cache est expiré
+    final timestampStr = _sharedPrefs.getString(_keyCachedUsersTimestamp);
+    if (timestampStr != null) {
+      final timestamp = DateTime.tryParse(timestampStr);
+      if (timestamp != null) {
+        final now = DateTime.now();
+        if (now.difference(timestamp) > _cacheValidityDuration) {
+          return null; // Cache expiré
+        }
+      }
+    }
+
+    try {
+      final List<dynamic> jsonList = jsonDecode(cachedJson) as List<dynamic>;
+      final users = jsonList
+          .map((json) => User.fromJson(json as Map<String, dynamic>))
+          .toList();
+      _cachedUsersList = users; // Mettre en cache mémoire
+      return users;
     } catch (e) {
       return null;
     }

@@ -10,7 +10,9 @@ import '../../settings/about_page.dart';
 import '../../settings/theme_settings_page.dart';
 import '../../settings/language_settings_page.dart';
 import '../../settings/security_settings_page.dart';
+import '../../admin/users_roles_page.dart';
 import '../../../../injection_container.dart';
+import '../../../../domain/entities/permission.dart';
 import '../widgets/admin_internal_widgets.dart';
 
 /// Ecran Parametres du dashboard administrateur.
@@ -134,6 +136,20 @@ class AdminSettingsScreen extends StatelessWidget {
           child: _buildSettingsSection(
             l10n.administration,
             [
+              // Gestion des rôles - visible uniquement si permission user:assign_role
+              if (DependencyInjection.roleService.hasPermission(
+                Permission.userAssignRole,
+              ))
+                SettingsItemData(
+                  Icons.admin_panel_settings_rounded,
+                  l10n.usersRolesTitle,
+                  l10n.usersRolesSubtitle,
+                  const Color(0xFFE74C3C),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const UsersRolesPage()),
+                  ),
+                ),
               SettingsItemData(
                 Icons.tune_rounded,
                 l10n.referentials,

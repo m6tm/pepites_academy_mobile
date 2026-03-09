@@ -413,7 +413,7 @@ class _SplashPageState extends State<SplashPage>
   }
 }
 
-/// Loader créatif style 'Sport Tech Pulse'
+/// Loader créatif style 'Sport Tech Pulse' - Barre de progression indéterminée
 class _CreativePulseLoader extends StatefulWidget {
   const _CreativePulseLoader();
 
@@ -423,84 +423,83 @@ class _CreativePulseLoader extends StatefulWidget {
 
 class _CreativePulseLoaderState extends State<_CreativePulseLoader>
     with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
+  late AnimationController _progressController;
+  late Animation<double> _progressAnimation;
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
+    _progressController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 1800),
+    )..repeat();
 
-    _pulseAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    _progressAnimation = Tween<double>(begin: -0.4, end: 1.4).animate(
+      CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
     );
   }
 
   @override
   void dispose() {
-    _pulseController.dispose();
+    _progressController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _pulseAnimation,
+      animation: _progressAnimation,
       builder: (context, child) {
         return Column(
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Outer glow
-                Container(
-                  width: 50 * _pulseAnimation.value,
-                  height: 2,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(
-                      alpha: 0.3 * _pulseAnimation.value,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.5),
-                        blurRadius: 10 * _pulseAnimation.value,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                ),
-                // Main loading bar
-                Container(
-                  width: 120,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor:
-                        1.0, // Indéterminé visuellement par l'animation
-                    child: Container(
+            // Barre de progression avec dégradé qui se déplace
+            SizedBox(
+              width: 180,
+              height: 4,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Stack(
+                  children: [
+                    // Fond de la barre
+                    Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.primary.withValues(alpha: 0.1),
-                            AppColors.primary,
-                            AppColors.primary.withValues(alpha: 0.1),
-                          ],
-                          stops: [0.0, _pulseAnimation.value, 1.0],
-                        ),
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  ),
+                    // Barre de progression animée
+                    FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 0.5,
+                      child: Transform.translate(
+                        offset: Offset(_progressAnimation.value * 180 - 90, 0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                AppColors.primary.withValues(alpha: 0.8),
+                                AppColors.primary,
+                                AppColors.primary.withValues(alpha: 0.8),
+                                Colors.transparent,
+                              ],
+                              stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.6),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         );

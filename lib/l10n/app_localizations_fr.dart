@@ -2562,7 +2562,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rapidEntryDesc => 'Enchaîner les scans automatiquement';
 
   @override
-  String get unknownError => 'Erreur inconnue';
+  String get unknownError => 'Une erreur inconnue est survenue';
 
   @override
   String get attendanceRecordedSuccess => 'Présence enregistrée';
@@ -3207,4 +3207,76 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pressAgainToExit => 'Appuyez encore pour quitter';
+
+  @override
+  String get usersRolesTitle => 'Gestion des rôles';
+
+  @override
+  String get usersRolesSubtitle =>
+      'Attribuez et modifiez les rôles des utilisateurs';
+
+  @override
+  String get searchUserHint => 'Rechercher un utilisateur...';
+
+  @override
+  String get administrators => 'Administrateurs';
+
+  @override
+  String get inactive => 'Inactif';
+
+  @override
+  String get noUsersFound => 'Aucun utilisateur trouvé';
+
+  @override
+  String get noUsersRegistered =>
+      'Aucun utilisateur enregistré dans le système.';
+
+  @override
+  String get retry => 'Réessayer';
+
+  @override
+  String get changeUserRoleTitle => 'Modifier le rôle';
+
+  @override
+  String get selectNewRole => 'Sélectionner le nouveau rôle';
+
+  @override
+  String get roleChangeWarning =>
+      'Le changement de rôle modifie les permissions de l\'utilisateur.';
+
+  @override
+  String get confirmChange => 'Confirmer le changement';
+
+  @override
+  String get permissionDenied => 'Permission refusée';
+
+  @override
+  String get updatingRole => 'Mise à jour du rôle...';
+
+  @override
+  String get roleChangeError => 'Erreur lors du changement de rôle';
+
+  @override
+  String get roleChangeSuccess => 'Rôle modifié avec succès';
+
+  @override
+  String get roleSupAdmin => 'Super Admin';
+
+  @override
+  String get roleAdmin => 'Administrateur';
+
+  @override
+  String get roleEncadreurChef => 'Encadreur Chef';
+
+  @override
+  String get roleMedecinChef => 'Médecin Chef';
+
+  @override
+  String get roleEncadreur => 'Encadreur';
+
+  @override
+  String get roleSurveillantGeneral => 'Surveillant Général';
+
+  @override
+  String get roleVisiteur => 'Visiteur';
 }

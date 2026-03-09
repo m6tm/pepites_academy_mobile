@@ -2547,7 +2547,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rapidEntryDesc => 'Chain scans automatically';
 
   @override
-  String get unknownError => 'Unknown error';
+  String get unknownError => 'An unknown error occurred';
 
   @override
   String get attendanceRecordedSuccess => 'Attendance recorded';
@@ -3191,4 +3191,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pressAgainToExit => 'Press again to exit';
+
+  @override
+  String get usersRolesTitle => 'Role Management';
+
+  @override
+  String get usersRolesSubtitle => 'Assign and modify user roles';
+
+  @override
+  String get searchUserHint => 'Search for a user...';
+
+  @override
+  String get administrators => 'Administrators';
+
+  @override
+  String get inactive => 'Inactive';
+
+  @override
+  String get noUsersFound => 'No users found';
+
+  @override
+  String get noUsersRegistered => 'No users registered in the system.';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get changeUserRoleTitle => 'Change Role';
+
+  @override
+  String get selectNewRole => 'Select the new role';
+
+  @override
+  String get roleChangeWarning =>
+      'Changing the role modifies the user\'s permissions.';
+
+  @override
+  String get confirmChange => 'Confirm change';
+
+  @override
+  String get permissionDenied => 'Permission denied';
+
+  @override
+  String get updatingRole => 'Updating role...';
+
+  @override
+  String get roleChangeError => 'Error while changing role';
+
+  @override
+  String get roleChangeSuccess => 'Role changed successfully';
+
+  @override
+  String get roleSupAdmin => 'Super Admin';
+
+  @override
+  String get roleAdmin => 'Administrator';
+
+  @override
+  String get roleEncadreurChef => 'Head Coach';
+
+  @override
+  String get roleMedecinChef => 'Head Doctor';
+
+  @override
+  String get roleEncadreur => 'Coach';
+
+  @override
+  String get roleSurveillantGeneral => 'General Supervisor';
+
+  @override
+  String get roleVisiteur => 'Visitor';
 }

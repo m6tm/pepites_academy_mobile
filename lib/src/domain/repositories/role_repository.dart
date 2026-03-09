@@ -44,10 +44,14 @@ abstract class RoleRepository {
   ///
   /// Nécessite la permission `user:view`.
   /// Supporte la pagination avec [page] et [limit].
-  Future<(List<User>?, NetworkFailure?)> getAllUsersWithRoles({
+  /// Si [forceRefresh] est true, ignore le cache et force l'appel API.
+  /// Retourne un tuple (utilisateurs, erreur, isFromCache).
+  Future<(List<User>?, NetworkFailure?, bool isFromCache)>
+  getAllUsersWithRoles({
     int page = 1,
     int limit = 20,
     Role? filterByRole,
+    bool forceRefresh = false,
   });
 
   /// Vérifie si l'utilisateur actuel possède une permission spécifique.
