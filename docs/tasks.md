@@ -143,7 +143,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
 
 ## PHASE 4 : Ateliers & Évaluation (Points 4, 5)
 
-### [T-401] Configuration des Ateliers et Exercices [DONE]
+### [T-401] Configuration des Ateliers et Exercices
 
 - **Objectif :** Chaque séance d'entraînement est composée de plusieurs ateliers, eux-mêmes constitués d'exercices. Un atelier représente un bloc d'activité thématique (ex: Drible, Finition, Physique) et contient plusieurs exercices spécifiques. Ce ticket permet à l'EncadreurChef de :
   - **Créer et structurer les ateliers** : Définir les ateliers avec leurs exercices constitutifs.
@@ -160,6 +160,7 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - Fermeture d'un exercice avec mise à jour automatique du statut de l'atelier parent.
   - Réorganisation par glisser-déposer des ateliers et exercices.
   - Affichage récapitulatif avec indicateurs de progression.
+- **Détails :** Voir `docs/tasks/T-401-ateliers-exercices.md` pour les spécifications complètes (mobile + backend).
 
 ### [T-402] Module d'Annotations et Observations [DONE]
 

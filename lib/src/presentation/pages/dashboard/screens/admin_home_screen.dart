@@ -11,7 +11,7 @@ import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../injection_container.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
-import '../../../../domain/entities/global_stats.dart';
+import '../../../../domain/entities/dashboard_stats.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
 import '../../notification/notifications_page.dart';
@@ -44,14 +44,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   bool _seanceLoading = true;
   List<Activity> _activites = [];
   bool _activitesLoading = true;
-  GlobalStats? _globalStats;
+  DashboardStats? _dashboardStats;
 
   @override
   void initState() {
     super.initState();
     _chargerDerniereSeance();
     _chargerActivitesRecentes();
-    _chargerGlobalStats();
+    _chargerDashboardStats();
     DependencyInjection.notificationState.chargerNotifications('admin');
   }
 
@@ -94,13 +94,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     }
   }
 
-  /// Charge les statistiques globales depuis le backend.
-  Future<void> _chargerGlobalStats() async {
+  /// Charge les statistiques du dashboard depuis le backend.
+  Future<void> _chargerDashboardStats() async {
     try {
-      final stats = await DependencyInjection.dashboardService.getGlobalStats();
+      final (stats, _, _) = await DependencyInjection.dashboardService
+          .getStats();
       if (mounted) {
         setState(() {
-          _globalStats = stats;
+          _dashboardStats = stats;
         });
       }
     } catch (_) {
@@ -263,7 +264,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildStatsGrid(AppLocalizations l10n) {
-    final stats = _globalStats;
+    final stats = _dashboardStats;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -288,7 +289,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
           StatCard(
             label: l10n.sessionsMonth,
-            value: stats?.nbSeancesMois.toString() ?? '-',
+            value: stats?.globalStats.nbSeancesMois.toString() ?? '-',
             icon: Icons.calendar_today_rounded,
             color: AppColors.primary,
           ),
@@ -365,12 +366,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     AppLocalizations l10n,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final stats = _globalStats;
+    final stats = _dashboardStats;
 
     // Calcul des valeurs dynamiques
     final tauxPresence = (stats?.tauxPresenceMoyen ?? 0) / 100.0;
-    final objectifs = (stats?.objectifsAtteints ?? 0) / 100.0;
-    final satisfaction = (stats?.satisfactionCoachs ?? 0) / 100.0;
+    final objectifs = (stats?.globalStats.objectifsAtteints ?? 0) / 100.0;
+    final satisfaction = (stats?.globalStats.satisfactionCoachs ?? 0) / 100.0;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),

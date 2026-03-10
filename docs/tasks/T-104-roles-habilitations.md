@@ -107,17 +107,30 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 - **Objectif :** Créer l'entité domaine pour les statistiques globales du dashboard SupAdmin.
 - **Actions :**
   - Créer l'entité `DashboardStats` dans `lib/src/domain/entities/`
+  - Créer l'entité `GlobalStats` (statistiques de base)
+  - Créer l'entité `Season` avec enum `SeasonStatus`
   - Inclure les champs : nombre total académiciens, encadreurs, séances, annotations, présences
   - Inclure les métriques saison en cours (ouverte/fermée)
   - Définir le contrat de repository `DashboardRepository`
+- **Fichiers créés :**
+  - `lib/src/domain/entities/dashboard_stats.dart` - Entité principale
+  - `lib/src/domain/entities/global_stats.dart` - Statistiques globales
+  - `lib/src/domain/repositories/dashboard_repository.dart` - Contrat repository
 - **Connexion Backend :**
-  - Endpoint : `GET /dashboard/stats` (existant dans `ApiEndpoints.dashboardStats`)
-- **Backend à implémenter :**
-  - Le backend doit retourner un JSON avec la structure définie dans `DashboardStats.toJson()`
-  - Vérifier que l'endpoint `/dashboard/stats` existe côté backend et retourne les bonnes données
+  - Endpoint : `GET /dashboard/stats` Implémenté dans `backend/src/presentation/routes/dashboard_routes.py`
+  - Endpoint : `GET /seasons/current` Implémenté dans `backend/src/presentation/routes/seasons_routes.py`
+  - Endpoint : `POST /seasons` Implémenté
+  - Endpoint : `PUT /seasons/:id/close` Implémenté
 - **Cache :**
   - Persistance locale via `SharedPreferences` pour mode hors-ligne
   - Durée de validité : 5 minutes
+- **Tests :**
+  - Tests unitaires `DashboardStats` Créé dans `test/domain/entities/dashboard_stats_test.dart`
+  - Tests unitaires `GlobalStats` Créé dans `test/domain/entities/global_stats_test.dart`
+  - Tests unitaires `Season` Inclus dans `dashboard_stats_test.dart`
+- **Action restante :**
+  - Exécuter `flutter pub get` pour installer mocktail
+  - Exécuter `flutter test` pour valider les tests
 
 ##### T-104.6.1.2 - Repository Dashboard avec Cache [DONE]
 
@@ -137,22 +150,32 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Ajouter `SyncEntityType.dashboard` si modifications locales
   - Synchronisation automatique au retour de connexion via `ConnectivityService`
 
-##### T-104.6.1.3 - Service Dashboard SupAdmin
+##### T-104.6.1.3 - Service Dashboard SupAdmin [DONE]
 
 - **Objectif :** Créer le service applicatif pour la logique métier du dashboard.
-- **Actions :**
-  - Étendre `DashboardService` dans `lib/src/application/services/`
-  - Méthode `getGlobalStats()` avec support cache/refresh
-  - Méthode `getSeasonStatus()` pour l'état de la saison en cours
-  - Méthode `refreshStats()` pour forcer le rafraîchissement
-- **Backend à implémenter :**
-  - Vérifier l'existence de `GET /seasons/current` côté backend
-  - Si non existant, le backend doit exposer la saison active courante
+- **État actuel :** ✅ **Refactoré et implémenté**
+  - Le service utilise maintenant `DashboardRepository` au lieu de `DioClient` direct
+  - Retourne `DashboardStats` au lieu de `GlobalStats`
+- **Actions réalisées :**
+  - Refactoré `DashboardService` pour utiliser `DashboardRepository` ✅
+  - Méthode `getStats()` retournant `DashboardStats` ✅
+  - Méthode `getSeasonStatus()` pour l'état de la saison en cours ✅
+  - Méthode `refreshStats()` pour forcer le rafraîchissement ✅
+  - Méthode `openSeason()` et `closeSeason()` déléguant au repository ✅
+  - Getters utilitaires : `nbAcademiciens`, `nbEncadreurs`, `nbSeancesJour`, `nbPresencesJour`, `hasActiveSeason` ✅
+- **Fichier modifié :**
+  - `lib/src/application/services/dashboard_service.dart`
+  - `lib/src/injection_container.dart` (injection des dépendances)
+  - `lib/src/presentation/pages/dashboard/screens/admin_home_screen.dart` (utilisation du nouveau service)
+- **Backend :**
+  - `GET /seasons/current` ✅ Existant
 - **Cache :**
-  - Exposer un `Stream<DashboardStats>` pour réactivité UI
-  - Notifier les changements via callback `onStatsUpdated`
-- **Synchronisation :**
-  - Déclencher une synchronisation au démarrage si données en attente
+  - Exposer un `Stream<DashboardStats>` via le repository ✅
+  - Notifier les changements via `statsStream` ✅
+- **Tests :**
+  - Tests unitaires du service ✅ Créé dans `test/application/services/dashboard_service_test.dart`
+- **Dépendance ajoutée :**
+  - `mocktail: ^1.0.4` dans `pubspec.yaml` pour les tests
 
 ##### T-104.6.1.4 - Vue Globale de l'Académie
 
