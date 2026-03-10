@@ -135,47 +135,50 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 ##### T-104.6.1.2 - Repository Dashboard avec Cache [DONE]
 
 - **Objectif :** Implémenter le repository avec gestion du cache et synchronisation.
-- **Actions :**
+- **Actions réalisées :**
   - Créer `DashboardRepositoryImpl` dans `lib/src/infrastructure/repositories/`
   - Implémenter la stratégie cache-first : vérifier le cache local avant appel API
   - Gérer l'invalidation du cache lors des mutations (nouvelle séance, présence, etc.)
-  - Intégrer avec `SyncService` pour les opérations hors-ligne
+  - Intégrer avec `SyncService` pour les opérations hors-ligne via `setSyncService()`
+  - Ajouter `SyncEntityType.dashboard` et `SyncEntityType.season` dans l'enum
 - **Connexion Backend :**
   - Appel `DioClient.get(ApiEndpoints.dashboardStats)`
   - Gestion des erreurs réseau avec fallback sur cache
-- **Backend à implémenter :**
-  - S'assurer que l'endpoint `GET /dashboard/stats` est fonctionnel
-  - Le backend doit calculer et retourner les statistiques agrégées
+- **Backend :**
+  - Endpoint `GET /dashboard/stats` fonctionnel dans `backend/src/presentation/routes/dashboard_routes.py`
+  - Le backend calcule et retourne les statistiques agrégées (academiciens, encadreurs, séances, présences, annotations, saison en cours)
 - **Synchronisation :**
-  - Ajouter `SyncEntityType.dashboard` si modifications locales
+  - `SyncEntityType.dashboard` et `SyncEntityType.season` ajoutés dans `lib/src/domain/entities/sync_operation.dart`
   - Synchronisation automatique au retour de connexion via `ConnectivityService`
+- **Tests :**
+  - Tests unitaires du repository Créé dans `test/infrastructure/repositories/dashboard_repository_impl_test.dart`
 
 ##### T-104.6.1.3 - Service Dashboard SupAdmin [DONE]
 
 - **Objectif :** Créer le service applicatif pour la logique métier du dashboard.
-- **État actuel :** ✅ **Refactoré et implémenté**
-  - Le service utilise maintenant `DashboardRepository` au lieu de `DioClient` direct
+- **État :** Complet (mobile + backend + tests)
+- **Implémentation mobile :**
+  - Service utilise `DashboardRepository` au lieu de `DioClient` direct
   - Retourne `DashboardStats` au lieu de `GlobalStats`
 - **Actions réalisées :**
-  - Refactoré `DashboardService` pour utiliser `DashboardRepository` ✅
-  - Méthode `getStats()` retournant `DashboardStats` ✅
-  - Méthode `getSeasonStatus()` pour l'état de la saison en cours ✅
-  - Méthode `refreshStats()` pour forcer le rafraîchissement ✅
-  - Méthode `openSeason()` et `closeSeason()` déléguant au repository ✅
-  - Getters utilitaires : `nbAcademiciens`, `nbEncadreurs`, `nbSeancesJour`, `nbPresencesJour`, `hasActiveSeason` ✅
-- **Fichier modifié :**
-  - `lib/src/application/services/dashboard_service.dart`
-  - `lib/src/injection_container.dart` (injection des dépendances)
-  - `lib/src/presentation/pages/dashboard/screens/admin_home_screen.dart` (utilisation du nouveau service)
+  - Refactoré `DashboardService` pour utiliser `DashboardRepository`
+  - Méthode `getStats()` retournant `DashboardStats`
+  - Méthode `getCurrentSeason()` pour la saison en cours
+  - Méthode `refreshStats()` pour forcer le rafraîchissement
+  - Méthode `openSeason()` et `closeSeason()` déléguant au repository
+  - Getters utilitaires : `nbAcademiciens`, `nbEncadreurs`, `nbSeancesJour`, `nbPresencesJour`, `hasActiveSeason`
+- **Injection des dépendances :**
+  - `lib/src/injection_container.dart` : `DashboardRepository` initialisé avant `DashboardService`
+- **UI :**
+  - `lib/src/presentation/pages/dashboard/screens/admin_home_screen.dart` : migré vers `DashboardStats`
 - **Backend :**
-  - `GET /seasons/current` ✅ Existant
+  - `GET /seasons/current` fonctionnel dans `backend/src/presentation/routes/seasons_routes.py`
 - **Cache :**
-  - Exposer un `Stream<DashboardStats>` via le repository ✅
-  - Notifier les changements via `statsStream` ✅
+  - `Stream<DashboardStats>` exposé via `statsStream`
 - **Tests :**
-  - Tests unitaires du service ✅ Créé dans `test/application/services/dashboard_service_test.dart`
-- **Dépendance ajoutée :**
-  - `mocktail: ^1.0.4` dans `pubspec.yaml` pour les tests
+  - Tests unitaires dans `test/application/services/dashboard_service_test.dart`
+- **Dépendance :**
+  - `mocktail: ^1.0.4` ajouté dans `pubspec.yaml`
 
 ##### T-104.6.1.4 - Vue Globale de l'Académie
 
