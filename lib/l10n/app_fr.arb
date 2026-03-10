@@ -1775,5 +1775,21 @@
   "seasonCloseError": "Erreur lors de la fermeture de la saison",
   "seasonNameRequired": "Veuillez entrer un nom pour la saison",
   "roleChangeHistoryTitle": "Historique des changements",
-  "noRoleChangeHistory": "Aucun changement de rôle enregistré"
+  "noRoleChangeHistory": "Aucun changement de rôle enregistré",
+  "modulesTitle": "Modules",
+  "modulesSubtitle": "Accès rapide à tous les modules",
+  "pendingSyncCount": "{count} en attente",
+  "@pendingSyncCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsManagement": "Gestion des séances",
+  "workshopsLabel": "Ateliers",
+  "workshopsManagement": "Gestion des ateliers",
+  "bulletinsLabel": "Bulletins",
+  "bulletinsManagement": "Gestion des bulletins",
+  "smsManagement": "Gestion des SMS"
 }

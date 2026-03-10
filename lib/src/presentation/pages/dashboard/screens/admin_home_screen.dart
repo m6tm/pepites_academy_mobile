@@ -10,12 +10,14 @@ import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../presentation/widgets/global_stats_card.dart';
 import '../../../../presentation/widgets/season_management_card.dart';
+import '../../../../presentation/widgets/supadmin_module_grid.dart';
 import '../../../../injection_container.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../domain/entities/dashboard_stats.dart';
 import '../../academy/academicien_registration_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
+import '../../referentiel/referentiel_hub_page.dart';
 import '../../notification/notifications_page.dart';
 import '../../seance/seance_detail_page.dart';
 import '../widgets/dashboard_header.dart';
@@ -197,6 +199,42 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         ),
         SliverToBoxAdapter(child: SectionTitle(title: l10n.overview)),
         SliverToBoxAdapter(child: _buildStatsGrid(l10n)),
+        // Grille des modules pour Super Admin
+        SliverToBoxAdapter(
+          child: SupAdminModuleGrid(
+            onNavigateToAcademy: () => widget.onNavigateToTab?.call(1),
+            onNavigateToSeances: () => widget.onNavigateToTab?.call(2),
+            onNavigateToCommunication: () => widget.onNavigateToTab?.call(3),
+            onNavigateToEncadreurs: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EncadreurListPage(
+                    repository: DependencyInjection.encadreurRepository,
+                  ),
+                ),
+              );
+            },
+            onNavigateToBulletins: () {
+              // La page BulletinPage necessite un academicien
+              // On ne peut pas naviguer directement sans selection
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.players),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            onNavigateToReferentiels: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReferentielHubPage(),
+                ),
+              );
+            },
+          ),
+        ),
         SliverToBoxAdapter(child: SectionTitle(title: l10n.quickActions)),
         SliverToBoxAdapter(child: _buildQuickActions(context, l10n)),
         SliverToBoxAdapter(

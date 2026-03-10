@@ -3356,4 +3356,33 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noRoleChangeHistory => 'Aucun changement de rôle enregistré';
+
+  @override
+  String get modulesTitle => 'Modules';
+
+  @override
+  String get modulesSubtitle => 'Accès rapide à tous les modules';
+
+  @override
+  String pendingSyncCount(int count) {
+    return '$count en attente';
+  }
+
+  @override
+  String get sessionsManagement => 'Gestion des séances';
+
+  @override
+  String get workshopsLabel => 'Ateliers';
+
+  @override
+  String get workshopsManagement => 'Gestion des ateliers';
+
+  @override
+  String get bulletinsLabel => 'Bulletins';
+
+  @override
+  String get bulletinsManagement => 'Gestion des bulletins';
+
+  @override
+  String get smsManagement => 'Gestion des SMS';
 }

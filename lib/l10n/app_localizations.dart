@@ -6079,6 +6079,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun changement de rôle enregistré'**
   String get noRoleChangeHistory;
+
+  /// No description provided for @modulesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modules'**
+  String get modulesTitle;
+
+  /// No description provided for @modulesSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès rapide à tous les modules'**
+  String get modulesSubtitle;
+
+  /// No description provided for @pendingSyncCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} en attente'**
+  String pendingSyncCount(int count);
+
+  /// No description provided for @sessionsManagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des séances'**
+  String get sessionsManagement;
+
+  /// No description provided for @workshopsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ateliers'**
+  String get workshopsLabel;
+
+  /// No description provided for @workshopsManagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des ateliers'**
+  String get workshopsManagement;
+
+  /// No description provided for @bulletinsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bulletins'**
+  String get bulletinsLabel;
+
+  /// No description provided for @bulletinsManagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des bulletins'**
+  String get bulletinsManagement;
+
+  /// No description provided for @smsManagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des SMS'**
+  String get smsManagement;
 }
 
 class _AppLocalizationsDelegate

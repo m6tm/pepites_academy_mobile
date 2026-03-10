@@ -1702,5 +1702,21 @@
   "seasonCloseError": "Error while closing season",
   "seasonNameRequired": "Please enter a name for the season",
   "roleChangeHistoryTitle": "Change history",
-  "noRoleChangeHistory": "No role change recorded"
+  "noRoleChangeHistory": "No role change recorded",
+  "modulesTitle": "Modules",
+  "modulesSubtitle": "Quick access to all modules",
+  "pendingSyncCount": "{count} pending",
+  "@pendingSyncCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsManagement": "Sessions management",
+  "workshopsLabel": "Workshops",
+  "workshopsManagement": "Workshops management",
+  "bulletinsLabel": "Reports",
+  "bulletinsManagement": "Reports management",
+  "smsManagement": "SMS management"
 }

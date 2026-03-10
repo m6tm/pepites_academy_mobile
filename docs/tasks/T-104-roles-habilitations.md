@@ -238,7 +238,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Utiliser le cache existant dans `RoleRepositoryImpl.getCachedUsersSync()`
   - Invalider le cache après modification (`invalidateUsersCache()`)
 
-##### T-104.6.1.7 - Accès à Tous les Modules
+##### T-104.6.1.7 - Accès à Tous les Modules [DONE]
 
 - **Objectif :** Navigation rapide vers tous les modules de l'application.
 - **Actions :**

@@ -3338,4 +3338,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRoleChangeHistory => 'No role change recorded';
+
+  @override
+  String get modulesTitle => 'Modules';
+
+  @override
+  String get modulesSubtitle => 'Quick access to all modules';
+
+  @override
+  String pendingSyncCount(int count) {
+    return '$count pending';
+  }
+
+  @override
+  String get sessionsManagement => 'Sessions management';
+
+  @override
+  String get workshopsLabel => 'Workshops';
+
+  @override
+  String get workshopsManagement => 'Workshops management';
+
+  @override
+  String get bulletinsLabel => 'Reports';
+
+  @override
+  String get bulletinsManagement => 'Reports management';
+
+  @override
+  String get smsManagement => 'SMS management';
 }
