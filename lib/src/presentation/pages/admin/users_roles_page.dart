@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/entities/role.dart';
 import '../../../domain/entities/permission.dart';
+import '../../../domain/repositories/role_repository.dart';
+import '../../../domain/failures/network_failure.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 
@@ -401,6 +404,25 @@ class _UsersRolesPageState extends State<UsersRolesPage>
                 ],
               ),
               actions: [
+                // Bouton historique
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _showRoleHistoryDialog(user);
+                  },
+                  icon: Icon(
+                    Icons.history_rounded,
+                    size: 18,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  label: Text(
+                    l10n.history,
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
@@ -498,12 +520,177 @@ class _UsersRolesPageState extends State<UsersRolesPage>
         }
       });
 
+      // Invalider le cache pour forcer le rafraichissement
+      await DependencyInjection.roleService.invalidateUsersCache();
+
       _showSnackBar(l10n.roleChangeSuccess);
     } catch (e) {
       if (!mounted) return;
       Navigator.of(context).pop(); // Fermer le loader
       _showSnackBar(e.toString(), isError: true);
     }
+  }
+
+  /// Affiche le dialogue d'historique des changements de rôle.
+  Future<void> _showRoleHistoryDialog(User user) async {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.history_rounded, color: AppColors.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.roleChangeHistoryTitle,
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 300,
+            child: FutureBuilder<(List<RoleChangeHistory>?, NetworkFailure?)>(
+              future: DependencyInjection.roleService.getRoleChangeHistory(
+                userId: user.id,
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError || snapshot.data?.$2 != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 48,
+                          color: AppColors.error,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.loadingError,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final history = snapshot.data?.$1 ?? [];
+
+                if (history.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.history_toggle_off_rounded,
+                          size: 48,
+                          color: colorScheme.onSurface.withValues(alpha: 0.3),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.noRoleChangeHistory,
+                          style: GoogleFonts.montserrat(
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: history.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final entry = history[index];
+                    return ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.swap_horiz_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        entry.titre,
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (entry.description != null)
+                            Text(
+                              entry.description!,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 11,
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat('dd/MM/yyyy HH:mm').format(entry.date),
+                            style: GoogleFonts.montserrat(
+                              fontSize: 10,
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      isThreeLine: entry.description != null,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                l10n.close,
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Affiche un message snackbar.

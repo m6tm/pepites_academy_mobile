@@ -198,7 +198,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Afficher les données en cache pendant le chargement
   - Indiquer si les données proviennent du cache (badge "Hors-ligne")
 
-##### T-104.6.1.5 - Gestion des Saisons (Ouverture/Fermeture)
+##### T-104.6.1.5 - Gestion des Saisons (Ouverture/Fermeture) [DONE]
 
 - **Objectif :** Permettre au SupAdmin d'ouvrir/fermer une saison.
 - **Actions :**
@@ -220,7 +220,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - File d'attente pour opérations hors-ligne
   - Notification de confirmation après synchronisation
 
-##### T-104.6.1.6 - Gestion des Utilisateurs et Rôles
+##### T-104.6.1.6 - Gestion des Utilisateurs et Rôles [DONE]
 
 - **Objectif :** Interface de gestion des utilisateurs avec attribution de rôles.
 - **Actions :**

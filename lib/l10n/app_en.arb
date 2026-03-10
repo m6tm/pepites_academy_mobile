@@ -1700,5 +1700,7 @@
   "seasonClosedSuccess": "Season closed successfully",
   "seasonOpenError": "Error while opening season",
   "seasonCloseError": "Error while closing season",
-  "seasonNameRequired": "Please enter a name for the season"
+  "seasonNameRequired": "Please enter a name for the season",
+  "roleChangeHistoryTitle": "Change history",
+  "noRoleChangeHistory": "No role change recorded"
 }

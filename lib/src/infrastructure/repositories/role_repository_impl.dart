@@ -501,4 +501,45 @@ class RoleRepositoryImpl implements RoleRepository {
       return null;
     }
   }
+
+  @override
+  Future<(List<RoleChangeHistory>?, NetworkFailure?)> getRoleChangeHistory({
+    required String userId,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      final result = await _dioClient.get(
+        ApiEndpoints.roleUserHistory(userId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
+
+      return result.fold((failure) => (null, failure), (data) {
+        if (data is Map<String, dynamic> && data['items'] is List) {
+          final history = (data['items'] as List)
+              .map(
+                (json) =>
+                    RoleChangeHistory.fromJson(json as Map<String, dynamic>),
+              )
+              .toList();
+          return (history, null);
+        }
+        return (
+          null,
+          const NetworkFailure(
+            type: NetworkFailureType.serverError,
+            message: 'Format de réponse invalide',
+          ),
+        );
+      });
+    } catch (e) {
+      return (
+        null,
+        const NetworkFailure(
+          type: NetworkFailureType.serverError,
+          message: 'Erreur lors de la récupération de l\'historique',
+        ),
+      );
+    }
+  }
 }

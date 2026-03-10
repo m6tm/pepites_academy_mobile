@@ -78,4 +78,50 @@ abstract class RoleRepository {
 
   /// Efface le rôle stocké localement (déconnexion).
   Future<void> clearLocalRole();
+
+  /// Récupère l'historique des changements de rôle pour un utilisateur.
+  ///
+  /// Nécessite la permission `user:view`.
+  /// Retourne un tuple (historique, erreur).
+  Future<(List<RoleChangeHistory>?, NetworkFailure?)> getRoleChangeHistory({
+    required String userId,
+    int page = 1,
+    int limit = 20,
+  });
+}
+
+/// Entité représentant une entrée de l'historique des changements de rôle.
+class RoleChangeHistory {
+  /// Identifiant unique de l'entrée.
+  final String id;
+
+  /// Titre de l'événement.
+  final String titre;
+
+  /// Description détaillée du changement.
+  final String? description;
+
+  /// Date du changement.
+  final DateTime date;
+
+  /// Nom de l'utilisateur qui a effectué le changement.
+  final String? utilisateurNom;
+
+  const RoleChangeHistory({
+    required this.id,
+    required this.titre,
+    this.description,
+    required this.date,
+    this.utilisateurNom,
+  });
+
+  factory RoleChangeHistory.fromJson(Map<String, dynamic> json) {
+    return RoleChangeHistory(
+      id: json['id'] as String,
+      titre: json['titre'] as String,
+      description: json['description'] as String?,
+      date: DateTime.parse(json['date'] as String),
+      utilisateurNom: json['utilisateur_nom'] as String?,
+    );
+  }
 }

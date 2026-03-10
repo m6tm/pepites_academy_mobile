@@ -3332,4 +3332,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seasonNameRequired => 'Please enter a name for the season';
+
+  @override
+  String get roleChangeHistoryTitle => 'Change history';
+
+  @override
+  String get noRoleChangeHistory => 'No role change recorded';
 }

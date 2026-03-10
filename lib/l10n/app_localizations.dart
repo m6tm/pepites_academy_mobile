@@ -6067,6 +6067,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Veuillez entrer un nom pour la saison'**
   String get seasonNameRequired;
+
+  /// No description provided for @roleChangeHistoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des changements'**
+  String get roleChangeHistoryTitle;
+
+  /// No description provided for @noRoleChangeHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun changement de rôle enregistré'**
+  String get noRoleChangeHistory;
 }
 
 class _AppLocalizationsDelegate

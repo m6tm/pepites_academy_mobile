@@ -205,6 +205,31 @@ class RoleService {
     return role.hasPermission(Permission.incidentCreate) ||
         role.hasPermission(Permission.incidentUpdate);
   }
+
+  /// Récupère l'historique des changements de rôle pour un utilisateur.
+  ///
+  /// Nécessite la permission `user:view`.
+  Future<(List<RoleChangeHistory>?, NetworkFailure?)> getRoleChangeHistory({
+    required String userId,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    return _roleRepository.getRoleChangeHistory(
+      userId: userId,
+      page: page,
+      limit: limit,
+    );
+  }
+
+  /// Invalide le cache des utilisateurs.
+  ///
+  /// À appeler après une modification de rôle pour forcer le rafraîchissement.
+  Future<void> invalidateUsersCache() async {
+    final repo = _roleRepository;
+    if (repo is RoleRepositoryImpl) {
+      await repo.invalidateUsersCache();
+    }
+  }
 }
 
 /// Types de dashboards disponibles selon le rôle.

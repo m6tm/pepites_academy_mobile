@@ -85,6 +85,10 @@ class ApiEndpoints {
   static const String roleUsers = '/roles/users';
   static const String roleStats = '/roles/stats';
 
+  /// Retourne l'URL pour l'historique des changements de rôle d'un utilisateur.
+  static String roleUserHistory(String userId) =>
+      '/roles/users/$userId/history';
+
   /// Délais d'expiration des requêtes (en millisecondes).
   static const int receiveTimeout = 15000;
   static const int connectionTimeout = 15000;
