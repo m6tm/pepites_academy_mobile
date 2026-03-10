@@ -5947,6 +5947,126 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Présences aujourd\'hui'**
   String get attendancesToday;
+
+  /// No description provided for @seasonManagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion de la saison'**
+  String get seasonManagement;
+
+  /// No description provided for @seasonOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir'**
+  String get seasonOpen;
+
+  /// No description provided for @seasonClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get seasonClose;
+
+  /// No description provided for @seasonStatusOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouverte'**
+  String get seasonStatusOpen;
+
+  /// No description provided for @seasonStatusClosed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermée'**
+  String get seasonStatusClosed;
+
+  /// No description provided for @seasonStatusPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get seasonStatusPending;
+
+  /// No description provided for @seasonStatusNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get seasonStatusNone;
+
+  /// No description provided for @noActiveSeason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune saison active'**
+  String get noActiveSeason;
+
+  /// No description provided for @openNewSeason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir une nouvelle saison'**
+  String get openNewSeason;
+
+  /// No description provided for @seasonName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de la saison'**
+  String get seasonName;
+
+  /// No description provided for @seasonNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Saison 2024-2025'**
+  String get seasonNameHint;
+
+  /// No description provided for @seasonStartDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de début'**
+  String get seasonStartDate;
+
+  /// No description provided for @closeSeasonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer la saison'**
+  String get closeSeasonTitle;
+
+  /// No description provided for @closeSeasonConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment fermer la saison \"{name}\" ?'**
+  String closeSeasonConfirmation(String name);
+
+  /// No description provided for @closeSeasonWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette action est irréversible.'**
+  String get closeSeasonWarning;
+
+  /// No description provided for @seasonOpenedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saison ouverte avec succès'**
+  String get seasonOpenedSuccess;
+
+  /// No description provided for @seasonClosedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saison fermée avec succès'**
+  String get seasonClosedSuccess;
+
+  /// No description provided for @seasonOpenError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'ouverture de la saison'**
+  String get seasonOpenError;
+
+  /// No description provided for @seasonCloseError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la fermeture de la saison'**
+  String get seasonCloseError;
+
+  /// No description provided for @seasonNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer un nom pour la saison'**
+  String get seasonNameRequired;
 }
 
 class _AppLocalizationsDelegate

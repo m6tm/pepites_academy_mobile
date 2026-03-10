@@ -9,6 +9,7 @@ import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../presentation/widgets/global_stats_card.dart';
+import '../../../../presentation/widgets/season_management_card.dart';
 import '../../../../injection_container.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
@@ -186,6 +187,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             onRefresh: _rafraichirStats,
             connectivityState: DependencyInjection.connectivityState,
             syncState: DependencyInjection.syncState,
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SeasonManagementCard(
+            currentSeason: _dashboardStats?.currentSeason,
+            onActionComplete: _rafraichirStats,
           ),
         ),
         SliverToBoxAdapter(child: SectionTitle(title: l10n.overview)),

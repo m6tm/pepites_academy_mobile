@@ -1746,5 +1746,32 @@
   "roleVisiteur": "Visiteur",
   "globalOverview": "Vue globale",
   "sessionsToday": "Séances aujourd'hui",
-  "attendancesToday": "Présences aujourd'hui"
+  "attendancesToday": "Présences aujourd'hui",
+  "seasonManagement": "Gestion de la saison",
+  "seasonOpen": "Ouvrir",
+  "seasonClose": "Fermer",
+  "seasonStatusOpen": "Ouverte",
+  "seasonStatusClosed": "Fermée",
+  "seasonStatusPending": "En attente",
+  "seasonStatusNone": "Aucune",
+  "noActiveSeason": "Aucune saison active",
+  "openNewSeason": "Ouvrir une nouvelle saison",
+  "seasonName": "Nom de la saison",
+  "seasonNameHint": "Ex: Saison 2024-2025",
+  "seasonStartDate": "Date de début",
+  "closeSeasonTitle": "Fermer la saison",
+  "closeSeasonConfirmation": "Voulez-vous vraiment fermer la saison \"{name}\" ?",
+  "@closeSeasonConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closeSeasonWarning": "Cette action est irréversible.",
+  "seasonOpenedSuccess": "Saison ouverte avec succès",
+  "seasonClosedSuccess": "Saison fermée avec succès",
+  "seasonOpenError": "Erreur lors de l'ouverture de la saison",
+  "seasonCloseError": "Erreur lors de la fermeture de la saison",
+  "seasonNameRequired": "Veuillez entrer un nom pour la saison"
 }

@@ -3288,4 +3288,66 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get attendancesToday => 'Présences aujourd\'hui';
+
+  @override
+  String get seasonManagement => 'Gestion de la saison';
+
+  @override
+  String get seasonOpen => 'Ouvrir';
+
+  @override
+  String get seasonClose => 'Fermer';
+
+  @override
+  String get seasonStatusOpen => 'Ouverte';
+
+  @override
+  String get seasonStatusClosed => 'Fermée';
+
+  @override
+  String get seasonStatusPending => 'En attente';
+
+  @override
+  String get seasonStatusNone => 'Aucune';
+
+  @override
+  String get noActiveSeason => 'Aucune saison active';
+
+  @override
+  String get openNewSeason => 'Ouvrir une nouvelle saison';
+
+  @override
+  String get seasonName => 'Nom de la saison';
+
+  @override
+  String get seasonNameHint => 'Ex: Saison 2024-2025';
+
+  @override
+  String get seasonStartDate => 'Date de début';
+
+  @override
+  String get closeSeasonTitle => 'Fermer la saison';
+
+  @override
+  String closeSeasonConfirmation(String name) {
+    return 'Voulez-vous vraiment fermer la saison \"$name\" ?';
+  }
+
+  @override
+  String get closeSeasonWarning => 'Cette action est irréversible.';
+
+  @override
+  String get seasonOpenedSuccess => 'Saison ouverte avec succès';
+
+  @override
+  String get seasonClosedSuccess => 'Saison fermée avec succès';
+
+  @override
+  String get seasonOpenError => 'Erreur lors de l\'ouverture de la saison';
+
+  @override
+  String get seasonCloseError => 'Erreur lors de la fermeture de la saison';
+
+  @override
+  String get seasonNameRequired => 'Veuillez entrer un nom pour la saison';
 }

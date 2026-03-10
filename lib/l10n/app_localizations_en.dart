@@ -3270,4 +3270,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attendancesToday => 'Attendances Today';
+
+  @override
+  String get seasonManagement => 'Season Management';
+
+  @override
+  String get seasonOpen => 'Open';
+
+  @override
+  String get seasonClose => 'Close';
+
+  @override
+  String get seasonStatusOpen => 'Open';
+
+  @override
+  String get seasonStatusClosed => 'Closed';
+
+  @override
+  String get seasonStatusPending => 'Pending';
+
+  @override
+  String get seasonStatusNone => 'None';
+
+  @override
+  String get noActiveSeason => 'No active season';
+
+  @override
+  String get openNewSeason => 'Open a new season';
+
+  @override
+  String get seasonName => 'Season name';
+
+  @override
+  String get seasonNameHint => 'E.g.: Season 2024-2025';
+
+  @override
+  String get seasonStartDate => 'Start date';
+
+  @override
+  String get closeSeasonTitle => 'Close season';
+
+  @override
+  String closeSeasonConfirmation(String name) {
+    return 'Are you sure you want to close the season \"$name\"?';
+  }
+
+  @override
+  String get closeSeasonWarning => 'This action is irreversible.';
+
+  @override
+  String get seasonOpenedSuccess => 'Season opened successfully';
+
+  @override
+  String get seasonClosedSuccess => 'Season closed successfully';
+
+  @override
+  String get seasonOpenError => 'Error while opening season';
+
+  @override
+  String get seasonCloseError => 'Error while closing season';
+
+  @override
+  String get seasonNameRequired => 'Please enter a name for the season';
 }

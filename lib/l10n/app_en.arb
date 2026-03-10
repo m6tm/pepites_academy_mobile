@@ -1673,5 +1673,32 @@
   "roleVisiteur": "Visitor",
   "globalOverview": "Global Overview",
   "sessionsToday": "Sessions Today",
-  "attendancesToday": "Attendances Today"
+  "attendancesToday": "Attendances Today",
+  "seasonManagement": "Season Management",
+  "seasonOpen": "Open",
+  "seasonClose": "Close",
+  "seasonStatusOpen": "Open",
+  "seasonStatusClosed": "Closed",
+  "seasonStatusPending": "Pending",
+  "seasonStatusNone": "None",
+  "noActiveSeason": "No active season",
+  "openNewSeason": "Open a new season",
+  "seasonName": "Season name",
+  "seasonNameHint": "E.g.: Season 2024-2025",
+  "seasonStartDate": "Start date",
+  "closeSeasonTitle": "Close season",
+  "closeSeasonConfirmation": "Are you sure you want to close the season \"{name}\"?",
+  "@closeSeasonConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closeSeasonWarning": "This action is irreversible.",
+  "seasonOpenedSuccess": "Season opened successfully",
+  "seasonClosedSuccess": "Season closed successfully",
+  "seasonOpenError": "Error while opening season",
+  "seasonCloseError": "Error while closing season",
+  "seasonNameRequired": "Please enter a name for the season"
 }
