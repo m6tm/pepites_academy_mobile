@@ -8,6 +8,7 @@ import '../../../../presentation/widgets/quick_action_tile.dart';
 import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
+import '../../../../presentation/widgets/global_stats_card.dart';
 import '../../../../injection_container.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
@@ -45,6 +46,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   List<Activity> _activites = [];
   bool _activitesLoading = true;
   DashboardStats? _dashboardStats;
+  bool _statsIsFromCache = false;
+  bool _statsIsLoading = false;
 
   @override
   void initState() {
@@ -95,17 +98,44 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   /// Charge les statistiques du dashboard depuis le backend.
+  /// Affiche les donnees en cache immediatement puis rafraichit.
   Future<void> _chargerDashboardStats() async {
     try {
-      final (stats, _, _) = await DependencyInjection.dashboardService
+      final (stats, _, isFromCache) = await DependencyInjection.dashboardService
           .getStats();
       if (mounted) {
         setState(() {
           _dashboardStats = stats;
+          _statsIsFromCache = isFromCache;
         });
       }
     } catch (_) {
       // Erreur silencieuse, les stats restent a null
+    }
+  }
+
+  /// Rafraichit les statistiques du dashboard.
+  Future<void> _rafraichirStats() async {
+    if (_statsIsLoading) return;
+    setState(() {
+      _statsIsLoading = true;
+    });
+    try {
+      final (stats, _, isFromCache) = await DependencyInjection.dashboardService
+          .getStats(forceRefresh: true);
+      if (mounted) {
+        setState(() {
+          _dashboardStats = stats;
+          _statsIsFromCache = isFromCache;
+          _statsIsLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _statsIsLoading = false;
+        });
+      }
     }
   }
 
@@ -148,6 +178,16 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
         ),
         SliverToBoxAdapter(child: _buildWelcomeBanner(colorScheme, l10n)),
+        SliverToBoxAdapter(
+          child: GlobalStatsCard(
+            stats: _dashboardStats,
+            isFromCache: _statsIsFromCache,
+            isLoading: _statsIsLoading,
+            onRefresh: _rafraichirStats,
+            connectivityState: DependencyInjection.connectivityState,
+            syncState: DependencyInjection.syncState,
+          ),
+        ),
         SliverToBoxAdapter(child: SectionTitle(title: l10n.overview)),
         SliverToBoxAdapter(child: _buildStatsGrid(l10n)),
         SliverToBoxAdapter(child: SectionTitle(title: l10n.quickActions)),

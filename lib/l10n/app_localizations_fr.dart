@@ -3279,4 +3279,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get roleVisiteur => 'Visiteur';
+
+  @override
+  String get globalOverview => 'Vue globale';
+
+  @override
+  String get sessionsToday => 'Séances aujourd\'hui';
+
+  @override
+  String get attendancesToday => 'Présences aujourd\'hui';
 }

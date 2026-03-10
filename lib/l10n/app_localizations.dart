@@ -5929,6 +5929,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Visiteur'**
   String get roleVisiteur;
+
+  /// No description provided for @globalOverview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue globale'**
+  String get globalOverview;
+
+  /// No description provided for @sessionsToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances aujourd\'hui'**
+  String get sessionsToday;
+
+  /// No description provided for @attendancesToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présences aujourd\'hui'**
+  String get attendancesToday;
 }
 
 class _AppLocalizationsDelegate

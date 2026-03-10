@@ -3261,4 +3261,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleVisiteur => 'Visitor';
+
+  @override
+  String get globalOverview => 'Global Overview';
+
+  @override
+  String get sessionsToday => 'Sessions Today';
+
+  @override
+  String get attendancesToday => 'Attendances Today';
 }

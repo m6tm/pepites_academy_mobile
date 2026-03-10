@@ -180,7 +180,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 - **Dépendance :**
   - `mocktail: ^1.0.4` ajouté dans `pubspec.yaml`
 
-##### T-104.6.1.4 - Vue Globale de l'Académie
+##### T-104.6.1.4 - Vue Globale de l'Académie [DONE]
 
 - **Objectif :** Afficher les KPIs globaux sur le dashboard SupAdmin.
 - **Actions :**

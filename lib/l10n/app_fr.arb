@@ -1743,5 +1743,8 @@
   "roleMedecinChef": "Médecin Chef",
   "roleEncadreur": "Encadreur",
   "roleSurveillantGeneral": "Surveillant Général",
-  "roleVisiteur": "Visiteur"
+  "roleVisiteur": "Visiteur",
+  "globalOverview": "Vue globale",
+  "sessionsToday": "Séances aujourd'hui",
+  "attendancesToday": "Présences aujourd'hui"
 }
