@@ -27,7 +27,8 @@ L'application repose sur un modèle de données structuré autour des entités m
 - **Académicien** : Élève inscrit à l'académie (Nom, Prénom, Photo, Poste de football, Niveau scolaire, QR Code unique).
 - **Encadreur** : Coach ou formateur (Nom, Prénom, Photo, Spécialité, Rôle, QR Code unique).
 - **Séance** : Unité d'entraînement (Date, Horaires, Statut, Encadreur responsable).
-- **Atelier** : Exercice spécifique au sein d'une séance (Nom, Description, Ordre d'exécution).
+- **Atelier** : Regroupement d'exercices au sein d'une séance (Nom, Description, Ordre d'exécution, Statut). Un atelier se ferme automatiquement lorsque tous les exercices qui le constituent sont fermés.
+- **Exercice** : Unité pédagogique au sein d'un atelier (Nom, Description, Ordre d'exécution, Statut). Exemple : Atelier "Drible" contient les exercices "Passement de jambes", "Crochet intérieur/extérieur", "Râteau", "Feinte de corps".
 - **Annotation** : Observation qualifiée sur un académicien dans un atelier donné (Contenu, Tags, Note, Horodatage).
 - **Présence** : Enregistrement d'accès au stade (Horodatage, Profil scanné).
 - **Bulletin** : Synthèse périodique des performances d'un académicien.
@@ -78,12 +79,34 @@ La séance est l'unité centrale de l'activité pédagogique. Le système gère 
 - **Fermeture de Séance :** Clôture obligatoire en fin d'entraînement. Cette action fige les données (présences, annotations) et génère le rapport de séance.
 - **Tableau de Bord :** Vue synthétique des séances (En cours, À venir, Terminées) avec filtres chronologiques.
 
-### 3.6 Suivi Pédagogique (Ateliers et Annotations)
+### 3.6 Suivi Pédagogique (Ateliers, Exercices et Annotations)
 
 Ce module permet l'évaluation continue et contextualisée des académiciens.
 
+#### Cycle de vie des Ateliers et Exercices
+
+Les ateliers et exercices suivent un cycle de vie structuré :
+
+- **Création** : EncadreurChef crée l'atelier et ses exercices.
+- **Modification** : Ajustement du contenu avant application.
+- **Validation** : EncadreurChef valide le contenu pour application.
+- **Application** : Encadreur applique l'atelier/exercice en séance.
+- **Fermeture** : Clôture après réalisation. L'atelier se ferme automatiquement quand tous ses exercices sont fermés.
+
+#### Exemple de structure
+
+```
+Atelier : Drible
+├── Exercice 1 : Passement de jambes
+├── Exercice 2 : Crochet (intérieur/extérieur)
+├── Exercice 3 : Râteau
+└── Exercice 4 : Feinte de corps
+```
+
+#### Annotations et Évaluations
+
 - **Évaluation en Temps Réel :** Interface optimisée pour la saisie terrain (boutons larges, interactions rapides).
-- **Annotations Contextualisées :** Chaque observation est liée à un triptyque : _Académicien + Atelier + Séance_.
+- **Annotations Contextualisées :** Chaque observation est liée à un triptyque : _Académicien + Exercice + Séance_.
 - **Outils de Saisie Rapide :**
   - Tags prédéfinis (Positif/Négatif, ex: "Application", "Technique").
   - Champ libre pour observations détaillées.

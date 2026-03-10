@@ -12,7 +12,8 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
   - **Academicien** : Représente un élève inscrit à l'académie. Attributs : nom, prénom, date de naissance, photo, téléphone du parent, poste de football (ref. PosteFootball), niveau scolaire (ref. NiveauScolaire), code QR unique. _(Tickets liés : T-202, T-301, T-402, T-501)_
   - **Encadreur** : Représente un coach/formateur. Attributs : nom, prénom, téléphone, photo, spécialité sportive, rôle (admin/encadreur), code QR unique. _(Tickets liés : T-203, T-301, T-302)_
   - **Seance** : Représente une séance d'entraînement. Attributs : date, heure de début, heure de fin, statut (ouverte/fermée/à venir), encadreur responsable. _(Tickets liés : T-302, T-401, T-601)_
-  - **Atelier** : Représente un exercice au sein d'une séance. Attributs : nom, description, icône, ordre d'exécution, séance parente. _(Tickets liés : T-401, T-402)_
+  - **Atelier** : Représente un regroupement d'exercices au sein d'une séance. Attributs : nom, description, icône, ordre d'exécution, statut (créé/modifié/validé/appliqué/fermé), séance parente. Un atelier se ferme automatiquement lorsque tous ses exercices sont fermés. _(Tickets liés : T-401, T-402)_
+  - **Exercice** : Représente une unité pédagogique au sein d'un atelier. Attributs : nom, description, ordre d'exécution, statut (créé/modifié/validé/appliqué/fermé), atelier parent. Exemple : Atelier "Drible" contient les exercices "Passement de jambes", "Crochet intérieur/extérieur", "Râteau", "Feinte de corps". _(Tickets liés : T-401, T-402)_
   - **Annotation** : Représente une observation faite sur un académicien dans un atelier. Attributs : contenu textuel, tags (positif/négatif), note optionnelle, académicien concerné, atelier concerné, séance parente, encadreur auteur, horodatage. _(Tickets liés : T-402, T-501)_
   - **Presence** : Représente l'enregistrement d'accès au stade via scan QR. Attributs : horodatage d'arrivée, type de profil (académicien/encadreur), profil concerné, séance rattachée. _(Tickets liés : T-301, T-302)_
   - **PosteFootball** : Représente un poste de jeu (Gardien, Défenseur central, etc.). Attributs : nom, description optionnelle, icône optionnelle. _(Tickets liés : T-602, T-202)_
@@ -142,20 +143,23 @@ Ce document liste l'ensemble des tickets nécessaires à la réalisation de l'ap
 
 ## PHASE 4 : Ateliers & Évaluation (Points 4, 5)
 
-### [T-401] Configuration des Ateliers de Séance [DONE]
+### [T-401] Configuration des Ateliers et Exercices [DONE]
 
-- **Objectif :** Chaque séance d'entraînement est composée de plusieurs ateliers (exercices thématiques). Un atelier représente un bloc d'activité précis durant la séance : dribble, passes, finition, condition physique, jeu en situation, etc. Ce ticket permet à l'encadreur de :
-  - **Composer la séance** : Ajouter, modifier ou supprimer les ateliers prévus pour une séance donnée, directement depuis l'application.
-  - **Structurer le terrain** : Organiser l'ordre des ateliers pour refléter le déroulement réel de l'entraînement.
-  - **Préparer l'évaluation** : Les ateliers servent de cadre pour les annotations individuelles sur chaque académicien (ticket T-402). Sans atelier défini, aucune évaluation ne peut être rattachée.
-  - Cela permet d'avoir un historique précis de ce qui a été travaillé séance après séance, facilitant le suivi de la progression et la rédaction des bulletins de formation.
-- **Description :** Interface de gestion des ateliers au sein d'une séance, avec des icônes représentatifs par type d'exercice et une organisation par glisser-déposer.
+- **Objectif :** Chaque séance d'entraînement est composée de plusieurs ateliers, eux-mêmes constitués d'exercices. Un atelier représente un bloc d'activité thématique (ex: Drible, Finition, Physique) et contient plusieurs exercices spécifiques. Ce ticket permet à l'EncadreurChef de :
+  - **Créer et structurer les ateliers** : Définir les ateliers avec leurs exercices constitutifs.
+  - **Gérer le cycle de vie** : Créer → Modifier → Valider → Appliquer → Fermer.
+  - **Fermeture automatique** : Un atelier se ferme automatiquement lorsque tous ses exercices sont fermés.
+  - **Organiser l'ordre d'exécution** : Réorganiser les ateliers et exercices par glisser-déposer.
+  - Sans atelier et exercice définis, aucune évaluation granulaire ne peut être rattachée.
+- **Description :** Interface de gestion hiérarchique ateliers > exercices, avec cycle de vie complet et indicateurs de statut.
 - **Sous-tâches :**
-  - Écran de composition des ateliers rattaché à une séance ouverte.
-  - Sélection des ateliers via des icônes visuels (cone pour dribble, cage pour finition, chronomètre pour physique, etc.).
-  - Possibilité d'ajouter un atelier personnalisé avec nom et description libre.
-  - Réorganisation de l'ordre des ateliers par glisser-déposer.
-  - Affichage récapitulatif du programme de la séance avec le nombre d'ateliers.
+  - Écran de composition des ateliers avec leurs exercices.
+  - Création/Modification/Validation d'un atelier.
+  - Création/Modification/Validation d'un exercice au sein d'un atelier.
+  - Application d'un atelier/exercice en séance (par l'Encadreur).
+  - Fermeture d'un exercice avec mise à jour automatique du statut de l'atelier parent.
+  - Réorganisation par glisser-déposer des ateliers et exercices.
+  - Affichage récapitulatif avec indicateurs de progression.
 
 ### [T-402] Module d'Annotations et Observations [DONE]
 

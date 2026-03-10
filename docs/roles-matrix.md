@@ -24,7 +24,7 @@ Ce document présente la matrice complète des rôles et leurs permissions dans 
 | Modifier un utilisateur | ✓ | ✓ | - | - | - | - | - |
 | Supprimer un utilisateur | ✓ | ✓ | - | - | - | - | - |
 | Attribuer un rôle | ✓ | ✓ | - | - | - | - | - |
-| Voir les utilisateurs | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Voir les utilisateurs | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | - |
 
 ### Gestion des Saisons
 
@@ -70,15 +70,31 @@ Ce document présente la matrice complète des rôles et leurs permissions dans 
 | Appliquer un entraînement | ✓ | ✓ | ✓ | - | ✓ | - | - |
 | Voir les entraînements | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
-### Gestion des Ateliers et Exercices
+### Gestion des Ateliers
+
+Un atelier est un regroupement d'exercices. Il se ferme automatiquement lorsque tous les exercices qui le constituent sont fermés.
 
 | Action | SupAdmin | Admin | EncadreurChef | MedecinChef | Encadreur | SurveillantGeneral | Visiteur |
 |--------|:--------:|:-----:|:-------------:|:-----------:|:---------:|:------------------:|:--------:|
 | Créer un atelier | ✓ | ✓ | ✓ | - | - | - | - |
 | Modifier un atelier | ✓ | ✓ | ✓ | - | - | - | - |
-| Supprimer un atelier | ✓ | ✓ | ✓ | - | - | - | - |
-| Créer un exercice | ✓ | ✓ | ✓ | - | - | - | - |
+| Valider un atelier | ✓ | ✓ | ✓ | - | - | - | - |
+| Appliquer un atelier | ✓ | ✓ | ✓ | - | ✓ | - | - |
+| Fermer un atelier | ✓ | ✓ | ✓ | - | ✓ | - | - |
 | Voir les ateliers | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+### Gestion des Exercices
+
+Un exercice est une unité pédagogique au sein d'un atelier. Exemple : Atelier "Drible" contient les exercices "Passement de jambes", "Crochet intérieur/extérieur", "Râteau", "Feinte de corps".
+
+| Action | SupAdmin | Admin | EncadreurChef | MedecinChef | Encadreur | SurveillantGeneral | Visiteur |
+|--------|:--------:|:-----:|:-------------:|:-----------:|:---------:|:------------------:|:--------:|
+| Créer un exercice | ✓ | ✓ | ✓ | - | - | - | - |
+| Modifier un exercice | ✓ | ✓ | ✓ | - | - | - | - |
+| Valider un exercice | ✓ | ✓ | ✓ | - | - | - | - |
+| Appliquer un exercice | ✓ | ✓ | ✓ | - | ✓ | - | - |
+| Fermer un exercice | ✓ | ✓ | ✓ | - | ✓ | - | - |
+| Voir les exercices | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### Évaluations et Annotations
 
@@ -178,11 +194,11 @@ Chaque rôle accède à un dashboard spécifique après connexion :
 
 | Rôle | Dashboard |
 |------|-----------|
-| SupAdmin | Dashboard complet avec toutes les fonctionnalités |
-| Admin | Dashboard administratif avec gestion complète de l'application |
-| EncadreurChef | Dashboard structuration (entraînements, ateliers, validations) |
+| SupAdmin | Dashboard administratif complet (gestion utilisateurs, saisons, académiciens, encadreurs, entraînements, ateliers, évaluations, bulletins, suivi médical, matériel, discipline, SMS, référentiels) |
+| Admin | Dashboard administratif complet (gestion utilisateurs, saisons, académiciens, encadreurs, entraînements, ateliers, évaluations, bulletins, suivi médical, matériel, discipline, SMS, référentiels) |
+| EncadreurChef | Dashboard encadrement (séances, entraînements, ateliers, évaluations, annotations, bulletins, suivi académiciens) |
 | MedecinChef | Dashboard médical (fiches, suivis, conseils) |
-| Encadreur | Dashboard terrain (séances, annotations, suivi académiciens) |
+| Encadreur | Dashboard encadrement (séances, entraînements, ateliers, évaluations, annotations, bulletins, suivi académiciens) |
 | SurveillantGeneral | Dashboard logistique (matériel, discipline) |
 | Visiteur | Dashboard consultation (résultats en lecture seule) |
 

@@ -8,7 +8,7 @@ Ce document trace la correspondance entre chaque point de la demande client, sa 
 | **General : SGBD Free**            | Section 1 (Backend dedie, projet separe)    | Projet backend separe              |
 | **1 & 2 : Acces QR (Acad/Enc)**    | Section 3.4 (Contrôle d'Accès et Présence)  | T-301 (Scanner QR Glassmorphism)   |
 | **3 : Ouverture/Fermeture seance** | Section 3.5 (Gestion des Séances)           | T-302 (Flux de Seance)             |
-| **4 : Ateliers de la seance**      | Section 3.5 & 3.6 (Config Ateliers & Suivi) | T-401 (Configuration Ateliers)     |
+| **4 : Ateliers de la seance**      | Section 3.5 & 3.6 (Config Ateliers, Exercices & Suivi) | T-401 (Configuration Ateliers & Exercices) |
 | **5 : Annotations & Evolution**    | Section 3.6 (Suivi Pédagogique)             | T-402 (Module Annotations)         |
 | **6 : Enregistrer Academicien**    | Section 3.3 (Gestion des Utilisateurs)      | T-202 (Enregistrement Academicien) |
 | **7 : Enregistrer Encadreur**      | Section 3.3 (Gestion des Utilisateurs)      | T-203 (Gestion Encadreurs)         |

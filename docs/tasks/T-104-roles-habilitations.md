@@ -82,14 +82,24 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 
 ### [T-104.6] Dashboards par Rôle
 
-#### T-104.6.1 - Dashboard SupAdmin
+#### T-104.6.1 - Dashboard Administratif (SupAdmin & Admin)
 
-- **Objectif :** Dashboard complet avec toutes les fonctionnalités.
+- **Rôles concernés :** SupAdmin, Admin
+- **Objectif :** Dashboard administratif complet avec toutes les fonctionnalités.
 - **Fonctionnalités accessibles :**
   - Vue globale de l'académie
   - Gestion des saisons (ouverture/fermeture)
   - Gestion des utilisateurs et rôles
-  - Tous les modules de l'application
+  - Gestion des académiciens
+  - Gestion des encadreurs
+  - Gestion des séances
+  - Entraînements, ateliers, exercices
+  - Évaluations et bulletins
+  - Suivi médical
+  - Gestion du matériel
+  - Discipline et incidents
+  - Communication (SMS)
+  - Référentiels
   - Statistiques globales
 
 ##### T-104.6.1.1 - Modèle de données Dashboard Stats [DONE]
@@ -295,27 +305,24 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 | T-104.6.1.9 | Aucune (existant) |
 | T-104.6.1.10 | Tous les précédents |
 
-#### T-104.6.2 - Dashboard Admin
 
-- **Objectif :** Dashboard administratif avec gestion complète.
+#### T-104.6.2 - Dashboard Encadrement (EncadreurChef & Encadreur)
+
+- **Rôles concernés :** EncadreurChef, Encadreur
+- **Objectif :** Dashboard encadrement pour la gestion des séances et le suivi des académiciens.
 - **Fonctionnalités accessibles :**
-  - Gestion des académiciens
-  - Gestion des encadreurs
-  - Gestion des séances
-  - Rapports et statistiques
-  - Communication (SMS)
-
-#### T-104.6.3 - Dashboard EncadreurChef
-
-- **Objectif :** Dashboard structuration et validation.
-- **Fonctionnalités accessibles :**
-  - Création d'entraînements, ateliers, exercices
+  - Séances du jour
+  - Scanner QR
   - Ouverture/fermeture des séances
-  - Validation des évaluations
-  - Suivi des encadreurs
+  - Entraînements, ateliers, exercices (application)
+  - Annotations et observations
+  - Évaluations (EncadreurChef : validation)
+  - Bulletins de formation
+  - Suivi des académiciens à charge
+  - Présences
   - Rapports de progression
 
-#### T-104.6.4 - Dashboard MedecinChef
+#### T-104.6.3 - Dashboard MedecinChef
 
 - **Objectif :** Dashboard médical.
 - **Fonctionnalités accessibles :**
@@ -325,17 +332,8 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Conseils aux encadreurs
   - Alertes sanitaires
 
-#### T-104.6.5 - Dashboard Encadreur
 
-- **Objectif :** Dashboard terrain.
-- **Fonctionnalités accessibles :**
-  - Séances du jour
-  - Scanner QR
-  - Annotations et observations
-  - Suivi des académiciens à charge
-  - Présences
-
-#### T-104.6.6 - Dashboard SurveillantGeneral
+#### T-104.6.4 - Dashboard SurveillantGeneral
 
 - **Objectif :** Dashboard logistique et discipline.
 - **Fonctionnalités accessibles :**
@@ -345,9 +343,11 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Suivi comportemental
   - Présences
 
-#### T-104.6.7 - Dashboard Visiteur
+#### T-104.6.5 - Dashboard Visiteur
 
 - **Objectif :** Dashboard consultation en lecture seule.
+- **Restrictions importantes :**
+  - **Accès utilisateurs interdit** : Le Visiteur ne peut ni voir ni accéder à la liste des utilisateurs ni aux profils utilisateurs.
 - **Fonctionnalités accessibles :**
   - Consultation des académiciens
   - Consultation des encadreurs
@@ -403,7 +403,7 @@ Tous les tickets utilisant des fonctionnalités nécessitant des permissions dev
 | T-104.3 - Intégration authentification | 1 jour |
 | T-104.4 - Interface gestion rôles | 2 jours |
 | T-104.5 - Composants UI | 2 jours |
-| T-104.6 - Dashboards (7) | 5 jours |
+| T-104.6 - Dashboards (5) | 4 jours |
 | T-104.7 - Tests | 2 jours |
 | T-104.8 - Documentation | 1 jour |
 | **Total** | **17 jours** |
@@ -415,3 +415,5 @@ Tous les tickets utilisant des fonctionnalités nécessitant des permissions dev
 - Les permissions doivent être vérifiées côté backend pour des raisons de sécurité.
 - L'UI masque les éléments non autorisés, mais la validation finale reste côté serveur.
 - Le cache local des rôles est essentiel pour le mode hors-ligne (T-603).
+- **Cycle de vie Ateliers/Exercices** : Créer → Modifier → Valider → Appliquer → Fermer. Un atelier se ferme automatiquement quand tous ses exercices sont fermés.
+- **Restriction Visiteur** : Le Visiteur n'a aucun accès aux données utilisateurs (liste ou profil).
