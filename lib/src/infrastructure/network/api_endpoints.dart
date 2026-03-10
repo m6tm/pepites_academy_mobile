@@ -75,6 +75,7 @@ class ApiEndpoints {
 
   /// Chemins pour le dashboard.
   static const String dashboardStats = '/dashboard/stats';
+  static const String dashboardStatsCharts = '/dashboard/stats/charts';
 
   /// Chemins pour les saisons.
   static const String seasons = '/seasons';

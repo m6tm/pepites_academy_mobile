@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/dashboard_stats.dart';
+import '../../domain/entities/chart_stats.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/dashboard_repository.dart';
@@ -24,11 +25,18 @@ class DashboardRepositoryImpl implements DashboardRepository {
   static const String _keyCachedStatsTimestamp =
       'cached_dashboard_stats_timestamp';
   static const String _keyCurrentSeason = 'current_season';
+  static const String _keyCachedChartStats = 'cached_chart_stats';
+  static const String _keyCachedChartStatsTimestamp =
+      'cached_chart_stats_timestamp';
+  static const String _keyCachedChartStatsPeriod = 'cached_chart_stats_period';
   static const Duration _cacheValidityDuration = Duration(minutes: 5);
+  static const Duration _chartCacheValidityDuration = Duration(minutes: 10);
 
   // Cache memoire
   DashboardStats? _cachedStats;
   Season? _cachedSeason;
+  ChartStats? _cachedChartStats;
+  ChartPeriod? _cachedChartPeriod;
 
   // Stream controller pour la reactivite UI
   final StreamController<DashboardStats> _statsController =
@@ -295,6 +303,127 @@ class DashboardRepositoryImpl implements DashboardRepository {
     _cachedStats = null;
     await _sharedPrefs.remove(_keyCachedStats);
     await _sharedPrefs.remove(_keyCachedStatsTimestamp);
+  }
+
+  @override
+  Future<void> invalidateChartStatsCache() async {
+    _cachedChartStats = null;
+    _cachedChartPeriod = null;
+    await _sharedPrefs.remove(_keyCachedChartStats);
+    await _sharedPrefs.remove(_keyCachedChartStatsTimestamp);
+    await _sharedPrefs.remove(_keyCachedChartStatsPeriod);
+  }
+
+  @override
+  Future<(ChartStats?, NetworkFailure?, bool isFromCache)> getChartStats({
+    ChartPeriod period = ChartPeriod.month,
+    bool forceRefresh = false,
+  }) async {
+    // Verifier si on peut utiliser le cache (meme periode)
+    if (!forceRefresh &&
+        _cachedChartStats != null &&
+        _cachedChartPeriod == period) {
+      final cachedStats = await _getCachedChartStats();
+      if (cachedStats != null) {
+        return (cachedStats, null, true);
+      }
+    }
+
+    // Si pas de cache ou forceRefresh, charger depuis l'API
+    try {
+      final result = await _dioClient.get<dynamic>(
+        '${ApiEndpoints.dashboardStatsCharts}?period=${period.toApiValue()}',
+      );
+
+      return result.fold(
+        (failure) {
+          // En cas d'erreur, tenter de retourner le cache meme expire
+          if (_cachedChartStats != null) {
+            return (_cachedChartStats, failure, true);
+          }
+          return (null, failure, false);
+        },
+        (data) {
+          if (data is Map<String, dynamic>) {
+            final stats = ChartStats.fromJson(data);
+            // Sauvegarder en cache
+            _saveChartStatsToCache(stats, period);
+            _cachedChartStats = stats;
+            _cachedChartPeriod = period;
+            return (stats, null, false);
+          }
+          return (
+            null,
+            const NetworkFailure(
+              type: NetworkFailureType.serverError,
+              message: 'Format de reponse invalide',
+            ),
+            false,
+          );
+        },
+      );
+    } catch (e) {
+      // En cas d'exception, tenter de retourner le cache
+      if (_cachedChartStats != null) {
+        return (
+          _cachedChartStats,
+          NetworkFailure(
+            type: NetworkFailureType.unknown,
+            message: e.toString(),
+          ),
+          true,
+        );
+      }
+      return (
+        null,
+        NetworkFailure(type: NetworkFailureType.unknown, message: e.toString()),
+        false,
+      );
+    }
+  }
+
+  /// Recupere les statistiques graphiques en cache si disponibles et valides.
+  Future<ChartStats?> _getCachedChartStats() async {
+    // Verifier d'abord le cache memoire
+    if (_cachedChartStats != null) {
+      return _cachedChartStats;
+    }
+
+    // Verifier le cache persistant
+    final cachedJson = _sharedPrefs.getString(_keyCachedChartStats);
+    if (cachedJson == null || cachedJson.isEmpty) {
+      return null;
+    }
+
+    // Verifier si le cache est expire (10 minutes)
+    final timestampStr = _sharedPrefs.getString(_keyCachedChartStatsTimestamp);
+    if (timestampStr != null) {
+      final timestamp = DateTime.tryParse(timestampStr);
+      if (timestamp != null) {
+        final now = DateTime.now();
+        if (now.difference(timestamp) > _chartCacheValidityDuration) {
+          return null; // Cache expire
+        }
+      }
+    }
+
+    try {
+      final decoded = jsonDecode(cachedJson) as Map<String, dynamic>;
+      _cachedChartStats = ChartStats.fromJson(decoded);
+      return _cachedChartStats;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Sauvegarde les statistiques graphiques en cache.
+  void _saveChartStatsToCache(ChartStats stats, ChartPeriod period) {
+    _sharedPrefs.setString(_keyCachedChartStats, jsonEncode(stats.toJson()));
+    _sharedPrefs.setString(
+      _keyCachedChartStatsTimestamp,
+      DateTime.now().toIso8601String(),
+    );
+    _sharedPrefs.setString(_keyCachedChartStatsPeriod, period.toApiValue());
   }
 
   @override

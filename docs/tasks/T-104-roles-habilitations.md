@@ -253,7 +253,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
 - **Synchronisation :**
   - Afficher le compteur d'opérations en attente via `SyncService.getPendingCount()`
 
-##### T-104.6.1.8 - Statistiques Globales avec Graphiques
+##### T-104.6.1.8 - Statistiques Globales avec Graphiques [DONE]
 
 - **Objectif :** Afficher des graphiques de statistiques globales.
 - **Actions :**

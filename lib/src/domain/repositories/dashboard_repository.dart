@@ -1,4 +1,5 @@
 import '../entities/dashboard_stats.dart';
+import '../entities/chart_stats.dart';
 import '../failures/network_failure.dart';
 
 /// Interface du depot pour les operations liees au dashboard.
@@ -13,6 +14,19 @@ abstract class DashboardRepository {
   Future<(DashboardStats?, NetworkFailure?, bool isFromCache)> getStats({
     bool forceRefresh = false,
   });
+
+  /// Recupere les statistiques pour les graphiques.
+  ///
+  /// Le cache a une duree de validite de 10 minutes.
+  /// Si [forceRefresh] est true, ignore le cache et force l'appel API.
+  /// Retourne un tuple (statistiques, erreur, isFromCache).
+  Future<(ChartStats?, NetworkFailure?, bool isFromCache)> getChartStats({
+    ChartPeriod period = ChartPeriod.month,
+    bool forceRefresh = false,
+  });
+
+  /// Invalide le cache des statistiques des graphiques.
+  Future<void> invalidateChartStatsCache();
 
   /// Recupere la saison en cours.
   ///
