@@ -49,51 +49,51 @@ class PermissionGuard extends StatefulWidget {
   /// Constructeur factory pour vérifier plusieurs permissions (toutes requises).
   factory PermissionGuard.all({
     Key? key,
-    required Widget child,
     required Iterable<Permission> permissions,
     Widget? fallback,
     Role? minimumRole,
+    required Widget child,
   }) {
     return PermissionGuard(
       key: key,
-      child: child,
       permissions: permissions,
       requireAny: false,
       fallback: fallback,
       minimumRole: minimumRole,
+      child: child,
     );
   }
 
   /// Constructeur factory pour vérifier au moins une permission.
   factory PermissionGuard.any({
     Key? key,
-    required Widget child,
     required Iterable<Permission> permissions,
     Widget? fallback,
     Role? minimumRole,
+    required Widget child,
   }) {
     return PermissionGuard(
       key: key,
-      child: child,
       permissions: permissions,
       requireAny: true,
       fallback: fallback,
       minimumRole: minimumRole,
+      child: child,
     );
   }
 
   /// Constructeur factory pour vérifier un rôle minimum.
   factory PermissionGuard.role({
     Key? key,
-    required Widget child,
     required Role minimumRole,
     Widget? fallback,
+    required Widget child,
   }) {
     return PermissionGuard(
       key: key,
-      child: child,
       minimumRole: minimumRole,
       fallback: fallback,
+      child: child,
     );
   }
 

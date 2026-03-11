@@ -54,7 +54,9 @@ class RoleSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
-    final hintColor = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
+    final hintColor = isDark
+        ? AppColors.textMutedDark
+        : AppColors.textMutedLight;
     final baseColor = isDark ? Colors.white : Colors.black;
 
     final roles = _getAvailableRoles();
@@ -87,32 +89,35 @@ class RoleSelector extends StatelessWidget {
                 ),
               ),
               child: DropdownButtonFormField<Role>(
-                value: selectedRole,
+                initialValue: selectedRole,
                 items: roles
-                    .map((role) => DropdownMenuItem(
-                          value: role,
-                          child: Row(
-                            children: [
-                              Icon(
-                                _getRoleIcon(role),
-                                size: 18,
-                                color: _getRoleColor(role, isDark),
+                    .map(
+                      (role) => DropdownMenuItem(
+                        value: role,
+                        child: Row(
+                          children: [
+                            Icon(
+                              _getRoleIcon(role),
+                              size: 18,
+                              color: _getRoleColor(role, isDark),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              _getRoleDisplayName(role),
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w500,
                               ),
-                              const SizedBox(width: 10),
-                              Text(
-                                _getRoleDisplayName(role),
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ))
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: enabled ? onChanged : null,
                 validator: validator,
-                dropdownColor:
-                    isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+                dropdownColor: isDark
+                    ? AppColors.surfaceDark
+                    : AppColors.surfaceLight,
                 style: GoogleFonts.montserrat(color: textColor),
                 icon: Icon(
                   Icons.arrow_drop_down,
@@ -153,8 +158,9 @@ class RoleSelector extends StatelessWidget {
     // Si le filtrage par attribution est activé
     if (filterByAssignable) {
       // Vérifier si l'utilisateur a la permission d'attribuer des rôles
-      final canAssignRole =
-          DependencyInjection.roleService.hasPermission(Permission.userAssignRole);
+      final canAssignRole = DependencyInjection.roleService.hasPermission(
+        Permission.userAssignRole,
+      );
 
       if (!canAssignRole) {
         // Sans permission, retourner une liste vide ou le rôle actuel uniquement
@@ -270,24 +276,23 @@ class RoleSelectorCompact extends StatelessWidget {
     return PopupMenuButton<Role>(
       onSelected: onChanged,
       itemBuilder: (context) => roles
-          .map((role) => PopupMenuItem(
-                value: role,
-                child: Row(
-                  children: [
-                    RoleBadge(role: role, size: RoleBadgeSize.small),
-                    const SizedBox(width: 8),
-                    Text(
-                      _getRoleDescription(role),
-                      style: GoogleFonts.montserrat(fontSize: 12),
-                    ),
-                  ],
-                ),
-              ))
+          .map(
+            (role) => PopupMenuItem(
+              value: role,
+              child: Row(
+                children: [
+                  RoleBadge(role: role, size: RoleBadgeSize.small),
+                  const SizedBox(width: 8),
+                  Text(
+                    _getRoleDescription(role),
+                    style: GoogleFonts.montserrat(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          )
           .toList(),
-      child: RoleBadge(
-        role: selectedRole,
-        size: badgeSize,
-      ),
+      child: RoleBadge(role: selectedRole, size: badgeSize),
     );
   }
 

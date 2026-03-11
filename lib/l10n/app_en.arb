@@ -1718,5 +1718,10 @@
   "workshopsManagement": "Workshops management",
   "bulletinsLabel": "Reports",
   "bulletinsManagement": "Reports management",
-  "smsManagement": "SMS management"
+  "smsManagement": "SMS management",
+  "superAdmin": "Super Admin",
+  "globalStatistics": "Global statistics",
+  "totalSessions": "Total sessions",
+  "totalAttendances": "Total attendances",
+  "totalAnnotations": "Total annotations"
 }

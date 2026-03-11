@@ -1791,5 +1791,10 @@
   "workshopsManagement": "Gestion des ateliers",
   "bulletinsLabel": "Bulletins",
   "bulletinsManagement": "Gestion des bulletins",
-  "smsManagement": "Gestion des SMS"
+  "smsManagement": "Gestion des SMS",
+  "superAdmin": "Super Admin",
+  "globalStatistics": "Statistiques globales",
+  "totalSessions": "Séances totales",
+  "totalAttendances": "Présences totales",
+  "totalAnnotations": "Annotations totales"
 }

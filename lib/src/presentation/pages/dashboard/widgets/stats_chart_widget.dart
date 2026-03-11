@@ -65,9 +65,7 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -90,9 +88,9 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
         children: [
           Text(
             'Statistiques Globales',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           if (widget.onRefresh != null)
             IconButton(
@@ -173,8 +171,8 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
             Text(
               'Aucune donnee disponible',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).disabledColor,
-                  ),
+                color: Theme.of(context).disabledColor,
+              ),
             ),
           ],
         ),
@@ -188,7 +186,8 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
         return _RepartitionPostesChart(data: widget.stats.repartitionPostes);
       case 2:
         return _PerformanceMensuelleChart(
-            data: widget.stats.performanceMensuelle);
+          data: widget.stats.performanceMensuelle,
+        );
       default:
         return const SizedBox.shrink();
     }
@@ -202,9 +201,9 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             _chartTitles[_currentChartIndex],
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ),
@@ -288,9 +287,9 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
                   child: pw.Text(
                     'Statistiques Pepites Academy',
                     style: pw.Theme.of(context).defaultTextStyle.copyWith(
-                          fontSize: 24,
-                          fontWeight: pw.FontWeight.bold,
-                        ),
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
                   ),
                 ),
                 pw.SizedBox(height: 20),
@@ -303,9 +302,7 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
                   style: const pw.TextStyle(fontSize: 12),
                 ),
                 pw.SizedBox(height: 20),
-                pw.Center(
-                  child: pw.Image(pdfImage, fit: pw.BoxFit.contain),
-                ),
+                pw.Center(child: pw.Image(pdfImage, fit: pw.BoxFit.contain)),
               ],
             );
           },
@@ -315,21 +312,21 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
       // Sauvegarder le fichier
       final directory = await getApplicationDocumentsDirectory();
       final file = File(
-          '${directory.path}/stats_${DateTime.now().millisecondsSinceEpoch}.pdf');
+        '${directory.path}/stats_${DateTime.now().millisecondsSinceEpoch}.pdf',
+      );
       await file.writeAsBytes(await pdf.save());
 
       // Partager le fichier
       if (mounted) {
-        await Share.shareXFiles(
-          [XFile(file.path)],
-          subject: 'Statistiques Pepites Academy',
-        );
+        await Share.shareXFiles([
+          XFile(file.path),
+        ], subject: 'Statistiques Pepites Academy');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
       }
     }
   }
@@ -352,21 +349,21 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
       // Sauvegarder le fichier
       final directory = await getApplicationDocumentsDirectory();
       final file = File(
-          '${directory.path}/stats_${DateTime.now().millisecondsSinceEpoch}.png');
+        '${directory.path}/stats_${DateTime.now().millisecondsSinceEpoch}.png',
+      );
       await file.writeAsBytes(image);
 
       // Partager le fichier
       if (mounted) {
-        await Share.shareXFiles(
-          [XFile(file.path)],
-          subject: 'Statistiques Pepites Academy',
-        );
+        await Share.shareXFiles([
+          XFile(file.path),
+        ], subject: 'Statistiques Pepites Academy');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
       }
     }
   }
@@ -374,8 +371,9 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
   /// Capture le widget en image PNG.
   Future<Uint8List?> _captureWidget() async {
     try {
-      final boundary = _repaintBoundaryKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
+      final boundary =
+          _repaintBoundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) return null;
 
       final image = await boundary.toImage(pixelRatio: 3.0);
@@ -406,17 +404,10 @@ class _PresenceEvolutionChart extends StatelessWidget {
 
     return LineChart(
       LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalAxisTitle: const AxisTitle(
-            show: true,
-            titleText: 'Presences',
-            reservedSize: 30,
-          ),
-        ),
+        gridData: const FlGridData(show: true, drawVerticalLine: false),
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(
+            axisNameWidget: const Text('Presences'),
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 40,
@@ -447,8 +438,12 @@ class _PresenceEvolutionChart extends StatelessWidget {
               },
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         minX: 0,
@@ -475,7 +470,7 @@ class _PresenceEvolutionChart extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             ),
           ),
         ],
@@ -570,9 +565,7 @@ class _RepartitionPostesChart extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
-          child: _buildLegend(context),
-        ),
+        Expanded(child: _buildLegend(context)),
       ],
     );
   }
@@ -652,6 +645,7 @@ class _PerformanceMensuelleChart extends StatelessWidget {
         ),
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(
+            axisNameWidget: const Text('Note /5'),
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 40,
@@ -682,18 +676,14 @@ class _PerformanceMensuelleChart extends StatelessWidget {
               },
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalAxisTitle: const AxisTitle(
-            show: true,
-            titleText: 'Note /5',
-            reservedSize: 30,
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
           ),
         ),
+        gridData: const FlGridData(show: true, drawVerticalLine: false),
         borderData: FlBorderData(show: false),
         barGroups: data.asMap().entries.map((entry) {
           return BarChartGroupData(
@@ -703,7 +693,9 @@ class _PerformanceMensuelleChart extends StatelessWidget {
                 toY: entry.value.moyenne,
                 color: _getBarColor(entry.value.moyenne),
                 width: 20,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(4),
+                ),
               ),
             ],
           );

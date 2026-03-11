@@ -9,6 +9,7 @@ import '../onboarding/onboarding_page.dart';
 import '../auth/login_page.dart';
 import '../dashboard/admin_dashboard_page.dart';
 import '../dashboard/encadreur_dashboard_page.dart';
+import '../dashboard/supadmin_dashboard_page.dart';
 import '../../theme/app_colors.dart';
 
 /// Page de démarrage (Splash Screen) pour Pépites Academy.
@@ -100,12 +101,20 @@ class _SplashPageState extends State<SplashPage>
           final role = UserRole.fromId(roleId);
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => role == UserRole.admin
-                  ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
-                  : EncadreurDashboardPage(
-                      userName: userName,
-                      photoUrl: photoUrl,
-                    ),
+              builder: (context) => switch (role) {
+                UserRole.supAdmin => SupAdminDashboardPage(
+                  userName: userName,
+                  photoUrl: photoUrl,
+                ),
+                UserRole.admin => AdminDashboardPage(
+                  userName: userName,
+                  photoUrl: photoUrl,
+                ),
+                UserRole.encadreur => EncadreurDashboardPage(
+                  userName: userName,
+                  photoUrl: photoUrl,
+                ),
+              },
             ),
           );
           return;

@@ -1,5 +1,9 @@
 /// Définit les rôles (profiles) d'utilisateurs autorisés à utiliser l'application.
 enum UserRole {
+  /// Super Administrateur : Possède un accès total avec gestion des saisons,
+  /// statistiques globales et administration complète.
+  supAdmin('sup_admin'),
+
   /// Administrateur : Possède un accès total à toutes les fonctionnalités de l'application,
   /// y compris la gestion des référentiels, des inscriptions et des SMS.
   admin('admin'),

@@ -278,7 +278,7 @@ Voir `docs/roles-matrix.md` pour la matrice complète des permissions.
   - Cache des données graphiques avec TTL de 10 minutes
   - Régénération au rafraîchissement
 
-##### T-104.6.1.9 - Indicateur de Synchronisation
+##### T-104.6.1.9 - Indicateur de Synchronisation [DONE]
 
 - **Objectif :** Afficher le statut de synchronisation en temps réel.
 - **Actions :**

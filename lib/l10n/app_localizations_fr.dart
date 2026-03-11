@@ -3385,4 +3385,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get smsManagement => 'Gestion des SMS';
+
+  @override
+  String get superAdmin => 'Super Admin';
+
+  @override
+  String get globalStatistics => 'Statistiques globales';
+
+  @override
+  String get totalSessions => 'Séances totales';
+
+  @override
+  String get totalAttendances => 'Présences totales';
+
+  @override
+  String get totalAnnotations => 'Annotations totales';
 }

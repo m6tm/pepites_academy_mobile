@@ -6133,6 +6133,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Gestion des SMS'**
   String get smsManagement;
+
+  /// No description provided for @superAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Super Admin'**
+  String get superAdmin;
+
+  /// No description provided for @globalStatistics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques globales'**
+  String get globalStatistics;
+
+  /// No description provided for @totalSessions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances totales'**
+  String get totalSessions;
+
+  /// No description provided for @totalAttendances.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présences totales'**
+  String get totalAttendances;
+
+  /// No description provided for @totalAnnotations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annotations totales'**
+  String get totalAnnotations;
 }
 
 class _AppLocalizationsDelegate
