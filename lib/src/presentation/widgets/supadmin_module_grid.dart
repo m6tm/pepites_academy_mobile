@@ -308,6 +308,7 @@ class _SupAdminModuleGridState extends State<SupAdminModuleGrid> {
         opacity: 0.4,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

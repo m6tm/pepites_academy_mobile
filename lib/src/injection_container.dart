@@ -341,6 +341,10 @@ class DependencyInjection {
     // Initialisation du service Dashboard
     dashboardService = DashboardService(repository: dashboardRepository);
 
+    // Initialisation du module Roles et Permissions
+    roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
+    roleService = RoleService(roleRepository: roleRepository);
+
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,
     );

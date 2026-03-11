@@ -194,7 +194,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
       data: {
         'id': seasonId,
         'name': name,
-        'start_date': startDate.toIso8601String(),
+        'start_date':
+            '${startDate.year.toString().padLeft(4, '0')}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}',
         'status': 'open',
       },
     );
@@ -205,7 +206,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
         ApiEndpoints.seasons,
         data: {
           'name': name,
-          'start_date': startDate.toIso8601String(),
+          'start_date':
+              '${startDate.year.toString().padLeft(4, '0')}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}',
           'status': 'open',
         },
       );
@@ -268,7 +270,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
       operationType: SyncOperationType.update,
       data: {
         'id': seasonId,
-        'end_date': endDate.toIso8601String(),
+        'end_date':
+            '${endDate.year.toString().padLeft(4, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}',
         'status': 'closed',
       },
     );
@@ -277,7 +280,10 @@ class DashboardRepositoryImpl implements DashboardRepository {
     try {
       final result = await _dioClient.put<dynamic>(
         '${ApiEndpoints.seasons}/$seasonId/close',
-        data: {'end_date': endDate.toIso8601String()},
+        data: {
+          'end_date':
+              '${endDate.year.toString().padLeft(4, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}',
+        },
       );
 
       return result.fold(

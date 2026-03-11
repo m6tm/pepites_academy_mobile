@@ -8,7 +8,6 @@ import '../../../../presentation/widgets/quick_action_tile.dart';
 import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../presentation/widgets/circular_progress_widget.dart';
-import '../../../../presentation/widgets/global_stats_card.dart';
 import '../../../../presentation/widgets/season_management_card.dart';
 import '../../../../presentation/widgets/supadmin_module_grid.dart';
 import '../../../../injection_container.dart';
@@ -49,7 +48,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   List<Activity> _activites = [];
   bool _activitesLoading = true;
   DashboardStats? _dashboardStats;
-  bool _statsIsFromCache = false;
   bool _statsIsLoading = false;
 
   @override
@@ -109,7 +107,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       if (mounted) {
         setState(() {
           _dashboardStats = stats;
-          _statsIsFromCache = isFromCache;
         });
       }
     } catch (_) {
@@ -129,7 +126,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       if (mounted) {
         setState(() {
           _dashboardStats = stats;
-          _statsIsFromCache = isFromCache;
           _statsIsLoading = false;
         });
       }
@@ -181,16 +177,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
         ),
         SliverToBoxAdapter(child: _buildWelcomeBanner(colorScheme, l10n)),
-        SliverToBoxAdapter(
-          child: GlobalStatsCard(
-            stats: _dashboardStats,
-            isFromCache: _statsIsFromCache,
-            isLoading: _statsIsLoading,
-            onRefresh: _rafraichirStats,
-            connectivityState: DependencyInjection.connectivityState,
-            syncState: DependencyInjection.syncState,
-          ),
-        ),
         SliverToBoxAdapter(
           child: SeasonManagementCard(
             currentSeason: _dashboardStats?.currentSeason,

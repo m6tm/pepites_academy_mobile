@@ -15,6 +15,7 @@ class Seance {
   final List<String> atelierIds;
   final int nbPresents;
   final int nbAteliers;
+  final String? seasonId;
 
   Seance({
     required this.id,
@@ -29,6 +30,7 @@ class Seance {
     this.atelierIds = const [],
     this.nbPresents = 0,
     this.nbAteliers = 0,
+    this.seasonId,
   });
 
   /// Cree une copie de la seance avec des champs modifies.
@@ -45,6 +47,7 @@ class Seance {
     List<String>? atelierIds,
     int? nbPresents,
     int? nbAteliers,
+    String? seasonId,
   }) {
     return Seance(
       id: id ?? this.id,
@@ -60,6 +63,7 @@ class Seance {
       atelierIds: atelierIds ?? this.atelierIds,
       nbPresents: nbPresents ?? this.nbPresents,
       nbAteliers: nbAteliers ?? this.nbAteliers,
+      seasonId: seasonId ?? this.seasonId,
     );
   }
 
@@ -78,6 +82,7 @@ class Seance {
       'atelierIds': atelierIds,
       'nbPresents': nbPresents,
       'nbAteliers': nbAteliers,
+      'seasonId': seasonId,
     };
   }
 
@@ -124,6 +129,7 @@ class Seance {
           json['nbPresents'] as int? ?? json['nb_presents'] as int? ?? 0,
       nbAteliers:
           json['nbAteliers'] as int? ?? json['nb_ateliers'] as int? ?? 0,
+      seasonId: json['seasonId'] as String? ?? json['season_id'] as String?,
     );
   }
 

@@ -243,6 +243,7 @@ class _SeasonManagementCardState extends State<SeasonManagementCard> {
     final l10n = AppLocalizations.of(context)!;
 
     return GlassmorphismCard(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
