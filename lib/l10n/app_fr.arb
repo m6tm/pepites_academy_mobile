@@ -438,6 +438,7 @@
   "no": "Non",
   "academicianRegistrationTitle": "Inscription Académicien",
   "academicianPhotoLabel": "Photo de l'académicien",
+  "parentPhotoLabel": "Photo du parent/tuteur",
   "optionalLabel": "(Optionnel)",
   "identityLabel": "Identité",
   "academicianPersonalDetails": "Informations personnelles de l'académicien",
@@ -448,6 +449,7 @@
   "academicianQrBadgeSubtitle": "Le badge QR unique de l'académicien a été généré avec succès. Vous pouvez le partager ou le télécharger.",
   "selectPosteAndPiedError": "Veuillez sélectionner un poste et un pied fort",
   "selectSchoolLevelError": "Veuillez sélectionner un niveau scolaire",
+  "genderRequiredError": "Veuillez sélectionner le genre",
   "galleryOpenError": "Impossible d'ouvrir la galerie",
   "academicianSaveError": "Impossible d'enregistrer l'académicien : {error}",
   "@academicianSaveError": {

@@ -26,6 +26,7 @@ class Academicien {
   final String? fonctionParent;
   final String? emailParent;
   final String? adresseParent;
+  final String? photoParentUrl;
   // Autres informations football
   final String? atouts;
   final String? faiblesses;
@@ -61,6 +62,7 @@ class Academicien {
     this.fonctionParent,
     this.emailParent,
     this.adresseParent,
+    this.photoParentUrl,
     this.atouts,
     this.faiblesses,
     this.descriptionPerformances,
@@ -97,6 +99,7 @@ class Academicien {
       'fonctionParent': fonctionParent,
       'emailParent': emailParent,
       'adresseParent': adresseParent,
+      'photoParentUrl': photoParentUrl,
       'atouts': atouts,
       'faiblesses': faiblesses,
       'descriptionPerformances': descriptionPerformances,
@@ -156,6 +159,9 @@ class Academicien {
           json['emailParent'] as String? ?? json['email_parent'] as String?,
       adresseParent:
           json['adresseParent'] as String? ?? json['adresse_parent'] as String?,
+      photoParentUrl:
+          json['photoParentUrl'] as String? ??
+          json['photo_parent_url'] as String?,
       atouts: json['atouts'] as String?,
       faiblesses: json['faiblesses'] as String?,
       descriptionPerformances:

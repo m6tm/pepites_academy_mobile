@@ -373,6 +373,7 @@
   "no": "No",
   "academicianRegistrationTitle": "Academician Registration",
   "academicianPhotoLabel": "Academician photo",
+  "parentPhotoLabel": "Parent/tutor photo",
   "optionalLabel": "(Optional)",
   "identityLabel": "Identity",
   "academicianPersonalDetails": "Academician personal details",
@@ -383,6 +384,7 @@
   "academicianQrBadgeSubtitle": "The unique QR badge of the academician has been successfully generated. You can share or download it.",
   "selectPosteAndPiedError": "Please select a position and a strong foot",
   "selectSchoolLevelError": "Please select a school level",
+  "genderRequiredError": "Please select the gender",
   "galleryOpenError": "Could not open gallery",
   "academicianSaveError": "Could not save academician: {error}",
   "@academicianSaveError": {

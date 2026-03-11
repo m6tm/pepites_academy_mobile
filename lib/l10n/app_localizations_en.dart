@@ -907,6 +907,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get academicianPhotoLabel => 'Academician photo';
 
   @override
+  String get parentPhotoLabel => 'Parent/tutor photo';
+
+  @override
   String get optionalLabel => '(Optional)';
 
   @override
@@ -937,6 +940,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectSchoolLevelError => 'Please select a school level';
+
+  @override
+  String get genderRequiredError => 'Please select the gender';
 
   @override
   String get galleryOpenError => 'Could not open gallery';

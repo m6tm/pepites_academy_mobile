@@ -33,12 +33,16 @@ class _AcademicienRegistrationPageState
   bool _isLoading = false;
   Academicien? _createdAcademicien;
 
-  // Photo
+  // Photo academicien
   File? _photoFile;
+  // Photo parent/tuteur
+  File? _photoParentFile;
   final _picker = ImagePicker();
 
   // Form keys
   final _step1Key = GlobalKey<FormState>();
+  final _step2Key = GlobalKey<FormState>();
+  final _step3Key = GlobalKey<FormState>();
 
   // Data Controllers - Step 1 (Informations personnelles)
   final _nomController = TextEditingController();
@@ -133,10 +137,19 @@ class _AcademicienRegistrationPageState
     bool isValid = false;
     if (_currentStep == 0) {
       isValid = _step1Key.currentState!.validate();
+      if (isValid && _selectedSexe == null) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.genderRequiredError,
+          isError: true,
+        );
+        isValid = false;
+      }
     } else if (_currentStep == 1) {
-      isValid = true; // Contact step - optional fields
+      isValid = _step2Key.currentState!.validate();
     } else if (_currentStep == 2) {
-      isValid = true; // Parent step - optional fields
+      isValid = _step3Key.currentState!.validate();
     } else if (_currentStep == 3) {
       if (_selectedPosteId == null) {
         AcademyToast.show(
@@ -231,6 +244,7 @@ class _AcademicienRegistrationPageState
         adresseParent: _adresseParentController.text.trim().isNotEmpty
             ? _adresseParentController.text.trim()
             : null,
+        photoParentUrl: _photoParentFile?.path,
         atouts: _atoutsController.text.trim().isNotEmpty
             ? _atoutsController.text.trim()
             : null,
@@ -297,6 +311,28 @@ class _AcademicienRegistrationPageState
       }
     } catch (e) {
       debugPrint('Erreur selection image: $e');
+      if (mounted) {
+        AcademyToast.show(
+          context,
+          title: l10n.error,
+          description: l10n.galleryOpenError,
+          isError: true,
+        );
+      }
+    }
+  }
+
+  Future<void> _pickParentImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (pickedFile != null) {
+        setState(() => _photoParentFile = File(pickedFile.path));
+      }
+    } catch (e) {
+      debugPrint('Erreur selection image parent: $e');
       if (mounted) {
         AcademyToast.show(
           context,
@@ -729,6 +765,8 @@ class _AcademicienRegistrationPageState
               label: l10n.birthPlaceLabel,
               hint: l10n.birthPlaceHint,
               icon: Icons.place_outlined,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
             const SizedBox(height: 20),
             _buildTextField(
@@ -736,6 +774,8 @@ class _AcademicienRegistrationPageState
               label: l10n.nationalityLabel,
               hint: l10n.nationalityHint,
               icon: Icons.flag_outlined,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
             const SizedBox(height: 20),
             Text(
@@ -778,63 +818,172 @@ class _AcademicienRegistrationPageState
   Widget _buildStep2(ThemeData theme, ColorScheme colorScheme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
+      child: Form(
+        key: _step2Key,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(l10n.contactLabel, l10n.contactSubtitle),
+            const SizedBox(height: 32),
+            _buildTextField(
+              controller: _telephoneEleveController,
+              label: l10n.studentPhoneLabel,
+              hint: l10n.phoneHint,
+              icon: Icons.phone_android_outlined,
+              keyboardType: TextInputType.phone,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _telephoneParentController,
+              label: l10n.parentPhoneLabel,
+              hint: l10n.phoneHint,
+              icon: Icons.phone_android_outlined,
+              keyboardType: TextInputType.phone,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _tailleController,
+              label: l10n.heightLabel,
+              hint: l10n.heightHint,
+              icon: Icons.height_outlined,
+              keyboardType: TextInputType.number,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _emailController,
+              label: l10n.emailLabel,
+              hint: l10n.emailHint,
+              icon: Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _whatsappController,
+              label: 'WhatsApp',
+              hint: l10n.phoneHint,
+              icon: Icons.chat_outlined,
+              keyboardType: TextInputType.phone,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _twitterController,
+              label: 'Twitter',
+              hint: '@username',
+              icon: Icons.alternate_email,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _facebookController,
+              label: 'Facebook',
+              hint: l10n.facebookHint,
+              icon: Icons.facebook_outlined,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhotoParentPicker(bool isDark) {
+    final baseColor = isDark ? Colors.white : Colors.black;
+
+    return Center(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader(l10n.contactLabel, l10n.contactSubtitle),
-          const SizedBox(height: 32),
-          _buildTextField(
-            controller: _telephoneEleveController,
-            label: l10n.studentPhoneLabel,
-            hint: l10n.phoneHint,
-            icon: Icons.phone_android_outlined,
-            keyboardType: TextInputType.phone,
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(60),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: baseColor.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(60),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                        width: 3,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(57),
+                      child: _photoParentFile != null
+                          ? Image.file(_photoParentFile!, fit: BoxFit.cover)
+                          : Icon(
+                              Icons.person_outline_rounded,
+                              size: 50,
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: _pickParentImage,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _telephoneParentController,
-            label: l10n.parentPhoneLabel,
-            hint: l10n.phoneHint,
-            icon: Icons.phone_android_outlined,
-            keyboardType: TextInputType.phone,
+          const SizedBox(height: 12),
+          Text(
+            l10n.parentPhotoLabel,
+            style: GoogleFonts.montserrat(
+              color: isDark
+                  ? AppColors.textMutedDark
+                  : AppColors.textMutedLight,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _tailleController,
-            label: l10n.heightLabel,
-            hint: l10n.heightHint,
-            icon: Icons.height_outlined,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _emailController,
-            label: l10n.emailLabel,
-            hint: l10n.emailHint,
-            icon: Icons.email_outlined,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _whatsappController,
-            label: 'WhatsApp',
-            hint: l10n.phoneHint,
-            icon: Icons.chat_outlined,
-            keyboardType: TextInputType.phone,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _twitterController,
-            label: 'Twitter',
-            hint: '@username',
-            icon: Icons.alternate_email,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _facebookController,
-            label: 'Facebook',
-            hint: l10n.facebookHint,
-            icon: Icons.facebook_outlined,
+          Text(
+            l10n.optionalLabel,
+            style: GoogleFonts.montserrat(
+              color: isDark
+                  ? AppColors.textMutedDark.withValues(alpha: 0.6)
+                  : AppColors.textMutedLight.withValues(alpha: 0.6),
+              fontSize: 11,
+            ),
           ),
         ],
       ),
@@ -845,40 +994,53 @@ class _AcademicienRegistrationPageState
   Widget _buildStep3(ThemeData theme, ColorScheme colorScheme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(l10n.parentInfoLabel, l10n.parentInfoSubtitle),
-          const SizedBox(height: 32),
-          _buildTextField(
-            controller: _nomParentController,
-            label: l10n.parentNameLabel,
-            hint: l10n.parentNameHint,
-            icon: Icons.person_outline,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _fonctionParentController,
-            label: l10n.parentFunctionLabel,
-            hint: l10n.parentFunctionHint,
-            icon: Icons.work_outline,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _emailParentController,
-            label: l10n.parentEmailLabel,
-            hint: l10n.emailHint,
-            icon: Icons.email_outlined,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _adresseParentController,
-            label: l10n.parentAddressLabel,
-            hint: l10n.parentAddressHint,
-            icon: Icons.home_outlined,
-          ),
-        ],
+      child: Form(
+        key: _step3Key,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(l10n.parentInfoLabel, l10n.parentInfoSubtitle),
+            const SizedBox(height: 32),
+            _buildPhotoParentPicker(theme.brightness == Brightness.dark),
+            const SizedBox(height: 32),
+            _buildTextField(
+              controller: _nomParentController,
+              label: l10n.parentNameLabel,
+              hint: l10n.parentNameHint,
+              icon: Icons.person_outline,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _fonctionParentController,
+              label: l10n.parentFunctionLabel,
+              hint: l10n.parentFunctionHint,
+              icon: Icons.work_outline,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _emailParentController,
+              label: l10n.parentEmailLabel,
+              hint: l10n.emailHint,
+              icon: Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _adresseParentController,
+              label: l10n.parentAddressLabel,
+              hint: l10n.parentAddressHint,
+              icon: Icons.home_outlined,
+              validator: (v) =>
+                  v == null || v.isEmpty ? l10n.requiredField : null,
+            ),
+          ],
+        ),
       ),
     );
   }

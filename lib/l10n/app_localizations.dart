@@ -1772,6 +1772,12 @@ abstract class AppLocalizations {
   /// **'Photo de l\'académicien'**
   String get academicianPhotoLabel;
 
+  /// No description provided for @parentPhotoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du parent/tuteur'**
+  String get parentPhotoLabel;
+
   /// No description provided for @optionalLabel.
   ///
   /// In fr, this message translates to:
@@ -1831,6 +1837,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Veuillez sélectionner un niveau scolaire'**
   String get selectSchoolLevelError;
+
+  /// No description provided for @genderRequiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez sélectionner le genre'**
+  String get genderRequiredError;
 
   /// No description provided for @galleryOpenError.
   ///
