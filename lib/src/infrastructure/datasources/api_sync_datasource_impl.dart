@@ -255,7 +255,7 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
 
   /// Transforme le payload mobile vers le format attendu par l'API backend.
   /// Convertit les noms de champs camelCase vers snake_case.
-  /// Convertit les photos locales en base64 pour l'upload.
+  /// Les URLs sont envoyees directement (upload via /v1/upload/photo).
   Map<String, dynamic> _transformPayloadForApi(
     Map<String, dynamic> payload, {
     bool isCreate = false,
@@ -265,50 +265,6 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     for (final entry in payload.entries) {
       final key = _camelToSnake(entry.key);
       var value = entry.value;
-
-      // Conversion des photos locales en base64
-      if (key == 'photo_url' && value is String && value.isNotEmpty) {
-        final photoBase64 = _convertPhotoToBase64(value);
-        if (photoBase64 != null) {
-          transformed['photo_base64'] = photoBase64;
-          continue;
-        }
-      }
-
-      // Conversion de la photo du parent/tuteur en base64
-      if (key == 'photo_parent_url' && value is String && value.isNotEmpty) {
-        final photoBase64 = _convertPhotoToBase64(value);
-        if (photoBase64 != null) {
-          transformed['photo_parent_base64'] = photoBase64;
-          continue;
-        }
-      }
-
-      // Conversion des signatures locales en base64
-      if (key == 'signature_academicien_url' &&
-          value is String &&
-          value.isNotEmpty) {
-        final signatureBase64 = _convertPhotoToBase64(value);
-        if (signatureBase64 != null) {
-          transformed['signature_academicien_base64'] = signatureBase64;
-          continue;
-        }
-      }
-
-      if (key == 'signature_parent_url' &&
-          value is String &&
-          value.isNotEmpty) {
-        final signatureBase64 = _convertPhotoToBase64(value);
-        if (signatureBase64 != null) {
-          transformed['signature_parent_base64'] = signatureBase64;
-          continue;
-        }
-      }
-
-      // Conversion spéciale pour certains champs
-      if (key == 'photo_url' && value is String && value.isEmpty) {
-        value = '';
-      }
 
       // Conversion des dates ISO en format date uniquement (YYYY-MM-DD)
       if ((key == 'date_naissance' || key == 'date') &&
@@ -333,39 +289,6 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     }
 
     return transformed;
-  }
-
-  /// Convertit une photo locale en base64.
-  /// Retourne null si le chemin n'est pas un fichier local valide.
-  String? _convertPhotoToBase64(String photoPath) {
-    // Ignorer les URLs distantes
-    if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
-      return null;
-    }
-
-    // Ignorer les chemins vides ou invalides
-    if (photoPath.isEmpty || photoPath.length < 3) {
-      return null;
-    }
-
-    try {
-      final file = File(photoPath);
-      if (file.existsSync()) {
-        final bytes = file.readAsBytesSync();
-        // Limiter la taille pour éviter les problèmes de mémoire (max 5MB)
-        if (bytes.length > 5 * 1024 * 1024) {
-          return null;
-        }
-        final base64String = base64Encode(bytes);
-        // Ajouter le préfixe data URI
-        return 'data:image/jpeg;base64,$base64String';
-      }
-    } catch (e) {
-      // Ignorer les erreurs de lecture de fichier
-      // ignore: avoid_print
-      print('[ApiSync] Erreur lecture photo: $e');
-    }
-    return null;
   }
 
   /// Convertit une chaîne camelCase en snake_case.

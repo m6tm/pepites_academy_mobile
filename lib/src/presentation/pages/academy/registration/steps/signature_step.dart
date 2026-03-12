@@ -3,31 +3,44 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
+import 'package:pepites_academy_mobile/src/infrastructure/services/upload_service.dart';
+import 'package:pepites_academy_mobile/src/injection_container.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 import 'package:pepites_academy_mobile/src/presentation/utils/image_compressor.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/signature_pad.dart';
 
 /// Widget permettant l'upload des signatures de l'academicien et du parent/tuteur.
 /// La signature de l'academicien est obligatoire, celle du parent est optionnelle.
+/// L'upload est effectue immediatement vers le serveur et l'URL est retournee.
 class SignatureStep extends StatefulWidget {
-  /// Fichier de la signature de l'academicien
-  final File? signatureAcademicien;
+  /// Fichier local de la signature de l'academicien (pour affichage)
+  final File? signatureAcademicienFile;
 
-  /// Fichier de la signature du parent/tuteur
-  final File? signatureParent;
+  /// URL de la signature de l'academicien (apres upload)
+  final String? signatureAcademicienUrl;
+
+  /// Fichier local de la signature du parent/tuteur (pour affichage)
+  final File? signatureParentFile;
+
+  /// URL de la signature du parent/tuteur (apres upload)
+  final String? signatureParentUrl;
 
   /// Callback appele lors du changement de la signature de l'academicien
-  final ValueChanged<File?> onAcademicienSignatureChanged;
+  /// Retourne le fichier local et l'URL serveur
+  final void Function(File? file, String? url)? onAcademicienSignatureChanged;
 
   /// Callback appele lors du changement de la signature du parent
-  final ValueChanged<File?> onParentSignatureChanged;
+  /// Retourne le fichier local et l'URL serveur
+  final void Function(File? file, String? url)? onParentSignatureChanged;
 
   const SignatureStep({
     super.key,
-    this.signatureAcademicien,
-    this.signatureParent,
-    required this.onAcademicienSignatureChanged,
-    required this.onParentSignatureChanged,
+    this.signatureAcademicienFile,
+    this.signatureAcademicienUrl,
+    this.signatureParentFile,
+    this.signatureParentUrl,
+    this.onAcademicienSignatureChanged,
+    this.onParentSignatureChanged,
   });
 
   @override
@@ -36,12 +49,87 @@ class SignatureStep extends StatefulWidget {
 
 class _SignatureStepState extends State<SignatureStep> {
   final _picker = ImagePicker();
+  bool _isUploadingAcademicien = false;
+  bool _isUploadingParent = false;
+  bool _hasUploadErrorAcademicien = false;
+  bool _hasUploadErrorParent = false;
+  File? _pendingAcademicienFile;
+  File? _pendingParentFile;
+
+  /// Upload une image et retourne l'URL
+  Future<String?> _uploadImage(File file, UploadType type) async {
+    try {
+      final result = await DependencyInjection.uploadService.uploadImage(
+        file,
+        type,
+      );
+      if (result.success && result.url != null) {
+        return result.url;
+      }
+    } catch (e) {
+      debugPrint('Erreur upload: $e');
+    }
+    return null;
+  }
+
+  /// Retry l'upload pour l'academicien
+  Future<void> _retryAcademicienUpload() async {
+    if (_pendingAcademicienFile == null) return;
+    setState(() {
+      _isUploadingAcademicien = true;
+      _hasUploadErrorAcademicien = false;
+    });
+    final url = await _uploadImage(
+      _pendingAcademicienFile!,
+      UploadType.signatureAcademicien,
+    );
+    if (mounted) {
+      setState(() {
+        _isUploadingAcademicien = false;
+        if (url != null) {
+          _hasUploadErrorAcademicien = false;
+          _pendingAcademicienFile = null;
+          widget.onAcademicienSignatureChanged?.call(
+            _pendingAcademicienFile,
+            url,
+          );
+        } else {
+          _hasUploadErrorAcademicien = true;
+        }
+      });
+    }
+  }
+
+  /// Retry l'upload pour le parent
+  Future<void> _retryParentUpload() async {
+    if (_pendingParentFile == null) return;
+    setState(() {
+      _isUploadingParent = true;
+      _hasUploadErrorParent = false;
+    });
+    final url = await _uploadImage(
+      _pendingParentFile!,
+      UploadType.signatureParent,
+    );
+    if (mounted) {
+      setState(() {
+        _isUploadingParent = false;
+        if (url != null) {
+          _hasUploadErrorParent = false;
+          _pendingParentFile = null;
+          widget.onParentSignatureChanged?.call(_pendingParentFile, url);
+        } else {
+          _hasUploadErrorParent = true;
+        }
+      });
+    }
+  }
 
   /// Ouvre le dialogue de signature pour dessiner directement
   Future<void> _openSignaturePad(bool isAcademicien) async {
     final file = await SignatureDialog.show(context);
     if (file != null) {
-      // Compresser la signature comme pour l'import de galerie
+      // Compresser la signature
       final compressedFile = await ImageCompressor.compress(
         imageFile: file,
         quality: 85,
@@ -49,10 +137,48 @@ class _SignatureStepState extends State<SignatureStep> {
         maxHeight: 1024,
       );
       if (compressedFile != null) {
-        if (isAcademicien) {
-          widget.onAcademicienSignatureChanged(compressedFile);
-        } else {
-          widget.onParentSignatureChanged(compressedFile);
+        // Upload immediat vers le serveur
+        setState(() {
+          if (isAcademicien) {
+            _isUploadingAcademicien = true;
+          } else {
+            _isUploadingParent = true;
+          }
+        });
+
+        final uploadType = isAcademicien
+            ? UploadType.signatureAcademicien
+            : UploadType.signatureParent;
+        final url = await _uploadImage(compressedFile, uploadType);
+
+        if (mounted) {
+          setState(() {
+            if (isAcademicien) {
+              _isUploadingAcademicien = false;
+              if (url != null) {
+                _hasUploadErrorAcademicien = false;
+                _pendingAcademicienFile = null;
+              } else {
+                _hasUploadErrorAcademicien = true;
+                _pendingAcademicienFile = compressedFile;
+              }
+            } else {
+              _isUploadingParent = false;
+              if (url != null) {
+                _hasUploadErrorParent = false;
+                _pendingParentFile = null;
+              } else {
+                _hasUploadErrorParent = true;
+                _pendingParentFile = compressedFile;
+              }
+            }
+          });
+
+          if (isAcademicien) {
+            widget.onAcademicienSignatureChanged?.call(compressedFile, url);
+          } else {
+            widget.onParentSignatureChanged?.call(compressedFile, url);
+          }
         }
       }
     }
@@ -66,7 +192,7 @@ class _SignatureStepState extends State<SignatureStep> {
         imageQuality: 100,
       );
       if (pickedFile != null) {
-        // Compresser l'image avant de la stocker
+        // Compresser l'image
         final compressedFile = await ImageCompressor.compress(
           imageFile: File(pickedFile.path),
           quality: 85,
@@ -74,10 +200,48 @@ class _SignatureStepState extends State<SignatureStep> {
           maxHeight: 1024,
         );
         if (compressedFile != null) {
-          if (isAcademicien) {
-            widget.onAcademicienSignatureChanged(compressedFile);
-          } else {
-            widget.onParentSignatureChanged(compressedFile);
+          // Upload immediat vers le serveur
+          setState(() {
+            if (isAcademicien) {
+              _isUploadingAcademicien = true;
+            } else {
+              _isUploadingParent = true;
+            }
+          });
+
+          final uploadType = isAcademicien
+              ? UploadType.signatureAcademicien
+              : UploadType.signatureParent;
+          final url = await _uploadImage(compressedFile, uploadType);
+
+          if (mounted) {
+            setState(() {
+              if (isAcademicien) {
+                _isUploadingAcademicien = false;
+                if (url != null) {
+                  _hasUploadErrorAcademicien = false;
+                  _pendingAcademicienFile = null;
+                } else {
+                  _hasUploadErrorAcademicien = true;
+                  _pendingAcademicienFile = compressedFile;
+                }
+              } else {
+                _isUploadingParent = false;
+                if (url != null) {
+                  _hasUploadErrorParent = false;
+                  _pendingParentFile = null;
+                } else {
+                  _hasUploadErrorParent = true;
+                  _pendingParentFile = compressedFile;
+                }
+              }
+            });
+
+            if (isAcademicien) {
+              widget.onAcademicienSignatureChanged?.call(compressedFile, url);
+            } else {
+              widget.onParentSignatureChanged?.call(compressedFile, url);
+            }
           }
         }
       }
@@ -207,12 +371,22 @@ class _SignatureStepState extends State<SignatureStep> {
             context: context,
             title: l10n.academicienSignatureLabel,
             subtitle: l10n.academicienSignatureDesc,
-            signatureFile: widget.signatureAcademicien,
+            signatureFile: widget.signatureAcademicienFile,
+            signatureUrl: widget.signatureAcademicienUrl,
+            isUploading: _isUploadingAcademicien,
+            hasUploadError: _hasUploadErrorAcademicien,
             isRequired: true,
             isDark: isDark,
             colorScheme: colorScheme,
             onPick: () => _pickSignature(true),
-            onRemove: () => widget.onAcademicienSignatureChanged(null),
+            onRemove: () {
+              setState(() {
+                _hasUploadErrorAcademicien = false;
+                _pendingAcademicienFile = null;
+              });
+              widget.onAcademicienSignatureChanged?.call(null, null);
+            },
+            onRetry: _retryAcademicienUpload,
           ),
 
           const SizedBox(height: 24),
@@ -222,12 +396,22 @@ class _SignatureStepState extends State<SignatureStep> {
             context: context,
             title: l10n.parentSignatureLabel,
             subtitle: l10n.parentSignatureDesc,
-            signatureFile: widget.signatureParent,
+            signatureFile: widget.signatureParentFile,
+            signatureUrl: widget.signatureParentUrl,
+            isUploading: _isUploadingParent,
+            hasUploadError: _hasUploadErrorParent,
             isRequired: false,
             isDark: isDark,
             colorScheme: colorScheme,
             onPick: () => _pickSignature(false),
-            onRemove: () => widget.onParentSignatureChanged(null),
+            onRemove: () {
+              setState(() {
+                _hasUploadErrorParent = false;
+                _pendingParentFile = null;
+              });
+              widget.onParentSignatureChanged?.call(null, null);
+            },
+            onRetry: _retryParentUpload,
           ),
 
           const SizedBox(height: 24),
@@ -268,11 +452,15 @@ class _SignatureStepState extends State<SignatureStep> {
     required String title,
     required String subtitle,
     required File? signatureFile,
+    String? signatureUrl,
+    bool isUploading = false,
+    bool hasUploadError = false,
     required bool isRequired,
     required bool isDark,
     required ColorScheme colorScheme,
     required VoidCallback onPick,
     required VoidCallback onRemove,
+    VoidCallback? onRetry,
   }) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -368,7 +556,74 @@ class _SignatureStepState extends State<SignatureStep> {
                   width: signatureFile != null ? 2 : 1,
                 ),
               ),
-              child: signatureFile != null
+              child: isUploading
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Upload en cours...',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 13,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : hasUploadError
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 28,
+                          color: Colors.red.shade400,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Echec de l\'upload',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            color: Colors.red.shade400,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        ElevatedButton.icon(
+                          onPressed: onRetry,
+                          icon: const Icon(Icons.refresh, size: 16),
+                          label: Text(
+                            'Reessayer',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : signatureFile != null
                   ? Stack(
                       children: [
                         ClipRRect(

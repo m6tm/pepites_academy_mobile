@@ -11,6 +11,7 @@ import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../../injection_container.dart';
+import '../../../infrastructure/services/upload_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/image_compressor.dart';
 import '../../widgets/academy_toast.dart';
@@ -46,10 +47,18 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
 
   // Photo
   File? _photoFile;
+  String? _photoUrl;
+  bool _isUploadingPhoto = false;
+  bool _hasPhotoUploadError = false;
   File? _photoParentFile;
+  String? _photoParentUrl;
+  bool _isUploadingPhotoParent = false;
+  bool _hasPhotoParentUploadError = false;
   // Signatures
   File? _signatureAcademicienFile;
+  String? _signatureAcademicienUrl;
   File? _signatureParentFile;
+  String? _signatureParentUrl;
   final _picker = ImagePicker();
 
   // Form keys
@@ -252,9 +261,10 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         isValid = true;
       }
     } else if (_currentStep == 6) {
-      // Validation signatures - seule la signature de l'academicien est obligatoire
+      // Validation signatures - verification basee sur l'URL serveur
       final hasAcademicienSignature =
-          _signatureAcademicienFile != null ||
+          (_signatureAcademicienUrl != null &&
+              _signatureAcademicienUrl!.isNotEmpty) ||
           (widget.academicien.signatureAcademicienUrl != null &&
               widget.academicien.signatureAcademicienUrl!.isNotEmpty);
 
@@ -296,7 +306,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         lieuNaissance: _lieuNaissanceController.text.trim(),
         nationalite: _nationaliteController.text.trim(),
         sexe: _selectedSexe ?? '',
-        photoUrl: _photoFile?.path ?? current.photoUrl,
+        photoUrl: _photoUrl ?? _photoFile?.path ?? current.photoUrl,
         telephoneEleve: _telephoneEleveController.text.trim(),
         telephoneParent: _telephoneParentController.text.trim(),
         taille: int.tryParse(_tailleController.text.trim()) ?? 0,
@@ -333,11 +343,16 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             : null,
         aimeTravailGroupe: _aimeTravailGroupe,
         historiqueParcours: _historiqueParcours,
-        photoParentUrl: _photoParentFile?.path ?? current.photoParentUrl,
+        photoParentUrl:
+            _photoParentUrl ?? _photoParentFile?.path ?? current.photoParentUrl,
         signatureAcademicienUrl:
-            _signatureAcademicienFile?.path ?? current.signatureAcademicienUrl,
+            _signatureAcademicienUrl ??
+            _signatureAcademicienFile?.path ??
+            current.signatureAcademicienUrl,
         signatureParentUrl:
-            _signatureParentFile?.path ?? current.signatureParentUrl,
+            _signatureParentUrl ??
+            _signatureParentFile?.path ??
+            current.signatureParentUrl,
       );
 
       final updated = await widget.repository.update(academicien);
@@ -389,7 +404,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           maxHeight: 1024,
         );
         if (compressedFile != null) {
-          setState(() => _photoFile = compressedFile);
+          await _uploadPhoto(compressedFile, isParent: false);
         }
       }
     } catch (e) {
@@ -420,7 +435,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           maxHeight: 1024,
         );
         if (compressedFile != null) {
-          setState(() => _photoParentFile = compressedFile);
+          await _uploadPhoto(compressedFile, isParent: true);
         }
       }
     } catch (e) {
@@ -434,6 +449,76 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         );
       }
     }
+  }
+
+  /// Upload une photo avec gestion d'erreur
+  Future<void> _uploadPhoto(File file, {required bool isParent}) async {
+    setState(() {
+      if (isParent) {
+        _isUploadingPhotoParent = true;
+        _hasPhotoParentUploadError = false;
+      } else {
+        _isUploadingPhoto = true;
+        _hasPhotoUploadError = false;
+      }
+    });
+
+    try {
+      final result = await DependencyInjection.uploadService.uploadImage(
+        file,
+        isParent ? UploadType.photoParent : UploadType.portrait,
+      );
+      if (mounted) {
+        setState(() {
+          if (isParent) {
+            _isUploadingPhotoParent = false;
+            _photoParentFile = file;
+            if (result.success && result.url != null) {
+              _photoParentUrl = result.url;
+              _hasPhotoParentUploadError = false;
+            } else {
+              _hasPhotoParentUploadError = true;
+            }
+          } else {
+            _isUploadingPhoto = false;
+            _photoFile = file;
+            if (result.success && result.url != null) {
+              _photoUrl = result.url;
+              _hasPhotoUploadError = false;
+            } else {
+              _hasPhotoUploadError = true;
+            }
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Erreur upload photo: $e');
+      if (mounted) {
+        setState(() {
+          if (isParent) {
+            _isUploadingPhotoParent = false;
+            _photoParentFile = file;
+            _hasPhotoParentUploadError = true;
+          } else {
+            _isUploadingPhoto = false;
+            _photoFile = file;
+            _hasPhotoUploadError = true;
+          }
+        });
+      }
+    }
+  }
+
+  /// Retry l'upload de la photo academicien
+  Future<void> _retryPhotoUpload() async {
+    if (_photoFile == null) return;
+    await _uploadPhoto(_photoFile!, isParent: false);
+  }
+
+  /// Retry l'upload de la photo parent
+  Future<void> _retryPhotoParentUpload() async {
+    if (_photoParentFile == null) return;
+    await _uploadPhoto(_photoParentFile!, isParent: true);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -740,7 +825,53 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(57),
-                      child: _photoFile != null
+                      child: _isUploadingPhoto
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Upload...',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 10,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : _hasPhotoUploadError && _photoFile != null
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 32,
+                                  color: Colors.red.shade400,
+                                ),
+                                const SizedBox(height: 4),
+                                TextButton(
+                                  onPressed: _retryPhotoUpload,
+                                  child: Text(
+                                    'Reessayer',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : _photoFile != null
                           ? Image.file(_photoFile!, fit: BoxFit.cover)
                           : widget.academicien.photoUrl.isNotEmpty
                           ? Image.network(
@@ -849,7 +980,54 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(57),
-                      child: _photoParentFile != null
+                      child: _isUploadingPhotoParent
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Upload...',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 10,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : _hasPhotoParentUploadError &&
+                                _photoParentFile != null
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 32,
+                                  color: Colors.red.shade400,
+                                ),
+                                const SizedBox(height: 4),
+                                TextButton(
+                                  onPressed: _retryPhotoParentUpload,
+                                  child: Text(
+                                    'Reessayer',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : _photoParentFile != null
                           ? Image.file(_photoParentFile!, fit: BoxFit.cover)
                           : Icon(
                               Icons.person_outline_rounded,
@@ -1565,13 +1743,21 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   // --- Step 7: Signatures ---
   Widget _buildStep7(ThemeData theme, ColorScheme colorScheme) {
     return SignatureStep(
-      signatureAcademicien: _signatureAcademicienFile,
-      signatureParent: _signatureParentFile,
-      onAcademicienSignatureChanged: (file) {
-        setState(() => _signatureAcademicienFile = file);
+      signatureAcademicienFile: _signatureAcademicienFile,
+      signatureAcademicienUrl: _signatureAcademicienUrl,
+      signatureParentFile: _signatureParentFile,
+      signatureParentUrl: _signatureParentUrl,
+      onAcademicienSignatureChanged: (file, url) {
+        setState(() {
+          _signatureAcademicienFile = file;
+          _signatureAcademicienUrl = url;
+        });
       },
-      onParentSignatureChanged: (file) {
-        setState(() => _signatureParentFile = file);
+      onParentSignatureChanged: (file, url) {
+        setState(() {
+          _signatureParentFile = file;
+          _signatureParentUrl = url;
+        });
       },
     );
   }

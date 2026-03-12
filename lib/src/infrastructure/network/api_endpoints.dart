@@ -91,6 +91,6 @@ class ApiEndpoints {
       '/roles/users/$userId/history';
 
   /// Délais d'expiration des requêtes (en millisecondes).
-  static const int receiveTimeout = 15000;
-  static const int connectionTimeout = 15000;
+  static const int receiveTimeout = 60000; // 1 minute
+  static const int connectionTimeout = 60000; // 1 minute
 }
