@@ -212,6 +212,33 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
         _academicien = academicienComplet;
       }
 
+      // Verifier que les deux signatures sont presentes pour generer la fiche
+      if (_academicien.signatureAcademicienUrl == null ||
+          _academicien.signatureAcademicienUrl!.isEmpty) {
+        if (mounted) {
+          AcademyToast.show(
+            context,
+            title: l10n.requiredLabel,
+            description: l10n.signatureRequiredError,
+            isError: true,
+          );
+        }
+        return;
+      }
+
+      if (_academicien.signatureParentUrl == null ||
+          _academicien.signatureParentUrl!.isEmpty) {
+        if (mounted) {
+          AcademyToast.show(
+            context,
+            title: l10n.requiredLabel,
+            description: l10n.parentSignatureRequiredError,
+            isError: true,
+          );
+        }
+        return;
+      }
+
       final service = RegistrationFormService();
       final file = await service.genererFicheInscription(
         academicien: _academicien,

@@ -14,6 +14,7 @@ import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/image_compressor.dart';
 import '../../widgets/academy_toast.dart';
+import 'registration/steps/signature_step.dart';
 
 /// Page d'inscription pour un nouvel académicien.
 /// Processus étape par étape (Step-by-Step) avec design premium.
@@ -30,7 +31,7 @@ class _AcademicienRegistrationPageState
   final PageController _pageController = PageController();
   AppLocalizations get l10n => AppLocalizations.of(context)!;
   int _currentStep = 0;
-  final int _totalSteps = 7;
+  final int _totalSteps = 8;
   bool _isLoading = false;
   Academicien? _createdAcademicien;
 
@@ -38,6 +39,9 @@ class _AcademicienRegistrationPageState
   File? _photoFile;
   // Photo parent/tuteur
   File? _photoParentFile;
+  // Signatures
+  File? _signatureAcademicienFile;
+  File? _signatureParentFile;
   final _picker = ImagePicker();
 
   // Form keys
@@ -185,10 +189,22 @@ class _AcademicienRegistrationPageState
       } else {
         isValid = true;
       }
+    } else if (_currentStep == 6) {
+      // Validation signatures - seule la signature de l'academicien est obligatoire
+      if (_signatureAcademicienFile == null) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.signatureRequiredError,
+          isError: true,
+        );
+      } else {
+        isValid = true;
+      }
     }
 
     if (isValid && _currentStep < _totalSteps - 1) {
-      if (_currentStep == 5) {
+      if (_currentStep == 6) {
         _confirmAndCreate();
       } else {
         _pageController.nextPage(
@@ -251,6 +267,8 @@ class _AcademicienRegistrationPageState
             : null,
         aimeTravailGroupe: _aimeTravailGroupe,
         historiqueParcours: _historiqueParcours,
+        signatureAcademicienUrl: _signatureAcademicienFile?.path,
+        signatureParentUrl: _signatureParentFile?.path,
       );
 
       final created = await DependencyInjection.academicienRepository.create(
@@ -428,6 +446,7 @@ class _AcademicienRegistrationPageState
                 _buildStep5(theme, colorScheme),
                 _buildStep6(theme, colorScheme),
                 _buildStep7(theme, colorScheme),
+                _buildStep8(theme, colorScheme),
               ],
             ),
           ),
@@ -497,9 +516,10 @@ class _AcademicienRegistrationPageState
             duration: const Duration(milliseconds: 500),
             height: 6,
             width:
-                MediaQuery.of(context).size.width *
-                    ((_currentStep + 1) / _totalSteps) -
-                48,
+                (MediaQuery.of(context).size.width *
+                            ((_currentStep + 1) / _totalSteps) -
+                        48)
+                    .clamp(0.0, double.infinity),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.secondary],
@@ -1435,7 +1455,21 @@ class _AcademicienRegistrationPageState
     );
   }
 
-  // --- Step 7: Recap & QR ---
+  // --- Step 7: Signatures ---
+  Widget _buildStep7(ThemeData theme, ColorScheme colorScheme) {
+    return SignatureStep(
+      signatureAcademicien: _signatureAcademicienFile,
+      signatureParent: _signatureParentFile,
+      onAcademicienSignatureChanged: (file) {
+        setState(() => _signatureAcademicienFile = file);
+      },
+      onParentSignatureChanged: (file) {
+        setState(() => _signatureParentFile = file);
+      },
+    );
+  }
+
+  // --- Step 8: Recap & QR ---
 
   String? _generatedQrCode;
 
@@ -1474,7 +1508,7 @@ class _AcademicienRegistrationPageState
         .nom;
   }
 
-  Widget _buildStep7(ThemeData theme, ColorScheme colorScheme) {
+  Widget _buildStep8(ThemeData theme, ColorScheme colorScheme) {
     if (_createdAcademicien == null) {
       return const Center(child: CircularProgressIndicator());
     }

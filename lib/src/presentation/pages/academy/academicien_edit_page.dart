@@ -14,6 +14,7 @@ import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/image_compressor.dart';
 import '../../widgets/academy_toast.dart';
+import 'registration/steps/signature_step.dart';
 
 /// Page de modification du profil d'un académicien.
 /// Formulaire pré-rempli avec les données actuelles.
@@ -39,13 +40,16 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   final PageController _pageController = PageController();
   AppLocalizations get l10n => AppLocalizations.of(context)!;
   int _currentStep = 0;
-  final int _totalSteps = 7;
+  final int _totalSteps = 8;
   bool _isLoading = false;
   Academicien? _updatedAcademicien;
 
   // Photo
   File? _photoFile;
   File? _photoParentFile;
+  // Signatures
+  File? _signatureAcademicienFile;
+  File? _signatureParentFile;
   final _picker = ImagePicker();
 
   // Form keys
@@ -145,6 +149,17 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         File(a.photoParentUrl!).existsSync()) {
       _photoParentFile = File(a.photoParentUrl!);
     }
+    // Charger les signatures existantes
+    if (a.signatureAcademicienUrl != null &&
+        a.signatureAcademicienUrl!.isNotEmpty &&
+        File(a.signatureAcademicienUrl!).existsSync()) {
+      _signatureAcademicienFile = File(a.signatureAcademicienUrl!);
+    }
+    if (a.signatureParentUrl != null &&
+        a.signatureParentUrl!.isNotEmpty &&
+        File(a.signatureParentUrl!).existsSync()) {
+      _signatureParentFile = File(a.signatureParentUrl!);
+    }
   }
 
   Future<void> _chargerReferentiels() async {
@@ -236,10 +251,27 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
       } else {
         isValid = true;
       }
+    } else if (_currentStep == 6) {
+      // Validation signatures - seule la signature de l'academicien est obligatoire
+      final hasAcademicienSignature =
+          _signatureAcademicienFile != null ||
+          (widget.academicien.signatureAcademicienUrl != null &&
+              widget.academicien.signatureAcademicienUrl!.isNotEmpty);
+
+      if (!hasAcademicienSignature) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.signatureRequiredError,
+          isError: true,
+        );
+      } else {
+        isValid = true;
+      }
     }
 
     if (isValid && _currentStep < _totalSteps - 1) {
-      if (_currentStep == 5) {
+      if (_currentStep == 6) {
         _saveChanges();
       } else {
         _pageController.nextPage(
@@ -302,6 +334,10 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         aimeTravailGroupe: _aimeTravailGroupe,
         historiqueParcours: _historiqueParcours,
         photoParentUrl: _photoParentFile?.path ?? current.photoParentUrl,
+        signatureAcademicienUrl:
+            _signatureAcademicienFile?.path ?? current.signatureAcademicienUrl,
+        signatureParentUrl:
+            _signatureParentFile?.path ?? current.signatureParentUrl,
       );
 
       final updated = await widget.repository.update(academicien);
@@ -477,6 +513,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                 _buildStep5(theme, colorScheme),
                 _buildStep6(theme, colorScheme),
                 _buildStep7(theme, colorScheme),
+                _buildStep8(theme, colorScheme),
               ],
             ),
           ),
@@ -546,9 +583,10 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             duration: const Duration(milliseconds: 500),
             height: 6,
             width:
-                MediaQuery.of(context).size.width *
-                    ((_currentStep + 1) / _totalSteps) -
-                48,
+                (MediaQuery.of(context).size.width *
+                            ((_currentStep + 1) / _totalSteps) -
+                        48)
+                    .clamp(0.0, double.infinity),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.secondary],
@@ -1524,7 +1562,22 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         .nom;
   }
 
+  // --- Step 7: Signatures ---
   Widget _buildStep7(ThemeData theme, ColorScheme colorScheme) {
+    return SignatureStep(
+      signatureAcademicien: _signatureAcademicienFile,
+      signatureParent: _signatureParentFile,
+      onAcademicienSignatureChanged: (file) {
+        setState(() => _signatureAcademicienFile = file);
+      },
+      onParentSignatureChanged: (file) {
+        setState(() => _signatureParentFile = file);
+      },
+    );
+  }
+
+  // --- Step 8: Success ---
+  Widget _buildStep8(ThemeData theme, ColorScheme colorScheme) {
     if (_updatedAcademicien == null) {
       return const Center(child: CircularProgressIndicator());
     }

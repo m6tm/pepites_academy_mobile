@@ -929,7 +929,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get requiredField => 'Champ requis';
 
   @override
-  String get requiredLabel => 'Requis';
+  String get requiredLabel => 'Obligatoire';
 
   @override
   String get registrationSuccessTitle => 'Inscription réussie !';
@@ -3418,4 +3418,40 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tabNotAccessible => 'Onglet non accessible';
+
+  @override
+  String get signaturesLabel => 'Signatures';
+
+  @override
+  String get signaturesSubtitle =>
+      'Signatures de l\'académicien et du parent/tuteur';
+
+  @override
+  String get academicienSignatureLabel => 'Signature de l\'académicien';
+
+  @override
+  String get academicienSignatureDesc =>
+      'Signature obligatoire de l\'académicien';
+
+  @override
+  String get parentSignatureLabel => 'Signature du parent/tuteur';
+
+  @override
+  String get parentSignatureDesc =>
+      'Signature optionnelle du parent ou tuteur légal';
+
+  @override
+  String get signaturesInfo =>
+      'Les signatures seront incluses dans la fiche d\'inscription finale.';
+
+  @override
+  String get uploadSignatureHint => 'Appuyez pour ajouter une signature';
+
+  @override
+  String get signatureRequiredError =>
+      'La signature de l\'académicien est obligatoire';
+
+  @override
+  String get parentSignatureRequiredError =>
+      'La signature du parent/tuteur est obligatoire pour générer la fiche';
 }

@@ -37,6 +37,9 @@ class Academicien {
   final bool? aimeTravailGroupe;
   // Historique du parcours sportif
   final List<HistoriqueParcoursSportif> historiqueParcours;
+  // Signatures
+  final String? signatureAcademicienUrl;
+  final String? signatureParentUrl;
 
   Academicien({
     required this.id,
@@ -71,6 +74,8 @@ class Academicien {
     this.allergieDetails,
     this.aimeTravailGroupe,
     this.historiqueParcours = const [],
+    this.signatureAcademicienUrl,
+    this.signatureParentUrl,
   });
 
   /// Serialise l'academicien en Map JSON.
@@ -108,6 +113,8 @@ class Academicien {
       'allergieDetails': allergieDetails,
       'aimeTravailGroupe': aimeTravailGroupe,
       'historiqueParcours': historiqueParcours.map((h) => h.toJson()).toList(),
+      'signatureAcademicienUrl': signatureAcademicienUrl,
+      'signatureParentUrl': signatureParentUrl,
     };
   }
 
@@ -196,6 +203,12 @@ class Academicien {
                 ),
               )
               .toList(),
+      signatureAcademicienUrl:
+          json['signatureAcademicienUrl'] as String? ??
+          json['signature_academicien_url'] as String?,
+      signatureParentUrl:
+          json['signatureParentUrl'] as String? ??
+          json['signature_parent_url'] as String?,
     );
   }
 }

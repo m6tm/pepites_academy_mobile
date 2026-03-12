@@ -23,6 +23,28 @@ class RegistrationFormService {
     );
     final headerImage = pw.MemoryImage(headerBytes.buffer.asUint8List());
 
+    // Charger les images de signature si elles existent
+    pw.MemoryImage? signatureAcademicienImage;
+    pw.MemoryImage? signatureParentImage;
+
+    if (academicien.signatureAcademicienUrl != null &&
+        academicien.signatureAcademicienUrl!.isNotEmpty) {
+      final file = File(academicien.signatureAcademicienUrl!);
+      if (await file.exists()) {
+        final bytes = await file.readAsBytes();
+        signatureAcademicienImage = pw.MemoryImage(bytes);
+      }
+    }
+
+    if (academicien.signatureParentUrl != null &&
+        academicien.signatureParentUrl!.isNotEmpty) {
+      final file = File(academicien.signatureParentUrl!);
+      if (await file.exists()) {
+        final bytes = await file.readAsBytes();
+        signatureParentImage = pw.MemoryImage(bytes);
+      }
+    }
+
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
@@ -67,7 +89,10 @@ class RegistrationFormService {
                     pw.SizedBox(height: 8),
                     _buildFootballSection(academicien, posteName),
                     pw.SizedBox(height: 10),
-                    _buildSignatureSection(),
+                    _buildSignatureSection(
+                      signatureAcademicienImage: signatureAcademicienImage,
+                      signatureParentImage: signatureParentImage,
+                    ),
                   ],
                 ),
               ),
@@ -359,12 +384,15 @@ class RegistrationFormService {
     );
   }
 
-  pw.Widget _buildSignatureSection() {
+  pw.Widget _buildSignatureSection({
+    pw.MemoryImage? signatureAcademicienImage,
+    pw.MemoryImage? signatureParentImage,
+  }) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
-          'SIGNATURE DU PARENT/TUTEUR',
+          'SIGNATURES',
           style: pw.TextStyle(
             fontSize: 9,
             fontWeight: pw.FontWeight.bold,
@@ -373,14 +401,58 @@ class RegistrationFormService {
         ),
         pw.SizedBox(height: 8),
         pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            _buildSimpleRow('Nom et Prénom', '', 180),
+            // Signature de l'academicien
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    "Signature de l'académicien",
+                    style: const pw.TextStyle(fontSize: 8),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Container(
+                    height: 50,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.grey400),
+                    ),
+                    child: signatureAcademicienImage != null
+                        ? pw.Image(
+                            signatureAcademicienImage,
+                            fit: pw.BoxFit.contain,
+                          )
+                        : pw.SizedBox(),
+                  ),
+                ],
+              ),
+            ),
             pw.SizedBox(width: 20),
-            _buildSimpleRow('Date', '', 100),
+            // Signature du parent/tuteur
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    'Signature du parent/tuteur',
+                    style: const pw.TextStyle(fontSize: 8),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Container(
+                    height: 50,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.grey400),
+                    ),
+                    child: signatureParentImage != null
+                        ? pw.Image(signatureParentImage, fit: pw.BoxFit.contain)
+                        : pw.SizedBox(),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
-        pw.SizedBox(height: 10),
-        pw.Text('Signature : ', style: const pw.TextStyle(fontSize: 8)),
       ],
     );
   }

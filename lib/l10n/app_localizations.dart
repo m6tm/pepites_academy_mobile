@@ -1811,7 +1811,7 @@ abstract class AppLocalizations {
   /// No description provided for @requiredLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Requis'**
+  /// **'Obligatoire'**
   String get requiredLabel;
 
   /// No description provided for @registrationSuccessTitle.
@@ -6199,6 +6199,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Onglet non accessible'**
   String get tabNotAccessible;
+
+  /// No description provided for @signaturesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signatures'**
+  String get signaturesLabel;
+
+  /// No description provided for @signaturesSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signatures de l\'académicien et du parent/tuteur'**
+  String get signaturesSubtitle;
+
+  /// No description provided for @academicienSignatureLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature de l\'académicien'**
+  String get academicienSignatureLabel;
+
+  /// No description provided for @academicienSignatureDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature obligatoire de l\'académicien'**
+  String get academicienSignatureDesc;
+
+  /// No description provided for @parentSignatureLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature du parent/tuteur'**
+  String get parentSignatureLabel;
+
+  /// No description provided for @parentSignatureDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature optionnelle du parent ou tuteur légal'**
+  String get parentSignatureDesc;
+
+  /// No description provided for @signaturesInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les signatures seront incluses dans la fiche d\'inscription finale.'**
+  String get signaturesInfo;
+
+  /// No description provided for @uploadSignatureHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez pour ajouter une signature'**
+  String get uploadSignatureHint;
+
+  /// No description provided for @signatureRequiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La signature de l\'académicien est obligatoire'**
+  String get signatureRequiredError;
+
+  /// No description provided for @parentSignatureRequiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La signature du parent/tuteur est obligatoire pour générer la fiche'**
+  String get parentSignatureRequiredError;
 }
 
 class _AppLocalizationsDelegate

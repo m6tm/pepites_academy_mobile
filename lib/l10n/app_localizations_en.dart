@@ -3400,4 +3400,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tabNotAccessible => 'Tab not accessible';
+
+  @override
+  String get signaturesLabel => 'Signatures';
+
+  @override
+  String get signaturesSubtitle =>
+      'Signatures of the academician and parent/guardian';
+
+  @override
+  String get academicienSignatureLabel => 'Academician signature';
+
+  @override
+  String get academicienSignatureDesc =>
+      'Mandatory signature of the academician';
+
+  @override
+  String get parentSignatureLabel => 'Parent/guardian signature';
+
+  @override
+  String get parentSignatureDesc =>
+      'Optional signature of the parent or legal guardian';
+
+  @override
+  String get signaturesInfo =>
+      'Signatures will be included in the final registration form.';
+
+  @override
+  String get uploadSignatureHint => 'Tap to add a signature';
+
+  @override
+  String get signatureRequiredError => 'The academician signature is mandatory';
+
+  @override
+  String get parentSignatureRequiredError =>
+      'The parent/guardian signature is required to generate the form';
 }

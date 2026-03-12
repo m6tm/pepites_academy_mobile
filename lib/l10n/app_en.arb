@@ -1729,5 +1729,16 @@
   "totalAnnotations": "Total annotations",
   "selectSessionFirst": "Select a session first",
   "selectPlayerFirst": "Select a player first",
-  "tabNotAccessible": "Tab not accessible"
+  "tabNotAccessible": "Tab not accessible",
+  "signaturesLabel": "Signatures",
+  "signaturesSubtitle": "Signatures of the academician and parent/guardian",
+  "academicienSignatureLabel": "Academician signature",
+  "academicienSignatureDesc": "Mandatory signature of the academician",
+  "parentSignatureLabel": "Parent/guardian signature",
+  "parentSignatureDesc": "Optional signature of the parent or legal guardian",
+  "signaturesInfo": "Signatures will be included in the final registration form.",
+  "uploadSignatureHint": "Tap to add a signature",
+  "signatureRequiredError": "The academician signature is mandatory",
+  "parentSignatureRequiredError": "The parent/guardian signature is required to generate the form",
+  "requiredLabel": "Required"
 }

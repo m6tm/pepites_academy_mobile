@@ -275,6 +275,36 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         }
       }
 
+      // Conversion de la photo du parent/tuteur en base64
+      if (key == 'photo_parent_url' && value is String && value.isNotEmpty) {
+        final photoBase64 = _convertPhotoToBase64(value);
+        if (photoBase64 != null) {
+          transformed['photo_parent_base64'] = photoBase64;
+          continue;
+        }
+      }
+
+      // Conversion des signatures locales en base64
+      if (key == 'signature_academicien_url' &&
+          value is String &&
+          value.isNotEmpty) {
+        final signatureBase64 = _convertPhotoToBase64(value);
+        if (signatureBase64 != null) {
+          transformed['signature_academicien_base64'] = signatureBase64;
+          continue;
+        }
+      }
+
+      if (key == 'signature_parent_url' &&
+          value is String &&
+          value.isNotEmpty) {
+        final signatureBase64 = _convertPhotoToBase64(value);
+        if (signatureBase64 != null) {
+          transformed['signature_parent_base64'] = signatureBase64;
+          continue;
+        }
+      }
+
       // Conversion spéciale pour certains champs
       if (key == 'photo_url' && value is String && value.isEmpty) {
         value = '';

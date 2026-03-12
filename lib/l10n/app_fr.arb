@@ -1802,5 +1802,16 @@
   "totalAnnotations": "Annotations totales",
   "selectSessionFirst": "Sélectionnez d'abord une séance",
   "selectPlayerFirst": "Sélectionnez d'abord un joueur",
-  "tabNotAccessible": "Onglet non accessible"
+  "tabNotAccessible": "Onglet non accessible",
+  "signaturesLabel": "Signatures",
+  "signaturesSubtitle": "Signatures de l'académicien et du parent/tuteur",
+  "academicienSignatureLabel": "Signature de l'académicien",
+  "academicienSignatureDesc": "Signature obligatoire de l'académicien",
+  "parentSignatureLabel": "Signature du parent/tuteur",
+  "parentSignatureDesc": "Signature optionnelle du parent ou tuteur légal",
+  "signaturesInfo": "Les signatures seront incluses dans la fiche d'inscription finale.",
+  "uploadSignatureHint": "Appuyez pour ajouter une signature",
+  "signatureRequiredError": "La signature de l'académicien est obligatoire",
+  "parentSignatureRequiredError": "La signature du parent/tuteur est obligatoire pour générer la fiche",
+  "requiredLabel": "Obligatoire"
 }
