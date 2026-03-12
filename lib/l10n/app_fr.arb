@@ -447,9 +447,10 @@
   "requiredLabel": "Requis",
   "registrationSuccessTitle": "Inscription réussie !",
   "academicianQrBadgeSubtitle": "Le badge QR unique de l'académicien a été généré avec succès. Vous pouvez le partager ou le télécharger.",
-  "selectPosteAndPiedError": "Veuillez sélectionner un poste et un pied fort",
+  "selectPosteAndPiedError": "Veuillez sélectionner un poste",
   "selectSchoolLevelError": "Veuillez sélectionner un niveau scolaire",
   "genderRequiredError": "Veuillez sélectionner le genre",
+  "photoRequiredError": "Veuillez ajouter une photo de profil de l'académicien",
   "galleryOpenError": "Impossible d'ouvrir la galerie",
   "academicianSaveError": "Impossible d'enregistrer l'académicien : {error}",
   "@academicianSaveError": {

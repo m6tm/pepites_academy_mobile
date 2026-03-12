@@ -382,9 +382,10 @@
   "requiredLabel": "Required",
   "registrationSuccessTitle": "Registration Successful!",
   "academicianQrBadgeSubtitle": "The unique QR badge of the academician has been successfully generated. You can share or download it.",
-  "selectPosteAndPiedError": "Please select a position and a strong foot",
+  "selectPosteAndPiedError": "Please select a position",
   "selectSchoolLevelError": "Please select a school level",
   "genderRequiredError": "Please select the gender",
+  "photoRequiredError": "Please add a profile photo of the academician",
   "galleryOpenError": "Could not open gallery",
   "academicianSaveError": "Could not save academician: {error}",
   "@academicianSaveError": {

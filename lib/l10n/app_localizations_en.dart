@@ -935,14 +935,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'The unique QR badge of the academician has been successfully generated. You can share or download it.';
 
   @override
-  String get selectPosteAndPiedError =>
-      'Please select a position and a strong foot';
+  String get selectPosteAndPiedError => 'Please select a position';
 
   @override
   String get selectSchoolLevelError => 'Please select a school level';
 
   @override
   String get genderRequiredError => 'Please select the gender';
+
+  @override
+  String get photoRequiredError =>
+      'Please add a profile photo of the academician';
 
   @override
   String get galleryOpenError => 'Could not open gallery';

@@ -99,7 +99,7 @@ class Academicien {
       'fonctionParent': fonctionParent,
       'emailParent': emailParent,
       'adresseParent': adresseParent,
-      'photoParentUrl': photoParentUrl,
+      'photoParentUrl': photoParentUrl ?? '',
       'atouts': atouts,
       'faiblesses': faiblesses,
       'descriptionPerformances': descriptionPerformances,

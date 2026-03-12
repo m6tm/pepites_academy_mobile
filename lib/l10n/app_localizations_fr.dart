@@ -939,8 +939,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le badge QR unique de l\'académicien a été généré avec succès. Vous pouvez le partager ou le télécharger.';
 
   @override
-  String get selectPosteAndPiedError =>
-      'Veuillez sélectionner un poste et un pied fort';
+  String get selectPosteAndPiedError => 'Veuillez sélectionner un poste';
 
   @override
   String get selectSchoolLevelError =>
@@ -948,6 +947,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get genderRequiredError => 'Veuillez sélectionner le genre';
+
+  @override
+  String get photoRequiredError =>
+      'Veuillez ajouter une photo de profil de l\'académicien';
 
   @override
   String get galleryOpenError => 'Impossible d\'ouvrir la galerie';

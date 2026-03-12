@@ -188,6 +188,16 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   void _nextStep() {
     bool isValid = false;
     if (_currentStep == 0) {
+      // Vérification de la photo de profil
+      if (_photoFile == null && widget.academicien.photoUrl.isEmpty) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.photoRequiredError,
+          isError: true,
+        );
+        return;
+      }
       isValid = _step1Key.currentState!.validate();
       if (isValid && _selectedSexe == null) {
         AcademyToast.show(

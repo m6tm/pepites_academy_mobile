@@ -1829,7 +1829,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectPosteAndPiedError.
   ///
   /// In fr, this message translates to:
-  /// **'Veuillez sélectionner un poste et un pied fort'**
+  /// **'Veuillez sélectionner un poste'**
   String get selectPosteAndPiedError;
 
   /// No description provided for @selectSchoolLevelError.
@@ -1843,6 +1843,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Veuillez sélectionner le genre'**
   String get genderRequiredError;
+
+  /// No description provided for @photoRequiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez ajouter une photo de profil de l\'académicien'**
+  String get photoRequiredError;
 
   /// No description provided for @galleryOpenError.
   ///
