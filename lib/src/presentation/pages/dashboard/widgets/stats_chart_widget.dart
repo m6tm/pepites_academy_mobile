@@ -239,15 +239,20 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          ElevatedButton.icon(
-            onPressed: widget.stats.isEmpty ? null : () => _exportToPdf(),
-            icon: const Icon(Icons.picture_as_pdf),
-            label: const Text('Export PDF'),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: widget.stats.isEmpty ? null : () => _exportToPdf(),
+              icon: const Icon(Icons.picture_as_pdf),
+              label: const Text('Export PDF'),
+            ),
           ),
-          ElevatedButton.icon(
-            onPressed: widget.stats.isEmpty ? null : () => _exportToImage(),
-            icon: const Icon(Icons.image),
-            label: const Text('Export Image'),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: widget.stats.isEmpty ? null : () => _exportToImage(),
+              icon: const Icon(Icons.image),
+              label: const Text('Export Image'),
+            ),
           ),
         ],
       ),

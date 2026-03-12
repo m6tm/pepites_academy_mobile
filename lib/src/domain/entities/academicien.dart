@@ -6,15 +6,15 @@ class Academicien {
   final String nom;
   final String prenom;
   final DateTime dateNaissance;
-  final String? lieuNaissance;
-  final String? nationalite;
-  final String? sexe;
+  final String lieuNaissance;
+  final String nationalite;
+  final String sexe;
   final String photoUrl;
-  final String? telephoneEleve;
-  final String? telephoneParent;
-  final int? taille;
-  final String? email;
-  final String? whatsapp;
+  final String telephoneEleve;
+  final String telephoneParent;
+  final int taille;
+  final String email;
+  final String whatsapp;
   final String? twitter;
   final String? facebook;
   final String posteFootballId;
@@ -22,10 +22,10 @@ class Academicien {
   final String codeQrUnique;
   final String? piedFort;
   // Informations du parent/tuteur
-  final String? nomParent;
-  final String? fonctionParent;
-  final String? emailParent;
-  final String? adresseParent;
+  final String nomParent;
+  final String fonctionParent;
+  final String emailParent;
+  final String adresseParent;
   final String? photoParentUrl;
   // Autres informations football
   final String? atouts;
@@ -43,25 +43,25 @@ class Academicien {
     required this.nom,
     required this.prenom,
     required this.dateNaissance,
-    this.lieuNaissance,
-    this.nationalite,
-    this.sexe,
+    required this.lieuNaissance,
+    required this.nationalite,
+    required this.sexe,
     required this.photoUrl,
-    this.telephoneEleve,
-    this.telephoneParent,
-    this.taille,
-    this.email,
-    this.whatsapp,
+    required this.telephoneEleve,
+    required this.telephoneParent,
+    required this.taille,
+    required this.email,
+    required this.whatsapp,
     this.twitter,
     this.facebook,
     required this.posteFootballId,
     required this.niveauScolaireId,
     required this.codeQrUnique,
     this.piedFort,
-    this.nomParent,
-    this.fonctionParent,
-    this.emailParent,
-    this.adresseParent,
+    required this.nomParent,
+    required this.fonctionParent,
+    required this.emailParent,
+    required this.adresseParent,
     this.photoParentUrl,
     this.atouts,
     this.faiblesses,
@@ -122,20 +122,24 @@ class Academicien {
             DateTime.now().toIso8601String(),
       ),
       lieuNaissance:
-          json['lieuNaissance'] as String? ?? json['lieu_naissance'] as String?,
-      nationalite: json['nationalite'] as String?,
-      sexe: json['sexe'] as String?,
+          json['lieuNaissance'] as String? ??
+          json['lieu_naissance'] as String? ??
+          '',
+      nationalite: json['nationalite'] as String? ?? '',
+      sexe: json['sexe'] as String? ?? '',
       photoUrl:
           json['photoUrl'] as String? ?? json['photo_url'] as String? ?? '',
       telephoneEleve:
           json['telephoneEleve'] as String? ??
-          json['telephone_eleve'] as String?,
+          json['telephone_eleve'] as String? ??
+          '',
       telephoneParent:
           json['telephoneParent'] as String? ??
-          json['telephone_parent'] as String?,
-      taille: json['taille'] as int?,
-      email: json['email'] as String?,
-      whatsapp: json['whatsapp'] as String?,
+          json['telephone_parent'] as String? ??
+          '',
+      taille: json['taille'] as int? ?? 0,
+      email: json['email'] as String? ?? '',
+      whatsapp: json['whatsapp'] as String? ?? '',
       twitter: json['twitter'] as String?,
       facebook: json['facebook'] as String?,
       posteFootballId:
@@ -151,14 +155,20 @@ class Academicien {
           json['code_qr_unique'] as String? ??
           '',
       piedFort: json['piedFort'] as String? ?? json['pied_fort'] as String?,
-      nomParent: json['nomParent'] as String? ?? json['nom_parent'] as String?,
+      nomParent:
+          json['nomParent'] as String? ?? json['nom_parent'] as String? ?? '',
       fonctionParent:
           json['fonctionParent'] as String? ??
-          json['fonction_parent'] as String?,
+          json['fonction_parent'] as String? ??
+          '',
       emailParent:
-          json['emailParent'] as String? ?? json['email_parent'] as String?,
+          json['emailParent'] as String? ??
+          json['email_parent'] as String? ??
+          '',
       adresseParent:
-          json['adresseParent'] as String? ?? json['adresse_parent'] as String?,
+          json['adresseParent'] as String? ??
+          json['adresse_parent'] as String? ??
+          '',
       photoParentUrl:
           json['photoParentUrl'] as String? ??
           json['photo_parent_url'] as String?,

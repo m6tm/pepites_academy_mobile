@@ -1725,5 +1725,8 @@
   "globalStatistics": "Global statistics",
   "totalSessions": "Total sessions",
   "totalAttendances": "Total attendances",
-  "totalAnnotations": "Total annotations"
+  "totalAnnotations": "Total annotations",
+  "selectSessionFirst": "Select a session first",
+  "selectPlayerFirst": "Select a player first",
+  "tabNotAccessible": "Tab not accessible"
 }

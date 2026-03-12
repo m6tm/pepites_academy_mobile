@@ -3406,4 +3406,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get totalAnnotations => 'Annotations totales';
+
+  @override
+  String get selectSessionFirst => 'Sélectionnez d\'abord une séance';
+
+  @override
+  String get selectPlayerFirst => 'Sélectionnez d\'abord un joueur';
+
+  @override
+  String get tabNotAccessible => 'Onglet non accessible';
 }

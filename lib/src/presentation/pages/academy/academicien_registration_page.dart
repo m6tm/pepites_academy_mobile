@@ -12,6 +12,7 @@ import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/image_compressor.dart';
 import '../../widgets/academy_toast.dart';
 
 /// Page d'inscription pour un nouvel académicien.
@@ -199,29 +200,15 @@ class _AcademicienRegistrationPageState
         nom: _nomController.text.trim(),
         prenom: _prenomController.text.trim(),
         dateNaissance: _selectedDate!,
-        lieuNaissance: _lieuNaissanceController.text.trim().isNotEmpty
-            ? _lieuNaissanceController.text.trim()
-            : null,
-        nationalite: _nationaliteController.text.trim().isNotEmpty
-            ? _nationaliteController.text.trim()
-            : null,
-        sexe: _selectedSexe,
+        lieuNaissance: _lieuNaissanceController.text.trim(),
+        nationalite: _nationaliteController.text.trim(),
+        sexe: _selectedSexe ?? '',
         photoUrl: _photoFile?.path ?? '',
-        telephoneEleve: _telephoneEleveController.text.trim().isNotEmpty
-            ? _telephoneEleveController.text.trim()
-            : null,
-        telephoneParent: _telephoneParentController.text.trim().isNotEmpty
-            ? _telephoneParentController.text.trim()
-            : null,
-        taille: _tailleController.text.trim().isNotEmpty
-            ? int.tryParse(_tailleController.text.trim())
-            : null,
-        email: _emailController.text.trim().isNotEmpty
-            ? _emailController.text.trim()
-            : null,
-        whatsapp: _whatsappController.text.trim().isNotEmpty
-            ? _whatsappController.text.trim()
-            : null,
+        telephoneEleve: _telephoneEleveController.text.trim(),
+        telephoneParent: _telephoneParentController.text.trim(),
+        taille: int.tryParse(_tailleController.text.trim()) ?? 0,
+        email: _emailController.text.trim(),
+        whatsapp: _whatsappController.text.trim(),
         twitter: _twitterController.text.trim().isNotEmpty
             ? _twitterController.text.trim()
             : null,
@@ -232,18 +219,10 @@ class _AcademicienRegistrationPageState
         niveauScolaireId: _selectedNiveauId!,
         codeQrUnique: qrCode,
         piedFort: _selectedPiedFort,
-        nomParent: _nomParentController.text.trim().isNotEmpty
-            ? _nomParentController.text.trim()
-            : null,
-        fonctionParent: _fonctionParentController.text.trim().isNotEmpty
-            ? _fonctionParentController.text.trim()
-            : null,
-        emailParent: _emailParentController.text.trim().isNotEmpty
-            ? _emailParentController.text.trim()
-            : null,
-        adresseParent: _adresseParentController.text.trim().isNotEmpty
-            ? _adresseParentController.text.trim()
-            : null,
+        nomParent: _nomParentController.text.trim(),
+        fonctionParent: _fonctionParentController.text.trim(),
+        emailParent: _emailParentController.text.trim(),
+        adresseParent: _adresseParentController.text.trim(),
         photoParentUrl: _photoParentFile?.path,
         atouts: _atoutsController.text.trim().isNotEmpty
             ? _atoutsController.text.trim()
@@ -304,10 +283,19 @@ class _AcademicienRegistrationPageState
     try {
       final pickedFile = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 70,
+        imageQuality: 100, // Qualite max, la compression se fait apres
       );
       if (pickedFile != null) {
-        setState(() => _photoFile = File(pickedFile.path));
+        // Compresser l'image avant de la stocker
+        final compressedFile = await ImageCompressor.compress(
+          imageFile: File(pickedFile.path),
+          quality: 85,
+          maxWidth: 1024,
+          maxHeight: 1024,
+        );
+        if (compressedFile != null) {
+          setState(() => _photoFile = compressedFile);
+        }
       }
     } catch (e) {
       debugPrint('Erreur selection image: $e');
@@ -326,10 +314,19 @@ class _AcademicienRegistrationPageState
     try {
       final pickedFile = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 70,
+        imageQuality: 100, // Qualite max, la compression se fait apres
       );
       if (pickedFile != null) {
-        setState(() => _photoParentFile = File(pickedFile.path));
+        // Compresser l'image avant de la stocker
+        final compressedFile = await ImageCompressor.compress(
+          imageFile: File(pickedFile.path),
+          quality: 85,
+          maxWidth: 1024,
+          maxHeight: 1024,
+        );
+        if (compressedFile != null) {
+          setState(() => _photoParentFile = compressedFile);
+        }
       }
     } catch (e) {
       debugPrint('Erreur selection image parent: $e');

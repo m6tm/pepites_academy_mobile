@@ -63,11 +63,11 @@ class AcademicienLocalDatasource {
 
   Future<List<Academicien>> search(String query) async {
     final all = await getAll();
-    final q = query.toLowerCase();
-    return all.where((e) {
-      return e.nom.toLowerCase().contains(q) ||
-          e.prenom.toLowerCase().contains(q) ||
-          (e.telephoneParent?.contains(q) ?? false);
+    final searchQuery = query.toLowerCase();
+    return all.where((encadreur) {
+      return encadreur.nom.toLowerCase().contains(searchQuery) ||
+          encadreur.prenom.toLowerCase().contains(searchQuery) ||
+          encadreur.telephoneParent.contains(searchQuery);
     }).toList();
   }
 
@@ -125,25 +125,25 @@ class AcademicienLocalDatasource {
       nom: json['nom'] as String,
       prenom: json['prenom'] as String,
       dateNaissance: DateTime.parse(json['dateNaissance'] as String),
-      lieuNaissance: json['lieuNaissance'] as String?,
-      nationalite: json['nationalite'] as String?,
-      sexe: json['sexe'] as String?,
+      lieuNaissance: json['lieuNaissance'] as String? ?? '',
+      nationalite: json['nationalite'] as String? ?? '',
+      sexe: json['sexe'] as String? ?? '',
       photoUrl: json['photoUrl'] as String? ?? '',
-      telephoneEleve: json['telephoneEleve'] as String?,
-      telephoneParent: json['telephoneParent'] as String?,
-      taille: json['taille'] as int?,
-      email: json['email'] as String?,
-      whatsapp: json['whatsapp'] as String?,
+      telephoneEleve: json['telephoneEleve'] as String? ?? '',
+      telephoneParent: json['telephoneParent'] as String? ?? '',
+      taille: json['taille'] as int? ?? 0,
+      email: json['email'] as String? ?? '',
+      whatsapp: json['whatsapp'] as String? ?? '',
       twitter: json['twitter'] as String?,
       facebook: json['facebook'] as String?,
       posteFootballId: json['posteFootballId'] as String? ?? '',
       niveauScolaireId: json['niveauScolaireId'] as String? ?? '',
       codeQrUnique: json['codeQrUnique'] as String? ?? '',
       piedFort: json['piedFort'] as String?,
-      nomParent: json['nomParent'] as String?,
-      fonctionParent: json['fonctionParent'] as String?,
-      emailParent: json['emailParent'] as String?,
-      adresseParent: json['adresseParent'] as String?,
+      nomParent: json['nomParent'] as String? ?? '',
+      fonctionParent: json['fonctionParent'] as String? ?? '',
+      emailParent: json['emailParent'] as String? ?? '',
+      adresseParent: json['adresseParent'] as String? ?? '',
       atouts: json['atouts'] as String?,
       faiblesses: json['faiblesses'] as String?,
       descriptionPerformances: json['descriptionPerformances'] as String?,
@@ -190,22 +190,25 @@ class AcademicienLocalDatasource {
               ),
               lieuNaissance:
                   map['lieu_naissance'] as String? ??
-                  map['lieuNaissance'] as String?,
-              nationalite: map['nationalite'] as String?,
-              sexe: map['sexe'] as String?,
+                  map['lieuNaissance'] as String? ??
+                  '',
+              nationalite: map['nationalite'] as String? ?? '',
+              sexe: map['sexe'] as String? ?? '',
               photoUrl:
                   (map['photo_url'] as String?) ??
                   (map['photoUrl'] as String?) ??
                   '',
               telephoneEleve:
                   map['telephone_eleve'] as String? ??
-                  map['telephoneEleve'] as String?,
+                  map['telephoneEleve'] as String? ??
+                  '',
               telephoneParent:
                   map['telephone_parent'] as String? ??
-                  map['telephoneParent'] as String?,
-              taille: map['taille'] as int?,
-              email: map['email'] as String?,
-              whatsapp: map['whatsapp'] as String?,
+                  map['telephoneParent'] as String? ??
+                  '',
+              taille: map['taille'] as int? ?? 0,
+              email: map['email'] as String? ?? '',
+              whatsapp: map['whatsapp'] as String? ?? '',
               twitter: map['twitter'] as String?,
               facebook: map['facebook'] as String?,
               posteFootballId:
@@ -223,16 +226,21 @@ class AcademicienLocalDatasource {
               piedFort:
                   map['pied_fort'] as String? ?? map['piedFort'] as String?,
               nomParent:
-                  map['nom_parent'] as String? ?? map['nomParent'] as String?,
+                  map['nom_parent'] as String? ??
+                  map['nomParent'] as String? ??
+                  '',
               fonctionParent:
                   map['fonction_parent'] as String? ??
-                  map['fonctionParent'] as String?,
+                  map['fonctionParent'] as String? ??
+                  '',
               emailParent:
                   map['email_parent'] as String? ??
-                  map['emailParent'] as String?,
+                  map['emailParent'] as String? ??
+                  '',
               adresseParent:
                   map['adresse_parent'] as String? ??
-                  map['adresseParent'] as String?,
+                  map['adresseParent'] as String? ??
+                  '',
               atouts: map['atouts'] as String?,
               faiblesses: map['faiblesses'] as String?,
               descriptionPerformances:

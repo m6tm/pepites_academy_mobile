@@ -3388,4 +3388,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totalAnnotations => 'Total annotations';
+
+  @override
+  String get selectSessionFirst => 'Select a session first';
+
+  @override
+  String get selectPlayerFirst => 'Select a player first';
+
+  @override
+  String get tabNotAccessible => 'Tab not accessible';
 }

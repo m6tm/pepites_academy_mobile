@@ -593,7 +593,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
               ),
               _InfoRowData(
                 label: l10n.parentPhoneLabel,
-                value: _academicien.telephoneParent ?? l10n.notSpecified,
+                value: _academicien.telephoneParent,
               ),
             ],
             colorScheme,

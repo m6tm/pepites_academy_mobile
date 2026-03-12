@@ -1798,5 +1798,8 @@
   "globalStatistics": "Statistiques globales",
   "totalSessions": "Séances totales",
   "totalAttendances": "Présences totales",
-  "totalAnnotations": "Annotations totales"
+  "totalAnnotations": "Annotations totales",
+  "selectSessionFirst": "Sélectionnez d'abord une séance",
+  "selectPlayerFirst": "Sélectionnez d'abord un joueur",
+  "tabNotAccessible": "Onglet non accessible"
 }

@@ -371,8 +371,7 @@ class _AcademicienDetailPageState extends State<AcademicienDetailPage>
               ),
               _InfoRow(
                 AppLocalizations.of(context)!.parentPhoneLabel,
-                acad.telephoneParent ??
-                    AppLocalizations.of(context)!.notSpecified,
+                acad.telephoneParent,
               ),
               if (acad.piedFort != null)
                 _InfoRow(

@@ -103,7 +103,7 @@ class SmsState extends ChangeNotifier {
         Destinataire(
           id: academicien.id,
           nom: '${academicien.prenom} ${academicien.nom}',
-          telephone: academicien.telephoneParent ?? '',
+          telephone: academicien.telephoneParent,
           type: TypeDestinataire.academicien,
         ),
       );

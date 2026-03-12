@@ -140,7 +140,7 @@ class RegistrationFormService {
     final dateNaissanceFormatted =
         '${academicien.dateNaissance.day}/${academicien.dateNaissance.month}/${academicien.dateNaissance.year}';
     final dateLieuNaissance =
-        '$dateNaissanceFormatted à ${academicien.lieuNaissance ?? ''}'.trim();
+        '$dateNaissanceFormatted à ${academicien.lieuNaissance}'.trim();
 
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -161,15 +161,15 @@ class RegistrationFormService {
           children: [
             pw.Text('NATIONALITÉ', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(150, academicien.nationalite ?? ''),
+            _buildUnderline(150, academicien.nationalite),
             pw.SizedBox(width: 20),
             pw.Text('TAILLE EN CM', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(50, academicien.taille?.toString() ?? ''),
+            _buildUnderline(50, academicien.taille.toString()),
           ],
         ),
         pw.SizedBox(height: 4),
-        _buildSimpleRow('SEXE', academicien.sexe ?? '', 50),
+        _buildSimpleRow('SEXE', academicien.sexe, 50),
         pw.Row(
           children: [
             pw.Text(
@@ -177,11 +177,11 @@ class RegistrationFormService {
               style: const pw.TextStyle(fontSize: 8),
             ),
             pw.SizedBox(width: 5),
-            _buildUnderline(150, academicien.telephoneEleve ?? ''),
+            _buildUnderline(150, academicien.telephoneEleve),
             pw.SizedBox(width: 20),
             pw.Text('ADRESSE MAIL', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(180, academicien.email ?? ''),
+            _buildUnderline(180, academicien.email),
           ],
         ),
         pw.SizedBox(height: 4),
@@ -197,7 +197,7 @@ class RegistrationFormService {
             pw.SizedBox(width: 10),
             pw.Text('WHATSAPP', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(80, academicien.whatsapp ?? ''),
+            _buildUnderline(80, academicien.whatsapp),
           ],
         ),
       ],
@@ -210,18 +210,18 @@ class RegistrationFormService {
       children: [
         _buildSimpleRow(
           'NOMS DU PÈRE OU DU TUTEUR LÉGAL',
-          academicien.nomParent ?? '',
+          academicien.nomParent,
           150,
         ),
         pw.Row(
           children: [
             pw.Text('N° TÉL', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(150, academicien.telephoneParent ?? ''),
+            _buildUnderline(150, academicien.telephoneParent),
             pw.SizedBox(width: 20),
             pw.Text('EMAIL', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(180, academicien.emailParent ?? ''),
+            _buildUnderline(180, academicien.emailParent),
           ],
         ),
         pw.SizedBox(height: 4),
@@ -229,11 +229,11 @@ class RegistrationFormService {
           children: [
             pw.Text('FONCTION', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(150, academicien.fonctionParent ?? ''),
+            _buildUnderline(150, academicien.fonctionParent),
             pw.SizedBox(width: 20),
             pw.Text('ADRESSE', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(180, academicien.adresseParent ?? ''),
+            _buildUnderline(180, academicien.adresseParent),
           ],
         ),
       ],

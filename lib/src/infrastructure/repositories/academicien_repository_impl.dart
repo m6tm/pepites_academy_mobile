@@ -158,21 +158,23 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
           DateTime.now(),
       lieuNaissance:
           (map['lieu_naissance'] as String?) ??
-          (map['lieuNaissance'] as String?),
-      nationalite: map['nationalite'] as String?,
-      sexe: map['sexe'] as String?,
+          (map['lieuNaissance'] as String?) ??
+          '',
+      nationalite: map['nationalite'] as String? ?? '',
+      sexe: map['sexe'] as String? ?? '',
       photoUrl:
           (map['photo_url'] as String?) ?? (map['photoUrl'] as String?) ?? '',
       telephoneEleve:
           (map['telephone_eleve'] as String?) ??
-          (map['telephoneEleve'] as String?),
+          (map['telephoneEleve'] as String?) ??
+          '',
       telephoneParent:
           (map['telephone_parent'] as String?) ??
           (map['telephoneParent'] as String?) ??
           '',
-      taille: map['taille'] as int?,
-      email: map['email'] as String?,
-      whatsapp: map['whatsapp'] as String?,
+      taille: map['taille'] as int? ?? 0,
+      email: map['email'] as String? ?? '',
+      whatsapp: map['whatsapp'] as String? ?? '',
       twitter: map['twitter'] as String?,
       facebook: map['facebook'] as String?,
       posteFootballId:
@@ -189,15 +191,19 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
           '',
       piedFort: (map['pied_fort'] as String?) ?? (map['piedFort'] as String?),
       nomParent:
-          (map['nom_parent'] as String?) ?? (map['nomParent'] as String?),
+          (map['nom_parent'] as String?) ?? (map['nomParent'] as String?) ?? '',
       fonctionParent:
           (map['fonction_parent'] as String?) ??
-          (map['fonctionParent'] as String?),
+          (map['fonctionParent'] as String?) ??
+          '',
       emailParent:
-          (map['email_parent'] as String?) ?? (map['emailParent'] as String?),
+          (map['email_parent'] as String?) ??
+          (map['emailParent'] as String?) ??
+          '',
       adresseParent:
           (map['adresse_parent'] as String?) ??
-          (map['adresseParent'] as String?),
+          (map['adresseParent'] as String?) ??
+          '',
       atouts: map['atouts'] as String?,
       faiblesses: map['faiblesses'] as String?,
       descriptionPerformances:

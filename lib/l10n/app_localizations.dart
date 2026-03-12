@@ -6175,6 +6175,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Annotations totales'**
   String get totalAnnotations;
+
+  /// No description provided for @selectSessionFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez d\'abord une séance'**
+  String get selectSessionFirst;
+
+  /// No description provided for @selectPlayerFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez d\'abord un joueur'**
+  String get selectPlayerFirst;
+
+  /// No description provided for @tabNotAccessible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Onglet non accessible'**
+  String get tabNotAccessible;
 }
 
 class _AppLocalizationsDelegate

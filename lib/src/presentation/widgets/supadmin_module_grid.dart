@@ -4,6 +4,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/permission.dart';
 import '../../domain/entities/role.dart';
 import '../../injection_container.dart';
+import '../pages/encadreur/encadreur_list_page.dart';
+import '../pages/referentiel/referentiel_hub_page.dart';
 import 'permission_guard.dart';
 import '../theme/app_colors.dart';
 
@@ -195,50 +197,83 @@ class _SupAdminModuleGridState extends State<SupAdminModuleGrid> {
   /// Construit la liste des modules avec leurs actions de navigation.
   List<ModuleItem> _buildModules(BuildContext context, AppLocalizations l10n) {
     return [
-      // Academiciens
+      // Academiciens - navigation via callback
       ModuleItem(
         title: l10n.academicians,
         description: l10n.academiciansList,
         icon: Icons.school_rounded,
         color: const Color(0xFF3B82F6),
         permission: Permission.academicienView,
-        onTap: () => widget.onNavigateToAcademy?.call(),
+        onTap: () {
+          if (widget.onNavigateToAcademy != null) {
+            widget.onNavigateToAcademy!.call();
+          } else {
+            _showTabNavigationUnavailable(context, l10n.academicians, 1);
+          }
+        },
       ),
-      // Encadreurs
+      // Encadreurs - navigation directe
       ModuleItem(
         title: l10n.coaches,
         description: l10n.coachManagement,
         icon: Icons.sports_rounded,
         color: const Color(0xFF8B5CF6),
         permission: Permission.encadreurView,
-        onTap: () => widget.onNavigateToEncadreurs?.call(),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EncadreurListPage(
+                repository: DependencyInjection.encadreurRepository,
+              ),
+            ),
+          );
+        },
       ),
-      // Seances
+      // Seances - navigation via callback
       ModuleItem(
         title: l10n.sessions,
         description: l10n.sessionsManagement,
         icon: Icons.sports_soccer_rounded,
         color: AppColors.primary,
         permission: Permission.seanceView,
-        onTap: () => widget.onNavigateToSeances?.call(),
+        onTap: () {
+          if (widget.onNavigateToSeances != null) {
+            widget.onNavigateToSeances!.call();
+          } else {
+            _showTabNavigationUnavailable(context, l10n.sessions, 2);
+          }
+        },
       ),
-      // Ateliers
+      // Ateliers - necessite une seance
       ModuleItem(
         title: l10n.workshopsLabel,
         description: l10n.workshopsManagement,
         icon: Icons.extension_rounded,
         color: const Color(0xFFF59E0B),
         permission: Permission.atelierView,
-        onTap: () => widget.onNavigateToAteliers?.call(),
+        onTap: () {
+          _showContextRequired(
+            context,
+            l10n.workshopsLabel,
+            l10n.selectSessionFirst,
+          );
+        },
       ),
-      // Bulletins
+      // Bulletins - necessite un academicien
       ModuleItem(
         title: l10n.bulletinsLabel,
         description: l10n.bulletinsManagement,
         icon: Icons.description_rounded,
         color: const Color(0xFF10B981),
         permission: Permission.bulletinView,
-        onTap: () => widget.onNavigateToBulletins?.call(),
+        onTap: () {
+          _showContextRequired(
+            context,
+            l10n.bulletinsLabel,
+            l10n.selectPlayerFirst,
+          );
+        },
       ),
       // SMS
       ModuleItem(
@@ -247,18 +282,60 @@ class _SupAdminModuleGridState extends State<SupAdminModuleGrid> {
         icon: Icons.sms_rounded,
         color: const Color(0xFFEC4899),
         permission: Permission.smsSend,
-        onTap: () => widget.onNavigateToCommunication?.call(),
+        onTap: () {
+          if (widget.onNavigateToCommunication != null) {
+            widget.onNavigateToCommunication!.call();
+          } else {
+            _showTabNavigationUnavailable(context, l10n.smsLabel, 3);
+          }
+        },
       ),
-      // Referentiels
+      // Referentiels - navigation directe
       ModuleItem(
         title: l10n.referentials,
         description: l10n.referentialsSubtitle,
         icon: Icons.tune_rounded,
         color: const Color(0xFF6366F1),
         permission: Permission.referentielView,
-        onTap: () => widget.onNavigateToReferentiels?.call(),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ReferentielHubPage()),
+          );
+        },
       ),
     ];
+  }
+
+  /// Affiche un message pour les onglets non accessibles.
+  void _showTabNavigationUnavailable(
+    BuildContext context,
+    String moduleName,
+    int tabIndex,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${l10n.tabNotAccessible}: $moduleName'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Affiche un message quand un contexte est requis.
+  void _showContextRequired(
+    BuildContext context,
+    String moduleName,
+    String requirement,
+  ) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$moduleName: $requirement'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   /// Construit une carte de module avec PermissionGuard.
@@ -406,6 +483,7 @@ class _ModuleCardState extends State<_ModuleCard> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -444,25 +522,25 @@ class _ModuleCardState extends State<_ModuleCard> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 widget.module.title,
                 style: GoogleFonts.montserrat(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
                 widget.module.description,
                 style: GoogleFonts.montserrat(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.w400,
                   color: colorScheme.onSurface.withValues(alpha: 0.5),
-                  height: 1.3,
+                  height: 1.2,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

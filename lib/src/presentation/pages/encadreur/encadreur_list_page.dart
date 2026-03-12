@@ -548,23 +548,26 @@ class _EncadreurListPageState extends State<EncadreurListPage>
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF8B5CF6,
-                            ).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            enc.specialite,
-                            style: GoogleFonts.montserrat(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF8B5CF6),
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xFF8B5CF6,
+                              ).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              enc.specialite,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF8B5CF6),
+                              ),
                             ),
                           ),
                         ),
@@ -575,11 +578,16 @@ class _EncadreurListPageState extends State<EncadreurListPage>
                           color: colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          enc.telephone,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 11,
-                            color: colorScheme.onSurface.withValues(alpha: 0.4),
+                        Flexible(
+                          child: Text(
+                            enc.telephone,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 11,
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.4,
+                              ),
+                            ),
                           ),
                         ),
                       ],
