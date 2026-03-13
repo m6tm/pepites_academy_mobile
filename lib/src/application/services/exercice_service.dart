@@ -50,6 +50,7 @@ class ExerciceService {
     required String atelierId,
     required String nom,
     String description = '',
+    ExerciceStatut statut = ExerciceStatut.cree,
   }) async {
     final atelier = await _atelierRepository.getById(atelierId);
     if (atelier == null) {
@@ -67,7 +68,7 @@ class ExerciceService {
       nom: nom,
       description: description,
       ordre: ordre,
-      statut: ExerciceStatut.cree,
+      statut: statut,
       atelierId: atelierId,
     );
 

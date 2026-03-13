@@ -15,6 +15,7 @@ import '../annotation/annotation_page.dart';
 import '../../state/message_state_mixin.dart';
 import '../../widgets/atelier_card.dart';
 import 'atelier_form_page.dart';
+import '../exercices/exercice_form_page.dart';
 
 /// Page affichant la liste des ateliers d'une séance avec leurs exercices associés.
 class AteliersPage extends StatefulWidget {
@@ -132,7 +133,9 @@ class _AteliersPageState extends State<AteliersPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -143,7 +146,9 @@ class _AteliersPageState extends State<AteliersPage> {
               child: Center(child: CircularProgressIndicator()),
             )
           else if (_atelierState.ateliers.isEmpty)
-            SliverFillRemaining(child: _buildEmptyState(context, l10n, colorScheme))
+            SliverFillRemaining(
+              child: _buildEmptyState(context, l10n, colorScheme),
+            )
           else
             _buildAteliersList(l10n, colorScheme, isDark),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -199,7 +204,12 @@ class _AteliersPageState extends State<AteliersPage> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
+  Widget _buildHeader(
+    BuildContext context,
+    AppLocalizations l10n,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.all(20),
@@ -224,7 +234,11 @@ class _AteliersPageState extends State<AteliersPage> {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.fitness_center_rounded, color: AppColors.primary, size: 22),
+              child: const Icon(
+                Icons.fitness_center_rounded,
+                color: AppColors.primary,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -261,7 +275,9 @@ class _AteliersPageState extends State<AteliersPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isOpen ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+        color: isOpen
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -275,12 +291,20 @@ class _AteliersPageState extends State<AteliersPage> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
+  Widget _buildEmptyState(
+    BuildContext context,
+    AppLocalizations l10n,
+    ColorScheme colorScheme,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.sports_soccer_rounded, size: 64, color: colorScheme.onSurface.withValues(alpha: 0.1)),
+          Icon(
+            Icons.sports_soccer_rounded,
+            size: 64,
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+          ),
           const SizedBox(height: 16),
           Text(
             l10n.noWorkshopProgrammed,
@@ -295,9 +319,13 @@ class _AteliersPageState extends State<AteliersPage> {
     );
   }
 
-  Widget _buildAteliersList(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
+  Widget _buildAteliersList(
+    AppLocalizations l10n,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     final ateliers = _atelierState.ateliers;
-    
+
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverReorderableList(
@@ -305,8 +333,9 @@ class _AteliersPageState extends State<AteliersPage> {
         onReorder: _atelierState.reordonnerAteliers,
         itemBuilder: (context, index) {
           final atelier = ateliers[index];
-          final exercices = _exerciceState.exercicesParAtelier[atelier.id] ?? [];
-          
+          final exercices =
+              _exerciceState.exercicesParAtelier[atelier.id] ?? [];
+
           return ReorderableDragStartListener(
             key: ValueKey(atelier.id),
             index: index,
@@ -320,7 +349,8 @@ class _AteliersPageState extends State<AteliersPage> {
               onDelete: () => _showDeleteConfirmation(context, atelier),
               onAddExercice: () => _showAddExercice(context, atelier),
               onEditExercice: (ex) => _showEditExercice(context, ex),
-              onDeleteExercice: (ex) => _exerciceState.supprimerExercice(ex.id, atelier.id),
+              onDeleteExercice: (ex) =>
+                  _exerciceState.supprimerExercice(ex.id, atelier.id),
             ),
           );
         },
@@ -362,7 +392,10 @@ class _AteliersPageState extends State<AteliersPage> {
         title: const Text('Supprimer l\'atelier'),
         content: Text('Voulez-vous vraiment supprimer "${atelier.nom}" ?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
           TextButton(
             onPressed: () {
               _atelierState.supprimerAtelier(atelier.id);
@@ -376,89 +409,26 @@ class _AteliersPageState extends State<AteliersPage> {
   }
 
   void _showAddExercice(BuildContext context, Atelier atelier) {
-    _showExerciceForm(context, atelier: atelier);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ExerciceFormPage(
+          atelierId: atelier.id,
+          exerciceState: _exerciceState,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
   }
 
   void _showEditExercice(BuildContext context, Exercice exercice) {
-    _showExerciceForm(context, exercice: exercice);
-  }
-
-  void _showExerciceForm(BuildContext context, {Atelier? atelier, Exercice? exercice}) {
-    final nomController = TextEditingController(text: exercice?.nom ?? '');
-    final descController = TextEditingController(text: exercice?.description ?? '');
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.only(
-          left: 20, right: 20, top: 20,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ExerciceFormPage(
+          atelierId: exercice.atelierId,
+          exercice: exercice,
+          exerciceState: _exerciceState,
         ),
-        decoration: BoxDecoration(
-          color: Theme.of(ctx).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              exercice == null ? 'Nouvel Exercice' : 'Modifier l\'Exercice',
-              style: GoogleFonts.montserrat(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: nomController,
-              decoration: InputDecoration(
-                labelText: 'Nom de l\'exercice',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descController,
-              decoration: InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (nomController.text.isNotEmpty) {
-                    if (exercice == null && atelier != null) {
-                      _exerciceState.ajouterExercice(
-                        atelierId: atelier.id,
-                        nom: nomController.text,
-                        description: descController.text,
-                      );
-                    } else if (exercice != null) {
-                      _exerciceState.modifierExercice(
-                        exercice.copyWith(
-                          nom: nomController.text,
-                          description: descController.text,
-                        ),
-                      );
-                    }
-                    Navigator.pop(ctx);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Enregistrer'),
-              ),
-            ),
-          ],
-        ),
+        fullscreenDialog: true,
       ),
     );
   }

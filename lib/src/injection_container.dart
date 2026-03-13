@@ -108,9 +108,9 @@ class DependencyInjection {
   static late final NotificationState notificationState;
   static late final ThemeState themeState;
   static late final LanguageState languageState;
-  static late final ExerciceState exerciceState;
-  static late final AtelierState atelierState;
-  static late final AnnotationState annotationState;
+  static late ExerciceState exerciceState;
+  static late AtelierState atelierState;
+  static late AnnotationState annotationState;
   static late final FirebasePushNotificationService
   firebasePushNotificationService;
   static late final BiometricService biometricService;
@@ -118,7 +118,7 @@ class DependencyInjection {
   static late final SecurityRepositoryImpl securityRepository;
   static late final ApiSyncDatasourceImpl apiSyncDatasource;
   static late final DashboardService dashboardService;
-  static late final RoleService roleService;
+  static late RoleService roleService;
   static late final RoleRepositoryImpl roleRepository;
   static late final DashboardRepositoryImpl dashboardRepository;
   static late final UploadService uploadService;

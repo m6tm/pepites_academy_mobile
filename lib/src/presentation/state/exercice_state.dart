@@ -45,6 +45,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
     required String atelierId,
     required String nom,
     String description = '',
+    ExerciceStatut statut = ExerciceStatut.cree,
   }) async {
     _loadingStates[atelierId] = true;
     _errorMessage = null;
@@ -56,6 +57,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
         atelierId: atelierId,
         nom: nom,
         description: description,
+        statut: statut,
       );
       _successMessage = 'Exercice "$nom" ajouté avec succès.';
       await chargerExercices(atelierId);
