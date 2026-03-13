@@ -61,7 +61,7 @@ class _SeanceDetailConsultationPageState
         if (acad != null) academiciens.add(acad);
       }
 
-      final ateliers = await DependencyInjection.atelierRepository.getBySeance(
+      final ateliers = await DependencyInjection.atelierRepository.getBySeanceId(
         widget.seance.id,
       );
       final presences = await DependencyInjection.presenceRepository

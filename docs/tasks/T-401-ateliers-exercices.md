@@ -36,46 +36,42 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 - **Objectif :** Définir et implémenter les endpoints backend pour la gestion des ateliers et exercices.
 - **Permissions requises :**
   - `atelier:create` - EncadreurChef, Admin, SupAdmin
-  - `atelier:read` - Tous les rôles sauf Visiteur
   - `atelier:update` - EncadreurChef, Admin, SupAdmin
-  - `atelier:delete` - EncadreurChef, Admin, SupAdmin
   - `atelier:validate` - EncadreurChef uniquement
   - `atelier:apply` - Encadreur, EncadreurChef
   - `atelier:close` - Encadreur, EncadreurChef
+  - `atelier:read` - Tous les rôles sauf Visiteur
   - `exercice:create` - EncadreurChef, Admin, SupAdmin
-  - `exercice:read` - Tous les rôles sauf Visiteur
   - `exercice:update` - EncadreurChef, Admin, SupAdmin
-  - `exercice:delete` - EncadreurChef, Admin, SupAdmin
   - `exercice:validate` - EncadreurChef uniquement
   - `exercice:apply` - Encadreur, EncadreurChef
   - `exercice:close` - Encadreur, EncadreurChef
+  - `exercice:read` - Tous les rôles sauf Visiteur
 
 #### Endpoints Ateliers
 
 | Méthode | Endpoint | Description | Permission |
 |---------|----------|-------------|------------|
-| GET | `/seances/:seanceId/ateliers` | Liste des ateliers d'une séance | `atelier:read` |
-| GET | `/ateliers/:id` | Détail d'un atelier | `atelier:read` |
 | POST | `/seances/:seanceId/ateliers` | Créer un atelier | `atelier:create` |
 | PUT | `/ateliers/:id` | Modifier un atelier | `atelier:update` |
-| DELETE | `/ateliers/:id` | Supprimer un atelier | `atelier:delete` |
 | PUT | `/ateliers/:id/validate` | Valider un atelier | `atelier:validate` |
 | PUT | `/ateliers/:id/apply` | Appliquer un atelier en séance | `atelier:apply` |
 | PUT | `/ateliers/:id/close` | Fermer un atelier | `atelier:close` |
+| GET | `/seances/:seanceId/ateliers` | Liste des ateliers d'une séance | `atelier:read` |
+| GET | `/ateliers/:id` | Détail d'un atelier | `atelier:read` |
 | PUT | `/ateliers/reorder` | Réordonner les ateliers | `atelier:update` |
 
 #### Endpoints Exercices
 
 | Méthode | Endpoint | Description | Permission |
 |---------|----------|-------------|------------|
-| GET | `/ateliers/:atelierId/exercices` | Liste des exercices d'un atelier | `exercice:read` |
-| GET | `/exercices/:id` | Détail d'un exercice | `exercice:read` |
 | POST | `/ateliers/:atelierId/exercices` | Créer un exercice | `exercice:create` |
 | PUT | `/exercices/:id` | Modifier un exercice | `exercice:update` |
-| DELETE | `/exercices/:id` | Supprimer un exercice | `exercice:delete` |
 | PUT | `/exercices/:id/validate` | Valider un exercice | `exercice:validate` |
 | PUT | `/exercices/:id/apply` | Appliquer un exercice en séance | `exercice:apply` |
 | PUT | `/exercices/:id/close` | Fermer un exercice | `exercice:close` |
+| GET | `/ateliers/:atelierId/exercices` | Liste des exercices d'un atelier | `exercice:read` |
+| GET | `/exercices/:id` | Détail d'un exercice | `exercice:read` |
 | PUT | `/exercices/reorder` | Réordonner les exercices | `exercice:update` |
 
 #### Structures de réponse JSON
@@ -116,7 +112,6 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 #### Règles métier Backend
 
 - **Fermeture automatique d'atelier :** Un atelier passe en statut "ferme" automatiquement lorsque tous ses exercices sont fermés.
-- **Suppression conditionnée :** Un atelier/exercice ne peut être supprimé que s'il n'a pas encore été appliqué en séance.
 - **Validation préalable :** Un atelier/exercice doit être validé avant d'être appliqué.
 - **Ordre unique :** L'ordre d'un atelier/exercice doit être unique dans son contexte parent.
 - **Contrôle de séance :** Un atelier ne peut être créé que sur une séance ouverte ou à venir.
@@ -136,7 +131,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
   - `lib/src/infrastructure/repositories/atelier_repository_impl.dart`
   - `lib/src/infrastructure/repositories/exercice_repository_impl.dart`
 - **Connexion Backend :**
-  - Appels `DioClient.get/post/put/delete` sur les endpoints définis
+  - Appels `DioClient.get/post/put` sur les endpoints définis
   - Gestion des erreurs réseau avec fallback sur cache
 - **Cache :**
   - Persistance locale via SQLite (drift)
@@ -317,7 +312,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
   - `401` - Non authentifié
   - `403` - Permission insuffisante
   - `404` - Atelier/Exercice non trouvé
-  - `409` - Conflit (ex: suppression d'un atelier appliqué)
+  - `409` - Conflit (ex: action impossible dans le statut actuel)
   - `422` - Règle métier violée (ex: validation d'un atelier non créé)
 
 ---

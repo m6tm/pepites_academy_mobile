@@ -66,8 +66,9 @@ Ce document présente la matrice complète des rôles et leurs permissions dans 
 |--------|:--------:|:-----:|:-------------:|:-----------:|:---------:|:------------------:|:--------:|
 | Créer un entraînement | ✓ | ✓ | ✓ | - | - | - | - |
 | Modifier un entraînement | ✓ | ✓ | ✓ | - | - | - | - |
-| Supprimer un entraînement | ✓ | ✓ | ✓ | - | - | - | - |
+| Valider un entraînement | ✓ | ✓ | ✓ | - | - | - | - |
 | Appliquer un entraînement | ✓ | ✓ | ✓ | - | ✓ | - | - |
+| Fermer un entraînement | ✓ | ✓ | ✓ | - | ✓ | - | - |
 | Voir les entraînements | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### Gestion des Ateliers

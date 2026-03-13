@@ -26,7 +26,7 @@ class AtelierRepositoryImpl implements AtelierRepository {
   }
 
   @override
-  Future<List<Atelier>> getBySeance(String seanceId) async {
+  Future<List<Atelier>> getBySeanceId(String seanceId) async {
     return _datasource.getBySeance(seanceId);
   }
 

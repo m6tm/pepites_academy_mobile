@@ -24,7 +24,7 @@ class AtelierService {
 
   /// Recupere tous les ateliers d'une seance, tries par ordre.
   Future<List<Atelier>> getAteliersParSeance(String seanceId) async {
-    return _atelierRepository.getBySeance(seanceId);
+    return _atelierRepository.getBySeanceId(seanceId);
   }
 
   /// Ajoute un atelier a une seance ouverte.
@@ -42,7 +42,7 @@ class AtelierService {
       );
     }
 
-    final ateliersExistants = await _atelierRepository.getBySeance(seanceId);
+    final ateliersExistants = await _atelierRepository.getBySeanceId(seanceId);
     final ordre = ateliersExistants.length;
 
     final atelier = Atelier(
@@ -51,6 +51,7 @@ class AtelierService {
       description: description,
       type: type,
       ordre: ordre,
+      statut: AtelierStatut.cree,
       seanceId: seanceId,
     );
 
@@ -94,7 +95,7 @@ class AtelierService {
     }
 
     // Recalculer les ordres
-    final restants = await _atelierRepository.getBySeance(atelier.seanceId);
+    final restants = await _atelierRepository.getBySeanceId(atelier.seanceId);
     final ids = restants.map((a) => a.id).toList();
     if (ids.isNotEmpty) {
       await _atelierRepository.reorder(atelier.seanceId, ids);

@@ -112,6 +112,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
           orElse: () => AtelierType.personnalise,
         ),
         ordre: json['ordre'] as int? ?? 0,
+        statut: AtelierStatut.cree,
         seanceId: (json['seance_id'] ?? json['seanceId']) as String,
       );
     } catch (_) {

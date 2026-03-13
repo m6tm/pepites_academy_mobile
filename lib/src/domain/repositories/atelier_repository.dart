@@ -3,7 +3,7 @@ import '../entities/atelier.dart';
 /// Contrat pour la gestion des ateliers d'entrainement.
 abstract class AtelierRepository {
   /// Recupere tous les ateliers d'une seance.
-  Future<List<Atelier>> getBySeance(String seanceId);
+  Future<List<Atelier>> getBySeanceId(String seanceId);
 
   /// Recupere un atelier par son identifiant.
   Future<Atelier?> getById(String id);

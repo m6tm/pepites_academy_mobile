@@ -1,33 +1,30 @@
-/// Types d'ateliers predefinies avec leurs icones associees.
-enum AtelierType {
-  dribble,
-  passes,
-  finition,
-  physique,
-  jeuEnSituation,
-  tactique,
-  gardien,
-  echauffement,
-  personnalise,
-}
+import 'enums/atelier_statut.dart';
+import 'enums/atelier_type.dart';
+export 'enums/atelier_statut.dart';
+export 'enums/atelier_type.dart';
 
-/// Represente un exercice specifique au sein d'une seance d'entrainement.
 class Atelier {
   final String id;
   final String nom;
   final String description;
   final AtelierType type;
+  final String? icone;
   final int ordre;
+  final AtelierStatut statut;
   final String seanceId;
 
-  Atelier({
+  const Atelier({
     required this.id,
     required this.nom,
-    this.description = '',
+    required this.description,
     required this.type,
+    this.icone,
     required this.ordre,
+    required this.statut,
     required this.seanceId,
   });
+
+  String get typeLabel => type.label;
 
   /// Cree une copie de l'atelier avec des champs modifies.
   Atelier copyWith({
@@ -35,7 +32,9 @@ class Atelier {
     String? nom,
     String? description,
     AtelierType? type,
+    String? icone,
     int? ordre,
+    AtelierStatut? statut,
     String? seanceId,
   }) {
     return Atelier(
@@ -43,7 +42,9 @@ class Atelier {
       nom: nom ?? this.nom,
       description: description ?? this.description,
       type: type ?? this.type,
+      icone: icone ?? this.icone,
       ordre: ordre ?? this.ordre,
+      statut: statut ?? this.statut,
       seanceId: seanceId ?? this.seanceId,
     );
   }
@@ -55,7 +56,9 @@ class Atelier {
       'nom': nom,
       'description': description,
       'type': type.name,
+      'icone': icone,
       'ordre': ordre,
+      'statut': statut.name,
       'seanceId': seanceId,
     };
   }
@@ -70,32 +73,13 @@ class Atelier {
         (e) => e.name == json['type'],
         orElse: () => AtelierType.personnalise,
       ),
+      icone: json['icone'] as String?,
       ordre: json['ordre'] as int? ?? 0,
+      statut: AtelierStatut.values.firstWhere(
+        (e) => e.name == json['statut'],
+        orElse: () => AtelierStatut.cree,
+      ),
       seanceId: (json['seance_id'] ?? json['seanceId']) as String,
     );
-  }
-
-  /// Retourne le label affichable du type d'atelier.
-  String get typeLabel {
-    switch (type) {
-      case AtelierType.dribble:
-        return 'Dribble';
-      case AtelierType.passes:
-        return 'Passes';
-      case AtelierType.finition:
-        return 'Finition';
-      case AtelierType.physique:
-        return 'Condition physique';
-      case AtelierType.jeuEnSituation:
-        return 'Jeu en situation';
-      case AtelierType.tactique:
-        return 'Tactique';
-      case AtelierType.gardien:
-        return 'Gardien';
-      case AtelierType.echauffement:
-        return 'Echauffement';
-      case AtelierType.personnalise:
-        return 'Personnalise';
-    }
   }
 }
