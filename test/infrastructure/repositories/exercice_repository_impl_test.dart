@@ -8,7 +8,6 @@ import 'package:pepites_academy_mobile/src/infrastructure/datasources/exercice_l
 import 'package:pepites_academy_mobile/src/infrastructure/network/api_endpoints.dart';
 import 'package:pepites_academy_mobile/src/infrastructure/network/dio_client.dart';
 import 'package:pepites_academy_mobile/src/infrastructure/repositories/exercice_repository_impl.dart';
-import 'package:pepites_academy_mobile/src/domain/entities/enums/exercice_statut.dart';
 import 'package:pepites_academy_mobile/src/domain/failures/network_failure.dart';
 
 class MockExerciceLocalDatasource extends Mock implements ExerciceLocalDatasource {}

@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+import '../../domain/entities/exercice.dart';
+import 'statut_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+/// Composant de liste pour chaque exercice associé à un atelier.
+class ExerciceListTile extends StatelessWidget {
+  final Exercice exercice;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final bool isEditable;
+
+  const ExerciceListTile({
+    super.key,
+    required this.exercice,
+    this.onEdit,
+    this.onDelete,
+    this.isEditable = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: StatutIndicator(statut: exercice.statut),
+      title: Text(
+        exercice.nom,
+        style: GoogleFonts.montserrat(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: colorScheme.onSurface,
+        ),
+      ),
+      subtitle: exercice.description.isNotEmpty
+          ? Text(
+              exercice.description,
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            )
+          : null,
+      trailing: isEditable
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (onEdit != null)
+                  IconButton(
+                    icon: Icon(Icons.edit_outlined, size: 18, color: colorScheme.primary),
+                    onPressed: onEdit,
+                  ),
+                if (onDelete != null)
+                  IconButton(
+                    icon: Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                    onPressed: onDelete,
+                  ),
+              ],
+            )
+          : null,
+    );
+  }
+}

@@ -27,7 +27,7 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   @override
   Future<List<Atelier>> getBySeanceId(String seanceId) async {
-    final local = await _datasource.getBySeance(seanceId);
+    final local = _datasource.getBySeance(seanceId);
     if (local.isEmpty && _dioClient != null) {
       // Stratégie cache-first : si vide, on tente de synchroniser
       await syncFromApi();

@@ -69,6 +69,9 @@ import 'presentation/state/notification_state.dart';
 import 'presentation/state/sync_state.dart';
 import 'presentation/state/theme_state.dart';
 import 'presentation/state/language_state.dart';
+import 'presentation/state/exercice_state.dart';
+import 'presentation/state/atelier_state.dart';
+import 'presentation/state/annotation_state.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
@@ -105,6 +108,9 @@ class DependencyInjection {
   static late final NotificationState notificationState;
   static late final ThemeState themeState;
   static late final LanguageState languageState;
+  static late final ExerciceState exerciceState;
+  static late final AtelierState atelierState;
+  static late final AnnotationState annotationState;
   static late final FirebasePushNotificationService
   firebasePushNotificationService;
   static late final BiometricService biometricService;
@@ -373,6 +379,10 @@ class DependencyInjection {
       syncService: syncService,
       connectivityState: connectivityState,
     );
+
+    exerciceState = ExerciceState(exerciceService);
+    atelierState = AtelierState(atelierService);
+    annotationState = AnnotationState(annotationService);
 
     // Injection du service de synchronisation dans les repositories
     academicienRepository.setSyncService(syncService);

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../application/services/atelier_service.dart';
 import '../../domain/entities/atelier.dart';
+import 'message_state_mixin.dart';
 
 /// State management pour les ateliers d'une seance.
 /// Gere le chargement, l'ajout, la modification, la suppression
 /// et la reorganisation des ateliers.
-class AtelierState extends ChangeNotifier {
+class AtelierState extends ChangeNotifier with MessageStateMixin {
   final AtelierService _service;
 
   AtelierState(this._service);
@@ -20,9 +21,11 @@ class AtelierState extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
+  @override
   String? get errorMessage => _errorMessage;
 
   String? _successMessage;
+  @override
   String? get successMessage => _successMessage;
 
   /// Charge les ateliers d'une seance.
@@ -145,6 +148,7 @@ class AtelierState extends ChangeNotifier {
   }
 
   /// Efface les messages de succes/erreur.
+  @override
   void clearMessages() {
     _errorMessage = null;
     _successMessage = null;

@@ -162,7 +162,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.5] Écran de composition des ateliers
+### [T-401.5] Écran de composition des ateliers [DONE]
 
 - **Objectif :** Interface de gestion hiérarchique ateliers > exercices.
 - **Pré-requis :** Permission `atelier:read`

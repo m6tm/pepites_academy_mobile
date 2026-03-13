@@ -9,11 +9,10 @@ import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
 import '../../../infrastructure/network/api_endpoints.dart';
 import '../../state/annotation_state.dart';
-import '../../state/atelier_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../annotation/widgets/annotation_side_panel.dart';
-import 'atelier_composition_page.dart';
+import '../ateliers/ateliers_page.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Vue detaillee d'une seance affichant les encadreurs presents,
@@ -346,11 +345,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   }
 
   Future<void> _naviguerVersComposition() async {
-    final atelierState = AtelierState(DependencyInjection.atelierService);
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) =>
-            AtelierCompositionPage(seance: seance, atelierState: atelierState),
+            AteliersPage(seance: seance),
       ),
     );
     _chargerAteliers();
@@ -802,7 +800,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                AtelierCompositionPage.getTypeLabel(
+                                AteliersPage.getTypeLabel(
                                   context,
                                   atelier.type,
                                 ),
@@ -1088,7 +1086,7 @@ class _AtelierPickerSheet extends StatelessWidget {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                AtelierCompositionPage.getTypeLabel(
+                                AteliersPage.getTypeLabel(
                                   context,
                                   atelier.type,
                                 ),
