@@ -6,6 +6,7 @@ import 'application/services/activity_service.dart';
 import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
 import 'application/services/atelier_service.dart';
+import 'application/services/exercice_service.dart';
 import 'application/services/bulletin_service.dart';
 import 'application/services/connectivity_service.dart';
 import 'application/services/qr_scanner_service.dart';
@@ -84,6 +85,7 @@ class DependencyInjection {
   static late final QrScannerService qrScannerService;
   static late final SeanceService seanceService;
   static late final AtelierService atelierService;
+  static late final ExerciceService exerciceService;
   static late final AnnotationRepositoryImpl annotationRepository;
   static late final AnnotationService annotationService;
   static late final BulletinRepositoryImpl bulletinRepository;
@@ -180,6 +182,13 @@ class DependencyInjection {
     atelierService = AtelierService(
       atelierRepository: atelierRepository,
       seanceRepository: seanceRepository,
+      exerciceRepository: exerciceRepository,
+    );
+
+    // Initialisation du Service Exercice
+    exerciceService = ExerciceService(
+      exerciceRepository: exerciceRepository,
+      atelierRepository: atelierRepository,
     );
 
     // Initialisation du Repository Annotation
@@ -618,6 +627,7 @@ class DependencyInjection {
   static void updateLocalizations(AppLocalizations l10n) {
     seanceService.setLocalizations(l10n);
     atelierService.setLocalizations(l10n);
+    exerciceService.setLocalizations(l10n);
     bulletinService.setLocalizations(l10n);
     qrScannerService.setLocalizations(l10n);
     referentielService.setLocalizations(l10n);

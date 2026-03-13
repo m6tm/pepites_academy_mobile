@@ -2929,6 +2929,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String serviceExerciceAtelierNotFound(String id) {
+    return 'Workshop not found: $id';
+  }
+
+  @override
+  String serviceExerciceNotFound(String id) {
+    return 'Exercise not found: $id';
+  }
+
+  @override
   String serviceBulletinNotFound(String id) {
     return 'Bulletin not found: $id';
   }

@@ -5288,6 +5288,18 @@ abstract class AppLocalizations {
   /// **'Atelier introuvable : {id}'**
   String serviceAtelierNotFound(String id);
 
+  /// No description provided for @serviceExerciceAtelierNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Atelier introuvable : {id}'**
+  String serviceExerciceAtelierNotFound(String id);
+
+  /// No description provided for @serviceExerciceNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exercice introuvable : {id}'**
+  String serviceExerciceNotFound(String id);
+
   /// No description provided for @serviceBulletinNotFound.
   ///
   /// In fr, this message translates to:

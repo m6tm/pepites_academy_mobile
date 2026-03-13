@@ -1524,6 +1524,22 @@
       }
     }
   },
+  "serviceExerciceAtelierNotFound": "Workshop not found: {id}",
+  "@serviceExerciceAtelierNotFound": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceExerciceNotFound": "Exercise not found: {id}",
+  "@serviceExerciceNotFound": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "serviceBulletinNotFound": "Bulletin not found: {id}",
   "@serviceBulletinNotFound": {
     "placeholders": {

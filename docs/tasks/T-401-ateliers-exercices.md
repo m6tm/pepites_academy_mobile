@@ -143,16 +143,16 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.4] Service Atelier/Exercice
+### [T-401.4] Service Atelier/Exercice [DONE]
 
 - **Objectif :** Créer les services applicatifs pour la logique métier.
 - **Actions :**
   - Créer `AtelierService` dans `lib/src/application/services/`
   - Créer `ExerciceService` dans `lib/src/application/services/`
   - Méthodes CRUD complètes avec support cache/refresh
-  - Méthode `reorderAteliers(List<int> ids)` pour réorganisation
-  - Méthode `reorderExercices(List<int> ids)` pour réorganisation
-  - Méthode `checkAutoClose(int atelierId)` pour vérifier la fermeture automatique
+  - Méthode `reorderAteliers(String seanceId, List<String> ids)` pour réorganisation
+  - Méthode `reorderExercices(String atelierId, List<String> ids)` pour réorganisation
+  - Méthode `checkAutoClose(String atelierId)` pour vérifier la fermeture automatique
 - **Fichiers à créer (Mobile) :**
   - `lib/src/application/services/atelier_service.dart`
   - `lib/src/application/services/exercice_service.dart`

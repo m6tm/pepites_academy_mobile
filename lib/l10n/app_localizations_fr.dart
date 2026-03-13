@@ -2942,6 +2942,16 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String serviceExerciceAtelierNotFound(String id) {
+    return 'Atelier introuvable : $id';
+  }
+
+  @override
+  String serviceExerciceNotFound(String id) {
+    return 'Exercice introuvable : $id';
+  }
+
+  @override
   String serviceBulletinNotFound(String id) {
     return 'Bulletin introuvable : $id';
   }

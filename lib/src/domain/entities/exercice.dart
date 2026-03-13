@@ -1,4 +1,5 @@
 import 'enums/exercice_statut.dart';
+export 'enums/exercice_statut.dart';
 
 class Exercice {
   final String id;

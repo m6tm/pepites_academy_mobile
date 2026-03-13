@@ -1,7 +1,10 @@
+import 'dart:async';
 import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/atelier.dart';
+import '../../domain/entities/exercice.dart';
 import '../../domain/repositories/atelier_repository.dart';
 import '../../domain/repositories/seance_repository.dart';
+import '../../domain/repositories/exercice_repository.dart';
 
 /// Service applicatif gerant la logique metier des ateliers.
 /// Gere la composition, la modification et la reorganisation des ateliers
@@ -9,13 +12,22 @@ import '../../domain/repositories/seance_repository.dart';
 class AtelierService {
   final AtelierRepository _atelierRepository;
   final SeanceRepository _seanceRepository;
+  final ExerciceRepository _exerciceRepository;
   AppLocalizations? _l10n;
+
+  // Controllers pour la reactivite UI
+  final _ateliersController = StreamController<List<Atelier>>.broadcast();
 
   AtelierService({
     required AtelierRepository atelierRepository,
     required SeanceRepository seanceRepository,
+    required ExerciceRepository exerciceRepository,
   }) : _atelierRepository = atelierRepository,
-       _seanceRepository = seanceRepository;
+       _seanceRepository = seanceRepository,
+       _exerciceRepository = exerciceRepository;
+
+  /// Flux de donnees pour les ateliers.
+  Stream<List<Atelier>> get ateliersStream => _ateliersController.stream;
 
   /// Met a jour les traductions.
   void setLocalizations(AppLocalizations l10n) {
@@ -24,7 +36,20 @@ class AtelierService {
 
   /// Recupere tous les ateliers d'une seance, tries par ordre.
   Future<List<Atelier>> getAteliersParSeance(String seanceId) async {
-    return _atelierRepository.getBySeanceId(seanceId);
+    final ateliers = await _atelierRepository.getBySeanceId(seanceId);
+    ateliers.sort((a, b) => a.ordre.compareTo(b.ordre));
+    _ateliersController.add(ateliers);
+    return ateliers;
+  }
+
+  /// Force le rafraichissement des donnees depuis le cache/repository.
+  Future<void> refreshAteliers(String seanceId) async {
+    await getAteliersParSeance(seanceId);
+  }
+
+  /// Recupere un atelier par son ID.
+  Future<Atelier?> getAtelierById(String id) async {
+    return _atelierRepository.getById(id);
   }
 
   /// Ajoute un atelier a une seance ouverte.
@@ -63,12 +88,15 @@ class AtelierService {
       seance.copyWith(atelierIds: updatedIds, nbAteliers: updatedIds.length),
     );
 
+    await refreshAteliers(seanceId);
     return created;
   }
 
   /// Met a jour un atelier existant.
   Future<Atelier> modifierAtelier(Atelier atelier) async {
-    return _atelierRepository.update(atelier);
+    final updated = await _atelierRepository.update(atelier);
+    await refreshAteliers(atelier.seanceId);
+    return updated;
   }
 
   /// Supprime un atelier et met a jour la seance.
@@ -81,10 +109,11 @@ class AtelierService {
       );
     }
 
+    final seanceId = atelier.seanceId;
     await _atelierRepository.delete(atelierId);
 
     // Mise a jour de la seance
-    final seance = await _seanceRepository.getById(atelier.seanceId);
+    final seance = await _seanceRepository.getById(seanceId);
     if (seance != null) {
       final updatedIds = seance.atelierIds
           .where((id) => id != atelierId)
@@ -95,18 +124,46 @@ class AtelierService {
     }
 
     // Recalculer les ordres
-    final restants = await _atelierRepository.getBySeanceId(atelier.seanceId);
+    final restants = await _atelierRepository.getBySeanceId(seanceId);
     final ids = restants.map((a) => a.id).toList();
     if (ids.isNotEmpty) {
-      await _atelierRepository.reorder(atelier.seanceId, ids);
+      await _atelierRepository.reorder(seanceId, ids);
     }
+
+    await refreshAteliers(seanceId);
   }
 
   /// Reordonne les ateliers d'une seance.
-  Future<void> reordonnerAteliers(
-    String seanceId,
-    List<String> atelierIds,
-  ) async {
+  Future<void> reorderAteliers(String seanceId, List<String> atelierIds) async {
     await _atelierRepository.reorder(seanceId, atelierIds);
+    await refreshAteliers(seanceId);
+  }
+
+  /// Alias pour compatibilite avec l'ancienne signature si necessaire.
+  Future<void> reordonnerAteliers(String seanceId, List<String> atelierIds) =>
+      reorderAteliers(seanceId, atelierIds);
+
+  /// Verifie si l'atelier peut etre ferme automatiquement.
+  /// Un atelier est ferme automatiquement si tous ses exercices sont fermes.
+  Future<bool> checkAutoClose(String atelierId) async {
+    final exercices = await _exerciceRepository.getByAtelierId(atelierId);
+    if (exercices.isEmpty) return false;
+
+    final tousFermes = exercices.every((e) => e.statut == ExerciceStatut.ferme);
+    
+    if (tousFermes) {
+      final atelier = await _atelierRepository.getById(atelierId);
+      if (atelier != null && atelier.statut != AtelierStatut.ferme) {
+        await modifierAtelier(atelier.copyWith(statut: AtelierStatut.ferme));
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  /// Libere les ressources.
+  void dispose() {
+    _ateliersController.close();
   }
 }
