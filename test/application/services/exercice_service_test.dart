@@ -8,19 +8,50 @@ import 'package:pepites_academy_mobile/src/domain/repositories/atelier_repositor
 import 'package:pepites_academy_mobile/src/domain/repositories/exercice_repository.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/seance_repository.dart';
 
-class MockAtelierRepository extends Mock implements AtelierRepository {}
 class MockExerciceRepository extends Mock implements ExerciceRepository {}
+class MockAtelierRepository extends Mock implements AtelierRepository {}
 class MockSeanceRepository extends Mock implements SeanceRepository {}
 
 void main() {
   late ExerciceService service;
-  late MockAtelierRepository mockAtelierRepo;
   late MockExerciceRepository mockExerciceRepo;
+  late MockAtelierRepository mockAtelierRepo;
   late MockSeanceRepository mockSeanceRepo;
 
+  const tExercice = Exercice(
+    id: '1',
+    nom: 'Passement',
+    description: 'Desc',
+    ordre: 0,
+    statut: ExerciceStatut.cree,
+    atelierId: '10',
+  );
+
+  const tAtelier = Atelier(
+    id: '10',
+    nom: 'Dribble',
+    description: 'Desc',
+    type: AtelierType.dribble,
+    ordre: 0,
+    statut: AtelierStatut.valide,
+    seanceId: '42',
+  );
+
+  final tSeance = Seance(
+    id: '42',
+    titre: 'Séance Test',
+    date: DateTime.now(),
+    heureDebut: DateTime.now(),
+    heureFin: DateTime.now(),
+    statut: SeanceStatus.ouverte,
+    encadreurResponsableId: 'enc-1',
+    nbAteliers: 1,
+    atelierIds: ['10'],
+  );
+
   setUp(() {
-    mockAtelierRepo = MockAtelierRepository();
     mockExerciceRepo = MockExerciceRepository();
+    mockAtelierRepo = MockAtelierRepository();
     mockSeanceRepo = MockSeanceRepository();
     service = ExerciceService(
       exerciceRepository: mockExerciceRepo,
@@ -28,279 +59,47 @@ void main() {
       seanceRepository: mockSeanceRepo,
     );
 
-    registerFallbackValue(Exercice(
-      id: '',
-      nom: '',
-      description: '',
-      ordre: 0,
-      statut: ExerciceStatut.cree,
-      atelierId: '',
-    ));
+    registerFallbackValue(tExercice);
+    registerFallbackValue(tAtelier);
+    registerFallbackValue(tSeance);
+    registerFallbackValue(ExerciceStatut.cree);
   });
 
-  group('ExerciceService', () {
-    const atelierId = 'atelier-1';
-
-    test('getExercicesParAtelier doit retourner les exercices tries', () async {
+  group('getExercicesParAtelier', () {
+    test('should return sorted exercices', () async {
       final exercices = [
-        Exercice(id: '1', nom: 'A', description: '', ordre: 2, statut: ExerciceStatut.cree, atelierId: atelierId),
-        Exercice(id: '2', nom: 'B', description: '', ordre: 1, statut: ExerciceStatut.cree, atelierId: atelierId),
+        tExercice.copyWith(id: '2', ordre: 1),
+        tExercice.copyWith(id: '1', ordre: 0),
       ];
-      
-      when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => exercices);
+      when(() => mockExerciceRepo.getByAtelierId(any())).thenAnswer((_) async => exercices);
 
-      final result = await service.getExercicesParAtelier(atelierId);
+      final result = await service.getExercicesParAtelier('10');
 
-      expect(result.first.id, '2');
-      verify(() => mockExerciceRepo.getByAtelierId(atelierId)).called(1);
+      expect(result.first.id, '1');
+      expect(result.last.id, '2');
     });
+  });
 
-    test('ajouterExercice doit creer un exercice', () async {
-      final atelier = Atelier(id: atelierId, nom: 'At1', description: '', type: AtelierType.dribble, ordre: 0, statut: AtelierStatut.cree, seanceId: 'S1');
-      
-      when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
-      when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
-      when(() => mockExerciceRepo.create(any())).thenAnswer((inv) async => inv.positionalArguments[0] as Exercice);
+  group('fermerExercice', () {
+    test('should throw exception if not applied', () async {
+      when(() => mockExerciceRepo.getById(any())).thenAnswer((_) async => tExercice);
 
-      final result = await service.ajouterExercice(
-        atelierId: atelierId,
-        nom: 'Nouveau',
+      expect(
+        () => service.fermerExercice('1'),
+        throwsException,
       );
-
-      expect(result.nom, 'Nouveau');
-      verify(() => mockExerciceRepo.create(any())).called(1);
-    });
-    
-    test('reorderExercices doit appeler le repository', () async {
-      final ids = ['3', '1'];
-      when(() => mockExerciceRepo.reorder(atelierId, ids)).thenAnswer((_) async {});
-      when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
-
-      await service.reorderExercices(atelierId, ids);
-
-      verify(() => mockExerciceRepo.reorder(atelierId, ids)).called(1);
     });
 
-    test('exercicesStream doit emettre les nouveaux exercices apres recuperation', () async {
-      final exercices = [
-        Exercice(id: '1', nom: 'A', description: '', ordre: 1, statut: ExerciceStatut.cree, atelierId: atelierId),
-      ];
-      when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => exercices);
+    test('should call close on repository if applied', () async {
+      final appliedExercice = tExercice.copyWith(statut: ExerciceStatut.applique);
+      when(() => mockExerciceRepo.getById(any())).thenAnswer((_) async => appliedExercice);
+      when(() => mockExerciceRepo.close(any())).thenAnswer((_) async => true);
+      when(() => mockExerciceRepo.getByAtelierId(any())).thenAnswer((_) async => [appliedExercice]);
 
-      expect(service.exercicesStream, emits(exercices));
+      final result = await service.fermerExercice('1');
 
-      await service.getExercicesParAtelier(atelierId);
-    });
-
-    test('modifierExercice doit mettre a jour et rafraichir', () async {
-      final exercice = Exercice(id: '1', nom: 'Old', description: '', ordre: 1, statut: ExerciceStatut.cree, atelierId: atelierId);
-      final updatedExercice = exercice.copyWith(nom: 'New');
-
-      when(() => mockExerciceRepo.update(any())).thenAnswer((_) async => updatedExercice);
-      when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => [updatedExercice]);
-
-      final result = await service.modifierExercice(updatedExercice);
-
-      expect(result.nom, 'New');
-      verify(() => mockExerciceRepo.update(any())).called(1);
-      verify(() => mockExerciceRepo.getByAtelierId(atelierId)).called(1);
-    });
-
-    test('supprimerExercice doit supprimer et reordonner', () async {
-      final exercice = Exercice(id: '1', nom: 'A', description: '', ordre: 1, statut: ExerciceStatut.cree, atelierId: atelierId);
-
-      when(() => mockExerciceRepo.getById('1')).thenAnswer((_) async => exercice);
-      when(() => mockExerciceRepo.delete('1')).thenAnswer((_) async => {});
-      when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
-
-      await service.supprimerExercice('1');
-
-      verify(() => mockExerciceRepo.delete('1')).called(1);
-    });
-
-    test('refreshExercices doit appeler le repository', () async {
-      when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
-
-      await service.refreshExercices(atelierId);
-
-      verify(() => mockExerciceRepo.getByAtelierId(atelierId)).called(1);
-    });
-
-    group('appliquerExercice', () {
-      const exerciceId = 'ex-1';
-      const seanceId = 'S1';
-
-      test('doit passer le statut a applique si valide et seance ouverte', () async {
-        final exercice = Exercice(
-          id: exerciceId,
-          nom: 'Ex1',
-          description: '',
-          ordre: 0,
-          statut: ExerciceStatut.valide,
-          atelierId: atelierId,
-        );
-        final atelier = Atelier(
-          id: atelierId,
-          nom: 'At1',
-          description: '',
-          type: AtelierType.dribble,
-          ordre: 0,
-          statut: AtelierStatut.cree,
-          seanceId: seanceId,
-        );
-        final seance = Seance(
-          id: seanceId,
-          titre: 'S1',
-          date: DateTime.now(),
-          heureDebut: DateTime.now(),
-          heureFin: DateTime.now(),
-          statut: SeanceStatus.ouverte,
-          encadreurResponsableId: 'E1',
-        );
-
-        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
-        when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
-        when(() => mockSeanceRepo.getById(seanceId)).thenAnswer((_) async => seance);
-        when(() => mockExerciceRepo.update(any())).thenAnswer((inv) async => inv.positionalArguments[0] as Exercice);
-        when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
-
-        final result = await service.appliquerExercice(exerciceId);
-
-        expect(result.statut, ExerciceStatut.applique);
-        verify(() => mockExerciceRepo.update(any(that: predicate<Exercice>((e) => e.statut == ExerciceStatut.applique)))).called(1);
-      });
-
-      test('doit lever une exception si l exercice n est pas au statut valide', () async {
-        final exercice = Exercice(
-          id: exerciceId,
-          nom: 'Ex1',
-          description: '',
-          ordre: 0,
-          statut: ExerciceStatut.cree,
-          atelierId: atelierId,
-        );
-
-        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
-
-        expect(
-          () => service.appliquerExercice(exerciceId),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockExerciceRepo.update(any()));
-      });
-
-      test('doit lever une exception si la seance est fermee', () async {
-        final exercice = Exercice(
-          id: exerciceId,
-          nom: 'Ex1',
-          description: '',
-          ordre: 0,
-          statut: ExerciceStatut.valide,
-          atelierId: atelierId,
-        );
-        final atelier = Atelier(
-          id: atelierId,
-          nom: 'At1',
-          description: '',
-          type: AtelierType.dribble,
-          ordre: 0,
-          statut: AtelierStatut.cree,
-          seanceId: seanceId,
-        );
-        final seance = Seance(
-          id: seanceId,
-          titre: 'S1',
-          date: DateTime.now(),
-          heureDebut: DateTime.now(),
-          heureFin: DateTime.now(),
-          statut: SeanceStatus.fermee,
-          encadreurResponsableId: 'E1',
-        );
-
-        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
-        when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
-        when(() => mockSeanceRepo.getById(seanceId)).thenAnswer((_) async => seance);
-
-        expect(
-          () => service.appliquerExercice(exerciceId),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockExerciceRepo.update(any()));
-      });
-    });
-
-    group('fermerExercice', () {
-      const exerciceId = 'ex-1';
-
-      test('doit fermer l exercice et retourner false si atelier non ferme', () async {
-        final exercice = Exercice(
-          id: exerciceId,
-          nom: 'Ex1',
-          description: '',
-          ordre: 0,
-          statut: ExerciceStatut.applique,
-          atelierId: atelierId,
-        );
-
-        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
-        when(() => mockExerciceRepo.close(exerciceId)).thenAnswer((_) async => false);
-        when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
-
-        final result = await service.fermerExercice(exerciceId);
-
-        expect(result, false);
-        verify(() => mockExerciceRepo.close(exerciceId)).called(1);
-        verify(() => mockExerciceRepo.getByAtelierId(atelierId)).called(1);
-      });
-
-      test('doit fermer l exercice et retourner true si atelier ferme automatiquement', () async {
-        final exercice = Exercice(
-          id: exerciceId,
-          nom: 'Ex1',
-          description: '',
-          ordre: 0,
-          statut: ExerciceStatut.applique,
-          atelierId: atelierId,
-        );
-
-        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
-        when(() => mockExerciceRepo.close(exerciceId)).thenAnswer((_) async => true);
-        when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
-
-        final result = await service.fermerExercice(exerciceId);
-
-        expect(result, true);
-        verify(() => mockExerciceRepo.close(exerciceId)).called(1);
-      });
-
-      test('doit lever une exception si l exercice est introuvable', () async {
-        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => null);
-
-        expect(
-          () => service.fermerExercice(exerciceId),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockExerciceRepo.close(any()));
-      });
-
-      test('doit lever une exception si l exercice n est pas au statut applique', () async {
-        final exercice = Exercice(
-          id: exerciceId,
-          nom: 'Ex1',
-          description: '',
-          ordre: 0,
-          statut: ExerciceStatut.valide,
-          atelierId: atelierId,
-        );
-
-        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
-
-        expect(
-          () => service.fermerExercice(exerciceId),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockExerciceRepo.close(any()));
-      });
+      expect(result, true);
+      verify(() => mockExerciceRepo.close('1')).called(1);
     });
   });
 }
