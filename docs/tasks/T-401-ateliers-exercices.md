@@ -180,7 +180,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.6] Création/Modification d'un atelier
+### [T-401.6] Création/Modification d'un atelier [DONE]
 
 - **Objectif :** Formulaire de création et modification d'atelier.
 - **Pré-requis :** Permission `atelier:create` ou `atelier:update`

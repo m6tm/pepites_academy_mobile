@@ -58,6 +58,7 @@ class AtelierService {
     required String nom,
     required AtelierType type,
     String description = '',
+    String? icone,
   }) async {
     final seance = await _seanceRepository.getById(seanceId);
     if (seance == null) {
@@ -75,8 +76,9 @@ class AtelierService {
       nom: nom,
       description: description,
       type: type,
+      icone: icone,
       ordre: ordre,
-      statut: AtelierStatut.cree,
+      statut: AtelierStatut.valide,
       seanceId: seanceId,
     );
 

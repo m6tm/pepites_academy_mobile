@@ -50,6 +50,7 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
     required String nom,
     required AtelierType type,
     String description = '',
+    String? icone,
   }) async {
     if (_seanceId == null) return false;
 
@@ -64,6 +65,7 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
         nom: nom,
         type: type,
         description: description,
+        icone: icone,
       );
       _successMessage = 'Atelier "$nom" ajoute avec succes.';
       await chargerAteliers(_seanceId!);

@@ -14,6 +14,7 @@ import '../../widgets/academy_toast.dart';
 import '../annotation/annotation_page.dart';
 import '../../state/message_state_mixin.dart';
 import '../../widgets/atelier_card.dart';
+import 'atelier_form_page.dart';
 
 /// Page affichant la liste des ateliers d'une séance avec leurs exercices associés.
 class AteliersPage extends StatefulWidget {
@@ -55,6 +56,7 @@ class _AteliersPageState extends State<AteliersPage> {
   late final AnnotationState _annotationState;
 
   bool _hasCreatePermission = false;
+  bool _hasUpdatePermission = false;
 
   @override
   void initState() {
@@ -84,6 +86,7 @@ class _AteliersPageState extends State<AteliersPage> {
       }
       setState(() {
         _hasCreatePermission = role.hasPermission(Permission.atelierCreate);
+        _hasUpdatePermission = role.hasPermission(Permission.atelierUpdate);
       });
     }
   }
@@ -311,7 +314,7 @@ class _AteliersPageState extends State<AteliersPage> {
               atelier: atelier,
               exercices: exercices,
               isLoadingExercices: _exerciceState.isLoading(atelier.id),
-              isEditable: _hasCreatePermission && widget.seance.estOuverte,
+              isEditable: _hasUpdatePermission && widget.seance.estOuverte,
               onAnnotate: () => _naviguerVersAnnotation(atelier),
               onEdit: () => _showEditAtelier(context, atelier),
               onDelete: () => _showDeleteConfirmation(context, atelier),
@@ -328,113 +331,26 @@ class _AteliersPageState extends State<AteliersPage> {
   // --- Modal Logic ---
 
   void _showAddAtelier(BuildContext context) {
-    // Note: Utilise une simple alerte pour l'instant ou un BottomSheet
-    // car AtelierFormPage est T-401.6
-    _showAtelierForm(context);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AtelierFormPage(
+          seanceId: widget.seance.id,
+          atelierState: _atelierState,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
   }
 
   void _showEditAtelier(BuildContext context, Atelier atelier) {
-    _showAtelierForm(context, atelier: atelier);
-  }
-
-  void _showAtelierForm(BuildContext context, {Atelier? atelier}) {
-    final l10n = AppLocalizations.of(context)!;
-    final nomController = TextEditingController(text: atelier?.nom ?? '');
-    final descController = TextEditingController(text: atelier?.description ?? '');
-    AtelierType selectedType = atelier?.type ?? AtelierType.dribble;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Container(
-          padding: EdgeInsets.only(
-            left: 20, right: 20, top: 20,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(ctx).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  atelier == null ? 'Nouvel Atelier' : 'Modifier l\'Atelier',
-                  style: GoogleFonts.montserrat(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: nomController,
-                  decoration: InputDecoration(
-                    labelText: 'Nom de l\'atelier',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<AtelierType>(
-                  initialValue: selectedType,
-                  decoration: InputDecoration(
-                    labelText: 'Type',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: AtelierType.values.map((t) => DropdownMenuItem(
-                    value: t,
-                    child: Text(t.name),
-                  )).toList(),
-                  onChanged: (val) {
-                    if (val != null) setModalState(() => selectedType = val);
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descController,
-                  decoration: InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (nomController.text.isNotEmpty) {
-                        if (atelier == null) {
-                          _atelierState.ajouterAtelier(
-                            nom: nomController.text,
-                            type: selectedType,
-                            description: descController.text,
-                          );
-                        } else {
-                          _atelierState.modifierAtelier(
-                            atelier.copyWith(
-                              nom: nomController.text,
-                              type: selectedType,
-                              description: descController.text,
-                            ),
-                          );
-                        }
-                        Navigator.pop(ctx);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(l10n.save),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AtelierFormPage(
+          seanceId: widget.seance.id,
+          atelier: atelier,
+          atelierState: _atelierState,
         ),
+        fullscreenDialog: true,
       ),
     );
   }
