@@ -1761,6 +1761,7 @@
   "requiredLabel": "Required",
   "serviceAtelierOnlyValidatedCanApply": "Only a validated workshop can be workshop applied.",
   "serviceExerciceOnlyValidatedCanApply": "Only a validated exercise can be workshop applied.",
+  "serviceExerciceOnlyAppliedCanClose": "Only an applied exercise can be closed.",
   "serviceAtelierAppliedSuccess": "Workshop applied successfully to the session.",
   "serviceExerciceAppliedSuccess": "Exercise applied successfully to the session.",
   "applyAction": "Apply",
@@ -1781,5 +1782,23 @@
         "type": "String"
       }
     }
-  }
+  },
+  "closeExerciseTitle": "Close Exercise",
+  "closeExerciseConfirmation": "Do you want to close the exercise \"{name}\"? This action is irreversible.",
+  "@closeExerciseConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceExerciceClosedSuccess": "Exercise \"{name}\" closed successfully.",
+  "@serviceExerciceClosedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceAtelierClosedAuto": "The workshop has been closed automatically because all its exercises are closed."
 }

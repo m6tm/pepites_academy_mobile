@@ -111,6 +111,12 @@ enum Permission {
   /// Appliquer un exercice.
   exerciceApply('exercice:apply', 'Appliquer un exercice'),
 
+  /// Fermer un exercice.
+  exerciceClose('exercice:close', 'Fermer un exercice'),
+
+  /// Fermer un atelier.
+  atelierClose('atelier:close', 'Fermer un atelier'),
+
   /// Voir les ateliers.
   atelierView('atelier:view', 'Voir les ateliers'),
 
@@ -186,7 +192,10 @@ enum Permission {
   disciplineEncadreur('discipline:encadreur', 'Suivi discipline encadreurs'),
 
   /// Suivi discipline des académiciens.
-  disciplineAcademicien('discipline:academicien', 'Suivi discipline académiciens'),
+  disciplineAcademicien(
+    'discipline:academicien',
+    'Suivi discipline académiciens',
+  ),
 
   // ===== Scanner QR et Présences =====
   /// Scanner un QR code.
@@ -216,13 +225,22 @@ enum Permission {
   referentielPosteDelete('referentiel:poste_delete', 'Supprimer un poste'),
 
   /// Ajouter un niveau scolaire.
-  referentielNiveauCreate('referentiel:niveau_create', 'Ajouter un niveau scolaire'),
+  referentielNiveauCreate(
+    'referentiel:niveau_create',
+    'Ajouter un niveau scolaire',
+  ),
 
   /// Modifier un niveau scolaire.
-  referentielNiveauUpdate('referentiel:niveau_update', 'Modifier un niveau scolaire'),
+  referentielNiveauUpdate(
+    'referentiel:niveau_update',
+    'Modifier un niveau scolaire',
+  ),
 
   /// Supprimer un niveau scolaire.
-  referentielNiveauDelete('referentiel:niveau_delete', 'Supprimer un niveau scolaire'),
+  referentielNiveauDelete(
+    'referentiel:niveau_delete',
+    'Supprimer un niveau scolaire',
+  ),
 
   /// Voir les référentiels.
   referentielView('referentiel:view', 'Voir les référentiels');
@@ -307,7 +325,9 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.exerciceDelete,
     Permission.exerciceValidate,
     Permission.atelierApply,
+    Permission.atelierClose,
     Permission.exerciceApply,
+    Permission.exerciceClose,
     Permission.atelierView,
     // Évaluations et annotations
     Permission.annotationCreate,
@@ -385,7 +405,11 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.exerciceDelete,
     Permission.exerciceValidate,
     Permission.atelierApply,
+    Permission.atelierClose,
+
     Permission.exerciceApply,
+    Permission.exerciceClose,
+
     Permission.atelierView,
     // Évaluations et annotations
     Permission.annotationCreate,
@@ -467,6 +491,8 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.seanceView,
     Permission.atelierApply,
     Permission.exerciceApply,
+    Permission.atelierClose,
+    Permission.exerciceClose,
     // Entraînements (appliquer et voir)
     Permission.entrainementApply,
     Permission.entrainementView,

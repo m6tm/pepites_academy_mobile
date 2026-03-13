@@ -3463,6 +3463,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only a validated exercise can be workshop applied.';
 
   @override
+  String get serviceExerciceOnlyAppliedCanClose =>
+      'Only an applied exercise can be closed.';
+
+  @override
   String get serviceAtelierAppliedSuccess =>
       'Workshop applied successfully to the session.';
 
@@ -3488,4 +3492,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String applyExerciseConfirmation(String name) {
     return 'Do you want to mark \"$name\" as \"In Progress\"?';
   }
+
+  @override
+  String get closeExerciseTitle => 'Close Exercise';
+
+  @override
+  String closeExerciseConfirmation(String name) {
+    return 'Do you want to close the exercise \"$name\"? This action is irreversible.';
+  }
+
+  @override
+  String serviceExerciceClosedSuccess(String name) {
+    return 'Exercise \"$name\" closed successfully.';
+  }
+
+  @override
+  String get serviceAtelierClosedAuto =>
+      'The workshop has been closed automatically because all its exercises are closed.';
 }

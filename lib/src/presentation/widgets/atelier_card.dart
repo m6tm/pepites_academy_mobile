@@ -18,6 +18,7 @@ class AtelierCard extends StatefulWidget {
   final Function(Exercice)? onDeleteExercice;
   final VoidCallback? onApply;
   final Function(Exercice)? onApplyExercice;
+  final Function(Exercice)? onCloseExercice;
   final bool isLoadingExercices;
 
   const AtelierCard({
@@ -33,6 +34,7 @@ class AtelierCard extends StatefulWidget {
     this.onDeleteExercice,
     this.onApply,
     this.onApplyExercice,
+    this.onCloseExercice,
     this.isLoadingExercices = false,
   });
 
@@ -205,6 +207,7 @@ class _AtelierCardState extends State<AtelierCard> {
                         onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
                         onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
+                        onClose: widget.onCloseExercice != null ? () => widget.onCloseExercice!(ex) : null,
                       )),
                 
                 // Add Exercice Button

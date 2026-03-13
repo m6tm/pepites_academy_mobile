@@ -3482,6 +3482,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Seul un exercice validé peut être appliqué.';
 
   @override
+  String get serviceExerciceOnlyAppliedCanClose =>
+      'Seul un exercice appliqué peut être fermé.';
+
+  @override
   String get serviceAtelierAppliedSuccess =>
       'Atelier appliqué avec succès en séance.';
 
@@ -3507,4 +3511,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String applyExerciseConfirmation(String name) {
     return 'Voulez-vous marquer \"$name\" comme \"En cours\" ?';
   }
+
+  @override
+  String get closeExerciseTitle => 'Fermer l\'exercice';
+
+  @override
+  String closeExerciseConfirmation(String name) {
+    return 'Voulez-vous fermer l\'exercice \"$name\" ? Cette action est irreversible.';
+  }
+
+  @override
+  String serviceExerciceClosedSuccess(String name) {
+    return 'Exercice \"$name\" ferme avec succes.';
+  }
+
+  @override
+  String get serviceAtelierClosedAuto =>
+      'L\'atelier a ete ferme automatiquement car tous ses exercices sont fermes.';
 }

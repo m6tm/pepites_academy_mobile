@@ -16,12 +16,12 @@ void main() {
       ordre: 1,
     );
   });
-
   Widget buildTestableWidget({
     required Exercice exercice,
     bool isEditable = false,
     VoidCallback? onEdit,
     VoidCallback? onDelete,
+    VoidCallback? onClose,
   }) {
     return MaterialApp(
       home: Scaffold(
@@ -30,6 +30,7 @@ void main() {
           isEditable: isEditable,
           onEdit: onEdit,
           onDelete: onDelete,
+          onClose: onClose,
         ),
       ),
     );
@@ -94,13 +95,46 @@ void main() {
       expect(deleteCalled, isTrue);
     });
 
-    testWidgets('Gère un exercice sans description', (WidgetTester tester) async {
+    testWidgets('Gere un exercice sans description', (WidgetTester tester) async {
       final exerciceSansDesc = testExercice.copyWith(description: '');
       
       await tester.pumpWidget(buildTestableWidget(exercice: exerciceSansDesc));
 
       expect(find.text('Passe et suit'), findsOneWidget);
       // Ne devrait pas crasher et ne pas afficher de description vide
+    });
+
+    testWidgets('Affiche le bouton fermer si statut est applique et appelle onClose', (WidgetTester tester) async {
+      final exerciceApplique = testExercice.copyWith(statut: ExerciceStatut.applique);
+      bool closeCalled = false;
+
+      await tester.pumpWidget(buildTestableWidget(
+        exercice: exerciceApplique,
+        isEditable: true,
+        onClose: () {
+          closeCalled = true;
+        },
+      ));
+
+      // Vérifier que le bouton fermer (check_circle_outline_rounded coloré en vert) est présent
+      final closeButtonFinder = find.byTooltip('Fermer l\'exercice');
+      expect(closeButtonFinder, findsOneWidget);
+
+      await tester.tap(closeButtonFinder);
+      expect(closeCalled, isTrue);
+    });
+
+    testWidgets('N affiche pas le bouton fermer si le statut nest pas applique', (WidgetTester tester) async {
+      final exerciceValide = testExercice.copyWith(statut: ExerciceStatut.valide);
+      
+      await tester.pumpWidget(buildTestableWidget(
+        exercice: exerciceValide,
+        isEditable: true,
+        onClose: () {},
+      ));
+
+      // Le bouton "fermer" ne doit pas être présent
+      expect(find.byTooltip('Fermer l\'exercice'), findsNothing);
     });
   });
 }

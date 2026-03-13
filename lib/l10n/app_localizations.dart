@@ -6296,6 +6296,12 @@ abstract class AppLocalizations {
   /// **'Seul un exercice validé peut être appliqué.'**
   String get serviceExerciceOnlyValidatedCanApply;
 
+  /// No description provided for @serviceExerciceOnlyAppliedCanClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul un exercice appliqué peut être fermé.'**
+  String get serviceExerciceOnlyAppliedCanClose;
+
   /// No description provided for @serviceAtelierAppliedSuccess.
   ///
   /// In fr, this message translates to:
@@ -6337,6 +6343,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Voulez-vous marquer \"{name}\" comme \"En cours\" ?'**
   String applyExerciseConfirmation(String name);
+
+  /// No description provided for @closeExerciseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer l\'exercice'**
+  String get closeExerciseTitle;
+
+  /// No description provided for @closeExerciseConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous fermer l\'exercice \"{name}\" ? Cette action est irreversible.'**
+  String closeExerciseConfirmation(String name);
+
+  /// No description provided for @serviceExerciceClosedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exercice \"{name}\" ferme avec succes.'**
+  String serviceExerciceClosedSuccess(String name);
+
+  /// No description provided for @serviceAtelierClosedAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'atelier a ete ferme automatiquement car tous ses exercices sont fermes.'**
+  String get serviceAtelierClosedAuto;
 }
 
 class _AppLocalizationsDelegate

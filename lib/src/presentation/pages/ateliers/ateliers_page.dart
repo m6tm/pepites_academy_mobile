@@ -60,6 +60,7 @@ class _AteliersPageState extends State<AteliersPage> {
   bool _hasUpdatePermission = false;
   bool _hasApplyAtelierPermission = false;
   bool _hasApplyExercicePermission = false;
+  bool _hasCloseExercicePermission = false;
 
   @override
   void initState() {
@@ -102,6 +103,7 @@ class _AteliersPageState extends State<AteliersPage> {
         _hasUpdatePermission = role.hasPermission(Permission.atelierUpdate);
         _hasApplyAtelierPermission = role.hasPermission(Permission.atelierApply);
         _hasApplyExercicePermission = role.hasPermission(Permission.exerciceApply);
+        _hasCloseExercicePermission = role.hasPermission(Permission.exerciceClose);
       });
     }
   }
@@ -367,6 +369,7 @@ class _AteliersPageState extends State<AteliersPage> {
                   _exerciceState.supprimerExercice(ex.id, atelier.id),
               onApply: (_hasApplyAtelierPermission && widget.seance.estOuverte) ? () => _confirmApplyAtelier(context, atelier) : null,
               onApplyExercice: (_hasApplyExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmApplyExercice(context, ex) : null,
+              onCloseExercice: (_hasCloseExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmCloseExercice(context, ex) : null,
             ),
           );
         },
@@ -535,6 +538,59 @@ class _AteliersPageState extends State<AteliersPage> {
             onPressed: () {
               _exerciceState.appliquerExercice(exercice.id, exercice.atelierId);
               Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(
+              l10n.confirmButton,
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmCloseExercice(BuildContext context, Exercice exercice) {
+    if (!_hasCloseExercicePermission || !widget.seance.estOuverte) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          l10n.closeExerciseTitle,
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          l10n.closeExerciseConfirmation(exercice.nom),
+          style: GoogleFonts.montserrat(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              l10n.cancelAction,
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final isAtelierClosed = await _exerciceState.fermerExercice(
+                exercice.id,
+                exercice.atelierId,
+                exercice.nom,
+              );
+              if (isAtelierClosed) {
+                // Si l'atelier a été fermé, on rafraîchit l'état des ateliers
+                await _atelierState.chargerAteliers(widget.seance.id);
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,

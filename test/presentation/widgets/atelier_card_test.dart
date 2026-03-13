@@ -29,12 +29,16 @@ void main() {
     );
   });
 
-  Widget buildTestableWidget({required bool isEditable}) {
+  Widget buildTestableWidget({
+    required bool isEditable,
+    List<Exercice>? exercicesOverride,
+    Function(Exercice)? onCloseExercice,
+  }) {
     return MaterialApp(
       home: Scaffold(
         body: AtelierCard(
           atelier: testAtelier,
-          exercices: [testExercice],
+          exercices: exercicesOverride ?? [testExercice],
           isEditable: isEditable,
           onEdit: () {},
           onDelete: () {},
@@ -42,6 +46,7 @@ void main() {
           onAnnotate: () {},
           onEditExercice: (ex) {},
           onDeleteExercice: (ex) {},
+          onCloseExercice: onCloseExercice,
         ),
       ),
     );
@@ -84,5 +89,36 @@ void main() {
     
     // Bouton ajouter un exercice
     expect(find.text('Ajouter un exercice'), findsOneWidget);
+  });
+
+  testWidgets('AtelierCard triggers onCloseExercice when the close button is tapped', (WidgetTester tester) async {
+    Exercice? closedExercice;
+    
+    // On met l'exercice en statut appliqué pour que le bouton Fermer apparaisse
+    final appliqueExercice = testExercice.copyWith(statut: ExerciceStatut.applique);
+
+    await tester.pumpWidget(buildTestableWidget(
+      isEditable: true,
+      exercicesOverride: [appliqueExercice],
+      onCloseExercice: (ex) {
+        closedExercice = ex;
+      },
+    ));
+
+    // Tap sur la carte pour l'étendre
+    await tester.tap(find.text('Test Atelier'));
+    await tester.pumpAndSettle(); // Attend l'animation
+
+    // Vérifier que le bouton de fermeture est apparu
+    final closeButtonFinder = find.byTooltip('Fermer l\'exercice');
+    expect(closeButtonFinder, findsOneWidget);
+
+    // Tap sur le bouton de fermeture
+    await tester.tap(closeButtonFinder);
+    await tester.pumpAndSettle();
+
+    // Vérifier que la callback a été appelée avec le bon exercice
+    expect(closedExercice, isNotNull);
+    expect(closedExercice?.id, appliqueExercice.id);
   });
 }

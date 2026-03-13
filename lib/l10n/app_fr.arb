@@ -1834,6 +1834,7 @@
   "requiredLabel": "Obligatoire",
   "serviceAtelierOnlyValidatedCanApply": "Seul un atelier validé peut être appliqué.",
   "serviceExerciceOnlyValidatedCanApply": "Seul un exercice validé peut être appliqué.",
+  "serviceExerciceOnlyAppliedCanClose": "Seul un exercice appliqué peut être fermé.",
   "serviceAtelierAppliedSuccess": "Atelier appliqué avec succès en séance.",
   "serviceExerciceAppliedSuccess": "Exercice appliqué avec succès en séance.",
   "applyAction": "Appliquer",
@@ -1854,5 +1855,23 @@
         "type": "String"
       }
     }
-  }
+  },
+  "closeExerciseTitle": "Fermer l'exercice",
+  "closeExerciseConfirmation": "Voulez-vous fermer l'exercice \"{name}\" ? Cette action est irreversible.",
+  "@closeExerciseConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceExerciceClosedSuccess": "Exercice \"{name}\" ferme avec succes.",
+  "@serviceExerciceClosedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceAtelierClosedAuto": "L'atelier a ete ferme automatiquement car tous ses exercices sont fermes."
 }

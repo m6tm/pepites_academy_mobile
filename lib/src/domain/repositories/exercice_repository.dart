@@ -19,4 +19,8 @@ abstract class ExerciceRepository {
 
   /// Reordonne les exercices d'un atelier.
   Future<void> reorder(String atelierId, List<String> exerciceIds);
+
+  /// Ferme un exercice (statut 'ferme').
+  /// Retourne un flag indiquant si l'atelier a été fermé automatiquement.
+  Future<bool> close(String id);
 }

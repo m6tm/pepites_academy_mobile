@@ -154,6 +154,29 @@ class ExerciceService {
     await refreshExercices(atelierId);
   }
 
+  /// Ferme un exercice (statut 'ferme').
+  /// Retourne un flag indiquant si l'atelier a été fermé automatiquement.
+  Future<bool> fermerExercice(String exerciceId) async {
+    final exercice = await _exerciceRepository.getById(exerciceId);
+    if (exercice == null) {
+      throw Exception(
+        _l10n?.serviceExerciceNotFound(exerciceId) ??
+            'Exercice introuvable : $exerciceId',
+      );
+    }
+
+    if (exercice.statut != ExerciceStatut.applique) {
+      throw Exception(
+        _l10n?.serviceExerciceOnlyAppliedCanClose ??
+            'Seul un exercice appliqué peut être fermé.',
+      );
+    }
+
+    final isAtelierClosed = await _exerciceRepository.close(exerciceId);
+    await refreshExercices(exercice.atelierId);
+    return isAtelierClosed;
+  }
+
   /// Libere les ressources.
   void dispose() {
     _exercicesController.close();

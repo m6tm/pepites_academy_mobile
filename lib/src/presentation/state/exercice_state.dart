@@ -116,6 +116,30 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
     }
   }
 
+  /// Ferme un exercice (statut 'ferme').
+  /// Retourne un flag indiquant si l'atelier a été fermé automatiquement.
+  Future<bool> fermerExercice(String exerciceId, String atelierId, String nom) async {
+    _loadingStates[atelierId] = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      final isAtelierClosed = await _service.fermerExercice(exerciceId);
+      _successMessage = _l10n?.serviceExerciceClosedSuccess(nom) ?? 'Exercice "$nom" fermé avec succès.';
+      if (isAtelierClosed) {
+        _successMessage = '${_successMessage!}\n${_l10n?.serviceAtelierClosedAuto ?? "L'atelier a été fermé automatiquement."}';
+      }
+      await chargerExercices(atelierId);
+      return isAtelierClosed;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la fermeture : $e';
+      _loadingStates[atelierId] = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Supprime un exercice.
   Future<bool> supprimerExercice(String exerciceId, String atelierId) async {
     _loadingStates[atelierId] = true;

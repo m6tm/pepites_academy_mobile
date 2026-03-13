@@ -228,5 +228,79 @@ void main() {
         verifyNever(() => mockExerciceRepo.update(any()));
       });
     });
+
+    group('fermerExercice', () {
+      const exerciceId = 'ex-1';
+
+      test('doit fermer l exercice et retourner false si atelier non ferme', () async {
+        final exercice = Exercice(
+          id: exerciceId,
+          nom: 'Ex1',
+          description: '',
+          ordre: 0,
+          statut: ExerciceStatut.applique,
+          atelierId: atelierId,
+        );
+
+        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
+        when(() => mockExerciceRepo.close(exerciceId)).thenAnswer((_) async => false);
+        when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
+
+        final result = await service.fermerExercice(exerciceId);
+
+        expect(result, false);
+        verify(() => mockExerciceRepo.close(exerciceId)).called(1);
+        verify(() => mockExerciceRepo.getByAtelierId(atelierId)).called(1);
+      });
+
+      test('doit fermer l exercice et retourner true si atelier ferme automatiquement', () async {
+        final exercice = Exercice(
+          id: exerciceId,
+          nom: 'Ex1',
+          description: '',
+          ordre: 0,
+          statut: ExerciceStatut.applique,
+          atelierId: atelierId,
+        );
+
+        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
+        when(() => mockExerciceRepo.close(exerciceId)).thenAnswer((_) async => true);
+        when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
+
+        final result = await service.fermerExercice(exerciceId);
+
+        expect(result, true);
+        verify(() => mockExerciceRepo.close(exerciceId)).called(1);
+      });
+
+      test('doit lever une exception si l exercice est introuvable', () async {
+        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => null);
+
+        expect(
+          () => service.fermerExercice(exerciceId),
+          throwsA(isA<Exception>()),
+        );
+        verifyNever(() => mockExerciceRepo.close(any()));
+      });
+
+      test('doit lever une exception si l exercice n est pas au statut applique', () async {
+        final exercice = Exercice(
+          id: exerciceId,
+          nom: 'Ex1',
+          description: '',
+          ordre: 0,
+          statut: ExerciceStatut.valide,
+          atelierId: atelierId,
+        );
+
+        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
+
+        expect(
+          () => service.fermerExercice(exerciceId),
+          throwsA(isA<Exception>()),
+        );
+        verifyNever(() => mockExerciceRepo.close(any()));
+      });
+    });
   });
 }

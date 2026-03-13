@@ -227,7 +227,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.9] Fermeture d'un exercice avec mise à jour automatique
+### [T-401.9] Fermeture d'un exercice avec mise à jour automatique [DONE]
 
 - **Objectif :** Fermer un exercice et mettre à jour automatiquement le statut de l'atelier parent.
 - **Pré-requis :** Permission `exercice:close`

@@ -200,5 +200,128 @@ void main() {
       expect(result, isFalse);
       verifyNever(() => mockDatasource.upsertAll(any()));
     });
+
+    group('close', () {
+      const closableExercice = Exercice(
+        id: '1',
+        atelierId: 'atelier-1',
+        nom: 'Test Exercice',
+        description: 'Desc',
+        ordre: 1,
+        statut: ExerciceStatut.applique,
+      );
+
+      test('doit mettre a jour le statut local et retourner true si atelier_closed est true', () async {
+        // Arrange
+        when(() => mockDatasource.getById('1')).thenReturn(closableExercice);
+        when(() => mockDatasource.update(any())).thenAnswer(
+            (inv) async => inv.positionalArguments[0] as Exercice);
+        when(() => mockDioClient.put<dynamic>(
+              '${ApiEndpoints.exercices}/1/close',
+              data: any(named: 'data'),
+            )).thenAnswer((_) async => const Right({'atelier_closed': true}));
+
+        // Act
+        final result = await repository.close('1');
+
+        // Assert
+        expect(result, isTrue);
+        verify(() => mockDatasource.update(
+            any(that: predicate<Exercice>((e) => e.statut == ExerciceStatut.ferme)),
+        )).called(1);
+        verify(() => mockDioClient.put<dynamic>(
+              '${ApiEndpoints.exercices}/1/close',
+              data: any(named: 'data'),
+            )).called(1);
+      });
+
+      test('doit retourner false si atelier_closed est false', () async {
+        // Arrange
+        when(() => mockDatasource.getById('1')).thenReturn(closableExercice);
+        when(() => mockDatasource.update(any())).thenAnswer(
+            (inv) async => inv.positionalArguments[0] as Exercice);
+        when(() => mockDioClient.put<dynamic>(
+              '${ApiEndpoints.exercices}/1/close',
+              data: any(named: 'data'),
+            )).thenAnswer((_) async => const Right({'atelier_closed': false}));
+
+        // Act
+        final result = await repository.close('1');
+
+        // Assert
+        expect(result, isFalse);
+      });
+
+      test('doit retourner false en cas d erreur API et enfiler une operation de sync', () async {
+        // Arrange
+        when(() => mockDatasource.getById('1')).thenReturn(closableExercice);
+        when(() => mockDatasource.update(any())).thenAnswer(
+            (inv) async => inv.positionalArguments[0] as Exercice);
+        when(() => mockDioClient.put<dynamic>(
+              '${ApiEndpoints.exercices}/1/close',
+              data: any(named: 'data'),
+            )).thenAnswer((_) async => const Left(
+              NetworkFailure(type: NetworkFailureType.serverError),
+            ));
+
+        // Act
+        final result = await repository.close('1');
+
+        // Assert
+        expect(result, isFalse);
+        // Le statut local doit quand meme avoir ete mis a jour
+        verify(() => mockDatasource.update(
+            any(that: predicate<Exercice>((e) => e.statut == ExerciceStatut.ferme)),
+        )).called(1);
+      });
+
+      test('doit mettre a jour localement et enfiler la sync si hors-ligne (pas de dioClient)', () async {
+        // Arrange : repository sans DioClient (mode hors-ligne)
+        final offlineRepository = ExerciceRepositoryImpl(mockDatasource);
+        offlineRepository.setSyncService(mockSyncService);
+
+        when(() => mockDatasource.getById('1')).thenReturn(closableExercice);
+        when(() => mockDatasource.update(any())).thenAnswer(
+            (inv) async => inv.positionalArguments[0] as Exercice);
+        when(() => mockSyncService.enqueueOperation(
+              entityType: any(named: 'entityType'),
+              entityId: any(named: 'entityId'),
+              operationType: any(named: 'operationType'),
+              data: any(named: 'data'),
+            )).thenAnswer((_) async => Future<void>.value());
+
+        // Act
+        final result = await offlineRepository.close('1');
+
+        // Assert
+        expect(result, isFalse);
+        verify(() => mockDatasource.update(
+            any(that: predicate<Exercice>((e) => e.statut == ExerciceStatut.ferme)),
+        )).called(1);
+        verify(() => mockSyncService.enqueueOperation(
+              entityType: SyncEntityType.exercice,
+              entityId: '1',
+              operationType: SyncOperationType.update,
+              data: {'statut': 'ferme'},
+            )).called(1);
+      });
+
+      test('doit gerer le cas ou l exercice n existe pas localement', () async {
+        // Arrange
+        when(() => mockDatasource.getById('unknown')).thenReturn(null);
+        when(() => mockDioClient.put<dynamic>(
+              '${ApiEndpoints.exercices}/unknown/close',
+              data: any(named: 'data'),
+            )).thenAnswer((_) async => const Right({'atelier_closed': false}));
+
+        // Act
+        final result = await repository.close('unknown');
+
+        // Assert
+        expect(result, isFalse);
+        // Le datasource.update ne doit pas etre appele si l'exercice est introuvable
+        verifyNever(() => mockDatasource.update(any()));
+      });
+    });
   });
 }

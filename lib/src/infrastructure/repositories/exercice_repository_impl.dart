@@ -89,6 +89,49 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     );
   }
 
+  @override
+  Future<bool> close(String id) async {
+    // 1. Mise à jour locale
+    final existing = _datasource.getById(id);
+    if (existing != null) {
+      await _datasource.update(existing.copyWith(statut: ExerciceStatut.ferme));
+    }
+
+    // 2. Appel API si en ligne
+    if (_dioClient != null) {
+      final result = await _dioClient!.put<dynamic>(
+        '${ApiEndpoints.exercices}/$id/close',
+        data: {},
+      );
+
+      return await result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print(
+            '[ExerciceRepo] Erreur lors de la fermeture : ${failure.message}',
+          );
+          return false;
+        },
+        (data) async {
+          if (data is Map<String, dynamic>) {
+            return data['atelier_closed'] == true;
+          }
+          return false;
+        },
+      );
+    }
+
+    // 3. Enregistrement de l'opération de synchronisation (si hors-ligne)
+    await _syncService?.enqueueOperation(
+      entityType: SyncEntityType.exercice,
+      entityId: id,
+      operationType: SyncOperationType.update,
+      data: {'statut': 'ferme'},
+    );
+
+    return false;
+  }
+
   /// Synchronise les exercices depuis le backend vers le cache local.
   Future<bool> syncFromApi() async {
     if (_dioClient == null) return false;

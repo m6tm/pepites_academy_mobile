@@ -9,6 +9,7 @@ class ExerciceListTile extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onApply;
+  final VoidCallback? onClose;
   final bool isEditable;
 
   const ExerciceListTile({
@@ -17,6 +18,7 @@ class ExerciceListTile extends StatelessWidget {
     this.onEdit,
     this.onDelete,
     this.onApply,
+    this.onClose,
     this.isEditable = false,
   });
 
@@ -55,6 +57,12 @@ class ExerciceListTile extends StatelessWidget {
                     icon: Icon(Icons.play_circle_outline_rounded, size: 18, color: colorScheme.primary),
                     onPressed: onApply,
                     tooltip: 'Appliquer en séance',
+                  ),
+                if (onClose != null && exercice.statut == ExerciceStatut.applique)
+                  IconButton(
+                    icon: const Icon(Icons.check_circle_outline_rounded, size: 18, color: Colors.green),
+                    onPressed: onClose,
+                    tooltip: 'Fermer l\'exercice',
                   ),
                 if (onEdit != null)
                   IconButton(
