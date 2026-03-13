@@ -85,7 +85,7 @@ class AtelierRepositoryImpl implements AtelierRepository {
       entityType: SyncEntityType.atelier,
       entityId: seanceId, // On utilise l'ID de la séance comme référence
       operationType: SyncOperationType.reorder,
-      data: {'seance_id': seanceId, 'atelier_ids': atelierIds},
+      data: {'order': atelierIds},
     );
   }
 

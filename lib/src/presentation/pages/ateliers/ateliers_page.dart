@@ -58,6 +58,7 @@ class _AteliersPageState extends State<AteliersPage> {
 
   bool _hasCreatePermission = false;
   bool _hasUpdatePermission = false;
+  bool _hasUpdateExercicePermission = false;
   bool _hasApplyAtelierPermission = false;
   bool _hasApplyExercicePermission = false;
   bool _hasCloseExercicePermission = false;
@@ -101,6 +102,7 @@ class _AteliersPageState extends State<AteliersPage> {
       setState(() {
         _hasCreatePermission = role.hasPermission(Permission.atelierCreate);
         _hasUpdatePermission = role.hasPermission(Permission.atelierUpdate);
+        _hasUpdateExercicePermission = role.hasPermission(Permission.exerciceUpdate);
         _hasApplyAtelierPermission = role.hasPermission(Permission.atelierApply);
         _hasApplyExercicePermission = role.hasPermission(Permission.exerciceApply);
         _hasCloseExercicePermission = role.hasPermission(Permission.exerciceClose);
@@ -352,25 +354,26 @@ class _AteliersPageState extends State<AteliersPage> {
           final exercices =
               _exerciceState.exercicesParAtelier[atelier.id] ?? [];
 
-          return ReorderableDragStartListener(
+          return AtelierCard(
             key: ValueKey(atelier.id),
             index: index,
-            child: AtelierCard(
-              atelier: atelier,
-              exercices: exercices,
-              isLoadingExercices: _exerciceState.isLoading(atelier.id),
-              isEditable: _hasUpdatePermission && widget.seance.estOuverte,
-              onAnnotate: () => _naviguerVersAnnotation(atelier),
-              onEdit: () => _showEditAtelier(context, atelier),
-              onDelete: () => _showDeleteConfirmation(context, atelier),
-              onAddExercice: () => _showAddExercice(context, atelier),
-              onEditExercice: (ex) => _showEditExercice(context, ex),
-              onDeleteExercice: (ex) =>
-                  _exerciceState.supprimerExercice(ex.id, atelier.id),
-              onApply: (_hasApplyAtelierPermission && widget.seance.estOuverte) ? () => _confirmApplyAtelier(context, atelier) : null,
-              onApplyExercice: (_hasApplyExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmApplyExercice(context, ex) : null,
-              onCloseExercice: (_hasCloseExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmCloseExercice(context, ex) : null,
-            ),
+            atelier: atelier,
+            exercices: exercices,
+            isLoadingExercices: _exerciceState.isLoading(atelier.id),
+            isEditable: _hasUpdatePermission && widget.seance.estOuverte,
+            isExercicesEditable: _hasUpdateExercicePermission && widget.seance.estOuverte,
+            onAnnotate: () => _naviguerVersAnnotation(atelier),
+            onEdit: () => _showEditAtelier(context, atelier),
+            onDelete: () => _showDeleteConfirmation(context, atelier),
+            onAddExercice: () => _showAddExercice(context, atelier),
+            onEditExercice: (ex) => _showEditExercice(context, ex),
+            onDeleteExercice: (ex) =>
+                _exerciceState.supprimerExercice(ex.id, atelier.id),
+            onApply: (_hasApplyAtelierPermission && widget.seance.estOuverte) ? () => _confirmApplyAtelier(context, atelier) : null,
+            onApplyExercice: (_hasApplyExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmApplyExercice(context, ex) : null,
+            onCloseExercice: (_hasCloseExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmCloseExercice(context, ex) : null,
+            onReorderExercice: (oldIndex, newIndex) =>
+                _exerciceState.reordonnerExercices(atelier.id, oldIndex, newIndex),
           );
         },
       ),

@@ -37,6 +37,7 @@ void main() {
     return MaterialApp(
       home: Scaffold(
         body: AtelierCard(
+          index: 0,
           atelier: testAtelier,
           exercices: exercicesOverride ?? [testExercice],
           isEditable: isEditable,

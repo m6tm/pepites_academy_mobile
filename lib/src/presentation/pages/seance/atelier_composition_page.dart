@@ -454,6 +454,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             final atelier = state.ateliers[index];
             final exercices = exerciceState.exercicesParAtelier[atelier.id] ?? [];
             return AtelierCard(
+              index: index,
               atelier: atelier,
               exercices: exercices,
               isEditable: false,
@@ -474,6 +475,9 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             key: ValueKey(atelier.id),
             index: index,
             child: AtelierCard(
+              index: index,
+              onReorderExercice: (oldIndex, newIndex) =>
+                  exerciceState.reordonnerExercices(atelier.id, oldIndex, newIndex),
               atelier: atelier,
               exercices: exercices,
               isEditable: isEditable,

@@ -85,7 +85,7 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
       entityType: SyncEntityType.exercice,
       entityId: atelierId, // On utilise l'ID de l'atelier comme référence
       operationType: SyncOperationType.reorder,
-      data: {'atelier_id': atelierId, 'exercice_ids': exerciceIds},
+      data: {'order': exerciceIds},
     );
   }
 

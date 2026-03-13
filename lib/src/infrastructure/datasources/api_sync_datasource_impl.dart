@@ -44,7 +44,7 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     Map<String, dynamic> payload,
   ) async {
     try {
-      final result = await _dioClient.post('$endpoint/reorder', data: payload);
+      final result = await _dioClient.put('$endpoint/reorder', data: payload);
 
       return result.fold(
         (failure) => SyncResult(

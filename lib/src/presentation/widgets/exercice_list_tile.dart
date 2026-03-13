@@ -11,6 +11,7 @@ class ExerciceListTile extends StatelessWidget {
   final VoidCallback? onApply;
   final VoidCallback? onClose;
   final bool isEditable;
+  final int? index;
 
   const ExerciceListTile({
     super.key,
@@ -20,6 +21,7 @@ class ExerciceListTile extends StatelessWidget {
     this.onApply,
     this.onClose,
     this.isEditable = false,
+    this.index,
   });
 
   @override
@@ -73,6 +75,14 @@ class ExerciceListTile extends StatelessWidget {
                   IconButton(
                     icon: Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
                     onPressed: onDelete,
+                  ),
+                if (index != null)
+                  ReorderableDragStartListener(
+                    index: index!,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+                      child: Icon(Icons.drag_handle_rounded, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+                    ),
                   ),
               ],
             )

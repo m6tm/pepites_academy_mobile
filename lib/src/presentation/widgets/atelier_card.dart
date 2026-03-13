@@ -10,6 +10,7 @@ class AtelierCard extends StatefulWidget {
   final Atelier atelier;
   final List<Exercice> exercices;
   final bool isEditable;
+  final bool isExercicesEditable;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onAddExercice;
@@ -19,6 +20,8 @@ class AtelierCard extends StatefulWidget {
   final VoidCallback? onApply;
   final Function(Exercice)? onApplyExercice;
   final Function(Exercice)? onCloseExercice;
+  final int index;
+  final Function(int, int)? onReorderExercice;
   final bool isLoadingExercices;
 
   const AtelierCard({
@@ -26,6 +29,7 @@ class AtelierCard extends StatefulWidget {
     required this.atelier,
     required this.exercices,
     this.isEditable = false,
+    this.isExercicesEditable = false,
     this.onEdit,
     this.onDelete,
     this.onAddExercice,
@@ -35,6 +39,8 @@ class AtelierCard extends StatefulWidget {
     this.onApply,
     this.onApplyExercice,
     this.onCloseExercice,
+    required this.index,
+    this.onReorderExercice,
     this.isLoadingExercices = false,
   });
 
@@ -148,6 +154,13 @@ class _AtelierCardState extends State<AtelierCard> {
                           icon: const Icon(Icons.delete_outline_rounded, size: 20, color: Colors.red),
                           onPressed: widget.onDelete,
                         ),
+                        ReorderableDragStartListener(
+                          index: widget.index,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+                            child: Icon(Icons.drag_handle_rounded, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+                          ),
+                        ),
                       ],
                     ),
                   AnimatedRotation(
@@ -200,10 +213,31 @@ class _AtelierCardState extends State<AtelierCard> {
                       ),
                     ),
                   )
+                else if (widget.isExercicesEditable && widget.onReorderExercice != null)
+                  ReorderableListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: widget.exercices.length,
+                    onReorder: widget.onReorderExercice!,
+                    itemBuilder: (context, idx) {
+                      final ex = widget.exercices[idx];
+                      return ExerciceListTile(
+                        key: ValueKey(ex.id),
+                        index: idx,
+                        exercice: ex,
+                        isEditable: widget.isExercicesEditable,
+                        onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
+                        onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
+                        onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
+                        onClose: widget.onCloseExercice != null ? () => widget.onCloseExercice!(ex) : null,
+                      );
+                    },
+                  )
                 else
                   ...widget.exercices.map((ex) => ExerciceListTile(
+                        key: ValueKey(ex.id),
                         exercice: ex,
-                        isEditable: widget.isEditable,
+                        isEditable: widget.isExercicesEditable,
                         onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
                         onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
@@ -211,7 +245,7 @@ class _AtelierCardState extends State<AtelierCard> {
                       )),
                 
                 // Add Exercice Button
-                if (widget.isEditable && widget.onAddExercice != null)
+                if (widget.isExercicesEditable && widget.onAddExercice != null)
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: TextButton.icon(
