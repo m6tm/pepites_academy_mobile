@@ -22,6 +22,7 @@ import '../../../widgets/academy_toast.dart';
 import '../../seance/seance_detail_page.dart';
 import '../../seance/atelier_composition_page.dart';
 import '../../../state/atelier_state.dart';
+import '../../../state/exercice_state.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/encadreur_internal_widgets.dart';
 
@@ -351,7 +352,12 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
       return;
     }
 
-    final atelierState = AtelierState(DependencyInjection.atelierService);
+    final l10n = AppLocalizations.of(context)!;
+    final atelierState = AtelierState(DependencyInjection.atelierService)
+      ..setLocalizations(l10n);
+    final exerciceState = ExerciceState(DependencyInjection.exerciceService)
+      ..setLocalizations(l10n);
+
     await atelierState.chargerAteliers(seanceOuverte.id);
 
     if (!mounted) return;
@@ -362,6 +368,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
         builder: (_) => AtelierCompositionPage(
           seance: seanceOuverte,
           atelierState: atelierState,
+          exerciceState: exerciceState,
         ),
       ),
     );

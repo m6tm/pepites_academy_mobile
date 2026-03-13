@@ -196,7 +196,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.7] Création/Modification d'un exercice
+### [T-401.7] Création/Modification d'un exercice [DONE]
 
 - **Objectif :** Formulaire de création et modification d'exercice.
 - **Pré-requis :** Permission `exercice:create` ou `exercice:update`
@@ -211,7 +211,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.8] Application d'un atelier/exercice en séance
+### [T-401.8] Application d'un atelier/exercice en séance [DONE]
 
 - **Objectif :** Permettre à l'Encadreur d'appliquer un atelier validé en séance.
 - **Pré-requis :** Permission `atelier:apply` ou `exercice:apply`

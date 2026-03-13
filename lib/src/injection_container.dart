@@ -195,6 +195,7 @@ class DependencyInjection {
     exerciceService = ExerciceService(
       exerciceRepository: exerciceRepository,
       atelierRepository: atelierRepository,
+      seanceRepository: seanceRepository,
     );
 
     // Initialisation du Repository Annotation

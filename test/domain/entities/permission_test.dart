@@ -9,12 +9,29 @@ void main() {
       expect(Permission.exerciceValidate.id, 'exercice:validate');
     });
 
-    test('Admin doit avoir exerciceValidate', () {
-      expect(Role.admin.hasPermission(Permission.exerciceValidate), isTrue);
+    test('Permission.atelierApply doit exister', () {
+      expect(Permission.atelierApply, isNotNull);
+      expect(Permission.atelierApply.id, 'atelier:apply');
     });
 
-    test('EncadreurChef doit avoir exerciceValidate', () {
-      expect(Role.encadreurChef.hasPermission(Permission.exerciceValidate), isTrue);
+    test('Permission.exerciceApply doit exister', () {
+      expect(Permission.exerciceApply, isNotNull);
+      expect(Permission.exerciceApply.id, 'exercice:apply');
+    });
+
+    test('Admin doit avoir atelierApply et exerciceApply', () {
+      expect(Role.admin.hasPermission(Permission.atelierApply), isTrue);
+      expect(Role.admin.hasPermission(Permission.exerciceApply), isTrue);
+    });
+
+    test('EncadreurChef doit avoir atelierApply et exerciceApply', () {
+      expect(Role.encadreurChef.hasPermission(Permission.atelierApply), isTrue);
+      expect(Role.encadreurChef.hasPermission(Permission.exerciceApply), isTrue);
+    });
+
+    test('Encadreur doit avoir atelierApply et exerciceApply', () {
+      expect(Role.encadreur.hasPermission(Permission.atelierApply), isTrue);
+      expect(Role.encadreur.hasPermission(Permission.exerciceApply), isTrue);
     });
 
     test('Encadreur ne doit PAS avoir exerciceValidate', () {

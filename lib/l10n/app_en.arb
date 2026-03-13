@@ -142,6 +142,8 @@
   "noSessionInProgress": "No session in progress",
   "openSessionBeforeScan": "Please open a session before scanning.",
   "openSessionBeforeWorkshops": "Please open a session before managing workshops.",
+  "serviceAtelierOnlyInOpenSeance": "Applying a workshop can only be done during an open session.",
+  "serviceExerciceOnlyInOpenSeance": "Applying an exercise can only be done during an open session.",
   "readyForField": "Ready for the field",
   "manageSessionsDescription": "Manage your sessions, evaluate your players and track their progress.",
   "sessionInProgress": "SESSION IN PROGRESS",
@@ -1756,5 +1758,28 @@
   "uploadSignatureHint": "Tap to add a signature",
   "signatureRequiredError": "The academician signature is mandatory",
   "parentSignatureRequiredError": "The parent/guardian signature is required to generate the form",
-  "requiredLabel": "Required"
+  "requiredLabel": "Required",
+  "serviceAtelierOnlyValidatedCanApply": "Only a validated workshop can be workshop applied.",
+  "serviceExerciceOnlyValidatedCanApply": "Only a validated exercise can be workshop applied.",
+  "serviceAtelierAppliedSuccess": "Workshop applied successfully to the session.",
+  "serviceExerciceAppliedSuccess": "Exercise applied successfully to the session.",
+  "applyAction": "Apply",
+  "applyWorkshopTitle": "Apply Workshop",
+  "applyWorkshopConfirmation": "Do you want to mark \"{name}\" as \"In Progress\"?",
+  "@applyWorkshopConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "applyExerciseTitle": "Apply Exercise",
+  "applyExerciseConfirmation": "Do you want to mark \"{name}\" as \"In Progress\"?",
+  "@applyExerciseConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

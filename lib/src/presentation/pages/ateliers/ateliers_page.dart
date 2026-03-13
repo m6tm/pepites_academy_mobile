@@ -58,6 +58,8 @@ class _AteliersPageState extends State<AteliersPage> {
 
   bool _hasCreatePermission = false;
   bool _hasUpdatePermission = false;
+  bool _hasApplyAtelierPermission = false;
+  bool _hasApplyExercicePermission = false;
 
   @override
   void initState() {
@@ -70,6 +72,16 @@ class _AteliersPageState extends State<AteliersPage> {
     _exerciceState.addListener(_onExerciceStateChanged);
 
     _checkPermissions();
+    
+    // Initialiser les l10n pour les states
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        _atelierState.setLocalizations(l10n);
+        _exerciceState.setLocalizations(l10n);
+      }
+    });
+
     _loadData();
   }
 
@@ -88,6 +100,8 @@ class _AteliersPageState extends State<AteliersPage> {
       setState(() {
         _hasCreatePermission = role.hasPermission(Permission.atelierCreate);
         _hasUpdatePermission = role.hasPermission(Permission.atelierUpdate);
+        _hasApplyAtelierPermission = role.hasPermission(Permission.atelierApply);
+        _hasApplyExercicePermission = role.hasPermission(Permission.exerciceApply);
       });
     }
   }
@@ -351,6 +365,8 @@ class _AteliersPageState extends State<AteliersPage> {
               onEditExercice: (ex) => _showEditExercice(context, ex),
               onDeleteExercice: (ex) =>
                   _exerciceState.supprimerExercice(ex.id, atelier.id),
+              onApply: (_hasApplyAtelierPermission && widget.seance.estOuverte) ? () => _confirmApplyAtelier(context, atelier) : null,
+              onApplyExercice: (_hasApplyExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmApplyExercice(context, ex) : null,
             ),
           );
         },
@@ -441,6 +457,96 @@ class _AteliersPageState extends State<AteliersPage> {
           seance: widget.seance,
           annotationState: _annotationState,
         ),
+      ),
+    );
+  }
+
+  void _confirmApplyAtelier(BuildContext context, Atelier atelier) {
+    if (!_hasApplyAtelierPermission || !widget.seance.estOuverte) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          l10n.applyWorkshopTitle,
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          l10n.applyWorkshopConfirmation(atelier.nom),
+          style: GoogleFonts.montserrat(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              l10n.cancelAction,
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _atelierState.appliquerAtelier(atelier.id);
+              Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(
+              l10n.confirmButton,
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmApplyExercice(BuildContext context, Exercice exercice) {
+    if (!_hasApplyExercicePermission || !widget.seance.estOuverte) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          l10n.applyExerciseTitle,
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          l10n.applyExerciseConfirmation(exercice.nom),
+          style: GoogleFonts.montserrat(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              l10n.cancelAction,
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _exerciceState.appliquerExercice(exercice.id, exercice.atelierId);
+              Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(
+              l10n.confirmButton,
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }

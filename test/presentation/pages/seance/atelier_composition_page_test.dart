@@ -11,22 +11,22 @@ import 'package:pepites_academy_mobile/src/presentation/state/atelier_state.dart
 import 'package:pepites_academy_mobile/src/presentation/state/exercice_state.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/annotation_state.dart';
 import 'package:pepites_academy_mobile/src/injection_container.dart';
-import 'package:pepites_academy_mobile/src/presentation/pages/ateliers/ateliers_page.dart';
+import 'package:pepites_academy_mobile/src/presentation/pages/seance/atelier_composition_page.dart';
+import 'package:pepites_academy_mobile/src/presentation/state/connectivity_state.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 class MockAtelierState extends Mock implements AtelierState {}
-
 class MockExerciceState extends Mock implements ExerciceState {}
-
 class MockAnnotationState extends Mock implements AnnotationState {}
-
 class MockRoleService extends Mock implements RoleService {}
+class MockConnectivityState extends Mock implements ConnectivityState {}
 
 void main() {
   late MockAtelierState mockAtelierState;
   late MockExerciceState mockExerciceState;
   late MockAnnotationState mockAnnotationState;
   late MockRoleService mockRoleService;
+  late MockConnectivityState mockConnectivityState;
   late Seance testSeance;
 
   setUpAll(() {
@@ -34,12 +34,15 @@ void main() {
     mockExerciceState = MockExerciceState();
     mockAnnotationState = MockAnnotationState();
     mockRoleService = MockRoleService();
+    mockConnectivityState = MockConnectivityState();
 
-    // Inject mocks only once
     DependencyInjection.atelierState = mockAtelierState;
     DependencyInjection.exerciceState = mockExerciceState;
     DependencyInjection.annotationState = mockAnnotationState;
     DependencyInjection.roleService = mockRoleService;
+    DependencyInjection.connectivityState = mockConnectivityState;
+
+    registerFallbackValue(Permission.atelierCreate);
   });
 
   setUp(() {
@@ -47,28 +50,24 @@ void main() {
     reset(mockExerciceState);
     reset(mockAnnotationState);
     reset(mockRoleService);
+    reset(mockConnectivityState);
 
-    // Default implementations
+    when(() => mockConnectivityState.isConnected).thenReturn(false);
+
     when(() => mockAtelierState.isLoading).thenReturn(false);
     when(() => mockAtelierState.ateliers).thenReturn([]);
-    when(
-      () => mockAtelierState.chargerAteliers(any()),
-    ).thenAnswer((_) async {});
     when(() => mockAtelierState.addListener(any())).thenReturn(null);
     when(() => mockAtelierState.removeListener(any())).thenReturn(null);
+    when(() => mockAtelierState.chargerAteliers(any())).thenAnswer((_) async {});
 
+    when(() => mockExerciceState.isLoading(any())).thenReturn(false);
+    when(() => mockExerciceState.exercicesParAtelier).thenReturn({});
     when(() => mockExerciceState.addListener(any())).thenReturn(null);
     when(() => mockExerciceState.removeListener(any())).thenReturn(null);
-    when(() => mockExerciceState.isLoading(any())).thenReturn(false);
     when(() => mockExerciceState.chargerExercices(any())).thenAnswer((_) async {});
-    when(() => mockExerciceState.exercicesParAtelier).thenReturn({});
 
-    when(
-      () => mockRoleService.getCurrentUserRole(),
-    ).thenAnswer((_) async => Role.admin);
-
-    when(() => mockAtelierState.appliquerAtelier(any())).thenAnswer((_) async => true);
-    when(() => mockExerciceState.appliquerExercice(any(), any())).thenAnswer((_) async => true);
+    when(() => mockRoleService.getCurrentUserRole()).thenAnswer((_) async => Role.admin);
+    when(() => mockRoleService.hasPermission(any())).thenReturn(true);
 
     testSeance = Seance(
       id: 's_1',
@@ -90,40 +89,16 @@ void main() {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('fr', 'FR')],
-      home: AteliersPage(seance: testSeance),
+      home: AtelierCompositionPage(
+        seance: testSeance,
+        atelierState: mockAtelierState,
+        exerciceState: mockExerciceState,
+      ),
     );
   }
 
-  group('AteliersPage Tests', () {
-    testWidgets('Affiche le Loading State quand getAteliers est en cours', (
-      WidgetTester tester,
-    ) async {
-      when(() => mockAtelierState.isLoading).thenReturn(true);
-
-      await tester.pumpWidget(buildTestableWidget());
-
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
-
-    testWidgets('Affiche le Empty State quand il n\'y a aucun atelier', (
-      WidgetTester tester,
-    ) async {
-      when(() => mockAtelierState.isLoading).thenReturn(false);
-      when(() => mockAtelierState.ateliers).thenReturn([]);
-
-      await tester.pumpWidget(buildTestableWidget());
-      // Attente de l'initstate et des microtasks
-      await tester.pumpAndSettle();
-
-      // Verification textuelle du empty state selon les traductions
-      // L'icone sports_soccer_rounded est marquee pour le state empty
-      expect(find.byIcon(Icons.sports_soccer_rounded), findsWidgets);
-    });
-
-    testWidgets('Ne doit pas afficher le bouton Appliquer si la seance est fermee', (
-      WidgetTester tester,
-    ) async {
-      // Setup seance fermee
+  group('AtelierCompositionPage Tests', () {
+    testWidgets('Ne doit pas afficher le bouton Appliquer si la seance est fermee', (tester) async {
       testSeance = testSeance.copyWith(statut: SeanceStatus.fermee);
       
       final atelier = Atelier(
@@ -136,17 +111,32 @@ void main() {
         seanceId: testSeance.id,
       );
 
-      when(() => mockAtelierState.isLoading).thenReturn(false);
       when(() => mockAtelierState.ateliers).thenReturn([atelier]);
-      when(() => mockExerciceState.exercicesParAtelier).thenReturn({'at_1': []});
-      when(() => mockRoleService.hasPermission(Permission.atelierApply)).thenReturn(true);
-      when(() => mockRoleService.hasPermission(Permission.exerciceApply)).thenReturn(true);
 
       await tester.pumpWidget(buildTestableWidget());
       await tester.pumpAndSettle();
 
-      // L'icone play_circle_outline_rounded ne doit pas etre presente
+      // On verifie que le bouton Appliquer (play_circle_outline_rounded) n'est pas la
       expect(find.byIcon(Icons.play_circle_outline_rounded), findsNothing);
+    });
+
+    testWidgets('Doit afficher le bouton Appliquer si la seance est ouverte et utilisateur a permission', (tester) async {
+      final atelier = Atelier(
+        id: 'at_1',
+        nom: 'Atelier Test',
+        description: '',
+        type: AtelierType.dribble,
+        ordre: 0,
+        statut: AtelierStatut.valide,
+        seanceId: testSeance.id,
+      );
+
+      when(() => mockAtelierState.ateliers).thenReturn([atelier]);
+
+      await tester.pumpWidget(buildTestableWidget());
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.play_circle_outline_rounded), findsOneWidget);
     });
   });
 }

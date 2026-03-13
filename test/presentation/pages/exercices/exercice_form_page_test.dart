@@ -38,6 +38,7 @@ void main() {
     when(() => mockExerciceState.addListener(any())).thenReturn(null);
     when(() => mockExerciceState.removeListener(any())).thenReturn(null);
     when(() => mockExerciceState.errorMessage).thenReturn(null);
+    when(() => mockExerciceState.appliquerExercice(any(), any())).thenAnswer((_) async => true);
   });
 
   Widget buildTestableWidget({Exercice? exercice}) {

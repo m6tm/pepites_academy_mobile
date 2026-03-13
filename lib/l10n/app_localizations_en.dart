@@ -438,6 +438,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please open a session before managing workshops.';
 
   @override
+  String get serviceAtelierOnlyInOpenSeance =>
+      'Applying a workshop can only be done during an open session.';
+
+  @override
+  String get serviceExerciceOnlyInOpenSeance =>
+      'Applying an exercise can only be done during an open session.';
+
+  @override
   String get readyForField => 'Ready for the field';
 
   @override
@@ -3445,4 +3453,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get parentSignatureRequiredError =>
       'The parent/guardian signature is required to generate the form';
+
+  @override
+  String get serviceAtelierOnlyValidatedCanApply =>
+      'Only a validated workshop can be workshop applied.';
+
+  @override
+  String get serviceExerciceOnlyValidatedCanApply =>
+      'Only a validated exercise can be workshop applied.';
+
+  @override
+  String get serviceAtelierAppliedSuccess =>
+      'Workshop applied successfully to the session.';
+
+  @override
+  String get serviceExerciceAppliedSuccess =>
+      'Exercise applied successfully to the session.';
+
+  @override
+  String get applyAction => 'Apply';
+
+  @override
+  String get applyWorkshopTitle => 'Apply Workshop';
+
+  @override
+  String applyWorkshopConfirmation(String name) {
+    return 'Do you want to mark \"$name\" as \"In Progress\"?';
+  }
+
+  @override
+  String get applyExerciseTitle => 'Apply Exercise';
+
+  @override
+  String applyExerciseConfirmation(String name) {
+    return 'Do you want to mark \"$name\" as \"In Progress\"?';
+  }
 }

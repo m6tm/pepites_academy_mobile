@@ -16,6 +16,8 @@ class AtelierCard extends StatefulWidget {
   final VoidCallback? onAnnotate;
   final Function(Exercice)? onEditExercice;
   final Function(Exercice)? onDeleteExercice;
+  final VoidCallback? onApply;
+  final Function(Exercice)? onApplyExercice;
   final bool isLoadingExercices;
 
   const AtelierCard({
@@ -29,6 +31,8 @@ class AtelierCard extends StatefulWidget {
     this.onAnnotate,
     this.onEditExercice,
     this.onDeleteExercice,
+    this.onApply,
+    this.onApplyExercice,
     this.isLoadingExercices = false,
   });
 
@@ -123,6 +127,12 @@ class _AtelierCardState extends State<AtelierCard> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (widget.onApply != null && widget.atelier.statut == AtelierStatut.valide)
+                          IconButton(
+                            icon: Icon(Icons.play_circle_outline_rounded, size: 20, color: typeColor),
+                            onPressed: widget.onApply,
+                            tooltip: 'Appliquer en séance',
+                          ),
                         if (widget.onAnnotate != null)
                           IconButton(
                             icon: Icon(Icons.note_alt_outlined, size: 20, color: typeColor),
@@ -194,6 +204,7 @@ class _AtelierCardState extends State<AtelierCard> {
                         isEditable: widget.isEditable,
                         onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
+                        onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
                       )),
                 
                 // Add Exercice Button

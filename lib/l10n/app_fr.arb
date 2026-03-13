@@ -184,6 +184,8 @@
   "noSessionInProgress": "Aucune seance en cours",
   "openSessionBeforeScan": "Veuillez ouvrir une seance avant de scanner.",
   "openSessionBeforeWorkshops": "Veuillez ouvrir une seance avant de gerer les ateliers.",
+  "serviceAtelierOnlyInOpenSeance": "L'application d'un atelier ne peut se faire que sur une séance ouverte.",
+  "serviceExerciceOnlyInOpenSeance": "L'application d'un exercice ne peut se faire que sur une séance ouverte.",
   "readyForField": "Pret pour le terrain",
   "manageSessionsDescription": "Gerez vos seances, evaluez vos joueurs et suivez leur progression.",
   "sessionInProgress": "SEANCE EN COURS",
@@ -1829,5 +1831,28 @@
   "uploadSignatureHint": "Appuyez pour ajouter une signature",
   "signatureRequiredError": "La signature de l'académicien est obligatoire",
   "parentSignatureRequiredError": "La signature du parent/tuteur est obligatoire pour générer la fiche",
-  "requiredLabel": "Obligatoire"
+  "requiredLabel": "Obligatoire",
+  "serviceAtelierOnlyValidatedCanApply": "Seul un atelier validé peut être appliqué.",
+  "serviceExerciceOnlyValidatedCanApply": "Seul un exercice validé peut être appliqué.",
+  "serviceAtelierAppliedSuccess": "Atelier appliqué avec succès en séance.",
+  "serviceExerciceAppliedSuccess": "Exercice appliqué avec succès en séance.",
+  "applyAction": "Appliquer",
+  "applyWorkshopTitle": "Appliquer l'atelier",
+  "applyWorkshopConfirmation": "Voulez-vous marquer \"{name}\" comme \"En cours\" ?",
+  "@applyWorkshopConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "applyExerciseTitle": "Appliquer l'exercice",
+  "applyExerciseConfirmation": "Voulez-vous marquer \"{name}\" comme \"En cours\" ?",
+  "@applyExerciseConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import '../../application/services/exercice_service.dart';
 import '../../domain/entities/exercice.dart';
 import 'message_state_mixin.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// State management pour les exercices d'un atelier.
 class ExerciceState extends ChangeNotifier with MessageStateMixin {
   final ExerciceService _service;
+  AppLocalizations? _l10n;
 
   ExerciceState(this._service);
+
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   final Map<String, List<Exercice>> _exercicesParAtelier = {};
   Map<String, List<Exercice>> get exercicesParAtelier => _exercicesParAtelier;
@@ -85,6 +91,26 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
     } catch (e) {
       _errorMessage = 'Erreur lors de la modification : $e';
       _loadingStates[exercice.atelierId] = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Applique un exercice en séance.
+  Future<bool> appliquerExercice(String exerciceId, String atelierId) async {
+    _loadingStates[atelierId] = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      await _service.appliquerExercice(exerciceId);
+      _successMessage = _l10n?.serviceExerciceAppliedSuccess ?? 'Exercice appliqué avec succès en séance.';
+      await chargerExercices(atelierId);
+      return true;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de l\'application : $e';
+      _loadingStates[atelierId] = false;
       notifyListeners();
       return false;
     }

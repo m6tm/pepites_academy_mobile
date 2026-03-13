@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import '../../application/services/atelier_service.dart';
 import '../../domain/entities/atelier.dart';
 import 'message_state_mixin.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// State management pour les ateliers d'une seance.
 /// Gere le chargement, l'ajout, la modification, la suppression
 /// et la reorganisation des ateliers.
 class AtelierState extends ChangeNotifier with MessageStateMixin {
   final AtelierService _service;
+  AppLocalizations? _l10n;
 
   AtelierState(this._service);
+
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   List<Atelier> _ateliers = [];
   List<Atelier> get ateliers => _ateliers;
@@ -94,6 +100,28 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
       return true;
     } catch (e) {
       _errorMessage = 'Erreur lors de la modification : $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Applique un atelier en seance.
+  Future<bool> appliquerAtelier(String atelierId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      await _service.appliquerAtelier(atelierId);
+      _successMessage = _l10n?.serviceAtelierAppliedSuccess ?? 'Atelier appliqué avec succès en séance.';
+      if (_seanceId != null) {
+        await chargerAteliers(_seanceId!);
+      }
+      return true;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de l\'application : $e';
       _isLoading = false;
       notifyListeners();
       return false;

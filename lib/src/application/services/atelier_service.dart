@@ -101,6 +101,35 @@ class AtelierService {
     return updated;
   }
 
+  /// Applique un atelier (statut 'valide' -> 'applique').
+  Future<Atelier> appliquerAtelier(String atelierId) async {
+    final atelier = await _atelierRepository.getById(atelierId);
+    if (atelier == null) {
+      throw Exception(
+        _l10n?.serviceAtelierNotFound(atelierId) ??
+            'Atelier introuvable : $atelierId',
+      );
+    }
+
+    if (atelier.statut != AtelierStatut.valide) {
+      throw Exception(
+        _l10n?.serviceAtelierOnlyValidatedCanApply ??
+            'Seul un atelier validé peut être appliqué.',
+      );
+    }
+
+    final seance = await _seanceRepository.getById(atelier.seanceId);
+    if (seance == null || !seance.estOuverte) {
+      throw Exception(
+        _l10n?.serviceAtelierOnlyInOpenSeance ??
+            'L\'application d\'un atelier ne peut se faire que sur une séance ouverte.',
+      );
+    }
+
+    final updated = atelier.copyWith(statut: AtelierStatut.applique);
+    return modifierAtelier(updated);
+  }
+
   /// Supprime un atelier et met a jour la seance.
   Future<void> supprimerAtelier(String atelierId) async {
     final atelier = await _atelierRepository.getById(atelierId);

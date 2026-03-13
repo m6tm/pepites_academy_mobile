@@ -188,5 +188,87 @@ void main() {
       verify(() => mockAtelierRepo.getBySeanceId(seanceId)).called(1);
     });
 
+    group('appliquerAtelier', () {
+      test('doit passer le statut a applique si valide et seance ouverte', () async {
+        final atelier = Atelier(
+          id: atelierId,
+          nom: 'At1',
+          description: '',
+          type: AtelierType.dribble,
+          ordre: 0,
+          statut: AtelierStatut.valide,
+          seanceId: seanceId,
+        );
+        final seance = Seance(
+          id: seanceId,
+          titre: 'S1',
+          date: DateTime.now(),
+          heureDebut: DateTime.now(),
+          heureFin: DateTime.now(),
+          statut: SeanceStatus.ouverte,
+          encadreurResponsableId: 'E1',
+        );
+
+        when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
+        when(() => mockSeanceRepo.getById(seanceId)).thenAnswer((_) async => seance);
+        when(() => mockAtelierRepo.update(any())).thenAnswer((inv) async => inv.positionalArguments[0] as Atelier);
+        when(() => mockAtelierRepo.getBySeanceId(seanceId)).thenAnswer((_) async => []);
+
+        final result = await service.appliquerAtelier(atelierId);
+
+        expect(result.statut, AtelierStatut.applique);
+        verify(() => mockAtelierRepo.update(any(that: predicate<Atelier>((a) => a.statut == AtelierStatut.applique)))).called(1);
+      });
+
+      test('doit lever une exception si l atelier n est pas au statut valide', () async {
+        final atelier = Atelier(
+          id: atelierId,
+          nom: 'At1',
+          description: '',
+          type: AtelierType.dribble,
+          ordre: 0,
+          statut: AtelierStatut.cree,
+          seanceId: seanceId,
+        );
+
+        when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
+
+        expect(
+          () => service.appliquerAtelier(atelierId),
+          throwsA(isA<Exception>()),
+        );
+        verifyNever(() => mockAtelierRepo.update(any()));
+      });
+
+      test('doit lever une exception si la seance est fermee', () async {
+        final atelier = Atelier(
+          id: atelierId,
+          nom: 'At1',
+          description: '',
+          type: AtelierType.dribble,
+          ordre: 0,
+          statut: AtelierStatut.valide,
+          seanceId: seanceId,
+        );
+        final seance = Seance(
+          id: seanceId,
+          titre: 'S1',
+          date: DateTime.now(),
+          heureDebut: DateTime.now(),
+          heureFin: DateTime.now(),
+          statut: SeanceStatus.fermee,
+          encadreurResponsableId: 'E1',
+        );
+
+        when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
+        when(() => mockSeanceRepo.getById(seanceId)).thenAnswer((_) async => seance);
+
+        expect(
+          () => service.appliquerAtelier(atelierId),
+          throwsA(isA<Exception>()),
+        );
+        verifyNever(() => mockAtelierRepo.update(any()));
+      });
+    });
   });
 }

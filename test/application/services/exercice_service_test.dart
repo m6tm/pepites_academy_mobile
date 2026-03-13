@@ -3,23 +3,29 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/application/services/exercice_service.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/atelier.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/exercice.dart';
+import 'package:pepites_academy_mobile/src/domain/entities/seance.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/atelier_repository.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/exercice_repository.dart';
+import 'package:pepites_academy_mobile/src/domain/repositories/seance_repository.dart';
 
 class MockAtelierRepository extends Mock implements AtelierRepository {}
 class MockExerciceRepository extends Mock implements ExerciceRepository {}
+class MockSeanceRepository extends Mock implements SeanceRepository {}
 
 void main() {
   late ExerciceService service;
   late MockAtelierRepository mockAtelierRepo;
   late MockExerciceRepository mockExerciceRepo;
+  late MockSeanceRepository mockSeanceRepo;
 
   setUp(() {
     mockAtelierRepo = MockAtelierRepository();
     mockExerciceRepo = MockExerciceRepository();
+    mockSeanceRepo = MockSeanceRepository();
     service = ExerciceService(
       exerciceRepository: mockExerciceRepo,
       atelierRepository: mockAtelierRepo,
+      seanceRepository: mockSeanceRepo,
     );
 
     registerFallbackValue(Exercice(
@@ -120,5 +126,107 @@ void main() {
       verify(() => mockExerciceRepo.getByAtelierId(atelierId)).called(1);
     });
 
+    group('appliquerExercice', () {
+      const exerciceId = 'ex-1';
+      const seanceId = 'S1';
+
+      test('doit passer le statut a applique si valide et seance ouverte', () async {
+        final exercice = Exercice(
+          id: exerciceId,
+          nom: 'Ex1',
+          description: '',
+          ordre: 0,
+          statut: ExerciceStatut.valide,
+          atelierId: atelierId,
+        );
+        final atelier = Atelier(
+          id: atelierId,
+          nom: 'At1',
+          description: '',
+          type: AtelierType.dribble,
+          ordre: 0,
+          statut: AtelierStatut.cree,
+          seanceId: seanceId,
+        );
+        final seance = Seance(
+          id: seanceId,
+          titre: 'S1',
+          date: DateTime.now(),
+          heureDebut: DateTime.now(),
+          heureFin: DateTime.now(),
+          statut: SeanceStatus.ouverte,
+          encadreurResponsableId: 'E1',
+        );
+
+        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
+        when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
+        when(() => mockSeanceRepo.getById(seanceId)).thenAnswer((_) async => seance);
+        when(() => mockExerciceRepo.update(any())).thenAnswer((inv) async => inv.positionalArguments[0] as Exercice);
+        when(() => mockExerciceRepo.getByAtelierId(atelierId)).thenAnswer((_) async => []);
+
+        final result = await service.appliquerExercice(exerciceId);
+
+        expect(result.statut, ExerciceStatut.applique);
+        verify(() => mockExerciceRepo.update(any(that: predicate<Exercice>((e) => e.statut == ExerciceStatut.applique)))).called(1);
+      });
+
+      test('doit lever une exception si l exercice n est pas au statut valide', () async {
+        final exercice = Exercice(
+          id: exerciceId,
+          nom: 'Ex1',
+          description: '',
+          ordre: 0,
+          statut: ExerciceStatut.cree,
+          atelierId: atelierId,
+        );
+
+        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
+
+        expect(
+          () => service.appliquerExercice(exerciceId),
+          throwsA(isA<Exception>()),
+        );
+        verifyNever(() => mockExerciceRepo.update(any()));
+      });
+
+      test('doit lever une exception si la seance est fermee', () async {
+        final exercice = Exercice(
+          id: exerciceId,
+          nom: 'Ex1',
+          description: '',
+          ordre: 0,
+          statut: ExerciceStatut.valide,
+          atelierId: atelierId,
+        );
+        final atelier = Atelier(
+          id: atelierId,
+          nom: 'At1',
+          description: '',
+          type: AtelierType.dribble,
+          ordre: 0,
+          statut: AtelierStatut.cree,
+          seanceId: seanceId,
+        );
+        final seance = Seance(
+          id: seanceId,
+          titre: 'S1',
+          date: DateTime.now(),
+          heureDebut: DateTime.now(),
+          heureFin: DateTime.now(),
+          statut: SeanceStatus.fermee,
+          encadreurResponsableId: 'E1',
+        );
+
+        when(() => mockExerciceRepo.getById(exerciceId)).thenAnswer((_) async => exercice);
+        when(() => mockAtelierRepo.getById(atelierId)).thenAnswer((_) async => atelier);
+        when(() => mockSeanceRepo.getById(seanceId)).thenAnswer((_) async => seance);
+
+        expect(
+          () => service.appliquerExercice(exerciceId),
+          throwsA(isA<Exception>()),
+        );
+        verifyNever(() => mockExerciceRepo.update(any()));
+      });
+    });
   });
 }

@@ -93,6 +93,9 @@ enum Permission {
   /// Supprimer un atelier.
   atelierDelete('atelier:delete', 'Supprimer un atelier'),
 
+  /// Appliquer un atelier.
+  atelierApply('atelier:apply', 'Appliquer un atelier'),
+
   /// Créer un exercice.
   exerciceCreate('exercice:create', 'Créer un exercice'),
 
@@ -104,6 +107,9 @@ enum Permission {
 
   /// Valider un exercice.
   exerciceValidate('exercice:validate', 'Valider un exercice'),
+
+  /// Appliquer un exercice.
+  exerciceApply('exercice:apply', 'Appliquer un exercice'),
 
   /// Voir les ateliers.
   atelierView('atelier:view', 'Voir les ateliers'),
@@ -300,6 +306,8 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.exerciceUpdate,
     Permission.exerciceDelete,
     Permission.exerciceValidate,
+    Permission.atelierApply,
+    Permission.exerciceApply,
     Permission.atelierView,
     // Évaluations et annotations
     Permission.annotationCreate,
@@ -376,6 +384,8 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.exerciceUpdate,
     Permission.exerciceDelete,
     Permission.exerciceValidate,
+    Permission.atelierApply,
+    Permission.exerciceApply,
     Permission.atelierView,
     // Évaluations et annotations
     Permission.annotationCreate,
@@ -455,6 +465,8 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.seanceOpen,
     Permission.seanceClose,
     Permission.seanceView,
+    Permission.atelierApply,
+    Permission.exerciceApply,
     // Entraînements (appliquer et voir)
     Permission.entrainementApply,
     Permission.entrainementView,

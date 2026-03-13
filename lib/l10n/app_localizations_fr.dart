@@ -441,6 +441,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez ouvrir une seance avant de gerer les ateliers.';
 
   @override
+  String get serviceAtelierOnlyInOpenSeance =>
+      'L\'application d\'un atelier ne peut se faire que sur une séance ouverte.';
+
+  @override
+  String get serviceExerciceOnlyInOpenSeance =>
+      'L\'application d\'un exercice ne peut se faire que sur une séance ouverte.';
+
+  @override
   String get readyForField => 'Pret pour le terrain';
 
   @override
@@ -3464,4 +3472,39 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get parentSignatureRequiredError =>
       'La signature du parent/tuteur est obligatoire pour générer la fiche';
+
+  @override
+  String get serviceAtelierOnlyValidatedCanApply =>
+      'Seul un atelier validé peut être appliqué.';
+
+  @override
+  String get serviceExerciceOnlyValidatedCanApply =>
+      'Seul un exercice validé peut être appliqué.';
+
+  @override
+  String get serviceAtelierAppliedSuccess =>
+      'Atelier appliqué avec succès en séance.';
+
+  @override
+  String get serviceExerciceAppliedSuccess =>
+      'Exercice appliqué avec succès en séance.';
+
+  @override
+  String get applyAction => 'Appliquer';
+
+  @override
+  String get applyWorkshopTitle => 'Appliquer l\'atelier';
+
+  @override
+  String applyWorkshopConfirmation(String name) {
+    return 'Voulez-vous marquer \"$name\" comme \"En cours\" ?';
+  }
+
+  @override
+  String get applyExerciseTitle => 'Appliquer l\'exercice';
+
+  @override
+  String applyExerciseConfirmation(String name) {
+    return 'Voulez-vous marquer \"$name\" comme \"En cours\" ?';
+  }
 }

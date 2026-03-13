@@ -908,6 +908,18 @@ abstract class AppLocalizations {
   /// **'Veuillez ouvrir une seance avant de gerer les ateliers.'**
   String get openSessionBeforeWorkshops;
 
+  /// No description provided for @serviceAtelierOnlyInOpenSeance.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'application d\'un atelier ne peut se faire que sur une séance ouverte.'**
+  String get serviceAtelierOnlyInOpenSeance;
+
+  /// No description provided for @serviceExerciceOnlyInOpenSeance.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'application d\'un exercice ne peut se faire que sur une séance ouverte.'**
+  String get serviceExerciceOnlyInOpenSeance;
+
   /// No description provided for @readyForField.
   ///
   /// In fr, this message translates to:
@@ -6271,6 +6283,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'La signature du parent/tuteur est obligatoire pour générer la fiche'**
   String get parentSignatureRequiredError;
+
+  /// No description provided for @serviceAtelierOnlyValidatedCanApply.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul un atelier validé peut être appliqué.'**
+  String get serviceAtelierOnlyValidatedCanApply;
+
+  /// No description provided for @serviceExerciceOnlyValidatedCanApply.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul un exercice validé peut être appliqué.'**
+  String get serviceExerciceOnlyValidatedCanApply;
+
+  /// No description provided for @serviceAtelierAppliedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Atelier appliqué avec succès en séance.'**
+  String get serviceAtelierAppliedSuccess;
+
+  /// No description provided for @serviceExerciceAppliedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exercice appliqué avec succès en séance.'**
+  String get serviceExerciceAppliedSuccess;
+
+  /// No description provided for @applyAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer'**
+  String get applyAction;
+
+  /// No description provided for @applyWorkshopTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer l\'atelier'**
+  String get applyWorkshopTitle;
+
+  /// No description provided for @applyWorkshopConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous marquer \"{name}\" comme \"En cours\" ?'**
+  String applyWorkshopConfirmation(String name);
+
+  /// No description provided for @applyExerciseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer l\'exercice'**
+  String get applyExerciseTitle;
+
+  /// No description provided for @applyExerciseConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous marquer \"{name}\" comme \"En cours\" ?'**
+  String applyExerciseConfirmation(String name);
 }
 
 class _AppLocalizationsDelegate

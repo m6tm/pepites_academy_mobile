@@ -1,0 +1,40 @@
+00:00 +0: loading d:/projects/i-tech/pepites-academy/mobile/test/presentation/pages/seance/atelier_composition_page_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: AtelierCompositionPage Tests Ne doit pas afficher le bouton Appliquer si la seance est fermee
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following LateError was thrown running a test:
+LateInitializationError: Field 'connectivityState' has not been initialized.
+
+When the exception was thrown, this was the stack:
+#0      DependencyInjection.connectivityState (package:pepites_academy_mobile/src/injection_container.dart)
+#1      _AtelierCompositionPageState._refreshFromApiIfOnline (package:pepites_academy_mobile/src/presentation/pages/seance/atelier_composition_page.dart:152:30)
+#2      _AtelierCompositionPageState._loadAteliers (package:pepites_academy_mobile/src/presentation/pages/seance/atelier_composition_page.dart:141:5)
+<asynchronous suspension>
+
+The test description was:
+  Ne doit pas afficher le bouton Appliquer si la seance est fermee
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -1: AtelierCompositionPage Tests Ne doit pas afficher le bouton Appliquer si la seance est fermee [E]
+  Test failed. See exception logs above.
+  The test description was: Ne doit pas afficher le bouton Appliquer si la seance est fermee
+  
+00:02 +0 -1: AtelierCompositionPage Tests Doit afficher le bouton Appliquer si la seance est ouverte et utilisateur a permission
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following LateError was thrown running a test:
+LateInitializationError: Field 'connectivityState' has not been initialized.
+
+When the exception was thrown, this was the stack:
+#0      DependencyInjection.connectivityState (package:pepites_academy_mobile/src/injection_container.dart)
+#1      _AtelierCompositionPageState._refreshFromApiIfOnline (package:pepites_academy_mobile/src/presentation/pages/seance/atelier_composition_page.dart:152:30)
+#2      _AtelierCompositionPageState._loadAteliers (package:pepites_academy_mobile/src/presentation/pages/seance/atelier_composition_page.dart:141:5)
+<asynchronous suspension>
+
+The test description was:
+  Doit afficher le bouton Appliquer si la seance est ouverte et utilisateur a permission
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -2: AtelierCompositionPage Tests Doit afficher le bouton Appliquer si la seance est ouverte et utilisateur a permission [E]
+  Test failed. See exception logs above.
+  The test description was: Doit afficher le bouton Appliquer si la seance est ouverte et utilisateur a permission
+  
+00:02 +0 -2: (tearDownAll)
+00:02 +0 -2: Some tests failed.

@@ -3,11 +3,13 @@ import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/exercice.dart';
 import '../../domain/repositories/exercice_repository.dart';
 import '../../domain/repositories/atelier_repository.dart';
+import '../../domain/repositories/seance_repository.dart';
 
 /// Service applicatif gerant la logique metier des exercices.
 class ExerciceService {
   final ExerciceRepository _exerciceRepository;
   final AtelierRepository _atelierRepository;
+  final SeanceRepository _seanceRepository;
   AppLocalizations? _l10n;
 
   // Controllers pour la reactivite UI
@@ -16,8 +18,10 @@ class ExerciceService {
   ExerciceService({
     required ExerciceRepository exerciceRepository,
     required AtelierRepository atelierRepository,
+    required SeanceRepository seanceRepository,
   }) : _exerciceRepository = exerciceRepository,
-       _atelierRepository = atelierRepository;
+       _atelierRepository = atelierRepository,
+       _seanceRepository = seanceRepository;
 
   /// Flux de donnees pour les exercices.
   Stream<List<Exercice>> get exercicesStream => _exercicesController.stream;
@@ -82,6 +86,43 @@ class ExerciceService {
     final updated = await _exerciceRepository.update(exercice);
     await refreshExercices(exercice.atelierId);
     return updated;
+  }
+
+  /// Applique un exercice (statut 'valide' -> 'applique').
+  Future<Exercice> appliquerExercice(String exerciceId) async {
+    final exercice = await _exerciceRepository.getById(exerciceId);
+    if (exercice == null) {
+      throw Exception(
+        _l10n?.serviceExerciceNotFound(exerciceId) ??
+            'Exercice introuvable : $exerciceId',
+      );
+    }
+
+    if (exercice.statut != ExerciceStatut.valide) {
+      throw Exception(
+        _l10n?.serviceExerciceOnlyValidatedCanApply ??
+            'Seul un exercice validé peut être appliqué.',
+      );
+    }
+
+    final atelier = await _atelierRepository.getById(exercice.atelierId);
+    if (atelier == null) {
+      throw Exception(
+        _l10n?.serviceExerciceAtelierNotFound(exercice.atelierId) ??
+            'Atelier introuvable : ${exercice.atelierId}',
+      );
+    }
+
+    final seance = await _seanceRepository.getById(atelier.seanceId);
+    if (seance == null || !seance.estOuverte) {
+      throw Exception(
+        _l10n?.serviceExerciceOnlyInOpenSeance ??
+            'L\'application d\'un exercice ne peut se faire que sur une séance ouverte.',
+      );
+    }
+    
+    final updated = exercice.copyWith(statut: ExerciceStatut.applique);
+    return modifierExercice(updated);
   }
 
   /// Supprime un exercice d'un atelier.
