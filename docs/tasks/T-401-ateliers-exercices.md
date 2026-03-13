@@ -12,7 +12,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ## Sous-tickets
 
-### [T-401.1] Modèle de données - Atelier et Exercice
+### [T-401.1] Modèle de données - Atelier et Exercice [DONE]
 
 - **Objectif :** Créer les entités métier pour les ateliers et exercices.
 - **Actions :**
@@ -48,7 +48,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
   - `exercice:close` - Encadreur, EncadreurChef
   - `exercice:read` - Tous les rôles sauf Visiteur
 
-#### Endpoints Ateliers
+#### Endpoints Ateliers [DONE]
 
 | Méthode | Endpoint | Description | Permission |
 |---------|----------|-------------|------------|
@@ -118,7 +118,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.3] Repository Atelier/Exercice avec Cache
+### [T-401.3] Repository Atelier/Exercice avec Cache [DONE]
 
 - **Objectif :** Implémenter les repositories avec gestion du cache et synchronisation.
 - **Actions :**

@@ -33,6 +33,32 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return _handleUpdate(endpoint, operation.entityId, payload);
       case SyncOperationType.delete:
         return _handleDelete(endpoint, operation.entityId);
+      case SyncOperationType.reorder:
+        return _handleReorder(endpoint, payload);
+    }
+  }
+
+  /// Gère le réordonnancement d'une liste (ex: ateliers, exercices).
+  Future<SyncResult> _handleReorder(
+    String endpoint,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final result = await _dioClient.post('$endpoint/reorder', data: payload);
+
+      return result.fold(
+        (failure) => SyncResult(
+          success: false,
+          errorMessage: failure.message ?? 'Erreur lors du réordonnancement',
+          statusCode: failure.statusCode,
+        ),
+        (response) => SyncResult(
+          success: true,
+          serverResponse: response as Map<String, dynamic>?,
+        ),
+      );
+    } catch (e) {
+      return SyncResult(success: false, errorMessage: 'Exception: $e');
     }
   }
 
@@ -230,6 +256,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.seances;
       case SyncEntityType.atelier:
         return ApiEndpoints.ateliers;
+      case SyncEntityType.exercice:
+        return ApiEndpoints.exercices;
       case SyncEntityType.annotation:
         return ApiEndpoints.annotations;
       case SyncEntityType.presence:
@@ -358,6 +386,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.seances;
       case 'atelier':
         return ApiEndpoints.ateliers;
+      case 'exercice':
+        return ApiEndpoints.exercices;
       case 'annotation':
         return ApiEndpoints.annotations;
       case 'presence':

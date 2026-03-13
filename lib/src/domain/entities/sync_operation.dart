@@ -1,11 +1,12 @@
 /// Types d'operations pouvant etre mises en file d'attente de synchronisation.
-enum SyncOperationType { create, update, delete }
+enum SyncOperationType { create, update, delete, reorder }
 
 /// Types d'entites concernees par la synchronisation.
 enum SyncEntityType {
   annotation,
   presence,
   atelier,
+  exercice,
   seance,
   academicien,
   bulletin,

@@ -1,19 +1,19 @@
 import '../../application/services/sync_service.dart';
-import '../../domain/entities/atelier.dart';
+import '../../domain/entities/exercice.dart';
 import '../../domain/entities/sync_operation.dart';
-import '../../domain/repositories/atelier_repository.dart';
-import '../datasources/atelier_local_datasource.dart';
+import '../../domain/repositories/exercice_repository.dart';
+import '../datasources/exercice_local_datasource.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
 
-/// Implementation locale du repository d'ateliers.
-/// Delegue les operations au datasource local.
-class AtelierRepositoryImpl implements AtelierRepository {
-  final AtelierLocalDatasource _datasource;
+/// Implémentation locale du repository d'exercices.
+/// Délégué les opérations au datasource local et gère la synchronisation.
+class ExerciceRepositoryImpl implements ExerciceRepository {
+  final ExerciceLocalDatasource _datasource;
   SyncService? _syncService;
   DioClient? _dioClient;
 
-  AtelierRepositoryImpl(this._datasource);
+  ExerciceRepositoryImpl(this._datasource);
 
   /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
@@ -26,26 +26,26 @@ class AtelierRepositoryImpl implements AtelierRepository {
   }
 
   @override
-  Future<List<Atelier>> getBySeanceId(String seanceId) async {
-    final local = await _datasource.getBySeance(seanceId);
+  Future<List<Exercice>> getByAtelierId(String atelierId) async {
+    final local = await _datasource.getByAtelier(atelierId);
     if (local.isEmpty && _dioClient != null) {
       // Stratégie cache-first : si vide, on tente de synchroniser
       await syncFromApi();
-      return _datasource.getBySeance(seanceId);
+      return _datasource.getByAtelier(atelierId);
     }
     return local;
   }
 
   @override
-  Future<Atelier?> getById(String id) async {
+  Future<Exercice?> getById(String id) async {
     return _datasource.getById(id);
   }
 
   @override
-  Future<Atelier> create(Atelier atelier) async {
-    final created = await _datasource.add(atelier);
+  Future<Exercice> create(Exercice exercice) async {
+    final created = await _datasource.add(exercice);
     await _syncService?.enqueueOperation(
-      entityType: SyncEntityType.atelier,
+      entityType: SyncEntityType.exercice,
       entityId: created.id,
       operationType: SyncOperationType.create,
       data: created.toJson(),
@@ -54,10 +54,10 @@ class AtelierRepositoryImpl implements AtelierRepository {
   }
 
   @override
-  Future<Atelier> update(Atelier atelier) async {
-    final updated = await _datasource.update(atelier);
+  Future<Exercice> update(Exercice exercice) async {
+    final updated = await _datasource.update(exercice);
     await _syncService?.enqueueOperation(
-      entityType: SyncEntityType.atelier,
+      entityType: SyncEntityType.exercice,
       entityId: updated.id,
       operationType: SyncOperationType.update,
       data: updated.toJson(),
@@ -69,7 +69,7 @@ class AtelierRepositoryImpl implements AtelierRepository {
   Future<void> delete(String id) async {
     await _datasource.delete(id);
     await _syncService?.enqueueOperation(
-      entityType: SyncEntityType.atelier,
+      entityType: SyncEntityType.exercice,
       entityId: id,
       operationType: SyncOperationType.delete,
       data: {'id': id},
@@ -77,29 +77,29 @@ class AtelierRepositoryImpl implements AtelierRepository {
   }
 
   @override
-  Future<void> reorder(String seanceId, List<String> atelierIds) async {
-    await _datasource.reorder(seanceId, atelierIds);
+  Future<void> reorder(String atelierId, List<String> exerciceIds) async {
+    await _datasource.reorder(atelierId, exerciceIds);
 
     // Enregistre l'opération de réordonnancement pour synchronisation
     await _syncService?.enqueueOperation(
-      entityType: SyncEntityType.atelier,
-      entityId: seanceId, // On utilise l'ID de la séance comme référence
+      entityType: SyncEntityType.exercice,
+      entityId: atelierId, // On utilise l'ID de l'atelier comme référence
       operationType: SyncOperationType.reorder,
-      data: {'seance_id': seanceId, 'atelier_ids': atelierIds},
+      data: {'atelier_id': atelierId, 'exercice_ids': exerciceIds},
     );
   }
 
-  /// Synchronise les ateliers depuis le backend.
+  /// Synchronise les exercices depuis le backend vers le cache local.
   Future<bool> syncFromApi() async {
     if (_dioClient == null) return false;
 
     try {
-      final result = await _dioClient!.get<dynamic>(ApiEndpoints.ateliers);
+      final result = await _dioClient!.get<dynamic>(ApiEndpoints.exercices);
 
       return await result.fold(
         (failure) {
           // ignore: avoid_print
-          print('[AtelierRepo] Erreur sync: ${failure.message}');
+          print('[ExerciceRepo] Erreur sync: ${failure.message}');
           return false;
         },
         (data) async {
@@ -112,25 +112,25 @@ class AtelierRepositoryImpl implements AtelierRepository {
             return false;
           }
 
-          final ateliers = rawList
+          final exercices = rawList
               .whereType<Map<String, dynamic>>()
-              .map((map) => Atelier.fromJson(map))
-              .where((a) => a.id.isNotEmpty)
+              .map((map) => Exercice.fromJson(map))
+              .where((e) => e.id.isNotEmpty)
               .toList();
 
-          await _datasource.upsertAll(ateliers);
+          await _datasource.upsertAll(exercices);
           return true;
         },
       );
     } catch (e) {
       // ignore: avoid_print
-      print('[AtelierRepo] Exception sync: $e');
+      print('[ExerciceRepo] Exception sync: $e');
       return false;
     }
   }
 
-  /// Met à jour le cache local avec les ateliers provenant de l'API.
-  Future<void> upsertAllFromRemote(List<Atelier> ateliers) async {
-    await _datasource.upsertAll(ateliers);
+  /// Met à jour le cache local avec les exercices provenant de l'API.
+  Future<void> upsertAllFromRemote(List<Exercice> exercices) async {
+    await _datasource.upsertAll(exercices);
   }
 }

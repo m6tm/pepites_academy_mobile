@@ -118,16 +118,18 @@ class SyncQueueLocalDatasource {
         return 3;
       case SyncEntityType.atelier:
         return 4;
-      case SyncEntityType.annotation:
+      case SyncEntityType.exercice:
         return 5;
+      case SyncEntityType.annotation:
+        return 6;
       case SyncEntityType.presence:
-        return 6; // Presences en dernier car dependent des seances
+        return 7; // Presences en dernier car dependent des seances
       case SyncEntityType.bulletin:
-        return 7;
-      case SyncEntityType.smsMessage:
         return 8;
-      case SyncEntityType.notification:
+      case SyncEntityType.smsMessage:
         return 9;
+      case SyncEntityType.notification:
+        return 10;
       case SyncEntityType.niveauScolaire:
         return 0;
       case SyncEntityType.posteFootball:

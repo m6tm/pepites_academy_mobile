@@ -24,6 +24,7 @@ import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
+import 'infrastructure/datasources/exercice_local_datasource.dart';
 import 'infrastructure/datasources/bulletin_local_datasource.dart';
 import 'infrastructure/datasources/connectivity_datasource.dart';
 import 'infrastructure/datasources/encadreur_local_datasource.dart';
@@ -41,6 +42,7 @@ import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
+import 'infrastructure/repositories/exercice_repository_impl.dart';
 import 'infrastructure/repositories/bulletin_repository_impl.dart';
 import 'infrastructure/repositories/connectivity_repository_impl.dart';
 import 'infrastructure/repositories/encadreur_repository_impl.dart';
@@ -78,6 +80,7 @@ class DependencyInjection {
   static late final PresenceRepositoryImpl presenceRepository;
   static late final SeanceRepositoryImpl seanceRepository;
   static late final AtelierRepositoryImpl atelierRepository;
+  static late final ExerciceRepositoryImpl exerciceRepository;
   static late final QrScannerService qrScannerService;
   static late final SeanceService seanceService;
   static late final AtelierService atelierService;
@@ -162,6 +165,10 @@ class DependencyInjection {
     // Initialisation du Repository Atelier
     final atelierDatasource = AtelierLocalDatasource(sharedPrefs);
     atelierRepository = AtelierRepositoryImpl(atelierDatasource);
+
+    // Initialisation du Repository Exercice
+    final exerciceDatasource = ExerciceLocalDatasource(sharedPrefs);
+    exerciceRepository = ExerciceRepositoryImpl(exerciceDatasource);
 
     // Initialisation du Service Seance
     seanceService = SeanceService(
@@ -369,6 +376,8 @@ class DependencyInjection {
     seanceRepository.setDioClient(dioClient);
     atelierRepository.setSyncService(syncService);
     atelierRepository.setDioClient(dioClient);
+    exerciceRepository.setSyncService(syncService);
+    exerciceRepository.setDioClient(dioClient);
     annotationRepository.setSyncService(syncService);
     annotationRepository.setDioClient(dioClient);
     bulletinRepository.setSyncService(syncService);
@@ -400,6 +409,9 @@ class DependencyInjection {
           break;
         case SyncEntityType.atelier:
           await atelierRepository.delete(entityId);
+          break;
+        case SyncEntityType.exercice:
+          await exerciceRepository.delete(entityId);
           break;
         case SyncEntityType.annotation:
           await annotationRepository.delete(entityId);
@@ -491,6 +503,28 @@ class DependencyInjection {
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync seances: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les ateliers depuis le backend.
+  static Future<bool> syncAteliers() async {
+    try {
+      return await atelierRepository.syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync ateliers: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise les exercices depuis le backend.
+  static Future<bool> syncExercices() async {
+    try {
+      return await exerciceRepository.syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync exercices: $e');
       return false;
     }
   }

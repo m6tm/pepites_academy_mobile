@@ -35,6 +35,10 @@ class ApiEndpoints {
   static const String ateliers = '/ateliers';
   static const String ateliersReorder = '/ateliers/reorder';
 
+  /// Chemins pour les exercices.
+  static const String exercices = '/exercices';
+  static const String exercicesReorder = '/exercices/reorder';
+
   /// Chemins pour les annotations.
   static const String annotations = '/annotations';
 
