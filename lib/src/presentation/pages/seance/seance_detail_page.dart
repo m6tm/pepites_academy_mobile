@@ -13,6 +13,9 @@ import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../annotation/widgets/annotation_side_panel.dart';
 import '../ateliers/ateliers_page.dart';
+import '../../widgets/ateliers_progress_card.dart';
+import '../../widgets/permission_guard.dart';
+import '../../../domain/entities/permission.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Vue detaillee d'une seance affichant les encadreurs presents,
@@ -395,6 +398,12 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
                 context,
                 AppLocalizations.of(context)!.workshopsRecapLabel,
                 Icons.fitness_center_rounded,
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: PermissionGuard(
+                permission: Permission.atelierView,
+                child: AteliersProgressCard(ateliers: _ateliers),
               ),
             ),
             SliverToBoxAdapter(child: _buildAteliersList(colorScheme, isDark)),

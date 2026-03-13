@@ -244,7 +244,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.10] Réorganisation par glisser-déposer
+### [T-401.10] Réorganisation par glisser-déposer [DONE]
 
 - **Objectif :** Permettre de réorganiser l'ordre des ateliers et exercices.
 - **Pré-requis :** Permission `atelier:update` ou `exercice:update`
@@ -261,7 +261,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.11] Affichage récapitulatif avec indicateurs de progression
+### [T-401.11] Affichage récapitulatif avec indicateurs de progression [DONE]
 
 - **Objectif :** Vue récapitulative avec progression globale.
 - **Pré-requis :** Permission `atelier:read`
