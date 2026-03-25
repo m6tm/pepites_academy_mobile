@@ -276,7 +276,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.12] Tests
+### [T-401.12] Tests [DONE]
 
 - **Objectif :** Valider le fonctionnement du module ateliers/exercices.
 - **Actions :**
