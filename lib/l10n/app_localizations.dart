@@ -2528,6 +2528,30 @@ abstract class AppLocalizations {
   /// **'Télécharger'**
   String get downloadLabel;
 
+  /// No description provided for @downloadSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement réussi'**
+  String get downloadSuccess;
+
+  /// No description provided for @downloadSuccessDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le badge a été enregistré dans vos documents.'**
+  String get downloadSuccessDesc;
+
+  /// No description provided for @badgeShareSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Badge QR - {name}'**
+  String badgeShareSubject(String name);
+
+  /// No description provided for @badgeShareText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici le badge QR de {name} de Pepites Academy.'**
+  String badgeShareText(String name);
+
   /// No description provided for @updateError.
   ///
   /// In fr, this message translates to:
@@ -6369,48 +6393,93 @@ abstract class AppLocalizations {
   String get serviceAtelierClosedAuto;
 
   /// No description provided for @biometricActivated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Authentification biométrique activée'**
   String get biometricActivated;
 
   /// No description provided for @biometricDeactivated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Authentification biométrique désactivée'**
   String get biometricDeactivated;
 
   /// No description provided for @biometricActivationError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'activation'**
   String get biometricActivationError;
 
   /// No description provided for @biometricDeactivationError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la désactivation'**
   String get biometricDeactivationError;
 
   /// No description provided for @biometricUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Biométrie non disponible'**
   String get biometricUnavailableTitle;
 
   /// No description provided for @biometricUnavailableDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre appareil ne supporte pas l\'authentification biométrique ou aucune biométrie n\'est configurée. Veuillez vérifier les paramètres de votre appareil.'**
   String get biometricUnavailableDesc;
 
   /// No description provided for @activeStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACTIF'**
   String get activeStatus;
 
   /// No description provided for @disconnectDeviceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter l\'appareil'**
   String get disconnectDeviceTitle;
 
   /// No description provided for @disconnectDeviceConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous déconnecter \"{deviceName}\" ?'**
   String disconnectDeviceConfirmation(String deviceName);
 
   /// No description provided for @deviceDisconnected.
+  ///
+  /// In fr, this message translates to:
+  /// **'{deviceName} déconnecté'**
   String deviceDisconnected(String deviceName);
 
   /// No description provided for @logoutError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la déconnexion'**
   String get logoutError;
 
   /// No description provided for @devicesDisconnectedCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} appareil(s) déconnecté(s)'**
   String devicesDisconnectedCount(int count);
 
   /// No description provided for @biometricReasonResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Authentifiez-vous pour reprendre votre session'**
   String get biometricReasonResume;
 
   /// No description provided for @biometricReasonAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déverrouillez pour accéder à l\'application'**
   String get biometricReasonAccess;
 
   /// No description provided for @ok.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
   String get ok;
 }
 

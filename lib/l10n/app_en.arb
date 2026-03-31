@@ -558,6 +558,24 @@
   "accessReport": "Access report",
   "tapToEnlargeBadge": "Tap on badge to enlarge",
   "downloadLabel": "Download",
+  "downloadSuccess": "Download successful",
+  "downloadSuccessDesc": "The badge has been saved in your documents.",
+  "badgeShareSubject": "QR Badge - {name}",
+  "@badgeShareSubject": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeShareText": "Here is the QR badge for {name} from Pepites Academy.",
+  "@badgeShareText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "updateError": "Could not update: {error}",
   "@updateError": {
     "placeholders": {

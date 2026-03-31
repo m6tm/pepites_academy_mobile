@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
+import '../utils/image_cropper_helper.dart';
 
 class ProfileImagePicker extends StatefulWidget {
   final String? initialImage;
@@ -31,10 +32,20 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
       );
 
       if (pickedFile != null) {
-        setState(() {
-          _imageFile = File(pickedFile.path);
-        });
-        widget.onImageSelected(pickedFile.path);
+        if (mounted) {
+          final croppedFile = await ImageCropperHelper.cropImage(
+            imageFile: File(pickedFile.path),
+            context: context,
+            title: "Photo de l'académicien",
+          );
+
+          if (croppedFile != null) {
+            setState(() {
+              _imageFile = croppedFile;
+            });
+            widget.onImageSelected(croppedFile.path);
+          }
+        }
       }
     } catch (e) {
       debugPrint('Erreur lors de la sélection de limage: $e');

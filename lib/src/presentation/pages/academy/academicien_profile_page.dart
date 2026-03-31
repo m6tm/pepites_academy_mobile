@@ -14,6 +14,7 @@ import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../bulletin/bulletin_page.dart';
 import 'academicien_edit_page.dart';
+import '../../utils/screenshot_helper.dart';
 
 /// Page de consultation du profil d'un academicien (joueur).
 /// Affiche les informations completes, le badge QR et les statistiques.
@@ -39,6 +40,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
     with SingleTickerProviderStateMixin {
   late Academicien _academicien;
   late TabController _tabController;
+  final GlobalKey _qrKey = GlobalKey();
 
   @override
   void initState() {
@@ -755,7 +757,9 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
           const SizedBox(height: 16),
           GestureDetector(
             onTap: _showQrFullScreen,
-            child: Container(
+            child: RepaintBoundary(
+              key: _qrKey,
+              child: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
@@ -877,7 +881,8 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
               ),
             ),
           ),
-          const SizedBox(height: 20),
+        ),
+        const SizedBox(height: 20),
           Text(
             AppLocalizations.of(context)!.tapToEnlargeBadge,
             style: GoogleFonts.montserrat(
@@ -890,7 +895,15 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final l10n = AppLocalizations.of(context)!;
+                    await ScreenshotHelper.captureAndShare(
+                      _qrKey,
+                      fileName: 'badge_${_academicien.nom}_${_academicien.prenom}',
+                      subject: l10n.badgeShareSubject('${_academicien.prenom} ${_academicien.nom}'),
+                      text: l10n.badgeShareText('${_academicien.prenom} ${_academicien.nom}'),
+                    );
+                  },
                   icon: const Icon(Icons.share_rounded, size: 18),
                   label: Text(
                     AppLocalizations.of(context)!.shareLabel,
@@ -910,10 +923,25 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final l10n = AppLocalizations.of(context)!;
+                    final path = await ScreenshotHelper.captureAndSave(
+                      _qrKey,
+                      fileName: 'badge_${_academicien.nom}_${_academicien.prenom}',
+                    );
+                    
+                    if (mounted && path != null) {
+                      AcademyToast.show(
+                        context,
+                        title: l10n.downloadSuccess,
+                        description: l10n.downloadSuccessDesc,
+                        isSuccess: true,
+                      );
+                    }
+                  },
                   icon: const Icon(Icons.download_rounded, size: 18),
                   label: Text(
-                    'Telecharger',
+                    AppLocalizations.of(context)!.downloadLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -1124,7 +1152,7 @@ class _QrFullScreenSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'BADGE ACADEMICIEN',
+              AppLocalizations.of(context)!.academicianBadgeType,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.w700,
                 fontSize: 11,

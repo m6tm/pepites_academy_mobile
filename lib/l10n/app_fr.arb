@@ -623,6 +623,24 @@
   "accessReport": "Accéder au bulletin",
   "tapToEnlargeBadge": "Appuyez sur le badge pour l'agrandir",
   "downloadLabel": "Télécharger",
+  "downloadSuccess": "Téléchargement réussi",
+  "downloadSuccessDesc": "Le badge a été enregistré dans vos documents.",
+  "badgeShareSubject": "Badge QR - {name}",
+  "@badgeShareSubject": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeShareText": "Voici le badge QR de {name} de Pepites Academy.",
+  "@badgeShareText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "updateError": "Impossible de mettre à jour : {error}",
   "@updateError": {
     "placeholders": {

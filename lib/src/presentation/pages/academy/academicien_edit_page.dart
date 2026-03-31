@@ -14,6 +14,7 @@ import '../../../injection_container.dart';
 import '../../../infrastructure/services/upload_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/image_compressor.dart';
+import '../../utils/image_cropper_helper.dart';
 import '../../widgets/academy_toast.dart';
 import 'registration/steps/signature_step.dart';
 
@@ -396,15 +397,25 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         imageQuality: 100, // Qualite max, la compression se fait apres
       );
       if (pickedFile != null) {
-        // Compresser l'image avant de la stocker
-        final compressedFile = await ImageCompressor.compress(
-          imageFile: File(pickedFile.path),
-          quality: 85,
-          maxWidth: 1024,
-          maxHeight: 1024,
-        );
-        if (compressedFile != null) {
-          await _uploadPhoto(compressedFile, isParent: false);
+        if (mounted) {
+          final croppedFile = await ImageCropperHelper.cropImage(
+            imageFile: File(pickedFile.path),
+            context: context,
+            title: "Photo de l'académicien",
+          );
+
+          if (croppedFile != null) {
+            // Compresser l'image avant de la stocker
+            final compressedFile = await ImageCompressor.compress(
+              imageFile: croppedFile,
+              quality: 85,
+              maxWidth: 1024,
+              maxHeight: 1024,
+            );
+            if (compressedFile != null) {
+              await _uploadPhoto(compressedFile, isParent: false);
+            }
+          }
         }
       }
     } catch (e) {
@@ -427,15 +438,25 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         imageQuality: 100, // Qualite max, la compression se fait apres
       );
       if (pickedFile != null) {
-        // Compresser l'image avant de la stocker
-        final compressedFile = await ImageCompressor.compress(
-          imageFile: File(pickedFile.path),
-          quality: 85,
-          maxWidth: 1024,
-          maxHeight: 1024,
-        );
-        if (compressedFile != null) {
-          await _uploadPhoto(compressedFile, isParent: true);
+        if (mounted) {
+          final croppedFile = await ImageCropperHelper.cropImage(
+            imageFile: File(pickedFile.path),
+            context: context,
+            title: "Photo du parent/tuteur",
+          );
+
+          if (croppedFile != null) {
+            // Compresser l'image avant de la stocker
+            final compressedFile = await ImageCompressor.compress(
+              imageFile: croppedFile,
+              quality: 85,
+              maxWidth: 1024,
+              maxHeight: 1024,
+            );
+            if (compressedFile != null) {
+              await _uploadPhoto(compressedFile, isParent: true);
+            }
+          }
         }
       }
     } catch (e) {

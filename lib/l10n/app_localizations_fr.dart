@@ -1320,6 +1320,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String get downloadLabel => 'Télécharger';
 
   @override
+  String get downloadSuccess => 'Téléchargement réussi';
+
+  @override
+  String get downloadSuccessDesc =>
+      'Le badge a été enregistré dans vos documents.';
+
+  @override
+  String badgeShareSubject(String name) {
+    return 'Badge QR - $name';
+  }
+
+  @override
+  String badgeShareText(String name) {
+    return 'Voici le badge QR de $name de Pepites Academy.';
+  }
+
+  @override
   String updateError(String error) {
     return 'Impossible de mettre à jour : $error';
   }
@@ -3526,7 +3543,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get serviceAtelierClosedAuto => 'L\'atelier a ete ferme automatiquement car tous ses exercices sont fermes.';
+  String get serviceAtelierClosedAuto =>
+      'L\'atelier a ete ferme automatiquement car tous ses exercices sont fermes.';
 
   @override
   String get biometricActivated => 'Authentification biométrique activée';
@@ -3535,40 +3553,49 @@ class AppLocalizationsFr extends AppLocalizations {
   String get biometricDeactivated => 'Authentification biométrique désactivée';
 
   @override
-  String get biometricActivationError => 'Erreur lors de l’activation de la biométrie';
+  String get biometricActivationError => 'Erreur lors de l\'activation';
 
   @override
-  String get biometricDeactivationError => 'Erreur lors de la désactivation de la biométrie';
+  String get biometricDeactivationError => 'Erreur lors de la désactivation';
 
   @override
-  String get biometricUnavailableTitle => 'Biométrie indisponible';
+  String get biometricUnavailableTitle => 'Biométrie non disponible';
 
   @override
-  String get biometricUnavailableDesc => 'L’authentification biométrique n’est pas gérée ou configurée sur cet appareil.';
+  String get biometricUnavailableDesc =>
+      'Votre appareil ne supporte pas l\'authentification biométrique ou aucune biométrie n\'est configurée. Veuillez vérifier les paramètres de votre appareil.';
 
   @override
-  String get activeStatus => 'Actif';
+  String get activeStatus => 'ACTIF';
 
   @override
-  String get disconnectDeviceTitle => 'Déconnecter l’appareil';
+  String get disconnectDeviceTitle => 'Déconnecter l\'appareil';
 
   @override
-  String disconnectDeviceConfirmation(String deviceName) => 'Êtes-vous sûr de vouloir déconnecter l’appareil $deviceName ?';
+  String disconnectDeviceConfirmation(String deviceName) {
+    return 'Voulez-vous déconnecter \"$deviceName\" ?';
+  }
 
   @override
-  String deviceDisconnected(String deviceName) => '$deviceName déconnecté avec succès';
+  String deviceDisconnected(String deviceName) {
+    return '$deviceName déconnecté';
+  }
 
   @override
   String get logoutError => 'Erreur lors de la déconnexion';
 
   @override
-  String devicesDisconnectedCount(int count) => '$count appareil(s) déconnecté(s) avec succès';
+  String devicesDisconnectedCount(int count) {
+    return '$count appareil(s) déconnecté(s)';
+  }
 
   @override
-  String get biometricReasonResume => 'Veuillez vous authentifier pour reprendre votre session';
+  String get biometricReasonResume =>
+      'Authentifiez-vous pour reprendre votre session';
 
   @override
-  String get biometricReasonAccess => 'Veuillez vous authentifier pour accéder à cette fonctionnalité';
+  String get biometricReasonAccess =>
+      'Déverrouillez pour accéder à l\'application';
 
   @override
   String get ok => 'OK';
