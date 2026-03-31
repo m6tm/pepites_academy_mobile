@@ -60,13 +60,6 @@ class _AtelierCardState extends State<AtelierCard> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surface : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: _isExpanded 
-              ? typeColor.withValues(alpha: 0.3) 
-              : colorScheme.onSurface.withValues(alpha: 0.05),
-        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -75,7 +68,18 @@ class _AtelierCardState extends State<AtelierCard> {
           ),
         ],
       ),
-      child: Column(
+      child: Material(
+        color: isDark ? colorScheme.surface : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: _isExpanded 
+                ? typeColor.withValues(alpha: 0.3) 
+                : colorScheme.onSurface.withValues(alpha: 0.05),
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
         children: [
           // Header (Clickable to expand)
           InkWell(
@@ -132,36 +136,50 @@ class _AtelierCardState extends State<AtelierCard> {
                   ),
                   // Actions or Expand Icon
                   if (widget.isEditable)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.onApply != null && widget.atelier.statut == AtelierStatut.valide)
+                    Expanded(
+                      flex: 1,
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 2,
+                        runSpacing: -8,
+                        children: [
+                          if (widget.onApply != null && widget.atelier.statut == AtelierStatut.valide)
+                            IconButton(
+                              icon: Icon(Icons.play_circle_outline_rounded, size: 20, color: typeColor),
+                              onPressed: widget.onApply,
+                              tooltip: 'Appliquer en séance',
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                            ),
+                          if (widget.onAnnotate != null)
+                            IconButton(
+                              icon: Icon(Icons.note_alt_outlined, size: 20, color: typeColor),
+                              onPressed: widget.onAnnotate,
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                            ),
                           IconButton(
-                            icon: Icon(Icons.play_circle_outline_rounded, size: 20, color: typeColor),
-                            onPressed: widget.onApply,
-                            tooltip: 'Appliquer en séance',
+                            icon: Icon(Icons.edit_outlined, size: 20, color: typeColor),
+                            onPressed: widget.onEdit,
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
                           ),
-                        if (widget.onAnnotate != null)
                           IconButton(
-                            icon: Icon(Icons.note_alt_outlined, size: 20, color: typeColor),
-                            onPressed: widget.onAnnotate,
+                            icon: const Icon(Icons.delete_outline_rounded, size: 20, color: Colors.red),
+                            onPressed: widget.onDelete,
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
                           ),
-                        IconButton(
-                          icon: Icon(Icons.edit_outlined, size: 20, color: typeColor),
-                          onPressed: widget.onEdit,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, size: 20, color: Colors.red),
-                          onPressed: widget.onDelete,
-                        ),
-                        ReorderableDragStartListener(
-                          index: widget.index,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 4.0, right: 4.0),
-                            child: Icon(Icons.drag_handle_rounded, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+                          ReorderableDragStartListener(
+                            index: widget.index,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Icon(Icons.drag_handle_rounded, size: 20, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
@@ -268,6 +286,7 @@ class _AtelierCardState extends State<AtelierCard> {
             duration: const Duration(milliseconds: 300),
           ),
         ],
+      ),
       ),
     );
   }

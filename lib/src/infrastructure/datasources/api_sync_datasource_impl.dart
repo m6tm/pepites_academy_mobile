@@ -184,9 +184,17 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
   ) async {
     try {
       final data = _transformPayloadForApi(payload, isCreate: true);
+      
+      String actualEndpoint = endpoint;
+      if (endpoint == ApiEndpoints.ateliers && data.containsKey('seance_id')) {
+        actualEndpoint = '${ApiEndpoints.seances}/${data['seance_id']}/ateliers';
+      } else if (endpoint == ApiEndpoints.exercices && data.containsKey('atelier_id')) {
+        actualEndpoint = '${ApiEndpoints.ateliers}/${data['atelier_id']}/exercices';
+      }
+
       // ignore: avoid_print
-      print('[ApiSync] POST $endpoint avec ${data.keys.toList()}');
-      final result = await _dioClient.post(endpoint, data: data);
+      print('[ApiSync] POST $actualEndpoint avec ${data.keys.toList()}');
+      final result = await _dioClient.post(actualEndpoint, data: data);
 
       return result.fold(
         (failure) => SyncResult(
