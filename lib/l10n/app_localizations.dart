@@ -6367,6 +6367,51 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'L\'atelier a ete ferme automatiquement car tous ses exercices sont fermes.'**
   String get serviceAtelierClosedAuto;
+
+  /// No description provided for @biometricActivated.
+  String get biometricActivated;
+
+  /// No description provided for @biometricDeactivated.
+  String get biometricDeactivated;
+
+  /// No description provided for @biometricActivationError.
+  String get biometricActivationError;
+
+  /// No description provided for @biometricDeactivationError.
+  String get biometricDeactivationError;
+
+  /// No description provided for @biometricUnavailableTitle.
+  String get biometricUnavailableTitle;
+
+  /// No description provided for @biometricUnavailableDesc.
+  String get biometricUnavailableDesc;
+
+  /// No description provided for @activeStatus.
+  String get activeStatus;
+
+  /// No description provided for @disconnectDeviceTitle.
+  String get disconnectDeviceTitle;
+
+  /// No description provided for @disconnectDeviceConfirmation.
+  String disconnectDeviceConfirmation(String deviceName);
+
+  /// No description provided for @deviceDisconnected.
+  String deviceDisconnected(String deviceName);
+
+  /// No description provided for @logoutError.
+  String get logoutError;
+
+  /// No description provided for @devicesDisconnectedCount.
+  String devicesDisconnectedCount(int count);
+
+  /// No description provided for @biometricReasonResume.
+  String get biometricReasonResume;
+
+  /// No description provided for @biometricReasonAccess.
+  String get biometricReasonAccess;
+
+  /// No description provided for @ok.
+  String get ok;
 }
 
 class _AppLocalizationsDelegate

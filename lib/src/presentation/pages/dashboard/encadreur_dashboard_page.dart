@@ -289,44 +289,85 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
     final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
-        return AlertDialog(
-          title: Text(
-            l10n.logoutTitle,
-            style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-          ),
-          content: Text(
-            l10n.logoutConfirmation,
-            style: GoogleFonts.montserrat(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.cancel, style: GoogleFonts.montserrat()),
-            ),
-            TextButton(
-              onPressed: () async {
-                final navigator = Navigator.of(context);
-                navigator.pop();
-                // Désactiver la biométrie sur le backend avant déconnexion
-                await DependencyInjection.biometricService.disableBiometric();
-                await DependencyInjection.authService.logout();
-                if (mounted) {
-                  navigator.pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                    (route) => false,
-                  );
-                }
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
+        bool isLoggingOut = false;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                l10n.logoutTitle,
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
               ),
-              child: Text(
-                l10n.logoutButton,
-                style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
+              content: isLoggingOut
+                  ? SizedBox(
+                      height: 100,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.loading,
+                            style: GoogleFonts.montserrat(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Text(
+                      l10n.logoutConfirmation,
+                      style: GoogleFonts.montserrat(),
+                    ),
+              actions: isLoggingOut
+                  ? null
+                  : [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          l10n.cancel,
+                          style: GoogleFonts.montserrat(),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          setState(() => isLoggingOut = true);
+                          try {
+                            final navigator = Navigator.of(context);
+                            // Désactiver la biométrie sur le backend avant déconnexion
+                            await DependencyInjection.biometricService
+                                .disableBiometric();
+                            await DependencyInjection.authService.logout();
+                            if (navigator.context.mounted) {
+                              navigator.pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                                (route) => false,
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              setState(() => isLoggingOut = false);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.toString())),
+                              );
+                            }
+                          }
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        child: Text(
+                          l10n.logoutButton,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+            );
+          },
         );
       },
     );

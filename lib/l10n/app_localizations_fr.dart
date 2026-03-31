@@ -3526,6 +3526,50 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get serviceAtelierClosedAuto =>
-      'L\'atelier a ete ferme automatiquement car tous ses exercices sont fermes.';
+  String get serviceAtelierClosedAuto => 'L\'atelier a ete ferme automatiquement car tous ses exercices sont fermes.';
+
+  @override
+  String get biometricActivated => 'Authentification biométrique activée';
+
+  @override
+  String get biometricDeactivated => 'Authentification biométrique désactivée';
+
+  @override
+  String get biometricActivationError => 'Erreur lors de l’activation de la biométrie';
+
+  @override
+  String get biometricDeactivationError => 'Erreur lors de la désactivation de la biométrie';
+
+  @override
+  String get biometricUnavailableTitle => 'Biométrie indisponible';
+
+  @override
+  String get biometricUnavailableDesc => 'L’authentification biométrique n’est pas gérée ou configurée sur cet appareil.';
+
+  @override
+  String get activeStatus => 'Actif';
+
+  @override
+  String get disconnectDeviceTitle => 'Déconnecter l’appareil';
+
+  @override
+  String disconnectDeviceConfirmation(String deviceName) => 'Êtes-vous sûr de vouloir déconnecter l’appareil $deviceName ?';
+
+  @override
+  String deviceDisconnected(String deviceName) => '$deviceName déconnecté avec succès';
+
+  @override
+  String get logoutError => 'Erreur lors de la déconnexion';
+
+  @override
+  String devicesDisconnectedCount(int count) => '$count appareil(s) déconnecté(s) avec succès';
+
+  @override
+  String get biometricReasonResume => 'Veuillez vous authentifier pour reprendre votre session';
+
+  @override
+  String get biometricReasonAccess => 'Veuillez vous authentifier pour accéder à cette fonctionnalité';
+
+  @override
+  String get ok => 'OK';
 }

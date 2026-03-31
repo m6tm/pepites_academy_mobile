@@ -1800,5 +1800,41 @@
       }
     }
   },
-  "serviceAtelierClosedAuto": "The workshop has been closed automatically because all its exercises are closed."
+  "serviceAtelierClosedAuto": "The workshop has been closed automatically because all its exercises are closed.",
+  "biometricActivated": "Biometric authentication enabled",
+  "biometricDeactivated": "Biometric authentication disabled",
+  "biometricActivationError": "Error during activation",
+  "biometricDeactivationError": "Error during deactivation",
+  "biometricUnavailableTitle": "Biometric unavailable",
+  "biometricUnavailableDesc": "Your device does not support biometric authentication or no biometrics are configured. Please check your device settings.",
+  "activeStatus": "ACTIVE",
+  "disconnectDeviceTitle": "Disconnect device",
+  "disconnectDeviceConfirmation": "Do you want to disconnect \"{deviceName}\" ?",
+  "@disconnectDeviceConfirmation": {
+    "placeholders": {
+      "deviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDisconnected": "{deviceName} disconnected",
+  "@deviceDisconnected": {
+    "placeholders": {
+      "deviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "logoutError": "Logout error",
+  "devicesDisconnectedCount": "{count, plural, =1{1 device disconnected} other{{count} devices disconnected}}",
+  "@devicesDisconnectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "biometricReasonResume": "Authenticate to resume your session",
+  "biometricReasonAccess": "Unlock to access the application",
+  "ok": "OK"
 }

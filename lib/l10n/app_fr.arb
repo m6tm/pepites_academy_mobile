@@ -1873,5 +1873,41 @@
       }
     }
   },
-  "serviceAtelierClosedAuto": "L'atelier a ete ferme automatiquement car tous ses exercices sont fermes."
+  "serviceAtelierClosedAuto": "L'atelier a ete ferme automatiquement car tous ses exercices sont fermes.",
+  "biometricActivated": "Authentification biométrique activée",
+  "biometricDeactivated": "Authentification biométrique désactivée",
+  "biometricActivationError": "Erreur lors de l'activation",
+  "biometricDeactivationError": "Erreur lors de la désactivation",
+  "biometricUnavailableTitle": "Biométrie non disponible",
+  "biometricUnavailableDesc": "Votre appareil ne supporte pas l'authentification biométrique ou aucune biométrie n'est configurée. Veuillez vérifier les paramètres de votre appareil.",
+  "activeStatus": "ACTIF",
+  "disconnectDeviceTitle": "Déconnecter l'appareil",
+  "disconnectDeviceConfirmation": "Voulez-vous déconnecter \"{deviceName}\" ?",
+  "@disconnectDeviceConfirmation": {
+    "placeholders": {
+      "deviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDisconnected": "{deviceName} déconnecté",
+  "@deviceDisconnected": {
+    "placeholders": {
+      "deviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "logoutError": "Erreur lors de la déconnexion",
+  "devicesDisconnectedCount": "{count} appareil(s) déconnecté(s)",
+  "@devicesDisconnectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "biometricReasonResume": "Authentifiez-vous pour reprendre votre session",
+  "biometricReasonAccess": "Déverrouillez pour accéder à l'application",
+  "ok": "OK"
 }

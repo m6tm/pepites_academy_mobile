@@ -3507,6 +3507,50 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get serviceAtelierClosedAuto =>
-      'The workshop has been closed automatically because all its exercises are closed.';
+  String get serviceAtelierClosedAuto => 'The workshop was closed automatically because all its exercises are closed.';
+
+  @override
+  String get biometricActivated => 'Biometric authentication activated';
+
+  @override
+  String get biometricDeactivated => 'Biometric authentication deactivated';
+
+  @override
+  String get biometricActivationError => 'Error activating biometric authentication';
+
+  @override
+  String get biometricDeactivationError => 'Error deactivating biometric authentication';
+
+  @override
+  String get biometricUnavailableTitle => 'Biometric Unavailable';
+
+  @override
+  String get biometricUnavailableDesc => 'Biometric authentication is not supported or configured on this device.';
+
+  @override
+  String get activeStatus => 'Active';
+
+  @override
+  String get disconnectDeviceTitle => 'Disconnect device';
+
+  @override
+  String disconnectDeviceConfirmation(String deviceName) => 'Are you sure you want to disconnect $deviceName?';
+
+  @override
+  String deviceDisconnected(String deviceName) => '$deviceName disconnected successfully';
+
+  @override
+  String get logoutError => 'Error during logout';
+
+  @override
+  String devicesDisconnectedCount(int count) => '$count devices disconnected successfully';
+
+  @override
+  String get biometricReasonResume => 'Please authenticate to resume your session';
+
+  @override
+  String get biometricReasonAccess => 'Please authenticate to access this feature';
+
+  @override
+  String get ok => 'OK';
 }

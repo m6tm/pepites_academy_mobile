@@ -20,7 +20,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   bool _biometricEnabled = false;
   bool _isLoading = false;
   bool _biometricAvailable = false;
-  String _biometricTypeName = 'biometrie';
 
   @override
   void initState() {
@@ -33,19 +32,17 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
         .checkAvailability();
     final isEnabled = await DependencyInjection.biometricService
         .isBiometricEnabled();
-    final typeName = await DependencyInjection.biometricService
-        .getPrimaryBiometricTypeName();
 
     if (mounted) {
       setState(() {
         _biometricAvailable = availability == BiometricAvailability.available;
         _biometricEnabled = isEnabled;
-        _biometricTypeName = typeName;
       });
     }
   }
 
   Future<void> _toggleBiometric(bool value) async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_biometricAvailable) {
       _showBiometricUnavailableDialog();
       return;
@@ -62,9 +59,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             setState(() {
               _biometricEnabled = true;
             });
-            _showSuccessSnackBar('Authentification biometrique activee');
+            _showSuccessSnackBar(l10n.biometricActivated);
           } else {
-            _showErrorSnackBar(error ?? 'Erreur lors de l\'activation');
+            _showErrorSnackBar(error ?? l10n.biometricActivationError);
           }
         }
       } else {
@@ -75,9 +72,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             setState(() {
               _biometricEnabled = false;
             });
-            _showSuccessSnackBar('Authentification biometrique desactivee');
+            _showSuccessSnackBar(l10n.biometricDeactivated);
           } else {
-            _showErrorSnackBar(error ?? 'Erreur lors de la desactivation');
+            _showErrorSnackBar(error ?? l10n.biometricDeactivationError);
           }
         }
       }
@@ -89,24 +86,24 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   }
 
   void _showBiometricUnavailableDialog() {
+
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Biomitrie non disponible',
+          l10n.biometricUnavailableTitle,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'Votre appareil ne supporte pas l\'authentification biometrique '
-          'ou aucune biomitrie n\'est configuree. Veuillez verifier '
-          'les paramitres de votre appareil.',
+          l10n.biometricUnavailableDesc,
           style: GoogleFonts.montserrat(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -291,8 +288,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   ),
                   Text(
                     _biometricAvailable
-                        ? 'Utiliser $_biometricTypeName pour vous connecter'
-                        : 'Non disponible sur cet appareil',
+                        ? l10n.biometricAuthDesc
+                        : l10n.notSpecified,
                     style: GoogleFonts.montserrat(
                       fontSize: 11,
                       color: colorScheme.onSurface.withValues(
@@ -517,7 +514,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'ACTIF',
+                          AppLocalizations.of(context)!.activeStatus,
                           style: GoogleFonts.montserrat(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -650,6 +647,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     }
 
     String getStrengthText() {
+      final l10n = AppLocalizations.of(context)!;
       if (passwordStrength <= 0.25) return l10n.passwordStrengthWeak;
       if (passwordStrength <= 0.5) return l10n.passwordStrengthMedium;
       if (passwordStrength <= 0.75) return l10n.passwordStrengthStrong;
@@ -842,7 +840,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                       if (mounted) {
                         setState(() => _isLoading = false);
                         if (success) {
-                          _showSuccessSnackBar(l10n.passwordChangedSuccess);
+                          final l10n = AppLocalizations.of(context)!;
+                          _showSuccessSnackBar(l10n.passwordResetSuccess);
                         } else {
                           _showErrorSnackBar(
                             error ?? 'Erreur lors du changement',
@@ -863,7 +862,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                         color: Colors.white,
                       ),
                     )
-                  : Text(l10n.confirm),
+                  : Text(AppLocalizations.of(context)!.confirm),
             ),
           ],
         ),
@@ -1433,102 +1432,172 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     List<ActiveSession> sessions,
     void Function(void Function()) setModalState,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     // Confirmation avant deconnexion
-    final confirmed = await showDialog<bool>(
+    await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Deconnecter l\'appareil',
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          'Voulez-vous deconnecter "$deviceName" ?',
-          style: GoogleFonts.montserrat(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Deconnecter'),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (context) {
+        bool loading = false;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                l10n.disconnectDeviceTitle,
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+              ),
+              content: loading
+                  ? SizedBox(
+                      height: 100,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.loading,
+                              style: GoogleFonts.montserrat(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Text(
+                      l10n.disconnectDeviceConfirmation(deviceName),
+                      style: GoogleFonts.montserrat(),
+                    ),
+              actions: loading
+                  ? null
+                  : [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(l10n.cancel),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          setDialogState(() => loading = true);
+                          final (success, error) =
+                              await DependencyInjection.securityService
+                                  .revokeSession(sessionId);
+
+                          if (context.mounted) {
+                            Navigator.pop(context, success);
+                          }
+
+                          if (mounted) {
+                            if (success) {
+                              _showSuccessSnackBar(
+                                l10n.deviceDisconnected(deviceName),
+                              );
+                              // Rafraichir la liste des sessions
+                              final newSessions = await DependencyInjection
+                                  .securityService
+                                  .getActiveSessions();
+                              setModalState(() {
+                                sessions.clear();
+                                sessions.addAll(newSessions);
+                              });
+                            } else {
+                              _showErrorSnackBar(error ?? l10n.logoutError);
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.error,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: Text(l10n.logoutButton),
+                      ),
+                    ],
+            );
+          },
+        );
+      },
     );
-
-    if (confirmed != true) return;
-
-    final (success, error) = await DependencyInjection.securityService
-        .revokeSession(sessionId);
-
-    if (success) {
-      _showSuccessSnackBar('$deviceName deconnecte');
-      // Rafraichir la liste des sessions
-      final newSessions = await DependencyInjection.securityService
-          .getActiveSessions();
-      setModalState(() {
-        sessions.clear();
-        sessions.addAll(newSessions);
-      });
-    } else {
-      _showErrorSnackBar(error ?? 'Erreur lors de la deconnexion');
-    }
   }
 
   void _showSignOutAllDialog(ColorScheme colorScheme, AppLocalizations l10n) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          l10n.signOutAllDevices,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          l10n.signOutAllConfirmation,
-          style: GoogleFonts.montserrat(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              setState(() => _isLoading = true);
+      barrierDismissible: false,
+      builder: (context) {
+        bool loading = false;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                l10n.signOutAllDevices,
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+              ),
+              content: loading
+                  ? SizedBox(
+                      height: 100,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.loading,
+                              style: GoogleFonts.montserrat(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Text(
+                      l10n.signOutAllConfirmation,
+                      style: GoogleFonts.montserrat(),
+                    ),
+              actions: loading
+                  ? null
+                  : [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(l10n.cancel),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          setDialogState(() => loading = true);
+                          final count = await DependencyInjection
+                              .securityService
+                              .logoutAllDevices();
 
-              final count = await DependencyInjection.securityService
-                  .logoutAllDevices();
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
 
-              if (mounted) {
-                setState(() => _isLoading = false);
-                if (count >= 0) {
-                  _showSuccessSnackBar(
-                    count > 0
-                        ? '$count appareil(s) deconnecte(s)'
-                        : l10n.allDevicesSignedOut,
-                  );
-                } else {
-                  _showErrorSnackBar('Erreur lors de la deconnexion');
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-            ),
-            child: Text(l10n.confirm),
-          ),
-        ],
-      ),
+                          if (mounted) {
+                            if (count >= 0) {
+                              _showSuccessSnackBar(
+                                count > 0
+                                    ? l10n.devicesDisconnectedCount(count)
+                                    : l10n.allDevicesSignedOut,
+                              );
+                            } else {
+                              _showErrorSnackBar(l10n.logoutError);
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.error,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: Text(l10n.confirm),
+                      ),
+                    ],
+            );
+          },
+        );
+      },
     );
   }
 }

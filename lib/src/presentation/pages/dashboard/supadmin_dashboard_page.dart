@@ -59,8 +59,9 @@ class _SupAdminDashboardPageState extends State<SupAdminDashboardPage>
 
   Future<void> _loadFullName() async {
     final fullName = await DependencyInjection.preferences.getUserFullName();
-    if (mounted && fullName.isNotEmpty) {
-      setState(() => _fullName = fullName);
+    if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
+      setState(() => _fullName = fullName.isNotEmpty ? fullName : l10n.superAdmin);
     }
   }
 
@@ -88,11 +89,13 @@ class _SupAdminDashboardPageState extends State<SupAdminDashboardPage>
         .isBiometricEnabled();
     if (!biometricEnabled) return;
 
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     _isCheckingBiometric = true;
     try {
       final (authenticated, _) = await DependencyInjection.biometricService
           .authenticate(
-            localizedReason: 'Deverrouillez pour acceder a l\'application',
+            localizedReason: l10n.biometricReasonResume,
           );
       if (mounted) {
         setState(() => _biometricAuthenticated = authenticated);
@@ -110,43 +113,85 @@ class _SupAdminDashboardPageState extends State<SupAdminDashboardPage>
     final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
-        return AlertDialog(
-          title: Text(
-            l10n.logoutTitle,
-            style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-          ),
-          content: Text(
-            l10n.logoutConfirmation,
-            style: GoogleFonts.montserrat(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.cancel, style: GoogleFonts.montserrat()),
-            ),
-            TextButton(
-              onPressed: () async {
-                final navigator = Navigator.of(context);
-                navigator.pop();
-                await DependencyInjection.biometricService.disableBiometric();
-                await DependencyInjection.authService.logout();
-                if (mounted) {
-                  navigator.pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                    (route) => false,
-                  );
-                }
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
+        bool isLoggingOut = false;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                l10n.logoutTitle,
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
               ),
-              child: Text(
-                l10n.logoutButton,
-                style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
+              content: isLoggingOut
+                  ? SizedBox(
+                      height: 100,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.loading,
+                            style: GoogleFonts.montserrat(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Text(
+                      l10n.logoutConfirmation,
+                      style: GoogleFonts.montserrat(),
+                    ),
+              actions: isLoggingOut
+                  ? null
+                  : [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          l10n.cancel,
+                          style: GoogleFonts.montserrat(),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          setState(() => isLoggingOut = true);
+                          try {
+                            final navigator = Navigator.of(context);
+                            await DependencyInjection.biometricService
+                                .disableBiometric();
+                            await DependencyInjection.authService.logout();
+
+                            if (navigator.context.mounted) {
+                              navigator.pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                                (route) => false,
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              setState(() => isLoggingOut = false);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.toString())),
+                              );
+                            }
+                          }
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        child: Text(
+                          l10n.logoutButton,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+            );
+          },
         );
       },
     );
