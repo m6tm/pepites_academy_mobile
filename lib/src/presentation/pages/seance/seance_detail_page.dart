@@ -99,7 +99,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       }
 
       final ateliersJson = await DependencyInjection.apiSyncDatasource.fetchAll(
-        ApiEndpoints.ateliers,
+        '${ApiEndpoints.seances}/${_seance.id}/ateliers',
       );
       if (ateliersJson != null) {
         final remote = ateliersJson
@@ -110,7 +110,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       }
 
       final presencesJson = await DependencyInjection.apiSyncDatasource
-          .fetchAll(ApiEndpoints.presences);
+          .fetchAll('${ApiEndpoints.presences}?seance_id=${_seance.id}');
       if (presencesJson != null) {
         final remote = presencesJson
             .map(Presence.fromJson)
