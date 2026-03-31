@@ -31,7 +31,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.2] Endpoints Backend - Ateliers et Exercices
+### [T-401.2] Endpoints Backend - Ateliers et Exercices [DONE]
 
 - **Objectif :** Définir et implémenter les endpoints backend pour la gestion des ateliers et exercices.
 - **Permissions requises :**
@@ -61,7 +61,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 | GET | `/ateliers/:id` | Détail d'un atelier | `atelier:read` |
 | PUT | `/ateliers/reorder` | Réordonner les ateliers | `atelier:update` |
 
-#### Endpoints Exercices
+#### Endpoints Exercices [DONE]
 
 | Méthode | Endpoint | Description | Permission |
 |---------|----------|-------------|------------|
@@ -299,7 +299,7 @@ Voir `docs/tasks.md` pour la liste principale des tâches.
 
 ---
 
-### [T-401.13] Documentation API
+### [T-401.13] Documentation API [DONE]
 
 - **Objectif :** Documenter les endpoints pour Swagger/OpenAPI.
 - **Actions :**
