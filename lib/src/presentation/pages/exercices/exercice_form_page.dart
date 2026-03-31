@@ -109,15 +109,9 @@ class _ExerciceFormPageState extends State<ExerciceFormPage> {
     final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       body: Stack(
         children: [
-          // Background blur
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(color: Colors.black.withValues(alpha: 0.4)),
-          ),
-          
           SafeArea(
             child: Column(
               children: [

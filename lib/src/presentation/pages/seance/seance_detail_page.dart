@@ -1144,24 +1144,30 @@ class _DetailRow extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 18, color: AppColors.primary.withValues(alpha: 0.7)),
         const SizedBox(width: 12),
-        Text(
-          label,
-          style: GoogleFonts.montserrat(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface.withValues(alpha: 0.5),
+        Expanded(
+          child: Text(
+            label,
+            style: GoogleFonts.montserrat(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
           ),
         ),
-        const Spacer(),
-        Text(
-          value,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
           ),
         ),
       ],

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
@@ -41,22 +40,24 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     super.initState();
     _checkPermissions();
     _nomController = TextEditingController(text: widget.atelier?.nom ?? '');
-    _descriptionController = TextEditingController(text: widget.atelier?.description ?? '');
+    _descriptionController = TextEditingController(
+      text: widget.atelier?.description ?? '',
+    );
     _selectedType = widget.atelier?.type ?? AtelierType.dribble;
     _selectedIcon = widget.atelier?.icone;
   }
 
   Future<void> _checkPermissions() async {
     final role = await DependencyInjection.roleService.getCurrentUserRole();
-    final requiredPermission = widget.atelier == null 
-        ? Permission.atelierCreate 
+    final requiredPermission = widget.atelier == null
+        ? Permission.atelierCreate
         : Permission.atelierUpdate;
-    
+
     if (!role.hasPermission(requiredPermission)) {
       if (mounted) {
         AcademyToast.show(
-          context, 
-          title: 'Permission insuffisante', 
+          context,
+          title: 'Permission insuffisante',
           isError: true,
         );
         Navigator.of(context).pop();
@@ -91,7 +92,8 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
           type: _selectedType,
           description: _descriptionController.text.trim(),
           icone: _selectedIcon,
-          statut: AtelierStatut.valide, // Le ticket mentionne "change le statut en valide"
+          statut: AtelierStatut
+              .valide, // Le ticket mentionne "change le statut en valide"
         ),
       );
     }
@@ -102,8 +104,8 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
       setState(() => _isSubmitting = false);
       AcademyToast.show(
         context,
-        title: widget.atelier == null 
-            ? 'Erreur lors de la création' 
+        title: widget.atelier == null
+            ? 'Erreur lors de la création'
             : 'Erreur lors de la modification',
         isError: true,
       );
@@ -116,15 +118,11 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: Stack(
         children: [
-          // Background blur
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(color: Colors.black.withValues(alpha: 0.4)),
-          ),
-          
           SafeArea(
             child: Column(
               children: [
@@ -141,40 +139,48 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
                           const SizedBox(height: 20),
                           _buildHeader(textColor),
                           const SizedBox(height: 32),
-                          
+
                           GlassTextField(
                             label: 'Nom de l\'atelier *',
                             hint: 'Ex: Dribbles entre les plots',
                             controller: _nomController,
                             prefixIcon: Icons.edit_rounded,
-                            validator: (val) => (val == null || val.isEmpty) 
-                                ? 'Le nom est obligatoire' : null,
+                            validator: (val) => (val == null || val.isEmpty)
+                                ? 'Le nom est obligatoire'
+                                : null,
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           GlassDropdown<AtelierType>(
                             label: 'Type d\'atelier',
                             value: _selectedType,
                             prefixIcon: Icons.category_rounded,
-                            items: AtelierType.values.map((type) => DropdownMenuItem(
-                              value: type,
-                              child: Text(type.label),
-                            )).toList(),
+                            items: AtelierType.values
+                                .map(
+                                  (type) => DropdownMenuItem(
+                                    value: type,
+                                    child: Text(type.label),
+                                  ),
+                                )
+                                .toList(),
                             onChanged: (val) {
-                              if (val != null) setState(() => _selectedType = val);
+                              if (val != null) {
+                                setState(() => _selectedType = val);
+                              }
                             },
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           IconSelector(
                             selectedIcon: _selectedIcon,
-                            onIconSelected: (icon) => setState(() => _selectedIcon = icon),
+                            onIconSelected: (icon) =>
+                                setState(() => _selectedIcon = icon),
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           GlassTextField(
                             label: 'Description',
                             hint: 'Objectifs et matériel nécessaire...',
@@ -182,9 +188,9 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
                             prefixIcon: Icons.description_rounded,
                             maxLines: 4,
                           ),
-                          
+
                           const SizedBox(height: 40),
-                          
+
                           _buildSubmitButton(),
                           const SizedBox(height: 40),
                         ],
@@ -260,10 +266,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withValues(alpha: 0.8),
-          ],
+          colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.8)],
         ),
         boxShadow: [
           BoxShadow(
@@ -278,13 +281,18 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
         child: _isSubmitting
             ? const SizedBox(
                 height: 24,
                 width: 24,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
               )
             : Text(
                 'VALIDER L\'ATELIER',
