@@ -55,6 +55,7 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
   Future<bool> ajouterAtelier({
     required String nom,
     required AtelierType type,
+    String? typeCustom,
     String description = '',
     String? icone,
   }) async {
@@ -70,6 +71,7 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
         seanceId: _seanceId!,
         nom: nom,
         type: type,
+        typeCustom: typeCustom,
         description: description,
         icone: icone,
       );

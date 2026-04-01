@@ -809,10 +809,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                AteliersPage.getTypeLabel(
-                                  context,
-                                  atelier.type,
-                                ),
+                                atelier.typeLabel,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -1095,10 +1092,7 @@ class _AtelierPickerSheet extends StatelessWidget {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                AteliersPage.getTypeLabel(
-                                  context,
-                                  atelier.type,
-                                ),
+                                atelier.typeLabel,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 11,
                                   color: colorScheme.onSurface.withValues(

@@ -8,6 +8,7 @@ class Atelier {
   final String nom;
   final String description;
   final AtelierType type;
+  final String? typeCustom;
   final String? icone;
   final int ordre;
   final AtelierStatut statut;
@@ -18,13 +19,16 @@ class Atelier {
     required this.nom,
     required this.description,
     required this.type,
+    this.typeCustom,
     this.icone,
     required this.ordre,
     required this.statut,
     required this.seanceId,
   });
 
-  String get typeLabel => type.label;
+  String get typeLabel => (type == AtelierType.personnalise && typeCustom != null && typeCustom!.isNotEmpty)
+      ? typeCustom!
+      : type.label;
 
   /// Cree une copie de l'atelier avec des champs modifies.
   Atelier copyWith({
@@ -32,6 +36,7 @@ class Atelier {
     String? nom,
     String? description,
     AtelierType? type,
+    String? typeCustom,
     String? icone,
     int? ordre,
     AtelierStatut? statut,
@@ -42,6 +47,7 @@ class Atelier {
       nom: nom ?? this.nom,
       description: description ?? this.description,
       type: type ?? this.type,
+      typeCustom: typeCustom ?? this.typeCustom,
       icone: icone ?? this.icone,
       ordre: ordre ?? this.ordre,
       statut: statut ?? this.statut,
@@ -56,6 +62,7 @@ class Atelier {
       'nom': nom,
       'description': description,
       'type': type.name,
+      'type_custom': typeCustom,
       'icone': icone,
       'ordre': ordre,
       'statut': statut.name,
@@ -73,6 +80,7 @@ class Atelier {
         (e) => e.name == json['type'],
         orElse: () => AtelierType.personnalise,
       ),
+      typeCustom: json['type_custom'] as String?,
       icone: json['icone'] as String?,
       ordre: json['ordre'] as int? ?? 0,
       statut: AtelierStatut.values.firstWhere(

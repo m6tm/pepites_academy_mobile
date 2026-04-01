@@ -31,6 +31,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _typeCustomController;
   late AtelierType _selectedType;
   String? _selectedIcon;
   bool _isSubmitting = false;
@@ -42,6 +43,9 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     _nomController = TextEditingController(text: widget.atelier?.nom ?? '');
     _descriptionController = TextEditingController(
       text: widget.atelier?.description ?? '',
+    );
+    _typeCustomController = TextEditingController(
+      text: widget.atelier?.typeCustom ?? '',
     );
     _selectedType = widget.atelier?.type ?? AtelierType.dribble;
     _selectedIcon = widget.atelier?.icone;
@@ -69,6 +73,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
   void dispose() {
     _nomController.dispose();
     _descriptionController.dispose();
+    _typeCustomController.dispose();
     super.dispose();
   }
 
@@ -82,6 +87,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
       success = await widget.atelierState.ajouterAtelier(
         nom: _nomController.text.trim(),
         type: _selectedType,
+        typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
         description: _descriptionController.text.trim(),
         icone: _selectedIcon,
       );
@@ -90,6 +96,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
         widget.atelier!.copyWith(
           nom: _nomController.text.trim(),
           type: _selectedType,
+          typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
           description: _descriptionController.text.trim(),
           icone: _selectedIcon,
           statut: AtelierStatut
@@ -170,6 +177,16 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
                               }
                             },
                           ),
+
+                          if (_selectedType == AtelierType.personnalise) ...[
+                            const SizedBox(height: 24),
+                            GlassTextField(
+                              label: 'Précisez le type (optionnel)',
+                              hint: 'Ex: Vidéo, Musique, Théorie...',
+                              controller: _typeCustomController,
+                              prefixIcon: Icons.edit_note_rounded,
+                            ),
+                          ],
 
                           const SizedBox(height: 24),
 

@@ -509,10 +509,11 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _AtelierFormSheet(
-        onSubmit: (nom, type, description) {
+        onSubmit: (nom, type, typeCustom, description) {
           widget.atelierState.ajouterAtelier(
             nom: nom,
             type: type,
+            typeCustom: typeCustom,
             description: description,
           );
         },
@@ -527,9 +528,14 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => _AtelierFormSheet(
         atelier: atelier,
-        onSubmit: (nom, type, description) {
+        onSubmit: (nom, type, typeCustom, description) {
           widget.atelierState.modifierAtelier(
-            atelier.copyWith(nom: nom, type: type, description: description),
+            atelier.copyWith(
+              nom: nom,
+              type: type,
+              typeCustom: typeCustom,
+              description: description,
+            ),
           );
         },
       ),
@@ -702,7 +708,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
 /// Bottom sheet pour ajouter ou modifier un atelier.
 class _AtelierFormSheet extends StatefulWidget {
   final Atelier? atelier;
-  final void Function(String nom, AtelierType type, String description)
+  final void Function(String nom, AtelierType type, String? typeCustom, String description)
   onSubmit;
 
   const _AtelierFormSheet({this.atelier, required this.onSubmit});
@@ -715,6 +721,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _typeCustomController;
   late AtelierType _selectedType;
   bool _isCustomName = false;
   bool _didInitDependencies = false;
@@ -725,6 +732,9 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
     _nomController = TextEditingController(text: widget.atelier?.nom ?? '');
     _descriptionController = TextEditingController(
       text: widget.atelier?.description ?? '',
+    );
+    _typeCustomController = TextEditingController(
+      text: widget.atelier?.typeCustom ?? '',
     );
     _selectedType = widget.atelier?.type ?? AtelierType.dribble;
     _isCustomName = widget.atelier?.type == AtelierType.personnalise;
@@ -748,6 +758,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
   void dispose() {
     _nomController.dispose();
     _descriptionController.dispose();
+    _typeCustomController.dispose();
     super.dispose();
   }
 
@@ -761,6 +772,7 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
       if (type == AtelierType.personnalise) {
         _isCustomName = true;
         _nomController.text = '';
+        _typeCustomController.text = widget.atelier?.typeCustom ?? '';
       } else if (!_isCustomName) {
         _nomController.text = _getDefaultName(context, type);
       }
@@ -819,6 +831,42 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
               ),
               const SizedBox(height: 20),
               _buildTypeGrid(colorScheme, isDark),
+              if (_selectedType == AtelierType.personnalise) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Type personnalisé (optionnel)',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _typeCustomController,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    color: colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Ex: Mental, Vidéo, etc.',
+                    hintStyle: GoogleFonts.montserrat(
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withValues(alpha: 0.3),
+                    ),
+                    filled: true,
+                    fillColor: colorScheme.onSurface.withValues(alpha: 0.04),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.workshopNameLabel,
@@ -1003,6 +1051,9 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
       widget.onSubmit(
         _nomController.text.trim(),
         _selectedType,
+        _selectedType == AtelierType.personnalise 
+            ? _typeCustomController.text.trim()
+            : null,
         _descriptionController.text.trim(),
       );
       Navigator.of(context).pop();

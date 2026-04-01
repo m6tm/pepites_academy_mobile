@@ -57,6 +57,7 @@ class AtelierService {
     required String seanceId,
     required String nom,
     required AtelierType type,
+    String? typeCustom,
     String description = '',
     String? icone,
   }) async {
@@ -76,6 +77,7 @@ class AtelierService {
       nom: nom,
       description: description,
       type: type,
+      typeCustom: typeCustom,
       icone: icone,
       ordre: ordre,
       statut: AtelierStatut.valide,
