@@ -333,8 +333,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           l10n.alreadyHaveAccount,
@@ -382,13 +383,15 @@ class _RegisterPageState extends State<RegisterPage> {
                 : colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(width: 8),
-          Text(
-            text,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: isMet
-                  ? colorScheme.onSurface
-                  : colorScheme.onSurface.withValues(alpha: 0.5),
-              fontSize: 12,
+          Expanded(
+            child: Text(
+              text,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: isMet
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: 12,
+              ),
             ),
           ),
         ],

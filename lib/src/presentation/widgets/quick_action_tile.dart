@@ -103,7 +103,7 @@ class _QuickActionTileState extends State<QuickActionTile> {
                     ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 widget.title,
                 style: GoogleFonts.montserrat(
@@ -114,17 +114,19 @@ class _QuickActionTileState extends State<QuickActionTile> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
-              Text(
-                widget.description,
-                style: GoogleFonts.montserrat(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: colorScheme.onSurface.withValues(alpha: 0.5),
-                  height: 1.3,
+              const SizedBox(height: 2),
+              Expanded(
+                child: Text(
+                  widget.description,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    height: 1.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
