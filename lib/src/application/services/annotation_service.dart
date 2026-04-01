@@ -7,9 +7,8 @@ import '../../infrastructure/repositories/annotation_repository_impl.dart';
 class AnnotationService {
   final AnnotationRepositoryImpl _annotationRepository;
 
-  AnnotationService({
-    required AnnotationRepositoryImpl annotationRepository,
-  }) : _annotationRepository = annotationRepository;
+  AnnotationService({required AnnotationRepositoryImpl annotationRepository})
+    : _annotationRepository = annotationRepository;
 
   /// Cree une nouvelle annotation pour un academicien dans un atelier.
   Future<Annotation> creerAnnotation({
@@ -18,6 +17,7 @@ class AnnotationService {
     double? note,
     required String academicienId,
     required String atelierId,
+    String? exerciceId,
     required String seanceId,
     required String encadreurId,
   }) async {
@@ -28,6 +28,7 @@ class AnnotationService {
       note: note,
       academicienId: academicienId,
       atelierId: atelierId,
+      exerciceId: exerciceId,
       seanceId: seanceId,
       encadreurId: encadreurId,
       horodate: DateTime.now(),
@@ -54,9 +55,25 @@ class AnnotationService {
     );
   }
 
+  /// Recupere les annotations d'un academicien pour un exercice specifique.
+  Future<List<Annotation>> getAnnotationsAcademicienParExercice(
+    String academicienId,
+    String exerciceId,
+  ) async {
+    return _annotationRepository.getByAcademicienAndExercice(
+      academicienId,
+      exerciceId,
+    );
+  }
+
   /// Recupere toutes les annotations d'un atelier.
   Future<List<Annotation>> getAnnotationsAtelier(String atelierId) async {
     return _annotationRepository.getByAtelier(atelierId);
+  }
+
+  /// Recupere toutes les annotations d'un exercice.
+  Future<List<Annotation>> getAnnotationsExercice(String exerciceId) async {
+    return _annotationRepository.getByExercice(exerciceId);
   }
 
   /// Recupere toutes les annotations d'une seance.

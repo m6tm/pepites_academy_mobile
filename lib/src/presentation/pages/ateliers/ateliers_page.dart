@@ -363,6 +363,7 @@ class _AteliersPageState extends State<AteliersPage> {
             isEditable: _hasUpdatePermission && widget.seance.estOuverte,
             isExercicesEditable: _hasUpdateExercicePermission && widget.seance.estOuverte,
             onAnnotate: () => _naviguerVersAnnotation(atelier),
+            onAnnotateExercice: (ex) => _naviguerVersAnnotation(atelier, exercice: ex),
             onEdit: () => _showEditAtelier(context, atelier),
             onDelete: () => _showDeleteConfirmation(context, atelier),
             onAddExercice: () => _showAddExercice(context, atelier),
@@ -455,11 +456,12 @@ class _AteliersPageState extends State<AteliersPage> {
     );
   }
 
-  void _naviguerVersAnnotation(Atelier atelier) {
+  void _naviguerVersAnnotation(Atelier atelier, {Exercice? exercice}) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => AnnotationPage(
           atelier: atelier,
+          exercice: exercice,
           seance: widget.seance,
           annotationState: _annotationState,
         ),

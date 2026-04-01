@@ -87,6 +87,25 @@ class AnnotationLocalDatasource {
       ..sort((a, b) => b.horodate.compareTo(a.horodate));
   }
 
+  /// Recupere les annotations d'un exercice.
+  List<Annotation> getByExercice(String exerciceId) {
+    return getAll().where((a) => a.exerciceId == exerciceId).toList()
+      ..sort((a, b) => b.horodate.compareTo(a.horodate));
+  }
+
+  /// Recupere les annotations d'un academicien pour un exercice specifique.
+  List<Annotation> getByAcademicienAndExercice(
+    String academicienId,
+    String exerciceId,
+  ) {
+    return getAll()
+        .where(
+          (a) => a.academicienId == academicienId && a.exerciceId == exerciceId,
+        )
+        .toList()
+      ..sort((a, b) => b.horodate.compareTo(a.horodate));
+  }
+
   Future<void> _saveAll(List<Annotation> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));

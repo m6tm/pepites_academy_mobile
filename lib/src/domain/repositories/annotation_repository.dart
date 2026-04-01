@@ -19,4 +19,19 @@ abstract class AnnotationRepository {
 
   /// Récupère les annotations faites lors d'une séance spécifique.
   Future<List<Annotation>> getBySeance(String seanceId);
+
+  /// Récupère les annotations d'un académicien pour un atelier spécifique.
+  Future<List<Annotation>> getByAcademicienAndAtelier(
+    String academicienId,
+    String atelierId,
+  );
+
+  /// Récupère les annotations d'un exercice.
+  Future<List<Annotation>> getByExercice(String exerciceId);
+
+  /// Récupère les annotations d'un académicien pour un exercice spécifique.
+  Future<List<Annotation>> getByAcademicienAndExercice(
+    String academicienId,
+    String exerciceId,
+  );
 }

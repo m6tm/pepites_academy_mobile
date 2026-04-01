@@ -113,6 +113,8 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
                       (map['atelier_id'] as String?) ??
                       (map['atelierId'] as String?) ??
                       '',
+                  exerciceId: (map['exercice_id'] as String?) ??
+                      (map['exerciceId'] as String?),
                   seanceId:
                       (map['seance_id'] as String?) ??
                       (map['seanceId'] as String?) ??
@@ -146,12 +148,25 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
     }
   }
 
-  /// Recupere les annotations d'un academicien pour un atelier specifique.
+  @override
   Future<List<Annotation>> getByAcademicienAndAtelier(
     String academicienId,
     String atelierId,
   ) async {
     return _datasource.getByAcademicienAndAtelier(academicienId, atelierId);
+  }
+
+  @override
+  Future<List<Annotation>> getByExercice(String exerciceId) async {
+    return _datasource.getByExercice(exerciceId);
+  }
+
+  @override
+  Future<List<Annotation>> getByAcademicienAndExercice(
+    String academicienId,
+    String exerciceId,
+  ) async {
+    return _datasource.getByAcademicienAndExercice(academicienId, exerciceId);
   }
 
   /// Met a jour une annotation existante.

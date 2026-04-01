@@ -3,6 +3,7 @@ import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/atelier.dart';
+import '../../../domain/entities/exercice.dart';
 import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
 import '../../state/annotation_state.dart';
@@ -16,12 +17,14 @@ import 'widgets/annotation_side_panel.dart';
 /// d'ouvrir un volet lateral pour annoter chaque academicien.
 class AnnotationPage extends StatefulWidget {
   final Atelier atelier;
+  final Exercice? exercice;
   final Seance seance;
   final AnnotationState annotationState;
 
   const AnnotationPage({
     super.key,
     required this.atelier,
+    this.exercice,
     required this.seance,
     required this.annotationState,
   });
@@ -75,6 +78,7 @@ class _AnnotationPageState extends State<AnnotationPage> {
     await annotationState.initialiserContexte(
       atelierId: atelier.id,
       seanceId: seance.id,
+      exerciceId: widget.exercice?.id,
     );
     await _chargerAcademiciens();
   }
@@ -106,6 +110,7 @@ class _AnnotationPageState extends State<AnnotationPage> {
       builder: (ctx) => AnnotationSidePanel(
         academicien: academicien,
         atelier: atelier,
+        exercice: widget.exercice,
         seance: seance,
         annotationState: annotationState,
         encadreurId: seance.encadreurResponsableId,
@@ -209,7 +214,9 @@ class _AnnotationPageState extends State<AnnotationPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      atelier.nom,
+                      widget.exercice != null 
+                          ? '${atelier.nom} > ${widget.exercice!.nom}'
+                          : atelier.nom,
                       style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
@@ -217,6 +224,8 @@ class _AnnotationPageState extends State<AnnotationPage> {
                             ? AppColors.textMainDark
                             : AppColors.textMainLight,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -246,7 +255,9 @@ class _AnnotationPageState extends State<AnnotationPage> {
             ),
           ],
           const SizedBox(height: 12),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
             children: [
               _buildInfoChip(
                 Icons.people_rounded,
@@ -255,7 +266,6 @@ class _AnnotationPageState extends State<AnnotationPage> {
                 )!.academiciansCount(_academiciens.length),
                 isDark,
               ),
-              const SizedBox(width: 12),
               _buildInfoChip(
                 Icons.note_alt_rounded,
                 AppLocalizations.of(

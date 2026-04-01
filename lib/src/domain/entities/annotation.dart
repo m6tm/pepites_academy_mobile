@@ -6,6 +6,7 @@ class Annotation {
   final double? note;
   final String academicienId;
   final String atelierId;
+  final String? exerciceId;
   final String seanceId;
   final String encadreurId;
   final DateTime horodate;
@@ -17,6 +18,7 @@ class Annotation {
     this.note,
     required this.academicienId,
     required this.atelierId,
+    this.exerciceId,
     required this.seanceId,
     required this.encadreurId,
     required this.horodate,
@@ -30,6 +32,7 @@ class Annotation {
     double? note,
     String? academicienId,
     String? atelierId,
+    String? exerciceId,
     String? seanceId,
     String? encadreurId,
     DateTime? horodate,
@@ -41,6 +44,7 @@ class Annotation {
       note: note ?? this.note,
       academicienId: academicienId ?? this.academicienId,
       atelierId: atelierId ?? this.atelierId,
+      exerciceId: exerciceId ?? this.exerciceId,
       seanceId: seanceId ?? this.seanceId,
       encadreurId: encadreurId ?? this.encadreurId,
       horodate: horodate ?? this.horodate,
@@ -56,6 +60,7 @@ class Annotation {
       'note': note,
       'academicienId': academicienId,
       'atelierId': atelierId,
+      'exercice_id': exerciceId,
       'seanceId': seanceId,
       'encadreurId': encadreurId,
       'horodate': horodate.toIso8601String(),
@@ -73,6 +78,7 @@ class Annotation {
       note: (json['note'] as num?)?.toDouble(),
       academicienId: json['academicienId'] as String,
       atelierId: json['atelierId'] as String,
+      exerciceId: json['exercice_id'] as String?,
       seanceId: json['seanceId'] as String,
       encadreurId: json['encadreurId'] as String,
       horodate: DateTime.parse(json['horodate'] as String),

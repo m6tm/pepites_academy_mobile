@@ -5,9 +5,12 @@ import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/annotation.dart';
 import '../../../../domain/entities/atelier.dart';
+import '../../../../domain/entities/exercice.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../state/annotation_state.dart';
 import '../../../theme/app_colors.dart';
+import '../../../../domain/entities/enums/exercice_statut.dart';
+import '../../../../domain/entities/enums/atelier_statut.dart';
 
 /// Tags d'observations rapides categorises.
 class _TagCategory {
@@ -28,6 +31,7 @@ class _TagCategory {
 class AnnotationSidePanel extends StatefulWidget {
   final Academicien academicien;
   final Atelier atelier;
+  final Exercice? exercice;
   final Seance seance;
   final AnnotationState annotationState;
   final String encadreurId;
@@ -36,6 +40,7 @@ class AnnotationSidePanel extends StatefulWidget {
     super.key,
     required this.academicien,
     required this.atelier,
+    this.exercice,
     required this.seance,
     required this.annotationState,
     required this.encadreurId,
@@ -139,6 +144,8 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
+                _buildStatusWarning(isDark),
+                const SizedBox(height: 16),
                 _buildTagsSection(isDark),
                 const SizedBox(height: 16),
                 _buildObservationField(isDark),
@@ -150,6 +157,53 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
                 _buildHistoriqueSection(isDark),
                 const SizedBox(height: 24),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusWarning(bool isDark) {
+    final isApplique = widget.exercice != null
+        ? widget.exercice!.statut == ExerciceStatut.applique
+        : widget.atelier.statut == AtelierStatut.applique;
+
+    if (isApplique) return const SizedBox.shrink();
+
+    final isFerme = widget.exercice != null
+        ? widget.exercice!.statut == ExerciceStatut.ferme
+        : widget.atelier.statut == AtelierStatut.ferme;
+
+    final message = isFerme
+        ? 'Cet élément est fermé. Les annotations sont en lecture seule.'
+        : 'Veuillez appliquer cet élément pour commencer les annotations.';
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: (isFerme ? Colors.grey : AppColors.warning).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: (isFerme ? Colors.grey : AppColors.warning).withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isFerme ? Icons.lock_outline_rounded : Icons.info_outline_rounded,
+            size: 18,
+            color: isFerme ? Colors.grey : AppColors.warning,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isFerme ? Colors.grey : AppColors.warning,
+              ),
             ),
           ),
         ],
@@ -193,7 +247,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
                   ),
                 ),
                 Text(
-                  widget.atelier.nom,
+                  widget.exercice != null 
+                      ? '${widget.atelier.nom} > ${widget.exercice!.nom}'
+                      : widget.atelier.nom,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: isDark
@@ -445,10 +501,14 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
         _tagsSelectionnes.isNotEmpty ||
         _contenuController.text.trim().isNotEmpty;
 
+    final isApplique = widget.exercice != null 
+        ? widget.exercice!.statut == ExerciceStatut.applique
+        : widget.atelier.statut == AtelierStatut.applique;
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: hasContent && !_isSaving
+        onPressed: hasContent && !_isSaving && isApplique
             ? _enregistrerAutomatiquement
             : null,
         style: ElevatedButton.styleFrom(

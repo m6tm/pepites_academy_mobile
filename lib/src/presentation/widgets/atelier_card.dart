@@ -15,6 +15,7 @@ class AtelierCard extends StatefulWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onAddExercice;
   final VoidCallback? onAnnotate;
+  final Function(Exercice)? onAnnotateExercice;
   final Function(Exercice)? onEditExercice;
   final Function(Exercice)? onDeleteExercice;
   final VoidCallback? onApply;
@@ -34,6 +35,7 @@ class AtelierCard extends StatefulWidget {
     this.onDelete,
     this.onAddExercice,
     this.onAnnotate,
+    this.onAnnotateExercice,
     this.onEditExercice,
     this.onDeleteExercice,
     this.onApply,
@@ -116,17 +118,23 @@ class _AtelierCardState extends State<AtelierCard> {
                             fontWeight: FontWeight.w700,
                             color: colorScheme.onSurface,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             StatutIndicator(statut: widget.atelier.statut, size: 14),
                             const SizedBox(width: 6),
-                            Text(
-                              '${widget.exercices.length} exercices',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                color: colorScheme.onSurface.withValues(alpha: 0.5),
+                            Flexible(
+                              child: Text(
+                                '${widget.exercices.length} exercices',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -154,8 +162,19 @@ class _AtelierCardState extends State<AtelierCard> {
                             ),
                           if (widget.onAnnotate != null)
                             IconButton(
-                              icon: Icon(Icons.note_alt_outlined, size: 20, color: typeColor),
-                              onPressed: widget.onAnnotate,
+                              icon: Icon(
+                                Icons.note_alt_outlined,
+                                size: 20,
+                                color: widget.atelier.statut == AtelierStatut.applique
+                                    ? typeColor
+                                    : colorScheme.onSurface.withValues(alpha: 0.3),
+                              ),
+                              onPressed: widget.atelier.statut == AtelierStatut.applique
+                                  ? widget.onAnnotate
+                                  : null,
+                              tooltip: widget.atelier.statut == AtelierStatut.applique
+                                  ? 'Annoter l\'atelier'
+                                  : 'Veuillez appliquer l\'atelier pour commencer les annotations',
                               padding: const EdgeInsets.all(4),
                               constraints: const BoxConstraints(),
                             ),
@@ -248,6 +267,7 @@ class _AtelierCardState extends State<AtelierCard> {
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
                         onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
                         onClose: widget.onCloseExercice != null ? () => widget.onCloseExercice!(ex) : null,
+                        onAnnotate: widget.onAnnotateExercice != null ? () => widget.onAnnotateExercice!(ex) : null,
                       );
                     },
                   )
@@ -260,6 +280,7 @@ class _AtelierCardState extends State<AtelierCard> {
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
                         onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
                         onClose: widget.onCloseExercice != null ? () => widget.onCloseExercice!(ex) : null,
+                        onAnnotate: widget.onAnnotateExercice != null ? () => widget.onAnnotateExercice!(ex) : null,
                       )),
                 
                 // Add Exercice Button

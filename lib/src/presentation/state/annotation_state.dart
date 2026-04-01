@@ -22,6 +22,9 @@ class AnnotationState extends ChangeNotifier {
   String? _seanceId;
   String? get seanceId => _seanceId;
 
+  String? _exerciceId;
+  String? get exerciceId => _exerciceId;
+
   String? _academicienSelectionneId;
   String? get academicienSelectionneId => _academicienSelectionneId;
 
@@ -38,9 +41,11 @@ class AnnotationState extends ChangeNotifier {
   Future<void> initialiserContexte({
     required String atelierId,
     required String seanceId,
+    String? exerciceId,
   }) async {
     _atelierId = atelierId;
     _seanceId = seanceId;
+    _exerciceId = exerciceId;
     await chargerAnnotationsAtelier();
   }
 
@@ -73,6 +78,16 @@ class AnnotationState extends ChangeNotifier {
       _historiqueAcademicien = await _service.getAnnotationsAcademicien(
         academicienId,
       );
+      // Tri : on met les annotations de l'exercice actuel en premier (si applicable)
+      if (_exerciceId != null) {
+        _historiqueAcademicien.sort((a, b) {
+          if (a.exerciceId == _exerciceId && b.exerciceId != _exerciceId)
+            return -1;
+          if (a.exerciceId != _exerciceId && b.exerciceId == _exerciceId)
+            return 1;
+          return b.horodate.compareTo(a.horodate);
+        });
+      }
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement de l\'historique : $e';
     } finally {
@@ -113,6 +128,7 @@ class AnnotationState extends ChangeNotifier {
         note: note,
         academicienId: _academicienSelectionneId!,
         atelierId: _atelierId!,
+        exerciceId: _exerciceId,
         seanceId: _seanceId!,
         encadreurId: encadreurId,
       );
