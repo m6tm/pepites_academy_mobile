@@ -9,8 +9,6 @@ import '../../../../domain/entities/exercice.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../state/annotation_state.dart';
 import '../../../theme/app_colors.dart';
-import '../../../../domain/entities/enums/exercice_statut.dart';
-import '../../../../domain/entities/enums/atelier_statut.dart';
 
 /// Tags d'observations rapides categorises.
 class _TagCategory {

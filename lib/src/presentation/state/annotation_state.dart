@@ -81,10 +81,12 @@ class AnnotationState extends ChangeNotifier {
       // Tri : on met les annotations de l'exercice actuel en premier (si applicable)
       if (_exerciceId != null) {
         _historiqueAcademicien.sort((a, b) {
-          if (a.exerciceId == _exerciceId && b.exerciceId != _exerciceId)
+          if (a.exerciceId == _exerciceId && b.exerciceId != _exerciceId) {
             return -1;
-          if (a.exerciceId != _exerciceId && b.exerciceId == _exerciceId)
+          }
+          if (a.exerciceId != _exerciceId && b.exerciceId == _exerciceId) {
             return 1;
+          }
           return b.horodate.compareTo(a.horodate);
         });
       }
