@@ -103,39 +103,71 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     final client = _dioClient;
     if (client == null) return false;
 
+    int currentPage = 1;
+    int totalPages = 1;
+    final List<Encadreur> allRemoteEncadreurs = [];
+
     try {
-      final result = await client.get<dynamic>(ApiEndpoints.encadreurs);
+      do {
+        final result = await client.get<dynamic>(
+          ApiEndpoints.encadreurs,
+          queryParameters: {'page': currentPage, 'per_page': 50},
+        );
 
-      return await result.fold(
-        (failure) {
-          // ignore: avoid_print
-          print('[EncadreurRepo] Erreur sync: ${failure.message}');
-          return false;
-        },
-        (data) async {
-          final List<dynamic> rawList;
-          if (data is List) {
-            rawList = data;
-          } else if (data is Map<String, dynamic>) {
-            rawList = data.values.whereType<List>().expand((e) => e).toList();
-          } else {
+        final pageSuccess = await result.fold(
+          (failure) async {
+            // ignore: avoid_print
+            print(
+              '[EncadreurRepo] Erreur sync page $currentPage: ${failure.message}',
+            );
             return false;
-          }
+          },
+          (data) async {
+            final List<dynamic> rawList;
+            if (data is List) {
+              rawList = data;
+              totalPages = currentPage; // Pas d'infos de pagination
+            } else if (data is Map<String, dynamic>) {
+              // Extraction de la liste d'items
+              if (data.containsKey('items') && data['items'] is List) {
+                rawList = data['items'];
+              } else if (data.containsKey('encadreurs') &&
+                  data['encadreurs'] is List) {
+                rawList = data['encadreurs'];
+              } else {
+                rawList =
+                    data.values.whereType<List>().expand((e) => e).toList();
+              }
 
-          final encadreurs = rawList
-              .whereType<Map<String, dynamic>>()
-              .map((map) => _parseEncadreur(map))
-              .where((e) => e.id.isNotEmpty)
-              .toList();
+              // Extraction des infos de pagination
+              totalPages = (data['pages'] as int?) ??
+                  (data['total_pages'] as int?) ??
+                  currentPage;
+            } else {
+              return false;
+            }
 
-          await upsertAllFromRemote(encadreurs);
-          // ignore: avoid_print
-          print(
-            '[EncadreurRepo] Synced ${encadreurs.length} encadreurs from backend',
-          );
-          return true;
-        },
+            final pageEncadreurs = rawList
+                .whereType<Map<String, dynamic>>()
+                .map((map) => _parseEncadreur(map))
+                .where((e) => e.id.isNotEmpty)
+                .toList();
+
+            allRemoteEncadreurs.addAll(pageEncadreurs);
+            return true;
+          },
+        );
+
+        if (!pageSuccess) return false;
+        currentPage++;
+      } while (currentPage <= totalPages);
+
+      await upsertAllFromRemote(allRemoteEncadreurs);
+      // ignore: avoid_print
+      print(
+        '[EncadreurRepo] Synced ${allRemoteEncadreurs.length} encadreurs across ${currentPage - 1} pages',
       );
+      return true;
     } catch (e) {
       // ignore: avoid_print
       print('[EncadreurRepo] Exception sync: $e');

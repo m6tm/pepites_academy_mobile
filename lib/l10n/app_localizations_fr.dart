@@ -1056,6 +1056,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get newCoachRegistrationTitle => 'Nouvel Encadreur';
 
   @override
+  String get coachPhotoLabel => 'Photo de l\'encadreur';
+
+  @override
   String get coachPersonalDetails =>
       'Informations personnelles de l\'encadreur';
 

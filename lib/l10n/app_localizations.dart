@@ -2048,6 +2048,12 @@ abstract class AppLocalizations {
   /// **'Nouvel Encadreur'**
   String get newCoachRegistrationTitle;
 
+  /// No description provided for @coachPhotoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de l\'encadreur'**
+  String get coachPhotoLabel;
+
   /// No description provided for @coachPersonalDetails.
   ///
   /// In fr, this message translates to:

@@ -1051,6 +1051,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newCoachRegistrationTitle => 'New Coach';
 
   @override
+  String get coachPhotoLabel => 'Coach photo';
+
+  @override
   String get coachPersonalDetails => 'Coach personal details';
 
   @override

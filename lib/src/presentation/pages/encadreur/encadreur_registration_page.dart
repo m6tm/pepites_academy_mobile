@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../injection_container.dart';
+import '../../../infrastructure/services/upload_service.dart';
+import '../../utils/image_compressor.dart';
+import '../../utils/image_cropper_helper.dart';
+import '../../widgets/academy_toast.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/entities/user_role.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/academy_toast.dart';
-import '../../../../l10n/app_localizations.dart';
 
 /// Page d'inscription pour un nouvel encadreur.
 /// Processus en 3 etapes : Infos personnelles, Infos sportives, Recapitulatif + QR.
@@ -40,6 +44,9 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
   final _emailController = TextEditingController();
   final _telephoneController = TextEditingController();
   File? _photoFile;
+  String? _photoUrl;
+  bool _isUploadingPhoto = false;
+  bool _hasPhotoUploadError = false;
   final _picker = ImagePicker();
 
   // Data Step 2
@@ -117,10 +124,28 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
     try {
       final pickedFile = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 70,
+        imageQuality: 100,
       );
       if (pickedFile != null) {
-        setState(() => _photoFile = File(pickedFile.path));
+        if (mounted) {
+          final croppedFile = await ImageCropperHelper.cropImage(
+            imageFile: File(pickedFile.path),
+            context: context,
+            title: "Photo de l'encadreur",
+          );
+
+          if (croppedFile != null) {
+            final compressedFile = await ImageCompressor.compress(
+              imageFile: croppedFile,
+              quality: 85,
+              maxWidth: 1024,
+              maxHeight: 1024,
+            );
+            if (compressedFile != null) {
+              await _uploadPhoto(compressedFile);
+            }
+          }
+        }
       }
     } catch (e) {
       debugPrint('Erreur selection image: $e');
@@ -133,6 +158,45 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
         );
       }
     }
+  }
+
+  Future<void> _uploadPhoto(File file) async {
+    setState(() {
+      _isUploadingPhoto = true;
+      _hasPhotoUploadError = false;
+      _photoFile = file;
+    });
+
+    try {
+      final result = await DependencyInjection.uploadService.uploadImage(
+        file,
+        UploadType.portrait,
+      );
+      if (mounted) {
+        setState(() {
+          _isUploadingPhoto = false;
+          if (result.success && result.url != null) {
+            _photoUrl = result.url;
+            _hasPhotoUploadError = false;
+          } else {
+            _hasPhotoUploadError = true;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Erreur upload photo: $e');
+      if (mounted) {
+        setState(() {
+          _isUploadingPhoto = false;
+          _hasPhotoUploadError = true;
+        });
+      }
+    }
+  }
+
+  Future<void> _retryPhotoUpload() async {
+    if (_photoFile == null) return;
+    await _uploadPhoto(_photoFile!);
   }
 
   void _nextStep() {
@@ -175,6 +239,16 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
   }
 
   Future<void> _confirmAndCreate() async {
+    if (_isUploadingPhoto) {
+      AcademyToast.show(
+        context,
+        title: l10n.loading,
+        description: "Veuillez attendre la fin de l'upload de la photo",
+        isError: false,
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -188,7 +262,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
         prenom: _prenomController.text.trim(),
         email: _emailController.text.trim(),
         telephone: _telephoneController.text.trim(),
-        photoUrl: _photoFile?.path ?? '',
+        photoUrl: _photoUrl ?? _photoFile?.path ?? '',
         specialite: _selectedSpecialite!,
         role: UserRole.encadreur,
         codeQrUnique: qrCode,
@@ -772,13 +846,64 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(57),
-                      child: _photoFile != null
-                          ? Image.file(_photoFile!, fit: BoxFit.cover)
-                          : Icon(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (_photoFile != null)
+                            Image.file(
+                              _photoFile!,
+                              fit: BoxFit.cover,
+                              width: 114,
+                              height: 114,
+                            )
+                          else
+                            Icon(
                               Icons.sports_rounded,
                               size: 50,
                               color: AppColors.primary.withValues(alpha: 0.4),
                             ),
+                          if (_isUploadingPhoto)
+                            Container(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              width: 114,
+                              height: 114,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          if (_hasPhotoUploadError)
+                            GestureDetector(
+                              onTap: _retryPhotoUpload,
+                              child: Container(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                width: 114,
+                                height: 114,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.refresh_rounded,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Réessayer",
+                                      style: GoogleFonts.montserrat(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -813,7 +938,8 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           ),
           const SizedBox(height: 12),
           Text(
-            l10n.academicianPhotoLabel,
+            // ignore: undefined_getter
+            l10n.coachPhotoLabel,
             style: GoogleFonts.montserrat(
               color: isDark
                   ? AppColors.textMutedDark

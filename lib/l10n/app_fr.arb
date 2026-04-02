@@ -491,6 +491,7 @@
   "academicianBadgeType": "ACADEMICIEN",
   "coachBadgeType": "ENCADREUR",
   "newCoachRegistrationTitle": "Nouvel Encadreur",
+  "coachPhotoLabel": "Photo de l'encadreur",
   "coachPersonalDetails": "Informations personnelles de l'encadreur",
   "enterCoachLastNameHint": "Saisir le nom de famille",
   "enterCoachFirstNameHint": "Saisir le prénom",

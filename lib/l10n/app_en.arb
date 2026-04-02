@@ -426,6 +426,7 @@
   "academicianBadgeType": "ACADEMICIAN",
   "coachBadgeType": "COACH",
   "newCoachRegistrationTitle": "New Coach",
+  "coachPhotoLabel": "Coach photo",
   "coachPersonalDetails": "Coach personal details",
   "enterCoachLastNameHint": "Enter last name",
   "enterCoachFirstNameHint": "Enter first name",
