@@ -336,45 +336,53 @@ class AcademicienListPageState extends State<AcademicienListPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.arrow_back_ios_new,
-                      color: colorScheme.onSurface,
-                      size: 20,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.arrow_back_ios_new,
+                        color: colorScheme.onSurface,
+                        size: 20,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    AppLocalizations.of(context)!.players,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.players,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: colorScheme.onSurface,
+                          letterSpacing: -1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: Text(
+                    AppLocalizations.of(context)!.academiciansRegisteredSubtitle,
                     style: GoogleFonts.montserrat(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: colorScheme.onSurface,
-                      letterSpacing: -1,
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Padding(
-                padding: const EdgeInsets.only(left: 32),
-                child: Text(
-                  AppLocalizations.of(context)!.academiciansRegisteredSubtitle,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -674,9 +682,14 @@ class AcademicienListPageState extends State<AcademicienListPage> {
                         fontSize: 15,
                         color: colorScheme.onSurface,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Row(
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -698,7 +711,6 @@ class AcademicienListPageState extends State<AcademicienListPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
@@ -719,7 +731,6 @@ class AcademicienListPageState extends State<AcademicienListPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
                         Text(
                           AppLocalizations.of(context)!.yearsOld(age),
                           style: GoogleFonts.montserrat(
