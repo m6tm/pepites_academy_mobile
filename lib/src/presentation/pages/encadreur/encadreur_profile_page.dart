@@ -6,6 +6,9 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
 import '../../theme/app_colors.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../widgets/academy_toast.dart';
+import '../../utils/screenshot_helper.dart';
 
 /// Page de consultation du profil d'un encadreur.
 /// Affiche les informations completes, le badge QR, l'historique et les statistiques.
@@ -27,6 +30,7 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
     with SingleTickerProviderStateMixin {
   late Encadreur _encadreur;
   late TabController _tabController;
+  final GlobalKey _qrKey = GlobalKey();
 
   @override
   void initState() {
@@ -130,6 +134,21 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _QrFullScreenSheet(encadreur: _encadreur),
+    );
+  }
+
+  /// Partage les informations de profil de l'encadreur sous forme de texte.
+  Future<void> _shareProfile() async {
+    final l10n = AppLocalizations.of(context)!;
+    final shareText = l10n.badgeShareText(_encadreur.nomComplet) + 
+      "\n\n" + 
+      "${l10n.specialtyLabel}: ${_encadreur.specialite}\n" +
+      "${l10n.phoneLabel}: ${_encadreur.telephone}\n" +
+      "ID: ${_encadreur.id}";
+
+    await Share.share(
+      shareText,
+      subject: l10n.badgeShareSubject(_encadreur.nomComplet),
     );
   }
 
@@ -238,18 +257,6 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-            ),
-            Positioned(
-              left: -20,
-              bottom: -20,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
                 ),
               ),
             ),
@@ -580,43 +587,55 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
   Widget _buildHistoriqueTab(ColorScheme colorScheme, bool isDark) {
     final l10n = AppLocalizations.of(context)!;
     if (_encadreur.nbSeancesDirigees == 0) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.history_rounded,
-                size: 40,
-                color: Color(0xFF3B82F6),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.history_rounded,
+                        size: 40,
+                        color: Color(0xFF3B82F6),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      l10n.noSessionConductedHist,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.sessionHistoryWillAppear,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 13,
+                        color: colorScheme.onSurface.withValues(alpha: 0.5),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.noSessionConductedHist,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.sessionHistoryWillAppear,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
-                color: colorScheme.onSurface.withValues(alpha: 0.5),
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       );
     }
 
@@ -707,125 +726,128 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
           const SizedBox(height: 16),
           GestureDetector(
             onTap: _showQrFullScreen,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
+            child: RepaintBoundary(
+              key: _qrKey,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
                         ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'PEPITES ACADEMY',
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12,
+                            letterSpacing: 3,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 4,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'PEPITES ACADEMY',
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        l10n.badgeEncadreurLabel,
                         style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                          letterSpacing: 3,
-                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 10,
+                          letterSpacing: 2,
+                          color: const Color(0xFF8B5CF6),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
+                    ),
+                    const SizedBox(height: 24),
+                    QrImageView(
+                      data: _encadreur.codeQrUnique,
+                      version: QrVersions.auto,
+                      size: 200,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Color(0xFF1C1C1C),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 4,
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Color(0xFF1C1C1C),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      l10n.badgeEncadreurLabel,
+                    const SizedBox(height: 24),
+                    Text(
+                      _encadreur.nomComplet,
                       style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 10,
-                        letterSpacing: 2,
-                        color: const Color(0xFF8B5CF6),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: const Color(0xFF1C1C1C),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  QrImageView(
-                    data: _encadreur.codeQrUnique,
-                    version: QrVersions.auto,
-                    size: 200,
-                    eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.square,
-                      color: Color(0xFF1C1C1C),
-                    ),
-                    dataModuleStyle: const QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.square,
-                      color: Color(0xFF1C1C1C),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    _encadreur.nomComplet,
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: const Color(0xFF1C1C1C),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _encadreur.specialite,
-                    style: GoogleFonts.montserrat(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _encadreur.codeQrUnique,
-                      style: GoogleFonts.sourceCodePro(
-                        fontSize: 11,
+                    const SizedBox(height: 4),
+                    Text(
+                      _encadreur.specialite,
+                      style: GoogleFonts.montserrat(
                         color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _encadreur.codeQrUnique,
+                        style: GoogleFonts.sourceCodePro(
+                          fontSize: 11,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -842,7 +864,15 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final l10n = AppLocalizations.of(context)!;
+                    await ScreenshotHelper.captureAndShare(
+                      _qrKey,
+                      fileName: 'badge_encadreur_${_encadreur.nom}_${_encadreur.prenom}',
+                      subject: l10n.badgeShareSubject(_encadreur.nomComplet),
+                      text: l10n.badgeShareText(_encadreur.nomComplet),
+                    );
+                  },
                   icon: const Icon(Icons.share_rounded, size: 18),
                   label: Text(
                     l10n.shareLabel,
@@ -862,7 +892,22 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final l10n = AppLocalizations.of(context)!;
+                    final path = await ScreenshotHelper.captureAndSave(
+                      _qrKey,
+                      fileName: 'badge_encadreur_${_encadreur.nom}_${_encadreur.prenom}',
+                    );
+                    
+                    if (mounted && path != null) {
+                      AcademyToast.show(
+                        context,
+                        title: l10n.downloadSuccess,
+                        description: l10n.downloadSuccessDesc,
+                        isSuccess: true,
+                      );
+                    }
+                  },
                   icon: const Icon(Icons.download_rounded, size: 18),
                   label: Text(
                     l10n.downloadLabel,
@@ -915,7 +960,10 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
             icon: Icons.share_rounded,
             label: l10n.shareProfileOption,
             color: const Color(0xFF10B981),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              _shareProfile();
+            },
           ),
           const SizedBox(height: 8),
           _OptionItem(

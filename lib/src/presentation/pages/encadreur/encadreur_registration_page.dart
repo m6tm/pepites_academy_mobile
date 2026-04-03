@@ -8,6 +8,7 @@ import '../../../injection_container.dart';
 import '../../../infrastructure/services/upload_service.dart';
 import '../../utils/image_compressor.dart';
 import '../../utils/image_cropper_helper.dart';
+import '../../utils/screenshot_helper.dart';
 import '../../widgets/academy_toast.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
@@ -35,6 +36,7 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
   final int _totalSteps = 3;
   bool _isLoading = false;
   Encadreur? _createdEncadreur;
+  final GlobalKey _qrKey = GlobalKey();
 
   final _step1Key = GlobalKey<FormState>();
 
@@ -438,6 +440,8 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
                 ),
                 child: Text(
                   l10n.previousLabel,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -472,13 +476,17 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          _currentStep == 1
-                              ? l10n.confirm_label
-                              : l10n.continue_label,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                        Flexible(
+                          child: Text(
+                            _currentStep == 1
+                                ? l10n.confirm_label
+                                : l10n.continue_label,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -719,10 +727,50 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await ScreenshotHelper.captureAndShare(
+                      _qrKey,
+                      fileName: 'badge_encadreur_${enc.nom}_${enc.prenom}',
+                      subject: l10n.badgeShareSubject(enc.nomComplet),
+                      text: l10n.badgeShareText(enc.nomComplet),
+                    );
+                  },
                   icon: const Icon(Icons.share_rounded, size: 20),
                   label: Text(
                     l10n.shareLabel,
+                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    side: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final path = await ScreenshotHelper.captureAndSave(
+                      _qrKey,
+                      fileName: 'badge_encadreur_${enc.nom}_${enc.prenom}',
+                    );
+                    if (mounted && path != null) {
+                      AcademyToast.show(
+                        context,
+                        title: l10n.downloadSuccess,
+                        description: l10n.downloadSuccessDesc,
+                        isSuccess: true,
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.download_rounded, size: 20),
+                  label: Text(
+                    l10n.downloadLabel,
                     style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -938,7 +986,6 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
           ),
           const SizedBox(height: 12),
           Text(
-            // ignore: undefined_getter
             l10n.coachPhotoLabel,
             style: GoogleFonts.montserrat(
               color: isDark
@@ -1138,134 +1185,137 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
     ColorScheme colorScheme,
     bool isDark,
   ) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // En-tete badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
+    return RepaintBoundary(
+      key: _qrKey,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // En-tete badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
                 ),
+                const SizedBox(width: 8),
+                Text(
+                  'PEPITES ACADEMY',
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    letterSpacing: 3,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'PEPITES ACADEMY',
+              child: Text(
+                l10n.coachBadgeType,
                 style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 13,
-                  letterSpacing: 3,
-                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  color: const Color(0xFF8B5CF6),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(
-              l10n.coachBadgeType,
+            const SizedBox(height: 20),
+
+            // QR Code
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: QrImageView(
+                data: enc.codeQrUnique,
+                version: QrVersions.auto,
+                size: 180,
+                eyeStyle: const QrEyeStyle(
+                  eyeShape: QrEyeShape.square,
+                  color: Color(0xFF1C1C1C),
+                ),
+                dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleShape: QrDataModuleShape.square,
+                  color: Color(0xFF1C1C1C),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Nom
+            Text(
+              enc.nomComplet,
               style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w700,
-                fontSize: 10,
-                letterSpacing: 2,
-                color: const Color(0xFF8B5CF6),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: const Color(0xFF1C1C1C),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-
-          // QR Code
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: QrImageView(
-              data: enc.codeQrUnique,
-              version: QrVersions.auto,
-              size: 180,
-              eyeStyle: const QrEyeStyle(
-                eyeShape: QrEyeShape.square,
-                color: Color(0xFF1C1C1C),
-              ),
-              dataModuleStyle: const QrDataModuleStyle(
-                dataModuleShape: QrDataModuleShape.square,
-                color: Color(0xFF1C1C1C),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Nom
-          Text(
-            enc.nomComplet,
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: const Color(0xFF1C1C1C),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            enc.specialite,
-            style: GoogleFonts.montserrat(
-              color: Colors.grey[600],
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Code QR texte
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              enc.codeQrUnique,
-              style: GoogleFonts.sourceCodePro(
-                fontSize: 11,
+            const SizedBox(height: 4),
+            Text(
+              enc.specialite,
+              style: GoogleFonts.montserrat(
                 color: Colors.grey[600],
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+
+            // Code QR texte
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                enc.codeQrUnique,
+                style: GoogleFonts.sourceCodePro(
+                  fontSize: 11,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
