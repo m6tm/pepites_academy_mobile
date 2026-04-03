@@ -19,6 +19,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isSuccess = false;
   double _passwordStrength = 0;
 
   @override
@@ -77,19 +78,26 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       );
 
       if (mounted) {
-        setState(() => _isLoading = false);
-
         if (failure == null) {
           // Succès
+          setState(() {
+            _isLoading = false;
+            _isSuccess = true;
+          });
           AcademyToast.show(
             context,
             title: l10n.passwordResetSuccess,
             isSuccess: true,
           );
-          // Retour à la page de connexion
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          // Retour à la page de connexion après un court délai
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            }
+          });
         } else {
           // Erreur
+          setState(() => _isLoading = false);
           AcademyToast.show(
             context,
             title: failure.message ?? l10n.passwordResetError,
@@ -254,24 +262,30 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
+                        child: _isSuccess
+                            ? const Icon(
+                                Icons.check_circle_outline_rounded,
+                                color: Colors.white,
+                                size: 28,
                               )
-                            : Text(
-                                l10n.resetPasswordButton,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                            : _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    l10n.resetPasswordButton,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                       ),
                     ),
                   ],

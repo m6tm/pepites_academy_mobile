@@ -17,6 +17,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _isLoading = false;
+  bool _isSuccess = false;
 
   @override
   void dispose() {
@@ -34,19 +35,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       );
 
       if (mounted) {
-        setState(() => _isLoading = false);
-
         if (failure == null) {
           // Succès
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  OtpVerificationPage(email: _emailController.text),
-            ),
-          );
+          setState(() {
+            _isLoading = false;
+            _isSuccess = true;
+          });
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      OtpVerificationPage(email: _emailController.text),
+                ),
+              );
+            }
+          });
         } else {
           // Erreur
+          setState(() => _isLoading = false);
           AcademyToast.show(
             context,
             title: failure.message ?? l10n.unexpectedError,
@@ -135,24 +143,30 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
+                          child: _isSuccess
+                              ? const Icon(
+                                  Icons.check_circle_outline_rounded,
+                                  color: Colors.white,
+                                  size: 28,
                                 )
-                              : Text(
-                                  l10n.sendCode,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                              : _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<
+                                          Color
+                                        >(Colors.white),
+                                      ),
+                                    )
+                                  : Text(
+                                      l10n.sendCode,
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                         ),
                       ),
                       const Spacer(),

@@ -29,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isSuccess = false;
 
   @override
   void dispose() {
@@ -59,9 +60,11 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      setState(() => _isLoading = false);
-
       if (failure == null) {
+        setState(() {
+          _isSuccess = true;
+          _isLoading = false;
+        });
         // Succès - synchroniser les referentiels et académiciens depuis le backend
         await DependencyInjection.syncReferentiels();
         await DependencyInjection.syncAcademiciens();
@@ -101,6 +104,7 @@ class _LoginPageState extends State<LoginPage> {
           }
         }
       } else {
+        setState(() => _isLoading = false);
         // Erreur
         AcademyToast.show(
           context,
@@ -452,24 +456,30 @@ class _LoginPageState extends State<LoginPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
+                          child: _isSuccess
+                              ? const Icon(
+                                  Icons.check_circle_outline_rounded,
+                                  color: Colors.white,
+                                  size: 28,
                                 )
-                              : Text(
-                                  l10n.signIn,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                              : _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<
+                                          Color
+                                        >(Colors.white),
+                                      ),
+                                    )
+                                  : Text(
+                                      l10n.signIn,
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                         ),
                       ),
                       const SizedBox(height: 24),

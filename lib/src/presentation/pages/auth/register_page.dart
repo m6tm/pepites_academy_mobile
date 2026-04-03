@@ -21,6 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isSuccess = false;
   double _passwordStrength = 0;
 
   @override
@@ -85,22 +86,29 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       if (mounted) {
-        setState(() => _isLoading = false);
-
         if (failure != null) {
+          setState(() => _isLoading = false);
           AcademyToast.show(
             context,
             title: failure.message ?? l10n.error,
             isError: true,
           );
         } else {
+          setState(() {
+            _isLoading = false;
+            _isSuccess = true;
+          });
           AcademyToast.show(
             context,
             title: l10n.registrationSuccessTitle,
             isSuccess: true,
           );
           // Redirection vers la page de connexion ou le dashboard
-          Navigator.pop(context);
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            if (mounted) {
+              Navigator.pop(context);
+            }
+          });
         }
       }
     }
@@ -312,24 +320,30 @@ class _RegisterPageState extends State<RegisterPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
+                        child: _isSuccess
+                            ? const Icon(
+                                Icons.check_circle_outline_rounded,
+                                color: Colors.white,
+                                size: 28,
                               )
-                            : Text(
-                                l10n.createMyAccount,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                            : _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    l10n.createMyAccount,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                       ),
                     ),
                     const SizedBox(height: 24),
