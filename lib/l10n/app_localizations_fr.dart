@@ -3166,7 +3166,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get studentPhoneLabel => 'Telephone eleve';
 
   @override
-  String get heightLabel => 'Taille (cm)';
+  String get heightLabel => 'Taille';
 
   @override
   String get heightHint => 'Ex: 175';
@@ -3602,4 +3602,76 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get medicalDashboard => 'Tableau de bord Médical';
+
+  @override
+  String get medicalFiles => 'Dossiers Médicaux';
+
+  @override
+  String get consultations => 'Consultations';
+
+  @override
+  String get healthOverview => 'Aperçu Sanitaire';
+
+  @override
+  String get activeAlerts => 'Alertes Actives';
+
+  @override
+  String get unfitPlayers => 'Joueurs Inaptes';
+
+  @override
+  String get recentAlerts => 'Alertes Récentes';
+
+  @override
+  String get medicalHistory => 'Historique Médical';
+
+  @override
+  String get medicalFollowUp => 'Suivi Médical';
+
+  @override
+  String get chiefMedicalOfficer => 'Médecin Chef';
+
+  @override
+  String get healthStatus => 'État de Santé';
+
+  @override
+  String get optimalHealth => 'Santé Globale: Optimale';
+
+  @override
+  String fitToTrain(int percent) {
+    return '$percent% des académiciens sont aptes à l\'entraînement';
+  }
+
+  @override
+  String get searchMedicalFile => 'Rechercher un dossier médical...';
+
+  @override
+  String get loadingMedicalFiles => 'Chargement des dossiers médicaux...';
+
+  @override
+  String get noConsultationInProgress => 'Aucune consultation en cours';
+
+  @override
+  String get selectAcademicianToStart =>
+      'Sélectionnez un académicien pour commencer.';
+
+  @override
+  String get allergies => 'Allergies';
+
+  @override
+  String get skinProblems => 'Problèmes de peau';
+
+  @override
+  String get weightLabel => 'Poids';
+
+  @override
+  String get medicalVisit => 'Visite Médicale';
+
+  @override
+  String get medicalAlertAnkle => 'Blessure Cheville';
+
+  @override
+  String get medicalAlertVaccine => 'Suivi Vaccinal';
 }

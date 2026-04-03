@@ -11,6 +11,7 @@ import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
 import '../dashboard/admin_dashboard_page.dart';
 import '../dashboard/encadreur_dashboard_page.dart';
+import '../dashboard/medecin_dashboard_page.dart';
 import '../../theme/app_colors.dart';
 
 /// Page de connexion pour Pépites Academy.
@@ -246,23 +247,19 @@ class _LoginPageState extends State<LoginPage> {
     Widget dashboardPage;
     switch (dashboardType) {
       case DashboardType.admin:
-        // Les rôles admin (supAdmin, admin) vont vers le dashboard admin
         dashboardPage = AdminDashboardPage(
           userName: userName,
           photoUrl: photoUrl,
         );
         break;
       case DashboardType.encadreur:
-        // Les rôles encadreur (encadreurChef, encadreur) vont vers le dashboard encadreur
         dashboardPage = EncadreurDashboardPage(
           userName: userName,
           photoUrl: photoUrl,
         );
         break;
       case DashboardType.medecin:
-        // Le rôle medecinChef utilise le dashboard encadreur pour l'instant
-        // TODO: Créer un dashboard spécifique pour les médecins
-        dashboardPage = EncadreurDashboardPage(
+        dashboardPage = MedecinDashboardPage(
           userName: userName,
           photoUrl: photoUrl,
         );

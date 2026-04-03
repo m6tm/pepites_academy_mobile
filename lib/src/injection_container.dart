@@ -60,6 +60,8 @@ import 'domain/entities/sync_operation.dart';
 import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'infrastructure/repositories/role_repository_impl.dart';
 import 'infrastructure/repositories/dashboard_repository_impl.dart';
+import 'infrastructure/repositories/medecin_repository_impl.dart';
+import 'domain/repositories/medecin_repository.dart';
 import 'infrastructure/services/firebase_push_notification_service.dart';
 import 'infrastructure/services/upload_service.dart';
 import 'presentation/state/connectivity_state.dart';
@@ -72,6 +74,7 @@ import 'presentation/state/language_state.dart';
 import 'presentation/state/exercice_state.dart';
 import 'presentation/state/atelier_state.dart';
 import 'presentation/state/annotation_state.dart';
+import 'presentation/state/medecin_dashboard_state.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
@@ -111,6 +114,7 @@ class DependencyInjection {
   static late ExerciceState exerciceState;
   static late AtelierState atelierState;
   static late AnnotationState annotationState;
+  static late MedecinDashboardState medecinDashboardState;
   static late final FirebasePushNotificationService
   firebasePushNotificationService;
   static late final BiometricService biometricService;
@@ -121,6 +125,7 @@ class DependencyInjection {
   static late RoleService roleService;
   static late final RoleRepositoryImpl roleRepository;
   static late final DashboardRepositoryImpl dashboardRepository;
+  static late final MedecinRepository medecinRepository;
   static late final UploadService uploadService;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -370,6 +375,9 @@ class DependencyInjection {
     roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
     roleService = RoleService(roleRepository: roleRepository);
 
+    // Initialisation du repository Medecin
+    medecinRepository = MedecinRepositoryImpl(dioClient, sharedPrefs);
+
     // Initialisation du service d'upload
     uploadService = UploadService(dioClient);
 
@@ -384,6 +392,7 @@ class DependencyInjection {
     exerciceState = ExerciceState(exerciceService);
     atelierState = AtelierState(atelierService);
     annotationState = AnnotationState(annotationService);
+    medecinDashboardState = MedecinDashboardState(medecinRepository);
 
     // Injection du service de synchronisation dans les repositories
     academicienRepository.setSyncService(syncService);

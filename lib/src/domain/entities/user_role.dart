@@ -10,7 +10,10 @@ enum UserRole {
 
   /// Encadreur : Possède un accès aux fonctionnalités de terrain telles que
   /// le scan de présence, la gestion des séances, les ateliers et les annotations.
-  encadreur('encadreur');
+  encadreur('encadreur'),
+  
+  /// Medecin Chef : Suivi sanitaire et médical.
+  medecinChef('medecin_chef');
 
   /// La valeur textuelle du rôle utilisée pour l'identification (ex: stockage BDD ou Auth).
   final String id;

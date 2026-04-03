@@ -639,7 +639,7 @@
   "generatingInProgress": "Generating...",
   "exportImage": "Export image",
   "exportPdf": "Export PDF",
-  "bulletinCaptured": "Bulletin captured",
+  "bulletinCaptured": "Bulletin captured. Sharing feature available soon.",
   "bulletinExported": "Bulletin exported as PDF",
   "bulletinShareSubject": "Bulletin for {nom} {prenom}",
   "@bulletinShareSubject": {
@@ -691,7 +691,6 @@
       }
     }
   },
-  "bulletinCaptured": "Bulletin captured. Sharing feature available soon.",
   "exportError": "Export error: {error}",
   "@exportError": {
     "placeholders": {
@@ -1267,7 +1266,7 @@
   "placeQrInViewfinder": "Place the QR code in the viewfinder",
   "rapidEntry": "Rapid Entry",
   "rapidEntryDesc": "Chain scans automatically",
-  "unknownError": "Unknown error",
+  "unknownError": "An unknown error occurred",
   "attendanceRecordedSuccess": "Attendance recorded",
   "alreadyRegisteredForSession": "Already registered for this session",
   "nextScan": "Next scan",
@@ -1656,7 +1655,7 @@
   "contactLabel": "Contact",
   "contactSubtitle": "Contact information",
   "studentPhoneLabel": "Student phone",
-  "heightLabel": "Height (cm)",
+  "heightLabel": "Height",
   "heightHint": "E.g.: 175",
   "emailLabel": "Email",
   "facebookHint": "Facebook profile URL",
@@ -1694,8 +1693,6 @@
   "noUsersFound": "No users found",
   "noUsersRegistered": "No users registered in the system.",
   "retry": "Retry",
-  "loadingError": "Loading error",
-  "unknownError": "An unknown error occurred",
   "changeUserRoleTitle": "Change Role",
   "selectNewRole": "Select the new role",
   "roleChangeWarning": "Changing the role modifies the user's permissions.",
@@ -1777,7 +1774,6 @@
   "uploadSignatureHint": "Tap to add a signature",
   "signatureRequiredError": "The academician signature is mandatory",
   "parentSignatureRequiredError": "The parent/guardian signature is required to generate the form",
-  "requiredLabel": "Required",
   "serviceAtelierOnlyValidatedCanApply": "Only a validated workshop can be workshop applied.",
   "serviceExerciceOnlyValidatedCanApply": "Only a validated exercise can be workshop applied.",
   "serviceExerciceOnlyAppliedCanClose": "Only an applied exercise can be closed.",
@@ -1855,5 +1851,35 @@
   },
   "biometricReasonResume": "Authenticate to resume your session",
   "biometricReasonAccess": "Unlock to access the application",
-  "ok": "OK"
+  "ok": "OK",
+  "medicalDashboard": "Medical Dashboard",
+  "medicalFiles": "Medical Files",
+  "consultations": "Consultations",
+  "healthOverview": "Health Overview",
+  "activeAlerts": "Active Alerts",
+  "unfitPlayers": "Unfit Players",
+  "recentAlerts": "Recent Alerts",
+  "medicalHistory": "Medical History",
+  "medicalFollowUp": "Medical Follow-Up",
+  "chiefMedicalOfficer": "Chief Medical Officer",
+  "healthStatus": "Health Status",
+  "optimalHealth": "Global Health: Optimal",
+  "fitToTrain": "{percent}% of academicians are fit for training",
+  "@fitToTrain": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "searchMedicalFile": "Search medical file...",
+  "loadingMedicalFiles": "Loading medical files...",
+  "noConsultationInProgress": "No consultation in progress",
+  "selectAcademicianToStart": "Select an academician to start.",
+  "allergies": "Allergies",
+  "skinProblems": "Skin problems",
+  "weightLabel": "Weight",
+  "medicalVisit": "Medical Visit",
+  "medicalAlertAnkle": "Ankle Injury",
+  "medicalAlertVaccine": "Vaccination Follow-up"
 }

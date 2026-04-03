@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
-import '../../../domain/entities/user_role.dart';
+import '../../../domain/entities/role.dart';
+import '../../../application/services/role_service.dart';
+import '../../pages/dashboard/medecin_dashboard_page.dart';
 import '../../../application/services/app_preferences.dart';
 import '../onboarding/onboarding_page.dart';
 import '../auth/login_page.dart';
@@ -94,28 +96,36 @@ class _SplashPageState extends State<SplashPage>
         final roleId = await preferences.getUserRole();
         final savedName = await preferences.getUserName();
         final photoUrl = await preferences.getUserPhoto();
-        // Protection contre un roleId null, retour au login si problème
+        
         if (roleId != null && mounted) {
           final l10n = AppLocalizations.of(context);
           final userName = savedName ?? l10n?.defaultUser ?? 'Utilisateur';
-          final role = UserRole.fromId(roleId);
+          final role = Role.fromId(roleId);
+          
+          final dashboardType = DependencyInjection.roleService.getDashboardForRole(role);
+          
+          Widget dashboardPage;
+          switch (dashboardType) {
+            case DashboardType.admin:
+              // Note: Le rôle supAdmin utilise aussi AdminDashboardPage ou SupAdminDashboardPage selon impl
+              dashboardPage = role == Role.supAdmin 
+                ? SupAdminDashboardPage(userName: userName, photoUrl: photoUrl)
+                : AdminDashboardPage(userName: userName, photoUrl: photoUrl);
+              break;
+            case DashboardType.encadreur:
+              dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+              break;
+            case DashboardType.medecin:
+              dashboardPage = MedecinDashboardPage(userName: userName, photoUrl: photoUrl);
+              break;
+            case DashboardType.surveillant:
+            case DashboardType.visiteur:
+              dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+              break;
+          }
+
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => switch (role) {
-                UserRole.supAdmin => SupAdminDashboardPage(
-                  userName: userName,
-                  photoUrl: photoUrl,
-                ),
-                UserRole.admin => AdminDashboardPage(
-                  userName: userName,
-                  photoUrl: photoUrl,
-                ),
-                UserRole.encadreur => EncadreurDashboardPage(
-                  userName: userName,
-                  photoUrl: photoUrl,
-                ),
-              },
-            ),
+            MaterialPageRoute(builder: (context) => dashboardPage),
           );
           return;
         }
@@ -237,13 +247,31 @@ class _SplashPageState extends State<SplashPage>
     if (roleId != null && mounted) {
       final l10n = AppLocalizations.of(context);
       final userName = savedName ?? l10n?.defaultUser ?? 'Utilisateur';
-      final role = UserRole.fromId(roleId);
+      final role = Role.fromId(roleId);
+      
+      final dashboardType = DependencyInjection.roleService.getDashboardForRole(role);
+      
+      Widget dashboardPage;
+      switch (dashboardType) {
+        case DashboardType.admin:
+          dashboardPage = role == Role.supAdmin 
+            ? SupAdminDashboardPage(userName: userName, photoUrl: photoUrl)
+            : AdminDashboardPage(userName: userName, photoUrl: photoUrl);
+          break;
+        case DashboardType.encadreur:
+          dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+          break;
+        case DashboardType.medecin:
+          dashboardPage = MedecinDashboardPage(userName: userName, photoUrl: photoUrl);
+          break;
+        case DashboardType.surveillant:
+        case DashboardType.visiteur:
+          dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+          break;
+      }
+
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => role == UserRole.admin
-              ? AdminDashboardPage(userName: userName, photoUrl: photoUrl)
-              : EncadreurDashboardPage(userName: userName, photoUrl: photoUrl),
-        ),
+        MaterialPageRoute(builder: (context) => dashboardPage),
       );
     }
   }

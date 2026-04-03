@@ -17,6 +17,7 @@ class DashboardHeader extends StatelessWidget {
   final VoidCallback? onSmsTap;
   final VoidCallback? onSearchTap;
   final VoidCallback? onProfileTap;
+  final VoidCallback? onSyncTap;
   final int notificationCount;
 
   const DashboardHeader({
@@ -29,6 +30,7 @@ class DashboardHeader extends StatelessWidget {
     this.onSmsTap,
     this.onSearchTap,
     this.onProfileTap,
+    this.onSyncTap,
     this.notificationCount = 0,
   });
 
@@ -130,10 +132,13 @@ class DashboardHeader extends StatelessWidget {
           // Indicateur de connectivite
           Padding(
             padding: const EdgeInsets.only(right: 6),
-            child: ConnectivityIndicator(
-              connectivityState: DependencyInjection.connectivityState,
-              syncState: DependencyInjection.syncState,
-              compact: true,
+            child: GestureDetector(
+              onTap: onSyncTap,
+              child: ConnectivityIndicator(
+                connectivityState: DependencyInjection.connectivityState,
+                syncState: DependencyInjection.syncState,
+                compact: true,
+              ),
             ),
           ),
           // Bouton Recherche

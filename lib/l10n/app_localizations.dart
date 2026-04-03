@@ -5687,7 +5687,7 @@ abstract class AppLocalizations {
   /// No description provided for @heightLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Taille (cm)'**
+  /// **'Taille'**
   String get heightLabel;
 
   /// No description provided for @heightHint.
@@ -6487,6 +6487,144 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// No description provided for @medicalDashboard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tableau de bord Médical'**
+  String get medicalDashboard;
+
+  /// No description provided for @medicalFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossiers Médicaux'**
+  String get medicalFiles;
+
+  /// No description provided for @consultations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultations'**
+  String get consultations;
+
+  /// No description provided for @healthOverview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu Sanitaire'**
+  String get healthOverview;
+
+  /// No description provided for @activeAlerts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alertes Actives'**
+  String get activeAlerts;
+
+  /// No description provided for @unfitPlayers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Joueurs Inaptes'**
+  String get unfitPlayers;
+
+  /// No description provided for @recentAlerts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alertes Récentes'**
+  String get recentAlerts;
+
+  /// No description provided for @medicalHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique Médical'**
+  String get medicalHistory;
+
+  /// No description provided for @medicalFollowUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi Médical'**
+  String get medicalFollowUp;
+
+  /// No description provided for @chiefMedicalOfficer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Médecin Chef'**
+  String get chiefMedicalOfficer;
+
+  /// No description provided for @healthStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'État de Santé'**
+  String get healthStatus;
+
+  /// No description provided for @optimalHealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Santé Globale: Optimale'**
+  String get optimalHealth;
+
+  /// No description provided for @fitToTrain.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent}% des académiciens sont aptes à l\'entraînement'**
+  String fitToTrain(int percent);
+
+  /// No description provided for @searchMedicalFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un dossier médical...'**
+  String get searchMedicalFile;
+
+  /// No description provided for @loadingMedicalFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des dossiers médicaux...'**
+  String get loadingMedicalFiles;
+
+  /// No description provided for @noConsultationInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune consultation en cours'**
+  String get noConsultationInProgress;
+
+  /// No description provided for @selectAcademicianToStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez un académicien pour commencer.'**
+  String get selectAcademicianToStart;
+
+  /// No description provided for @allergies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allergies'**
+  String get allergies;
+
+  /// No description provided for @skinProblems.
+  ///
+  /// In fr, this message translates to:
+  /// **'Problèmes de peau'**
+  String get skinProblems;
+
+  /// No description provided for @weightLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids'**
+  String get weightLabel;
+
+  /// No description provided for @medicalVisit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visite Médicale'**
+  String get medicalVisit;
+
+  /// No description provided for @medicalAlertAnkle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Blessure Cheville'**
+  String get medicalAlertAnkle;
+
+  /// No description provided for @medicalAlertVaccine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi Vaccinal'**
+  String get medicalAlertVaccine;
 }
 
 class _AppLocalizationsDelegate

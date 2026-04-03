@@ -3150,7 +3150,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get studentPhoneLabel => 'Student phone';
 
   @override
-  String get heightLabel => 'Height (cm)';
+  String get heightLabel => 'Height';
 
   @override
   String get heightHint => 'E.g.: 175';
@@ -3587,4 +3587,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get medicalDashboard => 'Medical Dashboard';
+
+  @override
+  String get medicalFiles => 'Medical Files';
+
+  @override
+  String get consultations => 'Consultations';
+
+  @override
+  String get healthOverview => 'Health Overview';
+
+  @override
+  String get activeAlerts => 'Active Alerts';
+
+  @override
+  String get unfitPlayers => 'Unfit Players';
+
+  @override
+  String get recentAlerts => 'Recent Alerts';
+
+  @override
+  String get medicalHistory => 'Medical History';
+
+  @override
+  String get medicalFollowUp => 'Medical Follow-Up';
+
+  @override
+  String get chiefMedicalOfficer => 'Chief Medical Officer';
+
+  @override
+  String get healthStatus => 'Health Status';
+
+  @override
+  String get optimalHealth => 'Global Health: Optimal';
+
+  @override
+  String fitToTrain(int percent) {
+    return '$percent% of academicians are fit for training';
+  }
+
+  @override
+  String get searchMedicalFile => 'Search medical file...';
+
+  @override
+  String get loadingMedicalFiles => 'Loading medical files...';
+
+  @override
+  String get noConsultationInProgress => 'No consultation in progress';
+
+  @override
+  String get selectAcademicianToStart => 'Select an academician to start.';
+
+  @override
+  String get allergies => 'Allergies';
+
+  @override
+  String get skinProblems => 'Skin problems';
+
+  @override
+  String get weightLabel => 'Weight';
+
+  @override
+  String get medicalVisit => 'Medical Visit';
+
+  @override
+  String get medicalAlertAnkle => 'Ankle Injury';
+
+  @override
+  String get medicalAlertVaccine => 'Vaccination Follow-up';
 }

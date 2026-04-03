@@ -446,7 +446,7 @@
   "academicianPersonalDetails": "Informations personnelles de l'académicien",
   "requiredFields": "Champs requis",
   "requiredField": "Champ requis",
-  "requiredLabel": "Requis",
+  "requiredLabel": "Obligatoire",
   "registrationSuccessTitle": "Inscription réussie !",
   "academicianQrBadgeSubtitle": "Le badge QR unique de l'académicien a été généré avec succès. Vous pouvez le partager ou le télécharger.",
   "selectPosteAndPiedError": "Veuillez sélectionner un poste",
@@ -704,7 +704,7 @@
   "generatingInProgress": "Génération en cours...",
   "exportImage": "Exporter image",
   "exportPdf": "Exporter PDF",
-  "bulletinCaptured": "Bulletin capturé",
+  "bulletinCaptured": "Bulletin capturé. Fonctionnalité de partage disponible prochainement.",
   "bulletinExported": "Bulletin exporté en PDF",
   "bulletinShareSubject": "Bulletin de {nom} {prenom}",
   "@bulletinShareSubject": {
@@ -763,7 +763,6 @@
       }
     }
   },
-  "bulletinCaptured": "Bulletin capturé. Fonctionnalité de partage disponible prochainement.",
   "exportError": "Erreur lors de l'export : {error}",
   "@exportError": {
     "placeholders": {
@@ -1340,7 +1339,7 @@
   "placeQrInViewfinder": "Placez le code QR dans le viseur",
   "rapidEntry": "Entrée Rapide",
   "rapidEntryDesc": "Enchaîner les scans automatiquement",
-  "unknownError": "Erreur inconnue",
+  "unknownError": "Une erreur inconnue est survenue",
   "attendanceRecordedSuccess": "Présence enregistrée",
   "alreadyRegisteredForSession": "Déjà enregistré pour cette séance",
   "nextScan": "Scanner suivant",
@@ -1729,7 +1728,7 @@
   "contactLabel": "Contact",
   "contactSubtitle": "Informations de contact",
   "studentPhoneLabel": "Telephone eleve",
-  "heightLabel": "Taille (cm)",
+  "heightLabel": "Taille",
   "heightHint": "Ex: 175",
   "emailLabel": "Email",
   "facebookHint": "URL du profil Facebook",
@@ -1767,8 +1766,6 @@
   "noUsersFound": "Aucun utilisateur trouvé",
   "noUsersRegistered": "Aucun utilisateur enregistré dans le système.",
   "retry": "Réessayer",
-  "loadingError": "Erreur de chargement",
-  "unknownError": "Une erreur inconnue est survenue",
   "changeUserRoleTitle": "Modifier le rôle",
   "selectNewRole": "Sélectionner le nouveau rôle",
   "roleChangeWarning": "Le changement de rôle modifie les permissions de l'utilisateur.",
@@ -1850,7 +1847,6 @@
   "uploadSignatureHint": "Appuyez pour ajouter une signature",
   "signatureRequiredError": "La signature de l'académicien est obligatoire",
   "parentSignatureRequiredError": "La signature du parent/tuteur est obligatoire pour générer la fiche",
-  "requiredLabel": "Obligatoire",
   "serviceAtelierOnlyValidatedCanApply": "Seul un atelier validé peut être appliqué.",
   "serviceExerciceOnlyValidatedCanApply": "Seul un exercice validé peut être appliqué.",
   "serviceExerciceOnlyAppliedCanClose": "Seul un exercice appliqué peut être fermé.",
@@ -1928,5 +1924,35 @@
   },
   "biometricReasonResume": "Authentifiez-vous pour reprendre votre session",
   "biometricReasonAccess": "Déverrouillez pour accéder à l'application",
-  "ok": "OK"
+  "ok": "OK",
+  "medicalDashboard": "Tableau de bord Médical",
+  "medicalFiles": "Dossiers Médicaux",
+  "consultations": "Consultations",
+  "healthOverview": "Aperçu Sanitaire",
+  "activeAlerts": "Alertes Actives",
+  "unfitPlayers": "Joueurs Inaptes",
+  "recentAlerts": "Alertes Récentes",
+  "medicalHistory": "Historique Médical",
+  "medicalFollowUp": "Suivi Médical",
+  "chiefMedicalOfficer": "Médecin Chef",
+  "healthStatus": "État de Santé",
+  "optimalHealth": "Santé Globale: Optimale",
+  "fitToTrain": "{percent}% des académiciens sont aptes à l'entraînement",
+  "@fitToTrain": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "searchMedicalFile": "Rechercher un dossier médical...",
+  "loadingMedicalFiles": "Chargement des dossiers médicaux...",
+  "noConsultationInProgress": "Aucune consultation en cours",
+  "selectAcademicianToStart": "Sélectionnez un académicien pour commencer.",
+  "allergies": "Allergies",
+  "skinProblems": "Problèmes de peau",
+  "weightLabel": "Poids",
+  "medicalVisit": "Visite Médicale",
+  "medicalAlertAnkle": "Blessure Cheville",
+  "medicalAlertVaccine": "Suivi Vaccinal"
 }
