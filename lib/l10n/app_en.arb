@@ -67,6 +67,7 @@
   "userNotFoundError": "User not found",
   "passwordResetError": "Could not reset password",
   "unexpectedError": "An unexpected error occurred",
+  "noInternetConnection": "No internet connection",
   "settings": "Settings",
   "settingsSubtitle": "Application configuration",
   "general": "General",
@@ -1881,5 +1882,6 @@
   "weightLabel": "Weight",
   "medicalVisit": "Medical Visit",
   "medicalAlertAnkle": "Ankle Injury",
-  "medicalAlertVaccine": "Vaccination Follow-up"
+  "medicalAlertVaccine": "Vaccination Follow-up",
+  "noInternetConnection": "No internet connection"
 }

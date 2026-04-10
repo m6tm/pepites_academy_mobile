@@ -196,6 +196,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unexpectedError => 'An unexpected error occurred';
 
   @override
+  String get noInternetConnection => 'No internet connection';
+
+  @override
   String get settings => 'Settings';
 
   @override

@@ -458,6 +458,12 @@ abstract class AppLocalizations {
   /// **'Une erreur inattendue est survenue'**
   String get unexpectedError;
 
+  /// No description provided for @noInternetConnection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune connexion internet'**
+  String get noInternetConnection;
+
   /// No description provided for @settings.
   ///
   /// In fr, this message translates to:

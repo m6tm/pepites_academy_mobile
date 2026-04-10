@@ -198,6 +198,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unexpectedError => 'Une erreur inattendue est survenue';
 
   @override
+  String get noInternetConnection => 'Aucune connexion internet';
+
+  @override
   String get settings => 'Parametres';
 
   @override

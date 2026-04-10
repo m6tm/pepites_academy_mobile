@@ -7,7 +7,7 @@ import '../../../application/services/device_info_service.dart';
 import '../../../application/services/role_service.dart';
 import '../../../domain/entities/role.dart';
 import '../../../domain/failures/network_failure.dart';
-import 'register_page.dart';
+// import 'register_page.dart';
 import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
 import '../dashboard/admin_dashboard_page.dart';
@@ -501,6 +501,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                               ),
                             ),
+                            const SizedBox(height: 24),
                           ],
                         ),
                       ),

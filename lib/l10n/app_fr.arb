@@ -74,6 +74,7 @@
   "userNotFoundError": "Utilisateur non trouve",
   "passwordResetError": "Impossible de reinitialiser le mot de passe",
   "unexpectedError": "Une erreur inattendue est survenue",
+  "noInternetConnection": "Aucune connexion Internet",
   "settings": "Parametres",
   "settingsSubtitle": "Configuration de l'application",
   "general": "General",
@@ -1954,5 +1955,6 @@
   "weightLabel": "Poids",
   "medicalVisit": "Visite Médicale",
   "medicalAlertAnkle": "Blessure Cheville",
-  "medicalAlertVaccine": "Suivi Vaccinal"
+  "medicalAlertVaccine": "Suivi Vaccinal",
+  "noInternetConnection": "Aucune connexion internet"
 }

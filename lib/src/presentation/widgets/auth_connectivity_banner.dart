@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../state/connectivity_state.dart';
-import '../../../injection_container.dart';
-import '../../../../l10n/app_localizations.dart';
+import '../../injection_container.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Un bandeau discret affiché en haut des pages d'authentification 
 /// lorsqu'il n'y a pas de connexion internet.
