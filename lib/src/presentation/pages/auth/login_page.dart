@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         setState(() => _isLoading = false);
-        
+
         String errorMessage = failure.message ?? l10n.loginFailedDescription;
         if (failure.type == NetworkFailureType.noConnection) {
           errorMessage = l10n.noInternetConnection;
@@ -354,8 +354,9 @@ class _LoginPageState extends State<LoginPage> {
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                               letterSpacing: 4,
-                              color:
-                                  colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                         ],
@@ -480,59 +481,25 @@ class _LoginPageState extends State<LoginPage> {
                                         size: 28,
                                       )
                                     : _isLoading
-                                        ? const SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
                                                 Colors.white,
                                               ),
-                                            ),
-                                          )
-                                        : Text(
-                                            l10n.signIn,
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            // Créer un compte
-                            Wrap(
-                              alignment: WrapAlignment.center,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(
-                                  l10n.noAccount,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.onSurface.withValues(
-                                      alpha: 0.6,
-                                    ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const RegisterPage(),
+                                        ),
+                                      )
+                                    : Text(
+                                        l10n.signIn,
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    );
-                                  },
-                                  child: Text(
-                                    l10n.createAccount,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
