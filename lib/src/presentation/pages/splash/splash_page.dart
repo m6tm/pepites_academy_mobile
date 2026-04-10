@@ -55,93 +55,102 @@ class _SplashPageState extends State<SplashPage>
 
     // Navigation automatique après le délai du splash
     Future.delayed(const Duration(seconds: 4), () async {
-      final preferences = DependencyInjection.preferences;
-      final bool isLoggedIn = await preferences.isUserLoggedIn();
+      try {
+        final preferences = DependencyInjection.preferences;
+        final bool isLoggedIn = await preferences.isUserLoggedIn();
 
-      if (isLoggedIn && mounted) {
-        // Verifier si l'authentification biometrique est activee
-        final bool biometricEnabled = await DependencyInjection.biometricService
-            .isBiometricEnabled();
+        if (isLoggedIn && mounted) {
+          // Verifier si l'authentification biometrique est activee
+          final bool biometricEnabled = await DependencyInjection.biometricService
+              .isBiometricEnabled();
 
-        if (biometricEnabled) {
-          // Demander l'authentification biometrique
-          final (
-            authenticated,
-            error,
-          ) = await DependencyInjection.biometricService.authenticate(
-            localizedReason:
-                'Authentifiez-vous pour acceder a votre compte Pepites Academy',
-          );
+          if (biometricEnabled) {
+            // Demander l'authentification biometrique
+            final (
+              authenticated,
+              error,
+            ) = await DependencyInjection.biometricService.authenticate(
+              localizedReason:
+                  'Authentifiez-vous pour acceder a votre compte Pepites Academy',
+            );
 
-          if (!authenticated) {
-            // Echec de l'authentification biometrique
-            if (mounted) {
-              _showBiometricFailedDialog(preferences, error);
+            if (!authenticated) {
+              // Echec de l'authentification biometrique
+              if (mounted) {
+                _showBiometricFailedDialog(preferences, error);
+              }
+              return;
             }
+          }
+
+          // Synchroniser les referentiels et académiciens en arrière-plan (non bloquant)
+          DependencyInjection.syncReferentiels();
+          DependencyInjection.syncAcademiciens();
+
+          // Envoyer le token FCM au serveur (non bloquant)
+          DependencyInjection.firebasePushNotificationService
+              .sendTokenToServer();
+
+          // Synchroniser les opérations en attente (non bloquant)
+          DependencyInjection.syncState.syncNow();
+
+          final roleId = await preferences.getUserRole();
+          final savedName = await preferences.getUserName();
+          final photoUrl = await preferences.getUserPhoto();
+          
+          if (roleId != null && mounted) {
+            final l10n = AppLocalizations.of(context);
+            final userName = savedName ?? l10n?.defaultUser ?? 'Utilisateur';
+            final role = Role.fromId(roleId);
+            
+            final dashboardType = DependencyInjection.roleService.getDashboardForRole(role);
+            
+            Widget dashboardPage;
+            switch (dashboardType) {
+              case DashboardType.admin:
+                dashboardPage = role == Role.supAdmin 
+                  ? SupAdminDashboardPage(userName: userName, photoUrl: photoUrl)
+                  : AdminDashboardPage(userName: userName, photoUrl: photoUrl);
+                break;
+              case DashboardType.encadreur:
+                dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+                break;
+              case DashboardType.medecin:
+                dashboardPage = MedecinDashboardPage(userName: userName, photoUrl: photoUrl);
+                break;
+              case DashboardType.surveillant:
+              case DashboardType.visiteur:
+                dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+                break;
+            }
+
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => dashboardPage),
+            );
             return;
           }
         }
 
-        // Synchroniser les referentiels et académiciens depuis le backend
-        await DependencyInjection.syncReferentiels();
-        await DependencyInjection.syncAcademiciens();
+        final bool isOnboardingCompleted = await preferences
+            .isOnboardingCompleted();
 
-        // Envoyer le token FCM au serveur (session active)
-        await DependencyInjection.firebasePushNotificationService
-            .sendTokenToServer();
-
-        // Synchroniser les opérations en attente (présences, etc.)
-        DependencyInjection.syncState.syncNow();
-
-        final roleId = await preferences.getUserRole();
-        final savedName = await preferences.getUserName();
-        final photoUrl = await preferences.getUserPhoto();
-        
-        if (roleId != null && mounted) {
-          final l10n = AppLocalizations.of(context);
-          final userName = savedName ?? l10n?.defaultUser ?? 'Utilisateur';
-          final role = Role.fromId(roleId);
-          
-          final dashboardType = DependencyInjection.roleService.getDashboardForRole(role);
-          
-          Widget dashboardPage;
-          switch (dashboardType) {
-            case DashboardType.admin:
-              // Note: Le rôle supAdmin utilise aussi AdminDashboardPage ou SupAdminDashboardPage selon impl
-              dashboardPage = role == Role.supAdmin 
-                ? SupAdminDashboardPage(userName: userName, photoUrl: photoUrl)
-                : AdminDashboardPage(userName: userName, photoUrl: photoUrl);
-              break;
-            case DashboardType.encadreur:
-              dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
-              break;
-            case DashboardType.medecin:
-              dashboardPage = MedecinDashboardPage(userName: userName, photoUrl: photoUrl);
-              break;
-            case DashboardType.surveillant:
-            case DashboardType.visiteur:
-              dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
-              break;
-          }
-
+        if (mounted) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => dashboardPage),
+            MaterialPageRoute(
+              builder: (context) => isOnboardingCompleted
+                  ? const LoginPage()
+                  : const OnboardingPage(),
+            ),
           );
-          return;
         }
-      }
-
-      final bool isOnboardingCompleted = await preferences
-          .isOnboardingCompleted();
-
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => isOnboardingCompleted
-                ? const LoginPage()
-                : const OnboardingPage(),
-          ),
-        );
+      } catch (e) {
+        debugPrint('Erreur critique lors de l\'initialisation du splash: $e');
+        // En cas d'erreur fatale, on tente quand même d'aller vers la page de login
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        }
       }
     });
   }

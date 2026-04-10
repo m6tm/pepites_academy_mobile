@@ -187,22 +187,21 @@ class FirebasePushNotificationService {
       _handleMessageOpenedApp(initialMessage);
     }
 
-    // 4. Obtenir le token FCM et l'envoyer au serveur
-    try {
-      final token = await _firebaseMessaging.getToken();
+    // 4. Obtenir le token FCM et l'envoyer au serveur (non bloquant)
+    _firebaseMessaging.getToken().then((token) {
       debugPrint('FCM Token: $token');
       if (token != null) {
-        await sendTokenToServer();
+        sendTokenToServer();
       }
-    } catch (e) {
+    }).catchError((e) {
       debugPrint('Erreur lors de la récupération du token FCM: $e');
-    }
+    });
 
     // 4.5 Écouter les rafraîchissements de token
     setupTokenRefreshListener();
 
     // 5. Synchroniser les topics selon les préférences actuelles
-    await syncTopicsFromPreferences();
+    syncTopicsFromPreferences();
   }
 
   /// Synchronise les souscriptions aux topics FCM selon les préférences
