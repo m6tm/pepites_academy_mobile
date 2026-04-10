@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
+import '../../../domain/failures/network_failure.dart';
 import '../../widgets/academy_toast.dart';
+import '../../widgets/auth_connectivity_banner.dart';
 
 /// Page d'inscription pour Pépites Academy.
 class RegisterPage extends StatefulWidget {
@@ -88,9 +90,15 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) {
         if (failure != null) {
           setState(() => _isLoading = false);
+
+          String errorMessage = failure.message ?? l10n.error;
+          if (failure.type == NetworkFailureType.noConnection) {
+            errorMessage = l10n.noInternetConnection;
+          }
+
           AcademyToast.show(
             context,
-            title: failure.message ?? l10n.error,
+            title: errorMessage,
             isError: true,
           );
         } else {
@@ -123,258 +131,270 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: colorScheme.onSurface,
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                l10n.createAccount,
-                style: theme.textTheme.headlineLarge?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.registerSubtitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              const SizedBox(height: 40),
-              Form(
-                key: _formKey,
+        child: Column(
+          children: [
+            const AuthConnectivityBanner(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildTextField(
-                      controller: _lastNameController,
-                      label: l10n.lastName,
-                      hint: l10n.lastNameHint,
-                      prefixIcon: Icons.person_outline,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.lastNameRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: _firstNameController,
-                      label: l10n.firstName,
-                      hint: l10n.firstNameHint,
-                      prefixIcon: Icons.person_outline,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.firstNameRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: _emailController,
-                      label: l10n.email,
-                      hint: l10n.emailHint,
-                      prefixIcon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.emailRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: _passwordController,
-                      label: l10n.password,
-                      hint: '••••••••',
-                      prefixIcon: Icons.lock_outline,
-                      obscureText: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: colorScheme.onSurface.withValues(alpha: 0.4),
-                        ),
-                        onPressed: () => setState(
-                          () => _obscurePassword = !_obscurePassword,
-                        ),
+                    const SizedBox(height: 12),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: Icon(
+                        Icons.arrow_back_ios_new,
+                        color: colorScheme.onSurface,
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.passwordRequired;
-                        }
-                        return null;
-                      },
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      l10n.createAccount,
+                      style: theme.textTheme.headlineLarge?.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    // Indicateur de force du mot de passe
-                    if (_passwordController.text.isNotEmpty)
-                      Column(
+                    Text(
+                      l10n.registerSubtitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    Form(
+                      key: _formKey,
+                      child: Column(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: LinearProgressIndicator(
-                                    value: _passwordStrength,
-                                    backgroundColor: colorScheme.onSurface
-                                        .withValues(alpha: 0.1),
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      _getStrengthColor(),
+                          _buildTextField(
+                            controller: _lastNameController,
+                            label: l10n.lastName,
+                            hint: l10n.lastNameHint,
+                            prefixIcon: Icons.person_outline,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return l10n.lastNameRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextField(
+                            controller: _firstNameController,
+                            label: l10n.firstName,
+                            hint: l10n.firstNameHint,
+                            prefixIcon: Icons.person_outline,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return l10n.firstNameRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextField(
+                            controller: _emailController,
+                            label: l10n.email,
+                            hint: l10n.emailHint,
+                            prefixIcon: Icons.email_outlined,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return l10n.emailRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _buildTextField(
+                            controller: _passwordController,
+                            label: l10n.password,
+                            hint: '••••••••',
+                            prefixIcon: Icons.lock_outline,
+                            obscureText: _obscurePassword,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color:
+                                    colorScheme.onSurface.withValues(alpha: 0.4),
+                              ),
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return l10n.passwordRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          // Indicateur de force du mot de passe
+                          if (_passwordController.text.isNotEmpty)
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: LinearProgressIndicator(
+                                          value: _passwordStrength,
+                                          backgroundColor: colorScheme.onSurface
+                                              .withValues(alpha: 0.1),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            _getStrengthColor(),
+                                          ),
+                                          minHeight: 4,
+                                        ),
+                                      ),
                                     ),
-                                    minHeight: 4,
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _getStrengthText(l10n),
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: _getStrengthColor(),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                            ),
+
+                          // Checklist des critères de sécurité
+                          if (_passwordController.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 20.0),
+                              child: Column(
+                                children: [
+                                  _buildRequirementItem(
+                                    l10n.passwordMinChars,
+                                    _passwordController.text.length >= 8,
+                                  ),
+                                  _buildRequirementItem(
+                                    l10n.passwordUppercase,
+                                    _passwordController.text.contains(
+                                      RegExp(r'[A-Z]'),
+                                    ),
+                                  ),
+                                  _buildRequirementItem(
+                                    l10n.passwordDigit,
+                                    _passwordController.text.contains(
+                                      RegExp(r'[0-9]'),
+                                    ),
+                                  ),
+                                  _buildRequirementItem(
+                                    l10n.passwordSpecialChar,
+                                    _passwordController.text.contains(
+                                      RegExp(r'[!@#$%^&*(),.?":{}|<>]'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          const SizedBox(height: 20),
+                          _buildTextField(
+                            controller: _confirmPasswordController,
+                            label: l10n.confirmPassword,
+                            hint: '••••••••',
+                            prefixIcon: Icons.lock_reset_outlined,
+                            obscureText: _obscurePassword,
+                            validator: (value) {
+                              if (value != _passwordController.text) {
+                                return l10n.passwordsDoNotMatch;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 40),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _handleRegister,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 4,
+                                shadowColor: colorScheme.primary.withValues(
+                                  alpha: 0.4,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: _isSuccess
+                                  ? const Icon(
+                                      Icons.check_circle_outline_rounded,
+                                      color: Colors.white,
+                                      size: 28,
+                                    )
+                                  : _isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                          ),
+                                        )
+                                      : Text(
+                                          l10n.createMyAccount,
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                l10n.alreadyHaveAccount,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                _getStrengthText(l10n),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: _getStrengthColor(),
-                                  fontWeight: FontWeight.bold,
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  l10n.signIn,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 20),
                         ],
                       ),
-
-                    // Checklist des critères de sécurité
-                    if (_passwordController.text.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Column(
-                          children: [
-                            _buildRequirementItem(
-                              l10n.passwordMinChars,
-                              _passwordController.text.length >= 8,
-                            ),
-                            _buildRequirementItem(
-                              l10n.passwordUppercase,
-                              _passwordController.text.contains(
-                                RegExp(r'[A-Z]'),
-                              ),
-                            ),
-                            _buildRequirementItem(
-                              l10n.passwordDigit,
-                              _passwordController.text.contains(
-                                RegExp(r'[0-9]'),
-                              ),
-                            ),
-                            _buildRequirementItem(
-                              l10n.passwordSpecialChar,
-                              _passwordController.text.contains(
-                                RegExp(r'[!@#$%^&*(),.?":{}|<>]'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: _confirmPasswordController,
-                      label: l10n.confirmPassword,
-                      hint: '••••••••',
-                      prefixIcon: Icons.lock_reset_outlined,
-                      obscureText: _obscurePassword,
-                      validator: (value) {
-                        if (value != _passwordController.text) {
-                          return l10n.passwordsDoNotMatch;
-                        }
-                        return null;
-                      },
                     ),
-                    const SizedBox(height: 40),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleRegister,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 4,
-                          shadowColor: colorScheme.primary.withValues(
-                            alpha: 0.4,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: _isSuccess
-                            ? const Icon(
-                                Icons.check_circle_outline_rounded,
-                                color: Colors.white,
-                                size: 28,
-                              )
-                            : _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    l10n.createMyAccount,
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          l10n.alreadyHaveAccount,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            l10n.signIn,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

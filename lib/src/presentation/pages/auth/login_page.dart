@@ -6,6 +6,7 @@ import '../../../application/services/biometric_service.dart';
 import '../../../application/services/device_info_service.dart';
 import '../../../application/services/role_service.dart';
 import '../../../domain/entities/role.dart';
+import '../../../domain/failures/network_failure.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/academy_toast.dart';
@@ -13,6 +14,7 @@ import '../dashboard/admin_dashboard_page.dart';
 import '../dashboard/encadreur_dashboard_page.dart';
 import '../dashboard/medecin_dashboard_page.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/auth_connectivity_banner.dart';
 
 /// Page de connexion pour Pépites Academy.
 /// Design premium, minimaliste et high-end pour le secteur sportif.
@@ -105,11 +107,17 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         setState(() => _isLoading = false);
+        
+        String errorMessage = failure.message ?? l10n.loginFailedDescription;
+        if (failure.type == NetworkFailureType.noConnection) {
+          errorMessage = l10n.noInternetConnection;
+        }
+
         // Erreur
         AcademyToast.show(
           context,
           title: l10n.loginFailed,
-          description: failure.message ?? l10n.loginFailedDescription,
+          description: errorMessage,
           isError: true,
         );
       }
@@ -312,214 +320,228 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                // Logo de l'application
-                Column(
-                  children: [
-                    Image.asset(
-                      'assets/logo.png',
-                      height: 100,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'PÉPITES',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 8,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    Text(
-                      'ACADEMY',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 4,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-                // Titre et Sous-titre
-                Align(
-                  alignment: Alignment.centerLeft,
+          child: Column(
+            children: [
+              const AuthConnectivityBanner(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        l10n.login,
-                        style: theme.textTheme.headlineLarge?.copyWith(
-                          color: colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.loginSubtitle,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                // Formulaire
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      _buildTextField(
-                        controller: _emailController,
-                        label: l10n.email,
-                        hint: l10n.emailHint,
-                        prefixIcon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.emailRequired;
-                          }
-                          return null;
-                        },
-                      ),
                       const SizedBox(height: 20),
-                      _buildTextField(
-                        controller: _passwordController,
-                        label: l10n.password,
-                        hint: '••••••••',
-                        prefixIcon: Icons.lock_outline,
-                        obscureText: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: colorScheme.onSurface.withValues(alpha: 0.4),
-                          ),
-                          onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.passwordRequired;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      // Mot de passe oublié
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const ForgotPasswordPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            l10n.forgotPassword,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      // Bouton de connexion
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colorScheme.primary,
-                            foregroundColor: Colors.white,
-                            elevation: 4,
-                            shadowColor: colorScheme.primary.withValues(
-                              alpha: 0.4,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: _isSuccess
-                              ? const Icon(
-                                  Icons.check_circle_outline_rounded,
-                                  color: Colors.white,
-                                  size: 28,
-                                )
-                              : _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<
-                                          Color
-                                        >(Colors.white),
-                                      ),
-                                    )
-                                  : Text(
-                                      l10n.signIn,
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Créer un compte
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
+                      // Logo de l'application
+                      Column(
                         children: [
+                          Image.asset(
+                            'assets/logo.png',
+                            height: 100,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(height: 16),
                           Text(
-                            l10n.noAccount,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.6,
-                              ),
+                            'PÉPITES',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 8,
+                              color: colorScheme.primary,
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const RegisterPage(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              l10n.createAccount,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          Text(
+                            'ACADEMY',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 4,
+                              color:
+                                  colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 40),
+                      // Titre et Sous-titre
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.login,
+                              style: theme.textTheme.headlineLarge?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.loginSubtitle,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      // Formulaire
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                              controller: _emailController,
+                              label: l10n.email,
+                              hint: l10n.emailHint,
+                              prefixIcon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return l10n.emailRequired;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            _buildTextField(
+                              controller: _passwordController,
+                              label: l10n.password,
+                              hint: '••••••••',
+                              prefixIcon: Icons.lock_outline,
+                              obscureText: _obscurePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                ),
+                                onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return l10n.passwordRequired;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            // Mot de passe oublié
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ForgotPasswordPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  l10n.forgotPassword,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            // Bouton de connexion
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colorScheme.primary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 4,
+                                  shadowColor: colorScheme.primary.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: _isSuccess
+                                    ? const Icon(
+                                        Icons.check_circle_outline_rounded,
+                                        color: Colors.white,
+                                        size: 28,
+                                      )
+                                    : _isLoading
+                                        ? const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                            ),
+                                          )
+                                        : Text(
+                                            l10n.signIn,
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            // Créer un compte
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  l10n.noAccount,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurface.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RegisterPage(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    l10n.createAccount,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
