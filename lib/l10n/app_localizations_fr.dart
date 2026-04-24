@@ -15,8 +15,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get login => 'Connexion';
 
   @override
-  String get loginSubtitle =>
-      'Accedez a votre espace encadreur ou administrateur';
+  String get loginSubtitle => 'Accedez a votre espace';
 
   @override
   String get email => 'Email';

@@ -2,7 +2,7 @@
   "@@locale": "en",
   "appTitle": "Pepites Academy",
   "login": "Login",
-  "loginSubtitle": "Access your coach or administrator space",
+  "loginSubtitle": "Access your space",
   "email": "Email",
   "emailHint": "your@email.com",
   "emailRequired": "Please enter your email",

@@ -2,7 +2,7 @@
   "@@locale": "fr",
   "appTitle": "Pepites Academy",
   "login": "Connexion",
-  "loginSubtitle": "Accedez a votre espace encadreur ou administrateur",
+  "loginSubtitle": "Accedez a votre espace",
   "email": "Email",
   "emailHint": "votre@email.com",
   "emailRequired": "Veuillez saisir votre email",

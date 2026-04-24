@@ -15,7 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Login';
 
   @override
-  String get loginSubtitle => 'Access your coach or administrator space';
+  String get loginSubtitle => 'Access your space';
 
   @override
   String get email => 'Email';
