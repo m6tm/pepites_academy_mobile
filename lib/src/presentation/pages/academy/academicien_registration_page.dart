@@ -1230,8 +1230,6 @@ class _AcademicienRegistrationPageState
               label: l10n.parentNameLabel,
               hint: l10n.parentNameHint,
               icon: Icons.person_outline,
-              validator: (v) =>
-                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
             const SizedBox(height: 20),
             _buildTextField(
@@ -1239,8 +1237,6 @@ class _AcademicienRegistrationPageState
               label: l10n.parentFunctionLabel,
               hint: l10n.parentFunctionHint,
               icon: Icons.work_outline,
-              validator: (v) =>
-                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
             const SizedBox(height: 20),
             _buildTextField(
@@ -1249,8 +1245,6 @@ class _AcademicienRegistrationPageState
               hint: l10n.emailHint,
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
-              validator: (v) =>
-                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
             const SizedBox(height: 20),
             _buildTextField(
@@ -1258,8 +1252,6 @@ class _AcademicienRegistrationPageState
               label: l10n.parentAddressLabel,
               hint: l10n.parentAddressHint,
               icon: Icons.home_outlined,
-              validator: (v) =>
-                  v == null || v.isEmpty ? l10n.requiredField : null,
             ),
           ],
         ),
