@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Accedez a votre espace encadreur ou administrateur'**
+  /// **'Accedez a votre espace'**
   String get loginSubtitle;
 
   /// No description provided for @email.

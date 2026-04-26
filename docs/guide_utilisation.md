@@ -353,7 +353,7 @@ Affiche les informations techniques et légales de l'application :
 
 | Information | Valeur |
 |---|---|
-| Version | 1.14.0 |
+| Version | 1.15.0 |
 | Plateforme | Flutter / Dart |
 | Dernière mise à jour | Voir dans l'application |
 | Stockage | Local (sur l'appareil) |
