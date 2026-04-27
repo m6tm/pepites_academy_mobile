@@ -1,12 +1,8 @@
+import 'package:pepites_academy_mobile/src/infrastructure/network/environment_service.dart';
+
 /// Classe contenant les constantes relatives aux points de terminaison de l'API.
 class ApiEndpoints {
-  /// URL de base du serveur.
-  /// À modifier en fonction de l'environnement (Dev, Staging, Prod).
-  // Utiliser 10.0.2.2 pour l'émulateur Android, localhost pour iOS ou le Web.
-  // static const String baseUrl = 'http://10.0.2.2:5000/v1';
-  static const String baseUrl = 'https://apipepites-academy.vercel.app/v1';
-  // static const String baseUrl = 'http://192.168.1.198:5000/v1';
-  // static const String baseUrl = 'http://192.168.1.119:5000/v1';
+  static String get baseUrl => EnvironmentService.baseUrl;
 
   /// Chemin pour la synchronisation des données.
   static const String sync = '/sync';
