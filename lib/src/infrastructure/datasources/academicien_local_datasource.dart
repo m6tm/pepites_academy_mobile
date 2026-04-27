@@ -116,6 +116,9 @@ class AcademicienLocalDatasource {
       'historiqueParcours': a.historiqueParcours
           .map((h) => h.toJson())
           .toList(),
+      'signatureAcademicienUrl': a.signatureAcademicienUrl,
+      'signatureParentUrl': a.signatureParentUrl,
+      'photoParentUrl': a.photoParentUrl,
     };
   }
 
@@ -160,6 +163,9 @@ class AcademicienLocalDatasource {
               )
               .toList() ??
           [],
+      signatureAcademicienUrl: json['signatureAcademicienUrl'] as String?,
+      signatureParentUrl: json['signatureParentUrl'] as String?,
+      photoParentUrl: json['photoParentUrl'] as String?,
     );
   }
 
@@ -267,6 +273,15 @@ class AcademicienLocalDatasource {
                         ),
                       )
                       .toList(),
+              signatureAcademicienUrl:
+                  (map['signature_academicien_url'] as String?) ??
+                  (map['signatureAcademicienUrl'] as String?),
+              signatureParentUrl:
+                  (map['signature_parent_url'] as String?) ??
+                  (map['signatureParentUrl'] as String?),
+              photoParentUrl:
+                  (map['photo_parent_url'] as String?) ??
+                  (map['photoParentUrl'] as String?),
             );
           }).toList();
           await saveAll(academiciens);

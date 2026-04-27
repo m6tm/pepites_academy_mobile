@@ -159,16 +159,13 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         File(a.photoParentUrl!).existsSync()) {
       _photoParentFile = File(a.photoParentUrl!);
     }
-    // Charger les signatures existantes
+    // Charger les signatures existantes (URLs serveur)
     if (a.signatureAcademicienUrl != null &&
-        a.signatureAcademicienUrl!.isNotEmpty &&
-        File(a.signatureAcademicienUrl!).existsSync()) {
-      _signatureAcademicienFile = File(a.signatureAcademicienUrl!);
+        a.signatureAcademicienUrl!.isNotEmpty) {
+      _signatureAcademicienUrl = a.signatureAcademicienUrl;
     }
-    if (a.signatureParentUrl != null &&
-        a.signatureParentUrl!.isNotEmpty &&
-        File(a.signatureParentUrl!).existsSync()) {
-      _signatureParentFile = File(a.signatureParentUrl!);
+    if (a.signatureParentUrl != null && a.signatureParentUrl!.isNotEmpty) {
+      _signatureParentUrl = a.signatureParentUrl;
     }
   }
 
@@ -1866,7 +1863,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pop(context, true),
+                  onPressed: () => Navigator.pop(context, _updatedAcademicien),
                   icon: const Icon(Icons.check_rounded, size: 20),
                   label: Text(
                     l10n.finishLabel,

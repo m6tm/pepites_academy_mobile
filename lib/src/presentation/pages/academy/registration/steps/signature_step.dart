@@ -550,10 +550,10 @@ class _SignatureStepState extends State<SignatureStep> {
                 color: colorScheme.onSurface.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: signatureFile != null
+                  color: (signatureFile != null || signatureUrl != null)
                       ? AppColors.primary.withValues(alpha: 0.3)
                       : colorScheme.onSurface.withValues(alpha: 0.1),
-                  width: signatureFile != null ? 2 : 1,
+                  width: (signatureFile != null || signatureUrl != null) ? 2 : 1,
                 ),
               ),
               child: isUploading
@@ -623,17 +623,28 @@ class _SignatureStepState extends State<SignatureStep> {
                         ),
                       ],
                     )
-                  : signatureFile != null
+                  : (signatureFile != null || signatureUrl != null)
                   ? Stack(
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(13),
-                          child: Image.file(
-                            signatureFile,
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.contain,
-                          ),
+                          child: signatureFile != null
+                              ? Image.file(
+                                  signatureFile,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.contain,
+                                )
+                              : Image.network(
+                                  signatureUrl!,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) => const Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 36,
+                                  ),
+                                ),
                         ),
                         Positioned(
                           top: 8,

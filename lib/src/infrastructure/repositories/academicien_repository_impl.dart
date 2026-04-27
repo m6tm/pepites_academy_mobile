@@ -220,6 +220,15 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
           (map['aime_travail_groupe'] as bool?) ??
           (map['aimeTravailGroupe'] as bool?),
       historiqueParcours: historiqueParcours,
+      signatureAcademicienUrl:
+          (map['signature_academicien_url'] as String?) ??
+          (map['signatureAcademicienUrl'] as String?),
+      signatureParentUrl:
+          (map['signature_parent_url'] as String?) ??
+          (map['signatureParentUrl'] as String?),
+      photoParentUrl:
+          (map['photo_parent_url'] as String?) ??
+          (map['photoParentUrl'] as String?),
     );
   }
 }
