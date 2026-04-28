@@ -11,7 +11,6 @@ class Academicien {
   final String sexe;
   final String photoUrl;
   final String telephoneEleve;
-  final String telephoneParent;
   final int taille;
   final String email;
   final String whatsapp;
@@ -21,12 +20,22 @@ class Academicien {
   final String niveauScolaireId;
   final String codeQrUnique;
   final String? piedFort;
-  // Informations du parent/tuteur
+  // Informations du parent
   final String nomParent;
+  final String prenomParent;
   final String fonctionParent;
-  final String emailParent;
-  final String adresseParent;
+  final String telephoneParent;
   final String? photoParentUrl;
+  // Informations du tuteur (optionnel)
+  final String nomTuteur;
+  final String prenomTuteur;
+  final String fonctionTuteur;
+  final String telephoneTuteur;
+  final String? photoTuteurUrl;
+  // Garant designe (parent | tuteur) + coordonnees
+  final String? garantType;
+  final String emailGarant;
+  final String adresseGarant;
   // Autres informations football
   final String? atouts;
   final String? faiblesses;
@@ -51,7 +60,6 @@ class Academicien {
     required this.sexe,
     required this.photoUrl,
     required this.telephoneEleve,
-    required this.telephoneParent,
     required this.taille,
     required this.email,
     required this.whatsapp,
@@ -62,10 +70,18 @@ class Academicien {
     required this.codeQrUnique,
     this.piedFort,
     required this.nomParent,
+    this.prenomParent = '',
     required this.fonctionParent,
-    required this.emailParent,
-    required this.adresseParent,
+    required this.telephoneParent,
     this.photoParentUrl,
+    this.nomTuteur = '',
+    this.prenomTuteur = '',
+    this.fonctionTuteur = '',
+    this.telephoneTuteur = '',
+    this.photoTuteurUrl,
+    this.garantType,
+    this.emailGarant = '',
+    this.adresseGarant = '',
     this.atouts,
     this.faiblesses,
     this.descriptionPerformances,
@@ -77,6 +93,32 @@ class Academicien {
     this.signatureAcademicienUrl,
     this.signatureParentUrl,
   });
+
+  /// Nom complet du garant designe (parent ou tuteur).
+  String get nomCompletGarant {
+    if (garantType == 'tuteur') {
+      return '${prenomTuteur.trim()} ${nomTuteur.trim()}'.trim();
+    }
+    return '${prenomParent.trim()} ${nomParent.trim()}'.trim();
+  }
+
+  /// Telephone du garant designe.
+  String get telephoneGarant {
+    if (garantType == 'tuteur') return telephoneTuteur;
+    return telephoneParent;
+  }
+
+  /// Fonction du garant designe.
+  String get fonctionGarant {
+    if (garantType == 'tuteur') return fonctionTuteur;
+    return fonctionParent;
+  }
+
+  /// Photo du garant designe.
+  String? get photoGarantUrl {
+    if (garantType == 'tuteur') return photoTuteurUrl;
+    return photoParentUrl;
+  }
 
   /// Serialise l'academicien en Map JSON.
   Map<String, dynamic> toJson() {
@@ -90,7 +132,6 @@ class Academicien {
       'sexe': sexe,
       'photoUrl': photoUrl,
       'telephoneEleve': telephoneEleve,
-      'telephoneParent': telephoneParent,
       'taille': taille,
       'email': email,
       'whatsapp': whatsapp,
@@ -101,10 +142,18 @@ class Academicien {
       'codeQrUnique': codeQrUnique,
       'piedFort': piedFort,
       'nomParent': nomParent,
+      'prenomParent': prenomParent,
       'fonctionParent': fonctionParent,
-      'emailParent': emailParent,
-      'adresseParent': adresseParent,
+      'telephoneParent': telephoneParent,
       'photoParentUrl': photoParentUrl ?? '',
+      'nomTuteur': nomTuteur,
+      'prenomTuteur': prenomTuteur,
+      'fonctionTuteur': fonctionTuteur,
+      'telephoneTuteur': telephoneTuteur,
+      'photoTuteurUrl': photoTuteurUrl ?? '',
+      'garantType': garantType,
+      'emailGarant': emailGarant,
+      'adresseGarant': adresseGarant,
       'atouts': atouts,
       'faiblesses': faiblesses,
       'descriptionPerformances': descriptionPerformances,
@@ -140,10 +189,6 @@ class Academicien {
           json['telephoneEleve'] as String? ??
           json['telephone_eleve'] as String? ??
           '',
-      telephoneParent:
-          json['telephoneParent'] as String? ??
-          json['telephone_parent'] as String? ??
-          '',
       taille: json['taille'] as int? ?? 0,
       email: json['email'] as String? ?? '',
       whatsapp: json['whatsapp'] as String? ?? '',
@@ -164,21 +209,48 @@ class Academicien {
       piedFort: json['piedFort'] as String? ?? json['pied_fort'] as String?,
       nomParent:
           json['nomParent'] as String? ?? json['nom_parent'] as String? ?? '',
+      prenomParent:
+          json['prenomParent'] as String? ??
+          json['prenom_parent'] as String? ??
+          '',
       fonctionParent:
           json['fonctionParent'] as String? ??
           json['fonction_parent'] as String? ??
           '',
-      emailParent:
-          json['emailParent'] as String? ??
-          json['email_parent'] as String? ??
-          '',
-      adresseParent:
-          json['adresseParent'] as String? ??
-          json['adresse_parent'] as String? ??
+      telephoneParent:
+          json['telephoneParent'] as String? ??
+          json['telephone_parent'] as String? ??
           '',
       photoParentUrl:
           json['photoParentUrl'] as String? ??
           json['photo_parent_url'] as String?,
+      nomTuteur:
+          json['nomTuteur'] as String? ?? json['nom_tuteur'] as String? ?? '',
+      prenomTuteur:
+          json['prenomTuteur'] as String? ??
+          json['prenom_tuteur'] as String? ??
+          '',
+      fonctionTuteur:
+          json['fonctionTuteur'] as String? ??
+          json['fonction_tuteur'] as String? ??
+          '',
+      telephoneTuteur:
+          json['telephoneTuteur'] as String? ??
+          json['telephone_tuteur'] as String? ??
+          '',
+      photoTuteurUrl:
+          json['photoTuteurUrl'] as String? ??
+          json['photo_tuteur_url'] as String?,
+      garantType:
+          json['garantType'] as String? ?? json['garant_type'] as String?,
+      emailGarant:
+          json['emailGarant'] as String? ??
+          json['email_garant'] as String? ??
+          '',
+      adresseGarant:
+          json['adresseGarant'] as String? ??
+          json['adresse_garant'] as String? ??
+          '',
       atouts: json['atouts'] as String?,
       faiblesses: json['faiblesses'] as String?,
       descriptionPerformances:

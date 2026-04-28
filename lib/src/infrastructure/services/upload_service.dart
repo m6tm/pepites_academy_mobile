@@ -4,7 +4,13 @@ import 'dart:io';
 import 'package:pepites_academy_mobile/src/infrastructure/network/dio_client.dart';
 
 /// Type d'image a uploader.
-enum UploadType { portrait, photoParent, signatureAcademicien, signatureParent }
+enum UploadType {
+  portrait,
+  photoParent,
+  photoTuteur,
+  signatureAcademicien,
+  signatureParent,
+}
 
 /// Resultat d'un upload.
 class UploadResult {
@@ -93,6 +99,8 @@ class UploadService {
         return 'portrait';
       case UploadType.photoParent:
         return 'photo_parent';
+      case UploadType.photoTuteur:
+        return 'photo_tuteur';
       case UploadType.signatureAcademicien:
         return 'signature_academicien';
       case UploadType.signatureParent:

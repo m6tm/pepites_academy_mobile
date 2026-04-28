@@ -168,10 +168,6 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
           (map['telephone_eleve'] as String?) ??
           (map['telephoneEleve'] as String?) ??
           '',
-      telephoneParent:
-          (map['telephone_parent'] as String?) ??
-          (map['telephoneParent'] as String?) ??
-          '',
       taille: map['taille'] as int? ?? 0,
       email: map['email'] as String? ?? '',
       whatsapp: map['whatsapp'] as String? ?? '',
@@ -192,17 +188,44 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
       piedFort: (map['pied_fort'] as String?) ?? (map['piedFort'] as String?),
       nomParent:
           (map['nom_parent'] as String?) ?? (map['nomParent'] as String?) ?? '',
+      prenomParent:
+          (map['prenom_parent'] as String?) ??
+          (map['prenomParent'] as String?) ??
+          '',
       fonctionParent:
           (map['fonction_parent'] as String?) ??
           (map['fonctionParent'] as String?) ??
           '',
-      emailParent:
-          (map['email_parent'] as String?) ??
-          (map['emailParent'] as String?) ??
+      telephoneParent:
+          (map['telephone_parent'] as String?) ??
+          (map['telephoneParent'] as String?) ??
           '',
-      adresseParent:
-          (map['adresse_parent'] as String?) ??
-          (map['adresseParent'] as String?) ??
+      nomTuteur:
+          (map['nom_tuteur'] as String?) ?? (map['nomTuteur'] as String?) ?? '',
+      prenomTuteur:
+          (map['prenom_tuteur'] as String?) ??
+          (map['prenomTuteur'] as String?) ??
+          '',
+      fonctionTuteur:
+          (map['fonction_tuteur'] as String?) ??
+          (map['fonctionTuteur'] as String?) ??
+          '',
+      telephoneTuteur:
+          (map['telephone_tuteur'] as String?) ??
+          (map['telephoneTuteur'] as String?) ??
+          '',
+      photoTuteurUrl:
+          (map['photo_tuteur_url'] as String?) ??
+          (map['photoTuteurUrl'] as String?),
+      garantType:
+          (map['garant_type'] as String?) ?? (map['garantType'] as String?),
+      emailGarant:
+          (map['email_garant'] as String?) ??
+          (map['emailGarant'] as String?) ??
+          '',
+      adresseGarant:
+          (map['adresse_garant'] as String?) ??
+          (map['adresseGarant'] as String?) ??
           '',
       atouts: map['atouts'] as String?,
       faiblesses: map['faiblesses'] as String?,

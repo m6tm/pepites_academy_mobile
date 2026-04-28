@@ -235,18 +235,18 @@ class RegistrationFormService {
       children: [
         _buildSimpleRow(
           'NOMS DU PÈRE OU DU TUTEUR LÉGAL',
-          academicien.nomParent,
+          academicien.nomCompletGarant,
           150,
         ),
         pw.Row(
           children: [
             pw.Text('N° TÉL', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(150, academicien.telephoneParent),
+            _buildUnderline(150, academicien.telephoneGarant),
             pw.SizedBox(width: 20),
             pw.Text('EMAIL', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(180, academicien.emailParent),
+            _buildUnderline(180, academicien.emailGarant),
           ],
         ),
         pw.SizedBox(height: 4),
@@ -254,11 +254,11 @@ class RegistrationFormService {
           children: [
             pw.Text('FONCTION', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(150, academicien.fonctionParent),
+            _buildUnderline(150, academicien.fonctionGarant),
             pw.SizedBox(width: 20),
             pw.Text('ADRESSE', style: const pw.TextStyle(fontSize: 8)),
             pw.SizedBox(width: 5),
-            _buildUnderline(180, academicien.adresseParent),
+            _buildUnderline(180, academicien.adresseGarant),
           ],
         ),
       ],

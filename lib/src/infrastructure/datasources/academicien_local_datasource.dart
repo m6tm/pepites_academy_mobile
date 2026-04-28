@@ -103,9 +103,16 @@ class AcademicienLocalDatasource {
       'codeQrUnique': a.codeQrUnique,
       'piedFort': a.piedFort,
       'nomParent': a.nomParent,
+      'prenomParent': a.prenomParent,
       'fonctionParent': a.fonctionParent,
-      'emailParent': a.emailParent,
-      'adresseParent': a.adresseParent,
+      'nomTuteur': a.nomTuteur,
+      'prenomTuteur': a.prenomTuteur,
+      'fonctionTuteur': a.fonctionTuteur,
+      'telephoneTuteur': a.telephoneTuteur,
+      'photoTuteurUrl': a.photoTuteurUrl,
+      'garantType': a.garantType,
+      'emailGarant': a.emailGarant,
+      'adresseGarant': a.adresseGarant,
       'atouts': a.atouts,
       'faiblesses': a.faiblesses,
       'descriptionPerformances': a.descriptionPerformances,
@@ -144,9 +151,16 @@ class AcademicienLocalDatasource {
       codeQrUnique: json['codeQrUnique'] as String? ?? '',
       piedFort: json['piedFort'] as String?,
       nomParent: json['nomParent'] as String? ?? '',
+      prenomParent: json['prenomParent'] as String? ?? '',
       fonctionParent: json['fonctionParent'] as String? ?? '',
-      emailParent: json['emailParent'] as String? ?? '',
-      adresseParent: json['adresseParent'] as String? ?? '',
+      nomTuteur: json['nomTuteur'] as String? ?? '',
+      prenomTuteur: json['prenomTuteur'] as String? ?? '',
+      fonctionTuteur: json['fonctionTuteur'] as String? ?? '',
+      telephoneTuteur: json['telephoneTuteur'] as String? ?? '',
+      photoTuteurUrl: json['photoTuteurUrl'] as String?,
+      garantType: json['garantType'] as String?,
+      emailGarant: json['emailGarant'] as String? ?? '',
+      adresseGarant: json['adresseGarant'] as String? ?? '',
       atouts: json['atouts'] as String?,
       faiblesses: json['faiblesses'] as String?,
       descriptionPerformances: json['descriptionPerformances'] as String?,
@@ -208,10 +222,6 @@ class AcademicienLocalDatasource {
                   map['telephone_eleve'] as String? ??
                   map['telephoneEleve'] as String? ??
                   '',
-              telephoneParent:
-                  map['telephone_parent'] as String? ??
-                  map['telephoneParent'] as String? ??
-                  '',
               taille: map['taille'] as int? ?? 0,
               email: map['email'] as String? ?? '',
               whatsapp: map['whatsapp'] as String? ?? '',
@@ -235,17 +245,47 @@ class AcademicienLocalDatasource {
                   map['nom_parent'] as String? ??
                   map['nomParent'] as String? ??
                   '',
+              prenomParent:
+                  map['prenom_parent'] as String? ??
+                  map['prenomParent'] as String? ??
+                  '',
               fonctionParent:
                   map['fonction_parent'] as String? ??
                   map['fonctionParent'] as String? ??
                   '',
-              emailParent:
-                  map['email_parent'] as String? ??
-                  map['emailParent'] as String? ??
+              telephoneParent:
+                  map['telephone_parent'] as String? ??
+                  map['telephoneParent'] as String? ??
                   '',
-              adresseParent:
-                  map['adresse_parent'] as String? ??
-                  map['adresseParent'] as String? ??
+              nomTuteur:
+                  map['nom_tuteur'] as String? ??
+                  map['nomTuteur'] as String? ??
+                  '',
+              prenomTuteur:
+                  map['prenom_tuteur'] as String? ??
+                  map['prenomTuteur'] as String? ??
+                  '',
+              fonctionTuteur:
+                  map['fonction_tuteur'] as String? ??
+                  map['fonctionTuteur'] as String? ??
+                  '',
+              telephoneTuteur:
+                  map['telephone_tuteur'] as String? ??
+                  map['telephoneTuteur'] as String? ??
+                  '',
+              photoTuteurUrl:
+                  map['photo_tuteur_url'] as String? ??
+                  map['photoTuteurUrl'] as String?,
+              garantType:
+                  map['garant_type'] as String? ??
+                  map['garantType'] as String?,
+              emailGarant:
+                  map['email_garant'] as String? ??
+                  map['emailGarant'] as String? ??
+                  '',
+              adresseGarant:
+                  map['adresse_garant'] as String? ??
+                  map['adresseGarant'] as String? ??
                   '',
               atouts: map['atouts'] as String?,
               faiblesses: map['faiblesses'] as String?,

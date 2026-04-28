@@ -55,6 +55,10 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   String? _photoParentUrl;
   bool _isUploadingPhotoParent = false;
   bool _hasPhotoParentUploadError = false;
+  File? _photoTuteurFile;
+  String? _photoTuteurUrl;
+  bool _isUploadingPhotoTuteur = false;
+  bool _hasPhotoTuteurUploadError = false;
   // Signatures
   File? _signatureAcademicienFile;
   String? _signatureAcademicienUrl;
@@ -78,7 +82,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
 
   // Data Controllers - Step 2 (Contact)
   final _telephoneEleveController = TextEditingController();
-  final _telephoneParentController = TextEditingController();
   final _tailleController = TextEditingController();
   final _emailController = TextEditingController();
   final _whatsappController = TextEditingController();
@@ -87,9 +90,16 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
 
   // Data Controllers - Step 3 (Parent/Tuteur)
   final _nomParentController = TextEditingController();
+  final _prenomParentController = TextEditingController();
   final _fonctionParentController = TextEditingController();
-  final _emailParentController = TextEditingController();
-  final _adresseParentController = TextEditingController();
+  final _telephoneParentController = TextEditingController();
+  final _nomTuteurController = TextEditingController();
+  final _prenomTuteurController = TextEditingController();
+  final _fonctionTuteurController = TextEditingController();
+  final _telephoneTuteurController = TextEditingController();
+  String? _garantType;
+  final _emailGarantController = TextEditingController();
+  final _adresseGarantController = TextEditingController();
 
   // Data - Step 4 (Football)
   String? _selectedPosteId;
@@ -130,16 +140,22 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     _nationaliteController.text = a.nationalite;
     _selectedSexe = a.sexe;
     _telephoneEleveController.text = a.telephoneEleve;
-    _telephoneParentController.text = a.telephoneParent;
     _tailleController.text = a.taille.toString();
     _emailController.text = a.email;
     _whatsappController.text = a.whatsapp;
     _twitterController.text = a.twitter ?? '';
     _facebookController.text = a.facebook ?? '';
     _nomParentController.text = a.nomParent;
+    _prenomParentController.text = a.prenomParent;
     _fonctionParentController.text = a.fonctionParent;
-    _emailParentController.text = a.emailParent;
-    _adresseParentController.text = a.adresseParent;
+    _telephoneParentController.text = a.telephoneParent;
+    _nomTuteurController.text = a.nomTuteur;
+    _prenomTuteurController.text = a.prenomTuteur;
+    _fonctionTuteurController.text = a.fonctionTuteur;
+    _telephoneTuteurController.text = a.telephoneTuteur;
+    _garantType = a.garantType;
+    _emailGarantController.text = a.emailGarant;
+    _adresseGarantController.text = a.adresseGarant;
     _selectedPosteId = a.posteFootballId;
     _selectedPiedFort = a.piedFort;
     _selectedNiveauId = a.niveauScolaireId;
@@ -158,6 +174,11 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         a.photoParentUrl!.isNotEmpty &&
         File(a.photoParentUrl!).existsSync()) {
       _photoParentFile = File(a.photoParentUrl!);
+    }
+    if (a.photoTuteurUrl != null &&
+        a.photoTuteurUrl!.isNotEmpty &&
+        File(a.photoTuteurUrl!).existsSync()) {
+      _photoTuteurFile = File(a.photoTuteurUrl!);
     }
     // Charger les signatures existantes (URLs serveur)
     if (a.signatureAcademicienUrl != null &&
@@ -190,16 +211,21 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     _lieuNaissanceController.dispose();
     _nationaliteController.dispose();
     _telephoneEleveController.dispose();
-    _telephoneParentController.dispose();
     _tailleController.dispose();
     _emailController.dispose();
     _whatsappController.dispose();
     _twitterController.dispose();
     _facebookController.dispose();
     _nomParentController.dispose();
+    _prenomParentController.dispose();
     _fonctionParentController.dispose();
-    _emailParentController.dispose();
-    _adresseParentController.dispose();
+    _telephoneParentController.dispose();
+    _nomTuteurController.dispose();
+    _prenomTuteurController.dispose();
+    _fonctionTuteurController.dispose();
+    _telephoneTuteurController.dispose();
+    _emailGarantController.dispose();
+    _adresseGarantController.dispose();
     _atoutsController.dispose();
     _faiblessesController.dispose();
     _allergieDetailsController.dispose();
@@ -234,6 +260,15 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
       isValid = _step2Key.currentState!.validate();
     } else if (_currentStep == 2) {
       isValid = _step3Key.currentState!.validate();
+      if (isValid && _garantType == null) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.guarantorRequiredError,
+          isError: true,
+        );
+        isValid = false;
+      }
     } else if (_currentStep == 3) {
       if (_selectedPosteId == null) {
         AcademyToast.show(
@@ -306,7 +341,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         sexe: _selectedSexe ?? '',
         photoUrl: _photoUrl ?? _photoFile?.path ?? current.photoUrl,
         telephoneEleve: _telephoneEleveController.text.trim(),
-        telephoneParent: _telephoneParentController.text.trim(),
         taille: int.tryParse(_tailleController.text.trim()) ?? 0,
         email: _emailController.text.trim(),
         whatsapp: _whatsappController.text.trim(),
@@ -321,9 +355,18 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         codeQrUnique: current.codeQrUnique,
         piedFort: _selectedPiedFort,
         nomParent: _nomParentController.text.trim(),
+        prenomParent: _prenomParentController.text.trim(),
         fonctionParent: _fonctionParentController.text.trim(),
-        emailParent: _emailParentController.text.trim(),
-        adresseParent: _adresseParentController.text.trim(),
+        telephoneParent: _telephoneParentController.text.trim(),
+        nomTuteur: _nomTuteurController.text.trim(),
+        prenomTuteur: _prenomTuteurController.text.trim(),
+        fonctionTuteur: _fonctionTuteurController.text.trim(),
+        telephoneTuteur: _telephoneTuteurController.text.trim(),
+        photoTuteurUrl:
+            _photoTuteurUrl ?? _photoTuteurFile?.path ?? current.photoTuteurUrl,
+        garantType: _garantType,
+        emailGarant: _emailGarantController.text.trim(),
+        adresseGarant: _adresseGarantController.text.trim(),
         atouts: _atoutsController.text.trim().isNotEmpty
             ? _atoutsController.text.trim()
             : null,
@@ -410,7 +453,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
               maxHeight: 1024,
             );
             if (compressedFile != null) {
-              await _uploadPhoto(compressedFile, isParent: false);
+              await _uploadPhoto(compressedFile);
             }
           }
         }
@@ -428,22 +471,27 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     }
   }
 
-  Future<void> _pickParentImage() async {
+  Future<void> _pickParentImage() => _pickPersonImage(_PhotoTarget.parent);
+
+  Future<void> _pickTuteurImage() => _pickPersonImage(_PhotoTarget.tuteur);
+
+  Future<void> _pickPersonImage(_PhotoTarget target) async {
     try {
       final pickedFile = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 100, // Qualite max, la compression se fait apres
+        imageQuality: 100,
       );
       if (pickedFile != null) {
         if (mounted) {
           final croppedFile = await ImageCropperHelper.cropImage(
             imageFile: File(pickedFile.path),
             context: context,
-            title: "Photo du parent/tuteur",
+            title: target == _PhotoTarget.parent
+                ? 'Photo du parent'
+                : 'Photo du tuteur',
           );
 
           if (croppedFile != null) {
-            // Compresser l'image avant de la stocker
             final compressedFile = await ImageCompressor.compress(
               imageFile: croppedFile,
               quality: 85,
@@ -451,13 +499,13 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
               maxHeight: 1024,
             );
             if (compressedFile != null) {
-              await _uploadPhoto(compressedFile, isParent: true);
+              await _uploadPhoto(compressedFile, target: target);
             }
           }
         }
       }
     } catch (e) {
-      debugPrint('Erreur selection image parent: $e');
+      debugPrint('Erreur selection image $target: $e');
       if (mounted) {
         AcademyToast.show(
           context,
@@ -470,34 +518,35 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   }
 
   /// Upload une photo avec gestion d'erreur
-  Future<void> _uploadPhoto(File file, {required bool isParent}) async {
+  Future<void> _uploadPhoto(File file, {_PhotoTarget? target}) async {
+    final isAcademicien = target == null;
+    final isTuteur = target == _PhotoTarget.tuteur;
     setState(() {
-      if (isParent) {
-        _isUploadingPhotoParent = true;
-        _hasPhotoParentUploadError = false;
-      } else {
+      if (isAcademicien) {
         _isUploadingPhoto = true;
         _hasPhotoUploadError = false;
+      } else if (isTuteur) {
+        _isUploadingPhotoTuteur = true;
+        _hasPhotoTuteurUploadError = false;
+      } else {
+        _isUploadingPhotoParent = true;
+        _hasPhotoParentUploadError = false;
       }
     });
 
     try {
+      final uploadType = isAcademicien
+          ? UploadType.portrait
+          : isTuteur
+          ? UploadType.photoTuteur
+          : UploadType.photoParent;
       final result = await DependencyInjection.uploadService.uploadImage(
         file,
-        isParent ? UploadType.photoParent : UploadType.portrait,
+        uploadType,
       );
       if (mounted) {
         setState(() {
-          if (isParent) {
-            _isUploadingPhotoParent = false;
-            _photoParentFile = file;
-            if (result.success && result.url != null) {
-              _photoParentUrl = result.url;
-              _hasPhotoParentUploadError = false;
-            } else {
-              _hasPhotoParentUploadError = true;
-            }
-          } else {
+          if (isAcademicien) {
             _isUploadingPhoto = false;
             _photoFile = file;
             if (result.success && result.url != null) {
@@ -506,6 +555,24 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             } else {
               _hasPhotoUploadError = true;
             }
+          } else if (isTuteur) {
+            _isUploadingPhotoTuteur = false;
+            _photoTuteurFile = file;
+            if (result.success && result.url != null) {
+              _photoTuteurUrl = result.url;
+              _hasPhotoTuteurUploadError = false;
+            } else {
+              _hasPhotoTuteurUploadError = true;
+            }
+          } else {
+            _isUploadingPhotoParent = false;
+            _photoParentFile = file;
+            if (result.success && result.url != null) {
+              _photoParentUrl = result.url;
+              _hasPhotoParentUploadError = false;
+            } else {
+              _hasPhotoParentUploadError = true;
+            }
           }
         });
       }
@@ -513,14 +580,18 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
       debugPrint('Erreur upload photo: $e');
       if (mounted) {
         setState(() {
-          if (isParent) {
-            _isUploadingPhotoParent = false;
-            _photoParentFile = file;
-            _hasPhotoParentUploadError = true;
-          } else {
+          if (isAcademicien) {
             _isUploadingPhoto = false;
             _photoFile = file;
             _hasPhotoUploadError = true;
+          } else if (isTuteur) {
+            _isUploadingPhotoTuteur = false;
+            _photoTuteurFile = file;
+            _hasPhotoTuteurUploadError = true;
+          } else {
+            _isUploadingPhotoParent = false;
+            _photoParentFile = file;
+            _hasPhotoParentUploadError = true;
           }
         });
       }
@@ -530,13 +601,19 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   /// Retry l'upload de la photo academicien
   Future<void> _retryPhotoUpload() async {
     if (_photoFile == null) return;
-    await _uploadPhoto(_photoFile!, isParent: false);
+    await _uploadPhoto(_photoFile!);
   }
 
   /// Retry l'upload de la photo parent
   Future<void> _retryPhotoParentUpload() async {
     if (_photoParentFile == null) return;
-    await _uploadPhoto(_photoParentFile!, isParent: true);
+    await _uploadPhoto(_photoParentFile!, target: _PhotoTarget.parent);
+  }
+
+  /// Retry l'upload de la photo tuteur
+  Future<void> _retryPhotoTuteurUpload() async {
+    if (_photoTuteurFile == null) return;
+    await _uploadPhoto(_photoTuteurFile!, target: _PhotoTarget.tuteur);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -966,10 +1043,34 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     );
   }
 
-  Widget _buildPhotoParentPicker(bool isDark) {
+  Widget _buildPhotoParentPicker(bool isDark) =>
+      _buildPersonPhotoPicker(isDark, target: _PhotoTarget.parent);
+
+  Widget _buildPhotoTuteurPicker(bool isDark) =>
+      _buildPersonPhotoPicker(isDark, target: _PhotoTarget.tuteur);
+
+  Widget _buildPersonPhotoPicker(
+    bool isDark, {
+    required _PhotoTarget target,
+  }) {
     final baseColor = isDark ? Colors.white : AppColors.textMainLight;
+    final isParent = target == _PhotoTarget.parent;
+    final file = isParent ? _photoParentFile : _photoTuteurFile;
+    final existingUrl = isParent
+        ? widget.academicien.photoParentUrl
+        : widget.academicien.photoTuteurUrl;
+    final isUploading = isParent
+        ? _isUploadingPhotoParent
+        : _isUploadingPhotoTuteur;
+    final hasError = isParent
+        ? _hasPhotoParentUploadError
+        : _hasPhotoTuteurUploadError;
+    final retry = isParent ? _retryPhotoParentUpload : _retryPhotoTuteurUpload;
+    final onPick = isParent ? _pickParentImage : _pickTuteurImage;
+    final label = isParent ? l10n.parentPhotoLabel : l10n.tuteurPhotoLabel;
+
     return GestureDetector(
-      onTap: _pickParentImage,
+      onTap: onPick,
       child: Column(
         children: [
           Stack(
@@ -998,7 +1099,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(57),
-                      child: _isUploadingPhotoParent
+                      child: isUploading
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1022,8 +1123,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                                 ],
                               ),
                             )
-                          : _hasPhotoParentUploadError &&
-                                _photoParentFile != null
+                          : hasError && file != null
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -1034,7 +1134,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                                 ),
                                 const SizedBox(height: 4),
                                 TextButton(
-                                  onPressed: _retryPhotoParentUpload,
+                                  onPressed: retry,
                                   child: Text(
                                     'Reessayer',
                                     style: GoogleFonts.montserrat(
@@ -1045,8 +1145,18 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                                 ),
                               ],
                             )
-                          : _photoParentFile != null
-                          ? Image.file(_photoParentFile!, fit: BoxFit.cover)
+                          : file != null
+                          ? Image.file(file, fit: BoxFit.cover)
+                          : (existingUrl != null && existingUrl.isNotEmpty)
+                          ? Image.network(
+                              existingUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Icon(
+                                Icons.person_outline_rounded,
+                                size: 50,
+                                color: AppColors.primary.withValues(alpha: 0.4),
+                              ),
+                            )
                           : Icon(
                               Icons.person_outline_rounded,
                               size: 50,
@@ -1060,7 +1170,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                 bottom: 0,
                 right: 0,
                 child: GestureDetector(
-                  onTap: _pickParentImage,
+                  onTap: onPick,
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -1086,7 +1196,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           ),
           const SizedBox(height: 12),
           Text(
-            l10n.parentPhotoLabel,
+            label,
             style: GoogleFonts.montserrat(
               color: isDark
                   ? AppColors.textMutedDark
@@ -1235,16 +1345,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             ),
             const SizedBox(height: 20),
             _buildTextField(
-              controller: _telephoneParentController,
-              label: l10n.parentPhoneLabel,
-              hint: l10n.phoneHint,
-              icon: Icons.phone_android_outlined,
-              keyboardType: TextInputType.phone,
-              validator: (v) =>
-                  v == null || v.isEmpty ? l10n.requiredField : null,
-            ),
-            const SizedBox(height: 20),
-            _buildTextField(
               controller: _tailleController,
               label: l10n.heightLabel,
               hint: l10n.heightHint,
@@ -1295,6 +1395,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
 
   // --- Step 3: Parent/Tuteur ---
   Widget _buildStep3(ThemeData theme, ColorScheme colorScheme) {
+    final isDark = theme.brightness == Brightness.dark;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -1304,12 +1405,23 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           children: [
             _buildSectionHeader(l10n.parentInfoLabel, l10n.parentInfoSubtitle),
             const SizedBox(height: 32),
-            _buildPhotoParentPicker(theme.brightness == Brightness.dark),
-            const SizedBox(height: 32),
+
+            // --- Section Parent ---
+            _buildSubSectionHeader(l10n.parentSectionTitle, colorScheme),
+            const SizedBox(height: 20),
+            _buildPhotoParentPicker(isDark),
+            const SizedBox(height: 20),
             _buildTextField(
               controller: _nomParentController,
-              label: l10n.parentNameLabel,
-              hint: l10n.parentNameHint,
+              label: l10n.parentLastNameLabel,
+              hint: l10n.parentLastNameHint,
+              icon: Icons.person_outline,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _prenomParentController,
+              label: l10n.parentFirstNameLabel,
+              hint: l10n.parentFirstNameHint,
               icon: Icons.person_outline,
             ),
             const SizedBox(height: 20),
@@ -1321,22 +1433,150 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             ),
             const SizedBox(height: 20),
             _buildTextField(
-              controller: _emailParentController,
-              label: l10n.parentEmailLabel,
+              controller: _telephoneParentController,
+              label: l10n.parentPhoneLabel,
+              hint: l10n.phoneHint,
+              icon: Icons.phone_android_outlined,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 32),
+
+            // --- Section Tuteur ---
+            _buildSubSectionHeader(l10n.tuteurSectionTitle, colorScheme),
+            const SizedBox(height: 20),
+            _buildPhotoTuteurPicker(isDark),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _nomTuteurController,
+              label: l10n.tuteurLastNameLabel,
+              hint: l10n.tuteurLastNameHint,
+              icon: Icons.person_outline,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _prenomTuteurController,
+              label: l10n.tuteurFirstNameLabel,
+              hint: l10n.tuteurFirstNameHint,
+              icon: Icons.person_outline,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _fonctionTuteurController,
+              label: l10n.tuteurFunctionLabel,
+              hint: l10n.tuteurFunctionHint,
+              icon: Icons.work_outline,
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _telephoneTuteurController,
+              label: l10n.tuteurPhoneLabel,
+              hint: l10n.phoneHint,
+              icon: Icons.phone_android_outlined,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 32),
+
+            // --- Section Garant ---
+            _buildSubSectionHeader(
+              l10n.guarantorSectionTitle,
+              colorScheme,
+              subtitle: l10n.guarantorSectionSubtitle,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.guarantorTypeLabel,
+              style: GoogleFonts.montserrat(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildChoiceChip(
+                  label: l10n.guarantorParentOption,
+                  icon: Icons.family_restroom_outlined,
+                  isSelected: _garantType == 'parent',
+                  onSelected: (s) =>
+                      setState(() => _garantType = s ? 'parent' : null),
+                  colorScheme: colorScheme,
+                ),
+                const SizedBox(width: 12),
+                _buildChoiceChip(
+                  label: l10n.guarantorTuteurOption,
+                  icon: Icons.shield_outlined,
+                  isSelected: _garantType == 'tuteur',
+                  onSelected: (s) =>
+                      setState(() => _garantType = s ? 'tuteur' : null),
+                  colorScheme: colorScheme,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              controller: _emailGarantController,
+              label: l10n.guarantorEmailLabel,
               hint: l10n.emailHint,
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 20),
             _buildTextField(
-              controller: _adresseParentController,
-              label: l10n.parentAddressLabel,
-              hint: l10n.parentAddressHint,
+              controller: _adresseGarantController,
+              label: l10n.guarantorAddressLabel,
+              hint: l10n.guarantorAddressHint,
               icon: Icons.home_outlined,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSubSectionHeader(
+    String title,
+    ColorScheme colorScheme, {
+    String? subtitle,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 20,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              title,
+              style: GoogleFonts.montserrat(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 14),
+            child: Text(
+              subtitle,
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -2288,3 +2528,5 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     );
   }
 }
+
+enum _PhotoTarget { parent, tuteur }

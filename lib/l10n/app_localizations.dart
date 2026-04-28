@@ -5723,8 +5723,92 @@ abstract class AppLocalizations {
   /// No description provided for @parentInfoSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Informations du parent ou tuteur'**
+  /// **'Informations du parent et du tuteur'**
   String get parentInfoSubtitle;
+
+  /// No description provided for @parentSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parent'**
+  String get parentSectionTitle;
+
+  /// No description provided for @tuteurSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tuteur (optionnel)'**
+  String get tuteurSectionTitle;
+
+  /// No description provided for @parentLastNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du parent'**
+  String get parentLastNameLabel;
+
+  /// No description provided for @parentLastNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du parent'**
+  String get parentLastNameHint;
+
+  /// No description provided for @parentFirstNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prenom du parent'**
+  String get parentFirstNameLabel;
+
+  /// No description provided for @parentFirstNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prenom du parent'**
+  String get parentFirstNameHint;
+
+  /// No description provided for @tuteurLastNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du tuteur'**
+  String get tuteurLastNameLabel;
+
+  /// No description provided for @tuteurLastNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du tuteur'**
+  String get tuteurLastNameHint;
+
+  /// No description provided for @tuteurFirstNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prenom du tuteur'**
+  String get tuteurFirstNameLabel;
+
+  /// No description provided for @tuteurFirstNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prenom du tuteur'**
+  String get tuteurFirstNameHint;
+
+  /// No description provided for @tuteurFunctionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonction du tuteur'**
+  String get tuteurFunctionLabel;
+
+  /// No description provided for @tuteurFunctionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profession ou occupation'**
+  String get tuteurFunctionHint;
+
+  /// No description provided for @tuteurPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Telephone du tuteur'**
+  String get tuteurPhoneLabel;
+
+  /// No description provided for @tuteurPhotoLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du tuteur'**
+  String get tuteurPhotoLabel;
 
   /// No description provided for @parentNameLabel.
   ///
@@ -5741,7 +5825,7 @@ abstract class AppLocalizations {
   /// No description provided for @parentFunctionLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Fonction'**
+  /// **'Fonction du parent'**
   String get parentFunctionLabel;
 
   /// No description provided for @parentFunctionHint.
@@ -5767,6 +5851,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Adresse complete'**
   String get parentAddressHint;
+
+  /// No description provided for @guarantorSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garant designe'**
+  String get guarantorSectionTitle;
+
+  /// No description provided for @guarantorSectionSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personne designee comme garant de l\'academicien'**
+  String get guarantorSectionSubtitle;
+
+  /// No description provided for @guarantorTypeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui est le garant ?'**
+  String get guarantorTypeLabel;
+
+  /// No description provided for @guarantorParentOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parent'**
+  String get guarantorParentOption;
+
+  /// No description provided for @guarantorTuteurOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tuteur'**
+  String get guarantorTuteurOption;
+
+  /// No description provided for @guarantorEmailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email du garant'**
+  String get guarantorEmailLabel;
+
+  /// No description provided for @guarantorAddressLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse de residence du garant'**
+  String get guarantorAddressLabel;
+
+  /// No description provided for @guarantorAddressHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse complete'**
+  String get guarantorAddressHint;
+
+  /// No description provided for @guarantorRequiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez designer un garant'**
+  String get guarantorRequiredError;
 
   /// No description provided for @strengthsLabel.
   ///

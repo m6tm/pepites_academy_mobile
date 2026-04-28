@@ -3168,7 +3168,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get parentInfoLabel => 'Parent / Guardian';
 
   @override
-  String get parentInfoSubtitle => 'Parent or guardian information';
+  String get parentInfoSubtitle => 'Parent and guardian information';
+
+  @override
+  String get parentSectionTitle => 'Parent';
+
+  @override
+  String get tuteurSectionTitle => 'Guardian (optional)';
+
+  @override
+  String get parentLastNameLabel => 'Parent last name';
+
+  @override
+  String get parentLastNameHint => 'Parent last name';
+
+  @override
+  String get parentFirstNameLabel => 'Parent first name';
+
+  @override
+  String get parentFirstNameHint => 'Parent first name';
+
+  @override
+  String get tuteurLastNameLabel => 'Guardian last name';
+
+  @override
+  String get tuteurLastNameHint => 'Guardian last name';
+
+  @override
+  String get tuteurFirstNameLabel => 'Guardian first name';
+
+  @override
+  String get tuteurFirstNameHint => 'Guardian first name';
+
+  @override
+  String get tuteurFunctionLabel => 'Guardian occupation';
+
+  @override
+  String get tuteurFunctionHint => 'Profession or occupation';
+
+  @override
+  String get tuteurPhoneLabel => 'Guardian phone';
+
+  @override
+  String get tuteurPhotoLabel => 'Guardian photo';
 
   @override
   String get parentNameLabel => 'Parent name';
@@ -3177,7 +3219,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get parentNameHint => 'Parent full name';
 
   @override
-  String get parentFunctionLabel => 'Occupation';
+  String get parentFunctionLabel => 'Parent occupation';
 
   @override
   String get parentFunctionHint => 'Profession or occupation';
@@ -3190,6 +3232,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get parentAddressHint => 'Full address';
+
+  @override
+  String get guarantorSectionTitle => 'Designated guarantor';
+
+  @override
+  String get guarantorSectionSubtitle =>
+      'Person designated as the academician\'s guarantor';
+
+  @override
+  String get guarantorTypeLabel => 'Who is the guarantor?';
+
+  @override
+  String get guarantorParentOption => 'Parent';
+
+  @override
+  String get guarantorTuteurOption => 'Guardian';
+
+  @override
+  String get guarantorEmailLabel => 'Guarantor email';
+
+  @override
+  String get guarantorAddressLabel => 'Guarantor residence address';
+
+  @override
+  String get guarantorAddressHint => 'Full address';
+
+  @override
+  String get guarantorRequiredError => 'Please designate a guarantor';
 
   @override
   String get strengthsLabel => 'Strengths';

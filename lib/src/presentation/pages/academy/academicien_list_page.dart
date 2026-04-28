@@ -147,17 +147,40 @@ class AcademicienListPageState extends State<AcademicienListPage> {
         piedFort: json['piedFort'] as String? ?? json['pied_fort'] as String?,
         nomParent:
             json['nomParent'] as String? ?? json['nom_parent'] as String? ?? '',
+        prenomParent:
+            json['prenomParent'] as String? ??
+            json['prenom_parent'] as String? ??
+            '',
         fonctionParent:
             json['fonctionParent'] as String? ??
             json['fonction_parent'] as String? ??
             '',
-        emailParent:
-            json['emailParent'] as String? ??
-            json['email_parent'] as String? ??
+        nomTuteur:
+            json['nomTuteur'] as String? ?? json['nom_tuteur'] as String? ?? '',
+        prenomTuteur:
+            json['prenomTuteur'] as String? ??
+            json['prenom_tuteur'] as String? ??
             '',
-        adresseParent:
-            json['adresseParent'] as String? ??
-            json['adresse_parent'] as String? ??
+        fonctionTuteur:
+            json['fonctionTuteur'] as String? ??
+            json['fonction_tuteur'] as String? ??
+            '',
+        telephoneTuteur:
+            json['telephoneTuteur'] as String? ??
+            json['telephone_tuteur'] as String? ??
+            '',
+        photoTuteurUrl:
+            json['photoTuteurUrl'] as String? ??
+            json['photo_tuteur_url'] as String?,
+        garantType:
+            json['garantType'] as String? ?? json['garant_type'] as String?,
+        emailGarant:
+            json['emailGarant'] as String? ??
+            json['email_garant'] as String? ??
+            '',
+        adresseGarant:
+            json['adresseGarant'] as String? ??
+            json['adresse_garant'] as String? ??
             '',
         atouts: json['atouts'] as String?,
         faiblesses: json['faiblesses'] as String?,
