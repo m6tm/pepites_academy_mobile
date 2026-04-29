@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../state/connectivity_state.dart';
 import '../../injection_container.dart';
 import '../../../l10n/app_localizations.dart';
 

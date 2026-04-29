@@ -252,6 +252,21 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
       photoParentUrl:
           (map['photo_parent_url'] as String?) ??
           (map['photoParentUrl'] as String?),
+      etablissementScolaire:
+          (map['etablissement_scolaire'] as String?) ??
+          (map['etablissementScolaire'] as String?),
+      anneeScolaireActuelle:
+          (map['annee_scolaire_actuelle'] as String?) ??
+          (map['anneeScolaireActuelle'] as String?),
+      classeActuelle:
+          (map['classe_actuelle'] as String?) ??
+          (map['classeActuelle'] as String?),
+      remarquesScolaires:
+          (map['remarques_scolaires'] as String?) ??
+          (map['remarquesScolaires'] as String?),
+      certificatMedicalUrl:
+          (map['certificat_medical_url'] as String?) ??
+          (map['certificatMedicalUrl'] as String?),
     );
   }
 }

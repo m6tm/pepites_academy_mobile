@@ -1400,6 +1400,106 @@ class AppLocalizationsEn extends AppLocalizations {
       'This information allows filtering SMS communications and adapting reports.';
 
   @override
+  String get schoolEstablishmentLabel => 'School name';
+
+  @override
+  String get schoolEstablishmentHint => 'Ex: Saint-Louis College';
+
+  @override
+  String get schoolCurrentYearLabel => 'Year';
+
+  @override
+  String get schoolCurrentYearHint => 'Ex: 2025-2026';
+
+  @override
+  String get schoolCurrentClassLabel => 'Class';
+
+  @override
+  String get schoolCurrentClassHint => 'Ex: Grade 9, 12th';
+
+  @override
+  String get schoolRemarksLabel => 'Other remarks';
+
+  @override
+  String get schoolRemarksHint => 'Additional remarks about schooling';
+
+  @override
+  String get medicalCertificateLabel => 'Medical / fitness certificate';
+
+  @override
+  String get medicalCertificateHint => 'Import a PDF or an image';
+
+  @override
+  String get medicalCertificateImport => 'Import certificate';
+
+  @override
+  String get medicalCertificateReplace => 'Replace';
+
+  @override
+  String get medicalCertificateImported => 'Certificate imported';
+
+  @override
+  String get medicalCertificatePickError => 'Cannot open file picker';
+
+  @override
+  String get medicalCertificateUploadError => 'Certificate upload failed';
+
+  @override
+  String get schoolFieldsRequiredError =>
+      'Please fill in school name, year and class';
+
+  @override
+  String get academicianPhotoTitle => 'Academician photo';
+
+  @override
+  String get parentPhotoTitle => 'Parent photo';
+
+  @override
+  String get tuteurPhotoTitle => 'Guardian photo';
+
+  @override
+  String get yesLabel => 'Yes';
+
+  @override
+  String get noLabel => 'No';
+
+  @override
+  String get uploadingLabel => 'Uploading...';
+
+  @override
+  String get skinProblemQuestion => 'Does the academician have skin problems?';
+
+  @override
+  String get allergyQuestion => 'Is he/she allergic to a substance or food?';
+
+  @override
+  String get allergyDetailsLabel => 'If yes, to which substance or food?';
+
+  @override
+  String get allergyDetailsHint => 'Describe the allergy if needed';
+
+  @override
+  String get teamworkQuestion => 'Does he/she enjoy group work?';
+
+  @override
+  String get historyEtablissementLabel => 'School';
+
+  @override
+  String get historyEtablissementHint => 'Name of the school';
+
+  @override
+  String get historyAnneeScolaireLabel => 'School year';
+
+  @override
+  String get historyAnneeScolaireHint => 'Ex: 2024-2025';
+
+  @override
+  String get historyClasseLabel => 'Class';
+
+  @override
+  String get historyClasseHint => 'Ex: Grade 9, 12th';
+
+  @override
   String get bulletinTitle => 'Training Bulletin';
 
   @override

@@ -1407,6 +1407,110 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ces informations permettent de filtrer les communications SMS et d\'adapter les rapports.';
 
   @override
+  String get schoolEstablishmentLabel => 'Nom de l\'établissement';
+
+  @override
+  String get schoolEstablishmentHint => 'Ex: Collège Saint-Louis';
+
+  @override
+  String get schoolCurrentYearLabel => 'Année';
+
+  @override
+  String get schoolCurrentYearHint => 'Ex: 2025-2026';
+
+  @override
+  String get schoolCurrentClassLabel => 'Classe';
+
+  @override
+  String get schoolCurrentClassHint => 'Ex: 3ème, Terminale S';
+
+  @override
+  String get schoolRemarksLabel => 'Autres remarques';
+
+  @override
+  String get schoolRemarksHint => 'Remarques additionnelles sur la scolarité';
+
+  @override
+  String get medicalCertificateLabel => 'Certificat d\'aptitude / médical';
+
+  @override
+  String get medicalCertificateHint => 'Importez un PDF ou une image';
+
+  @override
+  String get medicalCertificateImport => 'Importer le certificat';
+
+  @override
+  String get medicalCertificateReplace => 'Remplacer';
+
+  @override
+  String get medicalCertificateImported => 'Certificat importé';
+
+  @override
+  String get medicalCertificatePickError =>
+      'Impossible d\'ouvrir le sélecteur de fichier';
+
+  @override
+  String get medicalCertificateUploadError =>
+      'Échec de l\'upload du certificat';
+
+  @override
+  String get schoolFieldsRequiredError =>
+      'Veuillez renseigner l\'établissement, l\'année et la classe';
+
+  @override
+  String get academicianPhotoTitle => 'Photo de l\'académicien';
+
+  @override
+  String get parentPhotoTitle => 'Photo du parent';
+
+  @override
+  String get tuteurPhotoTitle => 'Photo du tuteur';
+
+  @override
+  String get yesLabel => 'Oui';
+
+  @override
+  String get noLabel => 'Non';
+
+  @override
+  String get uploadingLabel => 'Upload...';
+
+  @override
+  String get skinProblemQuestion =>
+      'L\'académicien a-t-il des problèmes de peau ?';
+
+  @override
+  String get allergyQuestion =>
+      'Est-il allergique à une substance ou aliment ?';
+
+  @override
+  String get allergyDetailsLabel => 'Si oui, à quelle substance ou aliment ?';
+
+  @override
+  String get allergyDetailsHint => 'Détaillez l\'allergie si nécessaire';
+
+  @override
+  String get teamworkQuestion => 'Aime-t-il le travail de groupe ?';
+
+  @override
+  String get historyEtablissementLabel => 'Etablissement';
+
+  @override
+  String get historyEtablissementHint => 'Nom de l\'établissement';
+
+  @override
+  String get historyAnneeScolaireLabel => 'Année scolaire';
+
+  @override
+  String get historyAnneeScolaireHint => 'Ex: 2024-2025';
+
+  @override
+  String get historyClasseLabel => 'Classe';
+
+  @override
+  String get historyClasseHint => 'Ex: 3ème, Terminale';
+
+  @override
   String get bulletinTitle => 'Bulletin de formation';
 
   @override

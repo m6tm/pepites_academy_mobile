@@ -126,6 +126,11 @@ class AcademicienLocalDatasource {
       'signatureAcademicienUrl': a.signatureAcademicienUrl,
       'signatureParentUrl': a.signatureParentUrl,
       'photoParentUrl': a.photoParentUrl,
+      'etablissementScolaire': a.etablissementScolaire,
+      'anneeScolaireActuelle': a.anneeScolaireActuelle,
+      'classeActuelle': a.classeActuelle,
+      'remarquesScolaires': a.remarquesScolaires,
+      'certificatMedicalUrl': a.certificatMedicalUrl,
     };
   }
 
@@ -180,6 +185,11 @@ class AcademicienLocalDatasource {
       signatureAcademicienUrl: json['signatureAcademicienUrl'] as String?,
       signatureParentUrl: json['signatureParentUrl'] as String?,
       photoParentUrl: json['photoParentUrl'] as String?,
+      etablissementScolaire: json['etablissementScolaire'] as String?,
+      anneeScolaireActuelle: json['anneeScolaireActuelle'] as String?,
+      classeActuelle: json['classeActuelle'] as String?,
+      remarquesScolaires: json['remarquesScolaires'] as String?,
+      certificatMedicalUrl: json['certificatMedicalUrl'] as String?,
     );
   }
 
@@ -322,6 +332,21 @@ class AcademicienLocalDatasource {
               photoParentUrl:
                   (map['photo_parent_url'] as String?) ??
                   (map['photoParentUrl'] as String?),
+              etablissementScolaire:
+                  (map['etablissement_scolaire'] as String?) ??
+                  (map['etablissementScolaire'] as String?),
+              anneeScolaireActuelle:
+                  (map['annee_scolaire_actuelle'] as String?) ??
+                  (map['anneeScolaireActuelle'] as String?),
+              classeActuelle:
+                  (map['classe_actuelle'] as String?) ??
+                  (map['classeActuelle'] as String?),
+              remarquesScolaires:
+                  (map['remarques_scolaires'] as String?) ??
+                  (map['remarquesScolaires'] as String?),
+              certificatMedicalUrl:
+                  (map['certificat_medical_url'] as String?) ??
+                  (map['certificatMedicalUrl'] as String?),
             );
           }).toList();
           await saveAll(academiciens);

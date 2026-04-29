@@ -2678,6 +2678,204 @@ abstract class AppLocalizations {
   /// **'Ces informations permettent de filtrer les communications SMS et d\'adapter les rapports.'**
   String get academicStepInfo;
 
+  /// No description provided for @schoolEstablishmentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'établissement'**
+  String get schoolEstablishmentLabel;
+
+  /// No description provided for @schoolEstablishmentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Collège Saint-Louis'**
+  String get schoolEstablishmentHint;
+
+  /// No description provided for @schoolCurrentYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année'**
+  String get schoolCurrentYearLabel;
+
+  /// No description provided for @schoolCurrentYearHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: 2025-2026'**
+  String get schoolCurrentYearHint;
+
+  /// No description provided for @schoolCurrentClassLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe'**
+  String get schoolCurrentClassLabel;
+
+  /// No description provided for @schoolCurrentClassHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: 3ème, Terminale S'**
+  String get schoolCurrentClassHint;
+
+  /// No description provided for @schoolRemarksLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres remarques'**
+  String get schoolRemarksLabel;
+
+  /// No description provided for @schoolRemarksHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remarques additionnelles sur la scolarité'**
+  String get schoolRemarksHint;
+
+  /// No description provided for @medicalCertificateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat d\'aptitude / médical'**
+  String get medicalCertificateLabel;
+
+  /// No description provided for @medicalCertificateHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importez un PDF ou une image'**
+  String get medicalCertificateHint;
+
+  /// No description provided for @medicalCertificateImport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer le certificat'**
+  String get medicalCertificateImport;
+
+  /// No description provided for @medicalCertificateReplace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer'**
+  String get medicalCertificateReplace;
+
+  /// No description provided for @medicalCertificateImported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat importé'**
+  String get medicalCertificateImported;
+
+  /// No description provided for @medicalCertificatePickError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir le sélecteur de fichier'**
+  String get medicalCertificatePickError;
+
+  /// No description provided for @medicalCertificateUploadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de l\'upload du certificat'**
+  String get medicalCertificateUploadError;
+
+  /// No description provided for @schoolFieldsRequiredError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez renseigner l\'établissement, l\'année et la classe'**
+  String get schoolFieldsRequiredError;
+
+  /// No description provided for @academicianPhotoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de l\'académicien'**
+  String get academicianPhotoTitle;
+
+  /// No description provided for @parentPhotoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du parent'**
+  String get parentPhotoTitle;
+
+  /// No description provided for @tuteurPhotoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo du tuteur'**
+  String get tuteurPhotoTitle;
+
+  /// No description provided for @yesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get yesLabel;
+
+  /// No description provided for @noLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get noLabel;
+
+  /// No description provided for @uploadingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Upload...'**
+  String get uploadingLabel;
+
+  /// No description provided for @skinProblemQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'académicien a-t-il des problèmes de peau ?'**
+  String get skinProblemQuestion;
+
+  /// No description provided for @allergyQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Est-il allergique à une substance ou aliment ?'**
+  String get allergyQuestion;
+
+  /// No description provided for @allergyDetailsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si oui, à quelle substance ou aliment ?'**
+  String get allergyDetailsLabel;
+
+  /// No description provided for @allergyDetailsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détaillez l\'allergie si nécessaire'**
+  String get allergyDetailsHint;
+
+  /// No description provided for @teamworkQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aime-t-il le travail de groupe ?'**
+  String get teamworkQuestion;
+
+  /// No description provided for @historyEtablissementLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Etablissement'**
+  String get historyEtablissementLabel;
+
+  /// No description provided for @historyEtablissementHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'établissement'**
+  String get historyEtablissementHint;
+
+  /// No description provided for @historyAnneeScolaireLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année scolaire'**
+  String get historyAnneeScolaireLabel;
+
+  /// No description provided for @historyAnneeScolaireHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: 2024-2025'**
+  String get historyAnneeScolaireHint;
+
+  /// No description provided for @historyClasseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe'**
+  String get historyClasseLabel;
+
+  /// No description provided for @historyClasseHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: 3ème, Terminale'**
+  String get historyClasseHint;
+
   /// No description provided for @bulletinTitle.
   ///
   /// In fr, this message translates to:

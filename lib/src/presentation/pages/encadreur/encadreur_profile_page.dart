@@ -140,11 +140,11 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
   /// Partage les informations de profil de l'encadreur sous forme de texte.
   Future<void> _shareProfile() async {
     final l10n = AppLocalizations.of(context)!;
-    final shareText = l10n.badgeShareText(_encadreur.nomComplet) + 
-      "\n\n" + 
-      "${l10n.specialtyLabel}: ${_encadreur.specialite}\n" +
-      "${l10n.phoneLabel}: ${_encadreur.telephone}\n" +
-      "ID: ${_encadreur.id}";
+    final shareText =
+        '${l10n.badgeShareText(_encadreur.nomComplet)}\n\n'
+        '${l10n.specialtyLabel}: ${_encadreur.specialite}\n'
+        '${l10n.phoneLabel}: ${_encadreur.telephone}\n'
+        'ID: ${_encadreur.id}';
 
     await Share.share(
       shareText,

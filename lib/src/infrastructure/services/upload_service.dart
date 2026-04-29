@@ -10,6 +10,7 @@ enum UploadType {
   photoTuteur,
   signatureAcademicien,
   signatureParent,
+  certificatMedical,
 }
 
 /// Resultat d'un upload.
@@ -47,12 +48,25 @@ class UploadService {
       // Lire le fichier et le convertir en base64
       final bytes = await file.readAsBytes();
       final base64String = base64Encode(bytes);
-      final base64WithPrefix = 'data:image/jpeg;base64,$base64String';
+      final mimeType = _detectMimeType(file.path, type);
+      final base64WithPrefix = 'data:$mimeType;base64,$base64String';
 
       return await uploadBase64(base64WithPrefix, type);
     } catch (e) {
       return UploadResult.failure('Erreur lecture fichier: $e');
     }
+  }
+
+  /// Detecte le type MIME depuis l'extension du fichier.
+  String _detectMimeType(String path, UploadType type) {
+    final lower = path.toLowerCase();
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+    if (lower.endsWith('.png')) return 'image/png';
+    if (type == UploadType.signatureAcademicien ||
+        type == UploadType.signatureParent) {
+      return 'image/png';
+    }
+    return 'image/jpeg';
   }
 
   /// Upload une image encodee en base64.
@@ -105,6 +119,8 @@ class UploadService {
         return 'signature_academicien';
       case UploadType.signatureParent:
         return 'signature_parent';
+      case UploadType.certificatMedical:
+        return 'certificat_medical';
     }
   }
 }

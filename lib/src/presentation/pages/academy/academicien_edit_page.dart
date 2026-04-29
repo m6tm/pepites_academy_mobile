@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -117,6 +118,15 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
 
   // Data - Step 6 (Scolaire)
   String? _selectedNiveauId;
+  final _etablissementScolaireController = TextEditingController();
+  final _anneeScolaireActuelleController = TextEditingController();
+  final _classeActuelleController = TextEditingController();
+  final _remarquesScolairesController = TextEditingController();
+  File? _certificatMedicalFile;
+  String? _certificatMedicalUrl;
+  bool _isUploadingCertificat = false;
+  bool _hasCertificatUploadError = false;
+  String? _certificatMedicalFileName;
 
   // Donnees chargees dynamiquement depuis les referentiels
   List<PosteFootball> _postes = [];
@@ -167,6 +177,14 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     _allergieDetailsController.text = a.allergieDetails ?? '';
     _aimeTravailGroupe = a.aimeTravailGroupe;
     _historiqueParcours.addAll(a.historiqueParcours);
+    _etablissementScolaireController.text = a.etablissementScolaire ?? '';
+    _anneeScolaireActuelleController.text = a.anneeScolaireActuelle ?? '';
+    _classeActuelleController.text = a.classeActuelle ?? '';
+    _remarquesScolairesController.text = a.remarquesScolaires ?? '';
+    if (a.certificatMedicalUrl != null && a.certificatMedicalUrl!.isNotEmpty) {
+      _certificatMedicalUrl = a.certificatMedicalUrl;
+      _certificatMedicalFileName = a.certificatMedicalUrl!.split('/').last;
+    }
     if (a.photoUrl.isNotEmpty && File(a.photoUrl).existsSync()) {
       _photoFile = File(a.photoUrl);
     }
@@ -230,6 +248,10 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     _faiblessesController.dispose();
     _allergieDetailsController.dispose();
     _descriptionPerformancesController.dispose();
+    _etablissementScolaireController.dispose();
+    _anneeScolaireActuelleController.dispose();
+    _classeActuelleController.dispose();
+    _remarquesScolairesController.dispose();
     super.dispose();
   }
 
@@ -288,6 +310,15 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           context,
           title: l10n.requiredLabel,
           description: l10n.selectSchoolLevelError,
+          isError: true,
+        );
+      } else if (_etablissementScolaireController.text.trim().isEmpty ||
+          _anneeScolaireActuelleController.text.trim().isEmpty ||
+          _classeActuelleController.text.trim().isEmpty) {
+        AcademyToast.show(
+          context,
+          title: l10n.requiredLabel,
+          description: l10n.schoolFieldsRequiredError,
           isError: true,
         );
       } else {
@@ -384,6 +415,24 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             : null,
         aimeTravailGroupe: _aimeTravailGroupe,
         historiqueParcours: _historiqueParcours,
+        etablissementScolaire:
+            _etablissementScolaireController.text.trim().isNotEmpty
+            ? _etablissementScolaireController.text.trim()
+            : null,
+        anneeScolaireActuelle:
+            _anneeScolaireActuelleController.text.trim().isNotEmpty
+            ? _anneeScolaireActuelleController.text.trim()
+            : null,
+        classeActuelle: _classeActuelleController.text.trim().isNotEmpty
+            ? _classeActuelleController.text.trim()
+            : null,
+        remarquesScolaires: _remarquesScolairesController.text.trim().isNotEmpty
+            ? _remarquesScolairesController.text.trim()
+            : null,
+        certificatMedicalUrl:
+            _certificatMedicalUrl ??
+            _certificatMedicalFile?.path ??
+            current.certificatMedicalUrl,
         photoParentUrl:
             _photoParentUrl ?? _photoParentFile?.path ?? current.photoParentUrl,
         signatureAcademicienUrl:
@@ -441,7 +490,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           final croppedFile = await ImageCropperHelper.cropImage(
             imageFile: File(pickedFile.path),
             context: context,
-            title: "Photo de l'académicien",
+            title: l10n.academicianPhotoTitle,
           );
 
           if (croppedFile != null) {
@@ -487,8 +536,8 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             imageFile: File(pickedFile.path),
             context: context,
             title: target == _PhotoTarget.parent
-                ? 'Photo du parent'
-                : 'Photo du tuteur',
+                ? l10n.parentPhotoTitle
+                : l10n.tuteurPhotoTitle,
           );
 
           if (croppedFile != null) {
@@ -616,6 +665,74 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     await _uploadPhoto(_photoTuteurFile!, target: _PhotoTarget.tuteur);
   }
 
+  Future<void> _pickCertificatMedical() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: false,
+      );
+      if (result == null || result.files.isEmpty) return;
+      final picked = result.files.first;
+      if (picked.path == null) return;
+      final file = File(picked.path!);
+      await _uploadCertificatMedical(file, displayName: picked.name);
+    } catch (e) {
+      debugPrint('Erreur selection certificat: $e');
+      if (mounted) {
+        AcademyToast.show(
+          context,
+          title: l10n.error,
+          description: l10n.medicalCertificatePickError,
+          isError: true,
+        );
+      }
+    }
+  }
+
+  Future<void> _uploadCertificatMedical(
+    File file, {
+    required String displayName,
+  }) async {
+    setState(() {
+      _isUploadingCertificat = true;
+      _hasCertificatUploadError = false;
+      _certificatMedicalFile = file;
+      _certificatMedicalFileName = displayName;
+    });
+
+    try {
+      final uploadResult = await DependencyInjection.uploadService.uploadImage(
+        file,
+        UploadType.certificatMedical,
+      );
+      if (!mounted) return;
+      setState(() {
+        _isUploadingCertificat = false;
+        if (uploadResult.success && uploadResult.url != null) {
+          _certificatMedicalUrl = uploadResult.url;
+          _hasCertificatUploadError = false;
+        } else {
+          _hasCertificatUploadError = true;
+        }
+      });
+    } catch (e) {
+      debugPrint('Erreur upload certificat: $e');
+      if (!mounted) return;
+      setState(() {
+        _isUploadingCertificat = false;
+        _hasCertificatUploadError = true;
+      });
+    }
+  }
+
+  Future<void> _retryCertificatUpload() async {
+    final file = _certificatMedicalFile;
+    final name = _certificatMedicalFileName;
+    if (file == null || name == null) return;
+    await _uploadCertificatMedical(file, displayName: name);
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -729,13 +846,13 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           runSpacing: 12,
           children: [
             _buildChoiceChip(
-              label: 'Oui',
+              label: l10n.yesLabel,
               isSelected: value == true,
               onSelected: (selected) => onChanged(selected ? true : null),
               colorScheme: colorScheme,
             ),
             _buildChoiceChip(
-              label: 'Non',
+              label: l10n.noLabel,
               isSelected: value == false,
               onSelected: (selected) => onChanged(selected ? false : null),
               colorScheme: colorScheme,
@@ -935,7 +1052,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Upload...',
+                                    l10n.uploadingLabel,
                                     style: GoogleFonts.montserrat(
                                       fontSize: 10,
                                       color: AppColors.primary,
@@ -957,7 +1074,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                                 TextButton(
                                   onPressed: _retryPhotoUpload,
                                   child: Text(
-                                    'Reessayer',
+                                    l10n.retry,
                                     style: GoogleFonts.montserrat(
                                       fontSize: 11,
                                       color: AppColors.primary,
@@ -1114,7 +1231,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Upload...',
+                                    l10n.uploadingLabel,
                                     style: GoogleFonts.montserrat(
                                       fontSize: 10,
                                       color: AppColors.primary,
@@ -1136,7 +1253,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                                 TextButton(
                                   onPressed: retry,
                                   child: Text(
-                                    'Reessayer',
+                                    l10n.retry,
                                     style: GoogleFonts.montserrat(
                                       fontSize: 11,
                                       color: AppColors.primary,
@@ -1671,14 +1788,14 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           ),
           const SizedBox(height: 20),
           _buildBooleanSelector(
-            label: 'L\'académicien a-t-il des problèmes de peau ?',
+            label: l10n.skinProblemQuestion,
             value: _aProblemesPeau,
             onChanged: (value) => setState(() => _aProblemesPeau = value),
             colorScheme: colorScheme,
           ),
           const SizedBox(height: 20),
           _buildBooleanSelector(
-            label: 'Est-il allergique à une substance ou aliment ?',
+            label: l10n.allergyQuestion,
             value: _aAllergie,
             onChanged: (value) => setState(() => _aAllergie = value),
             colorScheme: colorScheme,
@@ -1686,15 +1803,13 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           const SizedBox(height: 20),
           _buildTextField(
             controller: _allergieDetailsController,
-            label:
-                'Si oui, à quelle substance ou aliment ?'
-                '',
-            hint: 'Détaillez l\'allergie si nécessaire',
+            label: l10n.allergyDetailsLabel,
+            hint: l10n.allergyDetailsHint,
             icon: Icons.medical_information_outlined,
           ),
           const SizedBox(height: 20),
           _buildBooleanSelector(
-            label: 'Aime-t-il le travail de groupe ?',
+            label: l10n.teamworkQuestion,
             value: _aimeTravailGroupe,
             onChanged: (value) => setState(() => _aimeTravailGroupe = value),
             colorScheme: colorScheme,
@@ -1814,8 +1929,8 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           const SizedBox(height: 12),
           _buildInlineTextField(
             initialValue: historique.etablissement,
-            label: 'Etablissement',
-            hint: 'Nom de l\'établissement',
+            label: l10n.historyEtablissementLabel,
+            hint: l10n.historyEtablissementHint,
             icon: Icons.school_outlined,
             onChanged: (v) {
               _updateHistoriqueEntry(index, etablissement: v);
@@ -1824,8 +1939,8 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           const SizedBox(height: 12),
           _buildInlineTextField(
             initialValue: historique.anneeScolaire,
-            label: 'Année scolaire',
-            hint: 'Ex: 2024-2025',
+            label: l10n.historyAnneeScolaireLabel,
+            hint: l10n.historyAnneeScolaireHint,
             icon: Icons.calendar_month_outlined,
             onChanged: (v) {
               _updateHistoriqueEntry(index, anneeScolaire: v);
@@ -1834,8 +1949,8 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           const SizedBox(height: 12),
           _buildInlineTextField(
             initialValue: historique.classe,
-            label: 'Classe',
-            hint: 'Ex: 3ème, Terminale',
+            label: l10n.historyClasseLabel,
+            hint: l10n.historyClasseHint,
             icon: Icons.class_outlined,
             onChanged: (v) {
               _updateHistoriqueEntry(index, classe: v);
@@ -1958,8 +2073,186 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
               );
             },
           ),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _etablissementScolaireController,
+            label: l10n.schoolEstablishmentLabel,
+            hint: l10n.schoolEstablishmentHint,
+            icon: Icons.school_outlined,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _anneeScolaireActuelleController,
+            label: l10n.schoolCurrentYearLabel,
+            hint: l10n.schoolCurrentYearHint,
+            icon: Icons.calendar_month_outlined,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _classeActuelleController,
+            label: l10n.schoolCurrentClassLabel,
+            hint: l10n.schoolCurrentClassHint,
+            icon: Icons.class_outlined,
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _remarquesScolairesController,
+            label: l10n.schoolRemarksLabel,
+            hint: l10n.schoolRemarksHint,
+            icon: Icons.notes_outlined,
+            maxLines: 4,
+          ),
+          const SizedBox(height: 32),
+          _buildCertificatMedicalPicker(colorScheme),
         ],
       ),
+    );
+  }
+
+  Widget _buildCertificatMedicalPicker(ColorScheme colorScheme) {
+    final hasFile =
+        _certificatMedicalFile != null ||
+        (_certificatMedicalUrl != null && _certificatMedicalUrl!.isNotEmpty);
+    final fileName =
+        _certificatMedicalFileName ?? _certificatMedicalUrl?.split('/').last;
+    final isPdf = (fileName ?? '').toLowerCase().endsWith('.pdf');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.medicalCertificateLabel,
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          l10n.medicalCertificateHint,
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
+        ),
+        const SizedBox(height: 12),
+        InkWell(
+          onTap: _isUploadingCertificat ? null : _pickCertificatMedical,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: hasFile
+                  ? AppColors.primary.withValues(alpha: 0.06)
+                  : colorScheme.onSurface.withValues(alpha: 0.02),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: hasFile
+                    ? AppColors.primary.withValues(alpha: 0.4)
+                    : colorScheme.onSurface.withValues(alpha: 0.1),
+                width: hasFile ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    isPdf
+                        ? Icons.picture_as_pdf_outlined
+                        : hasFile
+                        ? Icons.image_outlined
+                        : Icons.upload_file_outlined,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hasFile
+                            ? l10n.medicalCertificateImported
+                            : l10n.medicalCertificateImport,
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      if (fileName != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          fileName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (_isUploadingCertificat)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  )
+                else if (_hasCertificatUploadError)
+                  TextButton(
+                    onPressed: _retryCertificatUpload,
+                    child: Text(
+                      l10n.retry,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        color: Colors.red.shade400,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                else if (hasFile)
+                  Text(
+                    l10n.medicalCertificateReplace,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
+                    size: 20,
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (_hasCertificatUploadError) ...[
+          const SizedBox(height: 8),
+          Text(
+            l10n.medicalCertificateUploadError,
+            style: GoogleFonts.montserrat(
+              fontSize: 11,
+              color: Colors.red.shade400,
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -2438,6 +2731,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     required IconData icon,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    int maxLines = 1,
   }) {
     final theme = Theme.of(context);
     return Column(
@@ -2456,6 +2750,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           controller: controller,
           keyboardType: keyboardType,
           validator: validator,
+          maxLines: maxLines,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,

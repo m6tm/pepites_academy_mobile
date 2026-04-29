@@ -46,6 +46,12 @@ class Academicien {
   final bool? aimeTravailGroupe;
   // Historique du parcours sportif
   final List<HistoriqueParcoursSportif> historiqueParcours;
+  // Scolarité actuelle
+  final String? etablissementScolaire;
+  final String? anneeScolaireActuelle;
+  final String? classeActuelle;
+  final String? remarquesScolaires;
+  final String? certificatMedicalUrl;
   // Signatures
   final String? signatureAcademicienUrl;
   final String? signatureParentUrl;
@@ -90,6 +96,11 @@ class Academicien {
     this.allergieDetails,
     this.aimeTravailGroupe,
     this.historiqueParcours = const [],
+    this.etablissementScolaire,
+    this.anneeScolaireActuelle,
+    this.classeActuelle,
+    this.remarquesScolaires,
+    this.certificatMedicalUrl,
     this.signatureAcademicienUrl,
     this.signatureParentUrl,
   });
@@ -162,6 +173,11 @@ class Academicien {
       'allergieDetails': allergieDetails,
       'aimeTravailGroupe': aimeTravailGroupe,
       'historiqueParcours': historiqueParcours.map((h) => h.toJson()).toList(),
+      'etablissementScolaire': etablissementScolaire,
+      'anneeScolaireActuelle': anneeScolaireActuelle,
+      'classeActuelle': classeActuelle,
+      'remarquesScolaires': remarquesScolaires,
+      'certificatMedicalUrl': certificatMedicalUrl,
       'signatureAcademicienUrl': signatureAcademicienUrl,
       'signatureParentUrl': signatureParentUrl,
     };
@@ -281,6 +297,21 @@ class Academicien {
       signatureParentUrl:
           json['signatureParentUrl'] as String? ??
           json['signature_parent_url'] as String?,
+      etablissementScolaire:
+          json['etablissementScolaire'] as String? ??
+          json['etablissement_scolaire'] as String?,
+      anneeScolaireActuelle:
+          json['anneeScolaireActuelle'] as String? ??
+          json['annee_scolaire_actuelle'] as String?,
+      classeActuelle:
+          json['classeActuelle'] as String? ??
+          json['classe_actuelle'] as String?,
+      remarquesScolaires:
+          json['remarquesScolaires'] as String? ??
+          json['remarques_scolaires'] as String?,
+      certificatMedicalUrl:
+          json['certificatMedicalUrl'] as String? ??
+          json['certificat_medical_url'] as String?,
     );
   }
 }
