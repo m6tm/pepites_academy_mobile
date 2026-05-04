@@ -284,21 +284,19 @@ class RegistrationFormService {
             pw.TableRow(
               decoration: pw.BoxDecoration(color: PdfColors.grey200),
               children: [
-                _buildTableCell('Centres', isHeader: true),
-                _buildTableCell('Catégories', isHeader: true),
-                _buildTableCell('Etablissements', isHeader: true),
-                _buildTableCell('Années scolaire', isHeader: true),
-                _buildTableCell('Classes', isHeader: true),
+                _buildTableCell('Nom du centre', isHeader: true),
+                _buildTableCell('Année', isHeader: true),
+                _buildTableCell('Catégorie', isHeader: true),
+                _buildTableCell('Autre remarques', isHeader: true),
               ],
             ),
             ...academicien.historiqueParcours.map(
               (h) => pw.TableRow(
                 children: [
                   _buildTableCell(h.centre ?? ''),
+                  _buildTableCell(h.annee ?? ''),
                   _buildTableCell(h.categorie ?? ''),
-                  _buildTableCell(h.etablissement ?? ''),
-                  _buildTableCell(h.anneeScolaire ?? ''),
-                  _buildTableCell(h.classe ?? ''),
+                  _buildTableCell(h.autresRemarques ?? ''),
                 ],
               ),
             ),
@@ -307,7 +305,6 @@ class RegistrationFormService {
                 5 - academicien.historiqueParcours.length,
                 (index) => pw.TableRow(
                   children: [
-                    _buildTableCell(''),
                     _buildTableCell(''),
                     _buildTableCell(''),
                     _buildTableCell(''),

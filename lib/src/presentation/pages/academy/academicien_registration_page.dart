@@ -1802,6 +1802,16 @@ class _AcademicienRegistrationPageState
           ),
           const SizedBox(height: 12),
           _buildInlineTextField(
+            initialValue: historique.annee,
+            label: l10n.historyAnneeLabel,
+            hint: l10n.historyAnneeHint,
+            icon: Icons.calendar_month_outlined,
+            onChanged: (v) {
+              _updateHistoriqueEntry(index, annee: v);
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildInlineTextField(
             initialValue: historique.categorie,
             label: l10n.categoryLabel,
             hint: l10n.categoryHint,
@@ -1812,32 +1822,12 @@ class _AcademicienRegistrationPageState
           ),
           const SizedBox(height: 12),
           _buildInlineTextField(
-            initialValue: historique.etablissement,
-            label: l10n.historyEtablissementLabel,
-            hint: l10n.historyEtablissementHint,
-            icon: Icons.school_outlined,
+            initialValue: historique.autresRemarques,
+            label: l10n.historyAutresRemarquesLabel,
+            hint: l10n.historyAutresRemarquesHint,
+            icon: Icons.notes_outlined,
             onChanged: (v) {
-              _updateHistoriqueEntry(index, etablissement: v);
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildInlineTextField(
-            initialValue: historique.anneeScolaire,
-            label: l10n.historyAnneeScolaireLabel,
-            hint: l10n.historyAnneeScolaireHint,
-            icon: Icons.calendar_month_outlined,
-            onChanged: (v) {
-              _updateHistoriqueEntry(index, anneeScolaire: v);
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildInlineTextField(
-            initialValue: historique.classe,
-            label: l10n.historyClasseLabel,
-            hint: l10n.historyClasseHint,
-            icon: Icons.class_outlined,
-            onChanged: (v) {
-              _updateHistoriqueEntry(index, classe: v);
+              _updateHistoriqueEntry(index, autresRemarques: v);
             },
           ),
         ],
@@ -1848,20 +1838,18 @@ class _AcademicienRegistrationPageState
   void _updateHistoriqueEntry(
     int index, {
     String? centre,
+    String? annee,
     String? categorie,
-    String? etablissement,
-    String? anneeScolaire,
-    String? classe,
+    String? autresRemarques,
   }) {
     final current = _historiqueParcours[index];
     _historiqueParcours[index] = HistoriqueParcoursSportif(
       id: current.id,
       academicienId: current.academicienId,
       centre: centre ?? current.centre,
+      annee: annee ?? current.annee,
       categorie: categorie ?? current.categorie,
-      etablissement: etablissement ?? current.etablissement,
-      anneeScolaire: anneeScolaire ?? current.anneeScolaire,
-      classe: classe ?? current.classe,
+      autresRemarques: autresRemarques ?? current.autresRemarques,
     );
   }
 

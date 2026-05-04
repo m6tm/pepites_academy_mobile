@@ -2840,41 +2840,29 @@ abstract class AppLocalizations {
   /// **'Aime-t-il le travail de groupe ?'**
   String get teamworkQuestion;
 
-  /// No description provided for @historyEtablissementLabel.
+  /// No description provided for @historyAnneeLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Etablissement'**
-  String get historyEtablissementLabel;
+  /// **'Année'**
+  String get historyAnneeLabel;
 
-  /// No description provided for @historyEtablissementHint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Nom de l\'établissement'**
-  String get historyEtablissementHint;
-
-  /// No description provided for @historyAnneeScolaireLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Année scolaire'**
-  String get historyAnneeScolaireLabel;
-
-  /// No description provided for @historyAnneeScolaireHint.
+  /// No description provided for @historyAnneeHint.
   ///
   /// In fr, this message translates to:
   /// **'Ex: 2024-2025'**
-  String get historyAnneeScolaireHint;
+  String get historyAnneeHint;
 
-  /// No description provided for @historyClasseLabel.
+  /// No description provided for @historyAutresRemarquesLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Classe'**
-  String get historyClasseLabel;
+  /// **'Autres remarques'**
+  String get historyAutresRemarquesLabel;
 
-  /// No description provided for @historyClasseHint.
+  /// No description provided for @historyAutresRemarquesHint.
   ///
   /// In fr, this message translates to:
-  /// **'Ex: 3ème, Terminale'**
-  String get historyClasseHint;
+  /// **'Remarques supplémentaires'**
+  String get historyAutresRemarquesHint;
 
   /// No description provided for @bulletinTitle.
   ///
@@ -6167,13 +6155,13 @@ abstract class AppLocalizations {
   /// No description provided for @centerLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Centre'**
+  /// **'Nom du centre'**
   String get centerLabel;
 
   /// No description provided for @centerHint.
   ///
   /// In fr, this message translates to:
-  /// **'Nom du centre'**
+  /// **'Ex: Centre Pépites'**
   String get centerHint;
 
   /// No description provided for @categoryLabel.

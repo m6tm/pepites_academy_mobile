@@ -3,19 +3,17 @@ class HistoriqueParcoursSportif {
   final String? id;
   final String? academicienId;
   final String? centre;
+  final String? annee;
   final String? categorie;
-  final String? etablissement;
-  final String? anneeScolaire;
-  final String? classe;
+  final String? autresRemarques;
 
   HistoriqueParcoursSportif({
     this.id,
     this.academicienId,
     this.centre,
+    this.annee,
     this.categorie,
-    this.etablissement,
-    this.anneeScolaire,
-    this.classe,
+    this.autresRemarques,
   });
 
   /// Serialise l'historique en Map JSON.
@@ -24,10 +22,9 @@ class HistoriqueParcoursSportif {
       if (id != null) 'id': id,
       if (academicienId != null) 'academicien_id': academicienId,
       'centre': centre,
+      'annee': annee,
       'categorie': categorie,
-      'etablissement': etablissement,
-      'annee_scolaire': anneeScolaire,
-      'classe': classe,
+      'autres_remarques': autresRemarques,
     };
   }
 
@@ -37,11 +34,11 @@ class HistoriqueParcoursSportif {
       academicienId:
           json['academicienId'] as String? ?? json['academicien_id'] as String?,
       centre: json['centre'] as String?,
+      annee: json['annee'] as String?,
       categorie: json['categorie'] as String?,
-      etablissement: json['etablissement'] as String?,
-      anneeScolaire:
-          json['anneeScolaire'] as String? ?? json['annee_scolaire'] as String?,
-      classe: json['classe'] as String?,
+      autresRemarques:
+          json['autresRemarques'] as String? ??
+          json['autres_remarques'] as String?,
     );
   }
 }

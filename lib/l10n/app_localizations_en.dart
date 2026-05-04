@@ -1482,22 +1482,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teamworkQuestion => 'Does he/she enjoy group work?';
 
   @override
-  String get historyEtablissementLabel => 'School';
+  String get historyAnneeLabel => 'Year';
 
   @override
-  String get historyEtablissementHint => 'Name of the school';
+  String get historyAnneeHint => 'Ex: 2024-2025';
 
   @override
-  String get historyAnneeScolaireLabel => 'School year';
+  String get historyAutresRemarquesLabel => 'Other remarks';
 
   @override
-  String get historyAnneeScolaireHint => 'Ex: 2024-2025';
-
-  @override
-  String get historyClasseLabel => 'Class';
-
-  @override
-  String get historyClasseHint => 'Ex: Grade 9, 12th';
+  String get historyAutresRemarquesHint => 'Additional remarks';
 
   @override
   String get bulletinTitle => 'Training Bulletin';
@@ -3392,10 +3386,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyEntry => 'Entry';
 
   @override
-  String get centerLabel => 'Center';
+  String get centerLabel => 'Center name';
 
   @override
-  String get centerHint => 'Center name';
+  String get centerHint => 'Ex: Pepites Center';
 
   @override
   String get categoryLabel => 'Category';

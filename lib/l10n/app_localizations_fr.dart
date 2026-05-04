@@ -1493,22 +1493,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teamworkQuestion => 'Aime-t-il le travail de groupe ?';
 
   @override
-  String get historyEtablissementLabel => 'Etablissement';
+  String get historyAnneeLabel => 'Année';
 
   @override
-  String get historyEtablissementHint => 'Nom de l\'établissement';
+  String get historyAnneeHint => 'Ex: 2024-2025';
 
   @override
-  String get historyAnneeScolaireLabel => 'Année scolaire';
+  String get historyAutresRemarquesLabel => 'Autres remarques';
 
   @override
-  String get historyAnneeScolaireHint => 'Ex: 2024-2025';
-
-  @override
-  String get historyClasseLabel => 'Classe';
-
-  @override
-  String get historyClasseHint => 'Ex: 3ème, Terminale';
+  String get historyAutresRemarquesHint => 'Remarques supplémentaires';
 
   @override
   String get bulletinTitle => 'Bulletin de formation';
@@ -3411,10 +3405,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get historyEntry => 'Entree';
 
   @override
-  String get centerLabel => 'Centre';
+  String get centerLabel => 'Nom du centre';
 
   @override
-  String get centerHint => 'Nom du centre';
+  String get centerHint => 'Ex: Centre Pépites';
 
   @override
   String get categoryLabel => 'Categorie';
