@@ -21,11 +21,15 @@ import '../../state/seance_state.dart';
 class EncadreurDashboardPage extends StatefulWidget {
   final String userName;
   final String? photoUrl;
+  final bool showScanner;
+  final bool showCommunication;
 
   const EncadreurDashboardPage({
     super.key,
     this.userName = 'Coach',
     this.photoUrl,
+    this.showScanner = true,
+    this.showCommunication = false,
   });
 
   @override
@@ -219,8 +223,10 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
           colorScheme,
           AppLocalizations.of(context)!,
         ),
-        floatingActionButton: _buildScanFAB(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: widget.showScanner ? _buildScanFAB() : null,
+        floatingActionButtonLocation: widget.showScanner
+            ? FloatingActionButtonLocation.centerDocked
+            : null,
       ),
     );
   }
@@ -408,13 +414,21 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
                 isSelected: _selectedNavIndex == 1,
                 onTap: () => setState(() => _selectedNavIndex = 1),
               ),
-              const Expanded(child: SizedBox()),
-              CoachNavItem(
-                icon: Icons.edit_note_rounded,
-                label: l10n.annotations,
-                isSelected: _selectedNavIndex == 3,
-                onTap: () => setState(() => _selectedNavIndex = 3),
-              ),
+              if (widget.showScanner) const Expanded(child: SizedBox()),
+              if (widget.showCommunication)
+                CoachNavItem(
+                  icon: Icons.sms_rounded,
+                  label: l10n.communication,
+                  isSelected: _selectedNavIndex == 4,
+                  onTap: () => setState(() => _selectedNavIndex = 4),
+                ),
+              if (!widget.showCommunication)
+                CoachNavItem(
+                  icon: Icons.edit_note_rounded,
+                  label: l10n.annotations,
+                  isSelected: _selectedNavIndex == 3,
+                  onTap: () => setState(() => _selectedNavIndex = 3),
+                ),
               CoachNavItem(
                 icon: Icons.person_rounded,
                 label: l10n.profile,

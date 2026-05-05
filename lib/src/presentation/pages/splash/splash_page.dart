@@ -119,8 +119,10 @@ class _SplashPageState extends State<SplashPage>
                 dashboardPage = MedecinDashboardPage(userName: userName, photoUrl: photoUrl);
                 break;
               case DashboardType.surveillant:
+                dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl, showScanner: false, showCommunication: true);
+                break;
               case DashboardType.visiteur:
-                dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+                dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl, showScanner: false);
                 break;
             }
 
@@ -274,8 +276,10 @@ class _SplashPageState extends State<SplashPage>
           dashboardPage = MedecinDashboardPage(userName: userName, photoUrl: photoUrl);
           break;
         case DashboardType.surveillant:
+          dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl, showScanner: false, showCommunication: true);
+          break;
         case DashboardType.visiteur:
-          dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl);
+          dashboardPage = EncadreurDashboardPage(userName: userName, photoUrl: photoUrl, showScanner: false);
           break;
       }
 

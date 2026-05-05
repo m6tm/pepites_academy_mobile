@@ -277,18 +277,18 @@ class _LoginPageState extends State<LoginPage> {
         );
         break;
       case DashboardType.surveillant:
-        // Le rôle surveillantGeneral utilise le dashboard encadreur pour l'instant
-        // TODO: Créer un dashboard spécifique pour les surveillants
         dashboardPage = EncadreurDashboardPage(
           userName: userName,
           photoUrl: photoUrl,
+          showScanner: false,
+          showCommunication: true,
         );
         break;
       case DashboardType.visiteur:
-        // Le rôle visiteur a un accès limité, utilise le dashboard encadreur en lecture seule
         dashboardPage = EncadreurDashboardPage(
           userName: userName,
           photoUrl: photoUrl,
+          showScanner: false,
         );
         break;
     }
