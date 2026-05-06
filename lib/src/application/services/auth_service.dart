@@ -2,12 +2,14 @@ import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'sync_service.dart';
 import 'cache_manager.dart';
+import 'role_service.dart';
 
 /// Service gerant la logique metier liee a l'authentification.
 class AuthService {
   final AuthRepository _authRepository;
   SyncService? _syncService;
   CacheManager? _cacheManager;
+  RoleService? _roleService;
 
   AuthService(this._authRepository);
 
@@ -19,6 +21,11 @@ class AuthService {
   /// Injecte le gestionnaire de cache.
   void setCacheManager(CacheManager manager) {
     _cacheManager = manager;
+  }
+
+  /// Injecte le service de gestion des roles.
+  void setRoleService(RoleService service) {
+    _roleService = service;
   }
 
   /// Inscrit un nouvel utilisateur.
@@ -64,6 +71,10 @@ class AuthService {
   /// Vide egalement tous les caches locaux pour eviter la persistance
   /// des donnees entre differents utilisateurs.
   Future<void> logout() async {
+    // 0. CRITIQUE : Vider le cache memoire du role AVANT tout pour eviter
+    // la persistance du role d'un utilisateur lors de la connexion d'un autre
+    await _roleService?.clearLocalRole();
+
     // 1. Vider tous les caches de donnees metier
     await _cacheManager?.clearAll();
 

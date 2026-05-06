@@ -372,11 +372,16 @@ class DependencyInjection {
       exerciceService,
     );
 
+    // Initialisation du module Roles et Permissions
+    roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
+    roleService = RoleService(roleRepository: roleRepository);
+
     // Initialisation de l'authentification
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);
     authService.setSyncService(syncService);
     authService.setCacheManager(cacheManager);
+    authService.setRoleService(roleService);
 
     // Initialisation du module de securite et biometrie
     securityRepository = SecurityRepositoryImpl(dioClient);
@@ -395,10 +400,6 @@ class DependencyInjection {
 
     // Initialisation du service Dashboard
     dashboardService = DashboardService(repository: dashboardRepository);
-
-    // Initialisation du module Roles et Permissions
-    roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
-    roleService = RoleService(roleRepository: roleRepository);
 
     // Initialisation du repository Medecin
     medecinRepository = MedecinRepositoryImpl(dioClient, sharedPrefs);

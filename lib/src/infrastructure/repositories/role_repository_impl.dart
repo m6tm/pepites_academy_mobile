@@ -318,8 +318,12 @@ class RoleRepositoryImpl implements RoleRepository {
     await _sharedPrefs.remove(_keyUserLastName);
     await _sharedPrefs.remove(_keyUserEmail);
     await _sharedPrefs.remove(_keyUserPhoto);
+
+    // Invalidation complete des caches memoire pour eviter la persistance
+    // du role d'un utilisateur lors de la connexion d'un autre
     _cachedRole = null;
     _cachedUser = null;
+    _cachedUsersList = null;
   }
 
   /// Persiste les informations complètes de l'utilisateur localement.
