@@ -120,7 +120,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
   String? _selectedNiveauId;
   final _etablissementScolaireController = TextEditingController();
   final _anneeScolaireActuelleController = TextEditingController();
-  final _classeActuelleController = TextEditingController();
   final _remarquesScolairesController = TextEditingController();
   File? _certificatMedicalFile;
   String? _certificatMedicalUrl;
@@ -179,7 +178,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     _historiqueParcours.addAll(a.historiqueParcours);
     _etablissementScolaireController.text = a.etablissementScolaire ?? '';
     _anneeScolaireActuelleController.text = a.anneeScolaireActuelle ?? '';
-    _classeActuelleController.text = a.classeActuelle ?? '';
     _remarquesScolairesController.text = a.remarquesScolaires ?? '';
     if (a.certificatMedicalUrl != null && a.certificatMedicalUrl!.isNotEmpty) {
       _certificatMedicalUrl = a.certificatMedicalUrl;
@@ -250,7 +248,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
     _descriptionPerformancesController.dispose();
     _etablissementScolaireController.dispose();
     _anneeScolaireActuelleController.dispose();
-    _classeActuelleController.dispose();
     _remarquesScolairesController.dispose();
     super.dispose();
   }
@@ -313,8 +310,7 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
           isError: true,
         );
       } else if (_etablissementScolaireController.text.trim().isEmpty ||
-          _anneeScolaireActuelleController.text.trim().isEmpty ||
-          _classeActuelleController.text.trim().isEmpty) {
+          _anneeScolaireActuelleController.text.trim().isEmpty) {
         AcademyToast.show(
           context,
           title: l10n.requiredLabel,
@@ -422,9 +418,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
         anneeScolaireActuelle:
             _anneeScolaireActuelleController.text.trim().isNotEmpty
             ? _anneeScolaireActuelleController.text.trim()
-            : null,
-        classeActuelle: _classeActuelleController.text.trim().isNotEmpty
-            ? _classeActuelleController.text.trim()
             : null,
         remarquesScolaires: _remarquesScolairesController.text.trim().isNotEmpty
             ? _remarquesScolairesController.text.trim()
@@ -2074,13 +2067,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             label: l10n.schoolCurrentYearLabel,
             hint: l10n.schoolCurrentYearHint,
             icon: Icons.calendar_month_outlined,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _classeActuelleController,
-            label: l10n.schoolCurrentClassLabel,
-            hint: l10n.schoolCurrentClassHint,
-            icon: Icons.class_outlined,
           ),
           const SizedBox(height: 20),
           _buildTextField(

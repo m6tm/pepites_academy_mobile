@@ -113,7 +113,6 @@ class _AcademicienRegistrationPageState
   String? _selectedNiveauId;
   final _etablissementScolaireController = TextEditingController();
   final _anneeScolaireActuelleController = TextEditingController();
-  final _classeActuelleController = TextEditingController();
   final _remarquesScolairesController = TextEditingController();
   File? _certificatMedicalFile;
   String? _certificatMedicalUrl;
@@ -173,7 +172,6 @@ class _AcademicienRegistrationPageState
     _descriptionPerformancesController.dispose();
     _etablissementScolaireController.dispose();
     _anneeScolaireActuelleController.dispose();
-    _classeActuelleController.dispose();
     _remarquesScolairesController.dispose();
     super.dispose();
   }
@@ -236,8 +234,7 @@ class _AcademicienRegistrationPageState
           isError: true,
         );
       } else if (_etablissementScolaireController.text.trim().isEmpty ||
-          _anneeScolaireActuelleController.text.trim().isEmpty ||
-          _classeActuelleController.text.trim().isEmpty) {
+          _anneeScolaireActuelleController.text.trim().isEmpty) {
         AcademyToast.show(
           context,
           title: l10n.requiredLabel,
@@ -340,9 +337,6 @@ class _AcademicienRegistrationPageState
         anneeScolaireActuelle:
             _anneeScolaireActuelleController.text.trim().isNotEmpty
             ? _anneeScolaireActuelleController.text.trim()
-            : null,
-        classeActuelle: _classeActuelleController.text.trim().isNotEmpty
-            ? _classeActuelleController.text.trim()
             : null,
         remarquesScolaires: _remarquesScolairesController.text.trim().isNotEmpty
             ? _remarquesScolairesController.text.trim()
@@ -1958,13 +1952,6 @@ class _AcademicienRegistrationPageState
             label: l10n.schoolCurrentYearLabel,
             hint: l10n.schoolCurrentYearHint,
             icon: Icons.calendar_month_outlined,
-          ),
-          const SizedBox(height: 20),
-          _buildTextField(
-            controller: _classeActuelleController,
-            label: l10n.schoolCurrentClassLabel,
-            hint: l10n.schoolCurrentClassHint,
-            icon: Icons.class_outlined,
           ),
           const SizedBox(height: 20),
           _buildTextField(

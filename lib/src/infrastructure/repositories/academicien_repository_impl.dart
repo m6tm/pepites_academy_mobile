@@ -258,9 +258,6 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
       anneeScolaireActuelle:
           (map['annee_scolaire_actuelle'] as String?) ??
           (map['anneeScolaireActuelle'] as String?),
-      classeActuelle:
-          (map['classe_actuelle'] as String?) ??
-          (map['classeActuelle'] as String?),
       remarquesScolaires:
           (map['remarques_scolaires'] as String?) ??
           (map['remarquesScolaires'] as String?),

@@ -49,7 +49,6 @@ class Academicien {
   // Scolarité actuelle
   final String? etablissementScolaire;
   final String? anneeScolaireActuelle;
-  final String? classeActuelle;
   final String? remarquesScolaires;
   final String? certificatMedicalUrl;
   // Signatures
@@ -98,7 +97,6 @@ class Academicien {
     this.historiqueParcours = const [],
     this.etablissementScolaire,
     this.anneeScolaireActuelle,
-    this.classeActuelle,
     this.remarquesScolaires,
     this.certificatMedicalUrl,
     this.signatureAcademicienUrl,
@@ -175,7 +173,6 @@ class Academicien {
       'historiqueParcours': historiqueParcours.map((h) => h.toJson()).toList(),
       'etablissementScolaire': etablissementScolaire,
       'anneeScolaireActuelle': anneeScolaireActuelle,
-      'classeActuelle': classeActuelle,
       'remarquesScolaires': remarquesScolaires,
       'certificatMedicalUrl': certificatMedicalUrl,
       'signatureAcademicienUrl': signatureAcademicienUrl,
@@ -303,9 +300,6 @@ class Academicien {
       anneeScolaireActuelle:
           json['anneeScolaireActuelle'] as String? ??
           json['annee_scolaire_actuelle'] as String?,
-      classeActuelle:
-          json['classeActuelle'] as String? ??
-          json['classe_actuelle'] as String?,
       remarquesScolaires:
           json['remarquesScolaires'] as String? ??
           json['remarques_scolaires'] as String?,
