@@ -52,7 +52,8 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
           CircleAvatar(
             radius: 50,
             backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-            backgroundImage: widget.photoUrl != null && widget.photoUrl!.isNotEmpty
+            backgroundImage:
+                widget.photoUrl != null && widget.photoUrl!.isNotEmpty
                 ? NetworkImage(widget.photoUrl!)
                 : null,
             child: widget.photoUrl == null || widget.photoUrl!.isEmpty

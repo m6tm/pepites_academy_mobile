@@ -7,6 +7,7 @@ import 'package:pepites_academy_mobile/src/domain/entities/role.dart';
 
 // Mocks
 class MockDioClient extends Mock implements DioClient {}
+
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
@@ -26,12 +27,12 @@ void main() {
       'CRITIQUE: clearLocalRole() doit invalider tous les caches memoire',
       () async {
         // Arrange
-        when(() => mockSharedPrefs.remove(any()))
-            .thenAnswer((_) async => true);
+        when(() => mockSharedPrefs.remove(any())).thenAnswer((_) async => true);
 
         // Simuler un role en cache
-        when(() => mockSharedPrefs.getString('user_role'))
-            .thenReturn('encadreur_chef');
+        when(
+          () => mockSharedPrefs.getString('user_role'),
+        ).thenReturn('encadreur_chef');
 
         // Charger le role pour remplir le cache memoire
         final initialRole = await roleRepository.getCurrentUserRole();
@@ -49,8 +50,11 @@ void main() {
         verify(() => mockSharedPrefs.remove('user_photo')).called(1);
 
         // Verifier que le cache memoire est vide
-        expect(roleRepository.cachedRole, isNull,
-            reason: '_cachedRole doit etre null apres clearLocalRole()');
+        expect(
+          roleRepository.cachedRole,
+          isNull,
+          reason: '_cachedRole doit etre null apres clearLocalRole()',
+        );
       },
     );
 
@@ -58,8 +62,7 @@ void main() {
       'getCurrentUserRole() doit retourner le role depuis le cache memoire si disponible',
       () async {
         // Arrange
-        when(() => mockSharedPrefs.getString('user_role'))
-            .thenReturn('admin');
+        when(() => mockSharedPrefs.getString('user_role')).thenReturn('admin');
 
         // Act - Premiere lecture (charge depuis SharedPreferences)
         final role1 = await roleRepository.getCurrentUserRole();
@@ -80,10 +83,10 @@ void main() {
       'REGRESSION: Apres clearLocalRole(), getCurrentUserRole() doit lire depuis SharedPreferences',
       () async {
         // Arrange
-        when(() => mockSharedPrefs.getString('user_role'))
-            .thenReturn('encadreur_chef');
-        when(() => mockSharedPrefs.remove(any()))
-            .thenAnswer((_) async => true);
+        when(
+          () => mockSharedPrefs.getString('user_role'),
+        ).thenReturn('encadreur_chef');
+        when(() => mockSharedPrefs.remove(any())).thenAnswer((_) async => true);
 
         // Act - Charger le role initial (Encadreur Chef)
         final role1 = await roleRepository.getCurrentUserRole();
@@ -93,16 +96,19 @@ void main() {
         await roleRepository.clearLocalRole();
 
         // Simuler un nouveau role dans SharedPreferences (Admin)
-        when(() => mockSharedPrefs.getString('user_role'))
-            .thenReturn('admin');
+        when(() => mockSharedPrefs.getString('user_role')).thenReturn('admin');
 
         // Act - Recharger le role (doit lire depuis SharedPreferences, pas le cache)
         final role2 = await roleRepository.getCurrentUserRole();
 
         // Assert
-        expect(role2, Role.admin,
-            reason: 'Apres clearLocalRole(), le nouveau role doit etre charge '
-                'depuis SharedPreferences');
+        expect(
+          role2,
+          Role.admin,
+          reason:
+              'Apres clearLocalRole(), le nouveau role doit etre charge '
+              'depuis SharedPreferences',
+        );
       },
     );
 
@@ -116,27 +122,31 @@ void main() {
         final role = await roleRepository.getCurrentUserRole();
 
         // Assert
-        expect(role, Role.visiteur,
-            reason: 'Le role par defaut doit etre visiteur');
+        expect(
+          role,
+          Role.visiteur,
+          reason: 'Le role par defaut doit etre visiteur',
+        );
       },
     );
 
-    test(
-      'persistRoleLocally() doit mettre a jour le cache memoire',
-      () async {
-        // Arrange
-        when(() => mockSharedPrefs.setString(any(), any()))
-            .thenAnswer((_) async => true);
+    test('persistRoleLocally() doit mettre a jour le cache memoire', () async {
+      // Arrange
+      when(
+        () => mockSharedPrefs.setString(any(), any()),
+      ).thenAnswer((_) async => true);
 
-        // Act
-        await roleRepository.persistRoleLocally(Role.admin);
+      // Act
+      await roleRepository.persistRoleLocally(Role.admin);
 
-        // Assert
-        verify(() => mockSharedPrefs.setString('user_role', 'admin')).called(1);
-        expect(roleRepository.cachedRole, Role.admin,
-            reason: '_cachedRole doit etre mis a jour apres persistRoleLocally()');
-      },
-    );
+      // Assert
+      verify(() => mockSharedPrefs.setString('user_role', 'admin')).called(1);
+      expect(
+        roleRepository.cachedRole,
+        Role.admin,
+        reason: '_cachedRole doit etre mis a jour apres persistRoleLocally()',
+      );
+    });
   });
 
   group('RoleRepositoryImpl - Scenario de reconnexion', () {
@@ -144,12 +154,13 @@ void main() {
       'INTEGRATION: Scenario complet - User1 logout puis User2 login',
       () async {
         // Arrange
-        when(() => mockSharedPrefs.getString('user_role'))
-            .thenReturn('encadreur_chef');
-        when(() => mockSharedPrefs.remove(any()))
-            .thenAnswer((_) async => true);
-        when(() => mockSharedPrefs.setString(any(), any()))
-            .thenAnswer((_) async => true);
+        when(
+          () => mockSharedPrefs.getString('user_role'),
+        ).thenReturn('encadreur_chef');
+        when(() => mockSharedPrefs.remove(any())).thenAnswer((_) async => true);
+        when(
+          () => mockSharedPrefs.setString(any(), any()),
+        ).thenAnswer((_) async => true);
 
         // ACT 1 - User 1 (Encadreur Chef) se connecte
         final user1Role = await roleRepository.getCurrentUserRole();
@@ -158,8 +169,11 @@ void main() {
 
         // ACT 2 - User 1 se deconnecte
         await roleRepository.clearLocalRole();
-        expect(roleRepository.cachedRole, isNull,
-            reason: 'Le cache doit etre vide apres logout');
+        expect(
+          roleRepository.cachedRole,
+          isNull,
+          reason: 'Le cache doit etre vide apres logout',
+        );
 
         // ACT 3 - User 2 (Admin) se connecte
         when(() => mockSharedPrefs.getString('user_role')).thenReturn('admin');
@@ -169,8 +183,11 @@ void main() {
         final user2Role = await roleRepository.getCurrentUserRole();
 
         // ASSERT
-        expect(user2Role, Role.admin,
-            reason: 'Le role de User 2 doit etre admin, pas encadreur_chef');
+        expect(
+          user2Role,
+          Role.admin,
+          reason: 'Le role de User 2 doit etre admin, pas encadreur_chef',
+        );
         expect(roleRepository.cachedRole, Role.admin);
       },
     );

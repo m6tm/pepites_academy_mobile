@@ -9,8 +9,11 @@ import 'package:pepites_academy_mobile/src/domain/failures/network_failure.dart'
 
 // Mocks
 class MockAuthRepository extends Mock implements AuthRepository {}
+
 class MockRoleService extends Mock implements RoleService {}
+
 class MockSyncService extends Mock implements SyncService {}
+
 class MockCacheManager extends Mock implements CacheManager {}
 
 void main() {
@@ -32,14 +35,18 @@ void main() {
     authService.setCacheManager(mockCacheManager);
 
     // Configuration des mocks pour retourner Future<void>
-    when(() => mockRoleService.clearLocalRole())
-        .thenAnswer((_) async => Future.value());
-    when(() => mockCacheManager.clearAll())
-        .thenAnswer((_) async => Future.value());
-    when(() => mockSyncService.clearAll())
-        .thenAnswer((_) async => Future.value());
-    when(() => mockAuthRepository.logout())
-        .thenAnswer((_) async => Future.value());
+    when(
+      () => mockRoleService.clearLocalRole(),
+    ).thenAnswer((_) async => Future.value());
+    when(
+      () => mockCacheManager.clearAll(),
+    ).thenAnswer((_) async => Future.value());
+    when(
+      () => mockSyncService.clearAll(),
+    ).thenAnswer((_) async => Future.value());
+    when(
+      () => mockAuthRepository.logout(),
+    ).thenAnswer((_) async => Future.value());
   });
 
   group('AuthService - Logout Cache Invalidation', () {
@@ -66,9 +73,13 @@ void main() {
         await authService.logout();
 
         // Assert
-        expect(callOrder[0], 'clearLocalRole',
-            reason: 'clearLocalRole() doit etre appele en premier pour eviter '
-                'la persistance du role entre utilisateurs');
+        expect(
+          callOrder[0],
+          'clearLocalRole',
+          reason:
+              'clearLocalRole() doit etre appele en premier pour eviter '
+              'la persistance du role entre utilisateurs',
+        );
         expect(callOrder.length, 4);
 
         verify(() => mockRoleService.clearLocalRole()).called(1);
@@ -98,90 +109,85 @@ void main() {
       },
     );
 
-    test(
-      'logout() doit completer meme si clearLocalRole() echoue',
-      () async {
-        // Arrange
-        when(() => mockRoleService.clearLocalRole())
-            .thenThrow(Exception('Erreur cache'));
+    test('logout() doit completer meme si clearLocalRole() echoue', () async {
+      // Arrange
+      when(
+        () => mockRoleService.clearLocalRole(),
+      ).thenThrow(Exception('Erreur cache'));
 
-        // Act & Assert - Le logout doit continuer malgre l'erreur
-        expect(
-          () async => await authService.logout(),
-          throwsException,
-        );
+      // Act & Assert - Le logout doit continuer malgre l'erreur
+      expect(() async => await authService.logout(), throwsException);
 
-        // Verifier que clearLocalRole a bien ete appele
-        verify(() => mockRoleService.clearLocalRole()).called(1);
-      },
-    );
+      // Verifier que clearLocalRole a bien ete appele
+      verify(() => mockRoleService.clearLocalRole()).called(1);
+    });
   });
 
   group('AuthService - Login', () {
-    test(
-      'login() doit retourner null en cas de succes',
-      () async {
-        // Arrange
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              deviceType: any(named: 'deviceType'),
-              deviceName: any(named: 'deviceName'),
-              model: any(named: 'model'),
-              location: any(named: 'location'),
-            )).thenAnswer((_) async => null);
+    test('login() doit retourner null en cas de succes', () async {
+      // Arrange
+      when(
+        () => mockAuthRepository.login(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          deviceType: any(named: 'deviceType'),
+          deviceName: any(named: 'deviceName'),
+          model: any(named: 'model'),
+          location: any(named: 'location'),
+        ),
+      ).thenAnswer((_) async => null);
 
-        // Act
-        final result = await authService.login(
+      // Act
+      final result = await authService.login(
+        email: 'test@example.com',
+        password: 'password123',
+        deviceType: 'smartphone_android',
+        deviceName: 'Pixel 6',
+        model: 'Google Pixel 6',
+      );
+
+      // Assert
+      expect(result, isNull);
+      verify(
+        () => mockAuthRepository.login(
           email: 'test@example.com',
           password: 'password123',
           deviceType: 'smartphone_android',
           deviceName: 'Pixel 6',
           model: 'Google Pixel 6',
-        );
+          location: null,
+        ),
+      ).called(1);
+    });
 
-        // Assert
-        expect(result, isNull);
-        verify(() => mockAuthRepository.login(
-              email: 'test@example.com',
-              password: 'password123',
-              deviceType: 'smartphone_android',
-              deviceName: 'Pixel 6',
-              model: 'Google Pixel 6',
-              location: null,
-            )).called(1);
-      },
-    );
+    test('login() doit retourner NetworkFailure en cas d\'echec', () async {
+      // Arrange
+      const failure = NetworkFailure(
+        type: NetworkFailureType.unauthorized,
+        message: 'Identifiants invalides',
+      );
 
-    test(
-      'login() doit retourner NetworkFailure en cas d\'echec',
-      () async {
-        // Arrange
-        const failure = NetworkFailure(
-          type: NetworkFailureType.unauthorized,
-          message: 'Identifiants invalides',
-        );
+      when(
+        () => mockAuthRepository.login(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          deviceType: any(named: 'deviceType'),
+          deviceName: any(named: 'deviceName'),
+          model: any(named: 'model'),
+          location: any(named: 'location'),
+        ),
+      ).thenAnswer((_) async => failure);
 
-        when(() => mockAuthRepository.login(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-              deviceType: any(named: 'deviceType'),
-              deviceName: any(named: 'deviceName'),
-              model: any(named: 'model'),
-              location: any(named: 'location'),
-            )).thenAnswer((_) async => failure);
+      // Act
+      final result = await authService.login(
+        email: 'wrong@example.com',
+        password: 'wrongpassword',
+      );
 
-        // Act
-        final result = await authService.login(
-          email: 'wrong@example.com',
-          password: 'wrongpassword',
-        );
-
-        // Assert
-        expect(result, equals(failure));
-        expect(result?.type, NetworkFailureType.unauthorized);
-      },
-    );
+      // Assert
+      expect(result, equals(failure));
+      expect(result?.type, NetworkFailureType.unauthorized);
+    });
   });
 
   group('AuthService - Scenario de reconnexion avec roles differents', () {
@@ -201,14 +207,16 @@ void main() {
         verify(() => mockRoleService.clearLocalRole()).called(1);
 
         // Arrange - Simulation User 2 (Admin) se connecte
-        when(() => mockAuthRepository.login(
-              email: 'admin@example.com',
-              password: 'admin123',
-              deviceType: any(named: 'deviceType'),
-              deviceName: any(named: 'deviceName'),
-              model: any(named: 'model'),
-              location: any(named: 'location'),
-            )).thenAnswer((_) async => null);
+        when(
+          () => mockAuthRepository.login(
+            email: 'admin@example.com',
+            password: 'admin123',
+            deviceType: any(named: 'deviceType'),
+            deviceName: any(named: 'deviceName'),
+            model: any(named: 'model'),
+            location: any(named: 'location'),
+          ),
+        ).thenAnswer((_) async => null);
 
         // Act - User 2 se connecte
         final loginResult = await authService.login(
@@ -217,8 +225,11 @@ void main() {
         );
 
         // Assert
-        expect(loginResult, isNull,
-            reason: 'La connexion du User 2 doit reussir');
+        expect(
+          loginResult,
+          isNull,
+          reason: 'La connexion du User 2 doit reussir',
+        );
 
         // Verifier que clearLocalRole a bien ete appele avant la reconnexion
         verify(() => mockRoleService.clearLocalRole()).called(1);
