@@ -55,12 +55,53 @@ class SyncQueueLocalDatasource implements ClearableDatasource {
   /// Ajoute une operation a la file d'attente.
   /// Pour les operations UPDATE, supprime les anciennes operations pending
   /// du meme type pour la meme entite afin d'eviter les conflits d'ordre.
+  /// Si un CREATE existe deja pour cette entite, le transforme en CREATE
+  /// avec les nouvelles donnees.
   Future<void> insert(SyncOperation operation) async {
     final db = await database;
 
-    // Pour les UPDATE, supprimer les anciennes operations pending du meme type
-    // pour la meme entite afin de ne garder que la plus recente
+    // Pour les UPDATE, verifier s'il existe deja un CREATE pour cette entite
     if (operation.operationType == SyncOperationType.update) {
+      // Chercher une operation CREATE pending pour la meme entite
+      final existingCreateOps = await db.query(
+        _tableName,
+        where:
+            'entityType = ? AND entityId = ? AND operationType = ? AND status = ?',
+        whereArgs: [
+          operation.entityType.name,
+          operation.entityId,
+          SyncOperationType.create.name,
+          SyncOperationStatus.pending.name,
+        ],
+      );
+
+      if (existingCreateOps.isNotEmpty) {
+        // Un CREATE existe deja : remplacer ses donnees par celles de l'UPDATE
+        // mais conserver l'operationType = CREATE
+        final createOp = SyncOperation.fromMap(existingCreateOps.first);
+        final mergedOp = SyncOperation(
+          id: createOp.id,
+          entityType: createOp.entityType,
+          entityId: createOp.entityId,
+          operationType: SyncOperationType.create, // Conserver CREATE
+          payload: operation.payload, // Nouvelles donnees
+          createdAt: createOp.createdAt,
+          retryCount: createOp.retryCount,
+          status: createOp.status,
+        );
+
+        await db.update(
+          _tableName,
+          mergedOp.toMap(),
+          where: 'id = ?',
+          whereArgs: [createOp.id],
+        );
+
+        // Ne pas inserer l'UPDATE puisqu'on a fusionne
+        return;
+      }
+
+      // Pas de CREATE existant : supprimer les anciennes operations UPDATE
       await db.delete(
         _tableName,
         where:
