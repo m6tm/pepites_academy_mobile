@@ -97,12 +97,10 @@ void main() {
         authServiceWithoutRole.setCacheManager(mockCacheManager);
         authServiceWithoutRole.setSyncService(mockSyncService);
 
-        // Act & Assert - Ne doit pas throw d'exception
-        expect(
-          () async => await authServiceWithoutRole.logout(),
-          returnsNormally,
-        );
+        // Act - Appeler logout sans role service
+        await authServiceWithoutRole.logout();
 
+        // Assert - Verifier que les autres services ont ete appeles
         verify(() => mockCacheManager.clearAll()).called(1);
         verify(() => mockSyncService.clearAll()).called(1);
         verify(() => mockAuthRepository.logout()).called(1);
@@ -231,8 +229,8 @@ void main() {
           reason: 'La connexion du User 2 doit reussir',
         );
 
-        // Verifier que clearLocalRole a bien ete appele avant la reconnexion
-        verify(() => mockRoleService.clearLocalRole()).called(1);
+        // Verifier que clearLocalRole a ete appele pendant le logout
+        // (deja verifie a la ligne 205, donc pas de second verify ici)
       },
     );
   });
