@@ -17,7 +17,7 @@ import '../widgets/admin_internal_widgets.dart';
 
 /// Ecran Parametres du dashboard administrateur.
 /// Configuration de l'application, profil et deconnexion.
-class AdminSettingsScreen extends StatelessWidget {
+class AdminSettingsScreen extends StatefulWidget {
   final String userName;
   final String? fullName;
   final String? photoUrl;
@@ -30,6 +30,28 @@ class AdminSettingsScreen extends StatelessWidget {
     this.photoUrl,
     required this.onLogout,
   });
+
+  @override
+  State<AdminSettingsScreen> createState() => _AdminSettingsScreenState();
+}
+
+class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
+  String? _userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEmail();
+  }
+
+  Future<void> _loadUserEmail() async {
+    final email = await DependencyInjection.preferences.getUserEmail();
+    if (mounted) {
+      setState(() {
+        _userEmail = email;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +202,7 @@ class AdminSettingsScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: OutlinedButton.icon(
-              onPressed: onLogout,
+              onPressed: widget.onLogout,
               icon: const Icon(Icons.logout_rounded),
               label: Text(
                 l10n.logout,
@@ -241,7 +263,7 @@ class AdminSettingsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  fullName ?? userName,
+                  widget.fullName ?? widget.userName,
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -252,7 +274,7 @@ class AdminSettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'admin@pepites.com',
+                  _userEmail ?? 'email@pepites.com',
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.5),
@@ -283,11 +305,11 @@ class AdminSettingsScreen extends StatelessWidget {
   }
 
   Widget _buildProfileImage() {
-    if (photoUrl != null && photoUrl!.isNotEmpty) {
-      final isLocal = !photoUrl!.startsWith('http');
-      if (isLocal && File(photoUrl!).existsSync()) {
+    if (widget.photoUrl != null && widget.photoUrl!.isNotEmpty) {
+      final isLocal = !widget.photoUrl!.startsWith('http');
+      if (isLocal && File(widget.photoUrl!).existsSync()) {
         return Image.file(
-          File(photoUrl!),
+          File(widget.photoUrl!),
           width: 56,
           height: 56,
           fit: BoxFit.cover,
@@ -295,7 +317,7 @@ class AdminSettingsScreen extends StatelessWidget {
         );
       } else if (!isLocal) {
         return Image.network(
-          photoUrl!,
+          widget.photoUrl!,
           width: 56,
           height: 56,
           fit: BoxFit.cover,
@@ -313,7 +335,7 @@ class AdminSettingsScreen extends StatelessWidget {
       color: AppColors.primary.withValues(alpha: 0.2),
       child: Center(
         child: Text(
-          userName.isNotEmpty ? userName[0].toUpperCase() : 'A',
+          widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'A',
           style: GoogleFonts.montserrat(
             fontSize: 24,
             fontWeight: FontWeight.w800,

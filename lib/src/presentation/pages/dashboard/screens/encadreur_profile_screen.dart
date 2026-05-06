@@ -15,7 +15,7 @@ import '../widgets/encadreur_internal_widgets.dart';
 
 /// Ecran Profil du dashboard encadreur.
 /// Informations personnelles, statistiques et parametres.
-class EncadreurProfileScreen extends StatelessWidget {
+class EncadreurProfileScreen extends StatefulWidget {
   final String userName;
   final String? fullName;
   final String? photoUrl;
@@ -28,6 +28,28 @@ class EncadreurProfileScreen extends StatelessWidget {
     this.photoUrl,
     required this.onLogout,
   });
+
+  @override
+  State<EncadreurProfileScreen> createState() => _EncadreurProfileScreenState();
+}
+
+class _EncadreurProfileScreenState extends State<EncadreurProfileScreen> {
+  String? _userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserEmail();
+  }
+
+  Future<void> _loadUserEmail() async {
+    final email = await DependencyInjection.preferences.getUserEmail();
+    if (mounted) {
+      setState(() {
+        _userEmail = email;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +116,7 @@ class EncadreurProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  fullName ?? userName,
+                  widget.fullName ?? widget.userName,
                   style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -105,7 +127,7 @@ class EncadreurProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'coach@pepites.com',
+                  _userEmail ?? 'email@pepites.com',
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: Colors.white.withValues(alpha: 0.5),
@@ -147,7 +169,7 @@ class EncadreurProfileScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: OutlinedButton.icon(
-              onPressed: onLogout,
+              onPressed: widget.onLogout,
               icon: const Icon(Icons.logout_rounded),
               label: Text(
                 l10n.logout,
@@ -289,11 +311,11 @@ class EncadreurProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileImage() {
-    if (photoUrl != null && photoUrl!.isNotEmpty) {
-      final isLocal = !photoUrl!.startsWith('http');
-      if (isLocal && File(photoUrl!).existsSync()) {
+    if (widget.photoUrl != null && widget.photoUrl!.isNotEmpty) {
+      final isLocal = !widget.photoUrl!.startsWith('http');
+      if (isLocal && File(widget.photoUrl!).existsSync()) {
         return Image.file(
-          File(photoUrl!),
+          File(widget.photoUrl!),
           width: 80,
           height: 80,
           fit: BoxFit.cover,
@@ -301,7 +323,7 @@ class EncadreurProfileScreen extends StatelessWidget {
         );
       } else if (!isLocal) {
         return Image.network(
-          photoUrl!,
+          widget.photoUrl!,
           width: 80,
           height: 80,
           fit: BoxFit.cover,
@@ -319,7 +341,7 @@ class EncadreurProfileScreen extends StatelessWidget {
       color: Colors.transparent,
       child: Center(
         child: Text(
-          userName.isNotEmpty ? userName[0].toUpperCase() : 'C',
+          widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'C',
           style: GoogleFonts.montserrat(
             fontSize: 32,
             fontWeight: FontWeight.w800,
