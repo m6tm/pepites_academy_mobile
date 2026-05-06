@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/sms_message.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les SMS.
 /// Utilise SharedPreferences pour persister l'historique en JSON.
-class SmsLocalDatasource {
+class SmsLocalDatasource implements ClearableDatasource {
   static const String _key = 'sms_history_data';
   final SharedPreferences _prefs;
   AppLocalizations? _l10n;
@@ -90,5 +91,10 @@ class SmsLocalDatasource {
   Future<void> _saveAll(List<SmsMessage> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }

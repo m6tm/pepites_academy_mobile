@@ -3,11 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/poste_football.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les postes de football.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
 /// Les donnees sont synchronisees depuis le backend.
-class PosteFootballLocalDatasource {
+class PosteFootballLocalDatasource implements ClearableDatasource {
   final SharedPreferences _prefs;
   static const String _storageKey = 'postes_football_data';
   static const String _initializedKey = 'postes_football_initialized';
@@ -117,5 +118,11 @@ class PosteFootballLocalDatasource {
       print('[PosteFootball] Sync exception: $e');
       return false;
     }
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_storageKey);
+    await _prefs.remove(_initializedKey);
   }
 }

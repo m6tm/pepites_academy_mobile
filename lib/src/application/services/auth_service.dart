@@ -1,17 +1,24 @@
 import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'sync_service.dart';
+import 'cache_manager.dart';
 
 /// Service gerant la logique metier liee a l'authentification.
 class AuthService {
   final AuthRepository _authRepository;
   SyncService? _syncService;
+  CacheManager? _cacheManager;
 
   AuthService(this._authRepository);
 
   /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
     _syncService = service;
+  }
+
+  /// Injecte le gestionnaire de cache.
+  void setCacheManager(CacheManager manager) {
+    _cacheManager = manager;
   }
 
   /// Inscrit un nouvel utilisateur.
@@ -54,8 +61,16 @@ class AuthService {
   }
 
   /// Deconnecte l'utilisateur et vide la queue de synchronisation.
+  /// Vide egalement tous les caches locaux pour eviter la persistance
+  /// des donnees entre differents utilisateurs.
   Future<void> logout() async {
+    // 1. Vider tous les caches de donnees metier
+    await _cacheManager?.clearAll();
+
+    // 2. Vider la queue de synchronisation
     await _syncService?.clearAll();
+
+    // 3. Deconnecter via le repository (appel API + nettoyage preferences)
     return _authRepository.logout();
   }
 

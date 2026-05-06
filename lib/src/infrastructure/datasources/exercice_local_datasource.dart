@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/exercice.dart';
+import 'clearable_datasource.dart';
 
 /// Source de données locale pour les exercices des ateliers.
 /// Utilise SharedPreferences pour persister les données en JSON.
-class ExerciceLocalDatasource {
+class ExerciceLocalDatasource implements ClearableDatasource {
   static const String _key = 'exercices_data';
   final SharedPreferences _prefs;
 
@@ -107,5 +108,10 @@ class ExerciceLocalDatasource {
   Future<void> _saveAll(List<Exercice> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }

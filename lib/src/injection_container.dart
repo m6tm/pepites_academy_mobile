@@ -21,6 +21,7 @@ import 'application/services/biometric_service.dart';
 import 'application/services/security_service.dart';
 import 'application/services/dashboard_service.dart';
 import 'application/services/role_service.dart';
+import 'application/services/cache_manager.dart';
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
@@ -127,6 +128,7 @@ class DependencyInjection {
   static late final DashboardRepositoryImpl dashboardRepository;
   static late final MedecinRepository medecinRepository;
   static late final UploadService uploadService;
+  static late final CacheManager cacheManager;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
   static late PreferencesRepositoryImpl _preferencesRepository;
@@ -348,10 +350,33 @@ class DependencyInjection {
       notificationState.rafraichirDepuisCache();
     };
 
+    // Initialisation du CacheManager avec toutes les datasources et services
+    cacheManager = CacheManager(
+      [
+        academicienDatasource,
+        activityDatasource,
+        annotationDatasource,
+        atelierDatasource,
+        bulletinDatasource,
+        encadreurDatasource,
+        exerciceDatasource,
+        niveauDatasource,
+        notificationDatasource,
+        posteDatasource,
+        presenceDatasource,
+        seanceDatasource,
+        smsDatasource,
+        syncQueueDatasource,
+      ],
+      atelierService,
+      exerciceService,
+    );
+
     // Initialisation de l'authentification
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);
     authService.setSyncService(syncService);
+    authService.setCacheManager(cacheManager);
 
     // Initialisation du module de securite et biometrie
     securityRepository = SecurityRepositoryImpl(dioClient);

@@ -3,11 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/niveau_scolaire.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les niveaux scolaires.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
 /// Les donnees sont synchronisees depuis le backend.
-class NiveauScolaireLocalDatasource {
+class NiveauScolaireLocalDatasource implements ClearableDatasource {
   final SharedPreferences _prefs;
   static const String _storageKey = 'niveaux_scolaires_data';
   static const String _initializedKey = 'niveaux_scolaires_initialized';
@@ -116,5 +117,11 @@ class NiveauScolaireLocalDatasource {
       print('[NiveauScolaire] Sync exception: $e');
       return false;
     }
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_storageKey);
+    await _prefs.remove(_initializedKey);
   }
 }

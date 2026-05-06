@@ -1,11 +1,12 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import '../../domain/entities/sync_operation.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour la file d'attente de synchronisation.
 /// Utilise SQLite via sqflite pour une persistance robuste des operations
 /// en attente, meme en cas de fermeture brutale de l'application.
-class SyncQueueLocalDatasource {
+class SyncQueueLocalDatasource implements ClearableDatasource {
   static const String _dbName = 'pepites_sync_queue.db';
   static const String _tableName = 'sync_operations';
   static const int _dbVersion = 1;
@@ -214,5 +215,10 @@ class SyncQueueLocalDatasource {
       await db.close();
       _database = null;
     }
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await clearAll();
   }
 }

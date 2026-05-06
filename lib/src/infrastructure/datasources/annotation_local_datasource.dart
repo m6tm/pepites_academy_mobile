@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/annotation.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les annotations.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
-class AnnotationLocalDatasource {
+class AnnotationLocalDatasource implements ClearableDatasource {
   static const String _key = 'annotations_data';
   final SharedPreferences _prefs;
 
@@ -109,5 +110,10 @@ class AnnotationLocalDatasource {
   Future<void> _saveAll(List<Annotation> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }

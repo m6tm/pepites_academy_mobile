@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/notification_item.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les notifications.
 /// Utilise SharedPreferences pour persister les notifications en JSON.
 /// Genere des notifications de demonstration au premier chargement.
-class NotificationLocalDatasource {
+class NotificationLocalDatasource implements ClearableDatasource {
   static const String _key = 'notifications_data';
   final SharedPreferences _prefs;
 
@@ -117,5 +118,10 @@ class NotificationLocalDatasource {
   Future<void> _saveAll(List<NotificationItem> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }

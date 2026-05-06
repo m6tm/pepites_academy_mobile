@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/seance.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les seances d'entrainement.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
-class SeanceLocalDatasource {
+class SeanceLocalDatasource implements ClearableDatasource {
   static const String _key = 'seances_data';
   final SharedPreferences _prefs;
   AppLocalizations? _l10n;
@@ -83,5 +84,10 @@ class SeanceLocalDatasource {
       merged[remote.id] = remote;
     }
     await saveAll(merged.values.toList());
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }

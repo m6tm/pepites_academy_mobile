@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/bulletin.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les bulletins de formation.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
-class BulletinLocalDatasource {
+class BulletinLocalDatasource implements ClearableDatasource {
   static const String _key = 'bulletins_data';
   final SharedPreferences _prefs;
 
@@ -74,5 +75,10 @@ class BulletinLocalDatasource {
   Future<void> _saveAll(List<Bulletin> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }

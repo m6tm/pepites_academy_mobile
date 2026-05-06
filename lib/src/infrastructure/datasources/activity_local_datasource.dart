@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/activity.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour le journal d'activites.
 /// Utilise SharedPreferences pour persister les activites en JSON.
-class ActivityLocalDatasource {
+class ActivityLocalDatasource implements ClearableDatasource {
   static const String _key = 'activities_data';
   final SharedPreferences _prefs;
 
@@ -46,5 +47,10 @@ class ActivityLocalDatasource {
   Future<void> _saveAll(List<Activity> list) async {
     final jsonList = list.map((e) => e.toJson()).toList();
     await _prefs.setString(_key, json.encode(jsonList));
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }

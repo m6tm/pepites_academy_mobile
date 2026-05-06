@@ -4,10 +4,11 @@ import '../../domain/entities/academicien.dart';
 import '../../domain/entities/historique_parcours_sportif.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les academiciens.
 /// Utilise SharedPreferences pour persister les donnees en JSON.
-class AcademicienLocalDatasource {
+class AcademicienLocalDatasource implements ClearableDatasource {
   static const String _key = 'academiciens_data';
   final SharedPreferences _prefs;
 
@@ -76,6 +77,11 @@ class AcademicienLocalDatasource {
     await _prefs.remove(_key);
   }
 
+  @override
+  Future<void> clearCache() async {
+    await clear();
+  }
+
   Future<void> saveAll(List<Academicien> list) async {
     final jsonList = list.map((e) => _toJson(e)).toList();
     await _prefs.setString(_key, json.encode(jsonList));
@@ -128,7 +134,6 @@ class AcademicienLocalDatasource {
       'photoParentUrl': a.photoParentUrl,
       'etablissementScolaire': a.etablissementScolaire,
       'anneeScolaireActuelle': a.anneeScolaireActuelle,
-      'classeActuelle': a.classeActuelle,
       'remarquesScolaires': a.remarquesScolaires,
       'certificatMedicalUrl': a.certificatMedicalUrl,
     };
@@ -187,7 +192,6 @@ class AcademicienLocalDatasource {
       photoParentUrl: json['photoParentUrl'] as String?,
       etablissementScolaire: json['etablissementScolaire'] as String?,
       anneeScolaireActuelle: json['anneeScolaireActuelle'] as String?,
-      classeActuelle: json['classeActuelle'] as String?,
       remarquesScolaires: json['remarquesScolaires'] as String?,
       certificatMedicalUrl: json['certificatMedicalUrl'] as String?,
     );
@@ -338,9 +342,6 @@ class AcademicienLocalDatasource {
               anneeScolaireActuelle:
                   (map['annee_scolaire_actuelle'] as String?) ??
                   (map['anneeScolaireActuelle'] as String?),
-              classeActuelle:
-                  (map['classe_actuelle'] as String?) ??
-                  (map['classeActuelle'] as String?),
               remarquesScolaires:
                   (map['remarques_scolaires'] as String?) ??
                   (map['remarquesScolaires'] as String?),

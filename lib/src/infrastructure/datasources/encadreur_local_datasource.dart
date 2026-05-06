@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/encadreur.dart';
+import 'clearable_datasource.dart';
 
 /// Source de données locale pour les encadreurs.
 /// Utilise SharedPreferences pour persister les données en JSON.
-class EncadreurLocalDatasource {
+class EncadreurLocalDatasource implements ClearableDatasource {
   final SharedPreferences _prefs;
   static const String _storageKey = 'encadreurs_data';
 
@@ -74,5 +75,10 @@ class EncadreurLocalDatasource {
     } catch (_) {
       return null;
     }
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_storageKey);
   }
 }

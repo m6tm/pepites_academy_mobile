@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/presence.dart';
+import 'clearable_datasource.dart';
 
 /// Source de donnees locale pour les presences (scans QR).
 /// Utilise SharedPreferences pour persister les donnees en JSON.
-class PresenceLocalDatasource {
+class PresenceLocalDatasource implements ClearableDatasource {
   static const String _key = 'presences_data';
   final SharedPreferences _prefs;
 
@@ -77,5 +78,10 @@ class PresenceLocalDatasource {
       profilId: json['profilId'] as String,
       seanceId: json['seanceId'] as String,
     );
+  }
+
+  @override
+  Future<void> clearCache() async {
+    await _prefs.remove(_key);
   }
 }
