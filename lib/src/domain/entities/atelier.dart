@@ -3,6 +3,35 @@ import 'enums/atelier_type.dart';
 export 'enums/atelier_statut.dart';
 export 'enums/atelier_type.dart';
 
+/// Configuration d'evaluation d'un atelier : 2 elements par critere.
+class ConfigurationElementEvaluation {
+  final String critereId;
+  final String element1Id;
+  final String element2Id;
+
+  const ConfigurationElementEvaluation({
+    required this.critereId,
+    required this.element1Id,
+    required this.element2Id,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'critere_id': critereId,
+      'element_1_id': element1Id,
+      'element_2_id': element2Id,
+    };
+  }
+
+  factory ConfigurationElementEvaluation.fromJson(Map<String, dynamic> json) {
+    return ConfigurationElementEvaluation(
+      critereId: (json['critere_id'] ?? json['critereId']) as String,
+      element1Id: (json['element_1_id'] ?? json['element1Id']) as String,
+      element2Id: (json['element_2_id'] ?? json['element2Id']) as String,
+    );
+  }
+}
+
 class Atelier {
   final String id;
   final String nom;
@@ -13,6 +42,7 @@ class Atelier {
   final int ordre;
   final AtelierStatut statut;
   final String seanceId;
+  final List<ConfigurationElementEvaluation>? configurationEvaluation;
 
   const Atelier({
     required this.id,
@@ -24,11 +54,16 @@ class Atelier {
     required this.ordre,
     required this.statut,
     required this.seanceId,
+    this.configurationEvaluation,
   });
 
   String get typeLabel => (type == AtelierType.personnalise && typeCustom != null && typeCustom!.isNotEmpty)
       ? typeCustom!
       : type.label;
+
+  /// Indique si la configuration d'evaluation est complete (5 criteres x 2 elements).
+  bool get configurationEvaluationComplete =>
+      configurationEvaluation != null && configurationEvaluation!.length == 5;
 
   /// Cree une copie de l'atelier avec des champs modifies.
   Atelier copyWith({
@@ -41,6 +76,7 @@ class Atelier {
     int? ordre,
     AtelierStatut? statut,
     String? seanceId,
+    List<ConfigurationElementEvaluation>? configurationEvaluation,
   }) {
     return Atelier(
       id: id ?? this.id,
@@ -52,6 +88,7 @@ class Atelier {
       ordre: ordre ?? this.ordre,
       statut: statut ?? this.statut,
       seanceId: seanceId ?? this.seanceId,
+      configurationEvaluation: configurationEvaluation ?? this.configurationEvaluation,
     );
   }
 
@@ -67,11 +104,15 @@ class Atelier {
       'ordre': ordre,
       'statut': statut.name,
       'seanceId': seanceId,
+      'configuration_evaluation': configurationEvaluation
+          ?.map((c) => c.toJson())
+          .toList(),
     };
   }
 
   /// Deserialise un atelier depuis un Map JSON.
   factory Atelier.fromJson(Map<String, dynamic> json) {
+    final configRaw = json['configuration_evaluation'] as List<dynamic>?;
     return Atelier(
       id: json['id'] as String,
       nom: json['nom'] as String? ?? '',
@@ -88,6 +129,10 @@ class Atelier {
         orElse: () => AtelierStatut.cree,
       ),
       seanceId: (json['seance_id'] ?? json['seanceId']) as String,
+      configurationEvaluation: configRaw
+          ?.map((e) => ConfigurationElementEvaluation.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
