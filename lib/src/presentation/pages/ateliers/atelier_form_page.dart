@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 import '../../../domain/entities/atelier.dart';
+import '../../../domain/entities/critere_evaluation.dart';
 import '../../state/atelier_state.dart';
 import '../../widgets/glass_text_field.dart';
 import '../../widgets/glass_dropdown.dart';
 import '../../widgets/icon_selector.dart';
+import '../../widgets/evaluation_configuration_selector.dart';
 
 import '../../../injection_container.dart';
 import '../../../domain/entities/permission.dart';
@@ -35,6 +37,8 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
   late AtelierType _selectedType;
   String? _selectedIcon;
   bool _isSubmitting = false;
+  List<CritereEvaluation> _criteres = [];
+  List<ConfigurationElementEvaluation> _configurationEvaluation = [];
 
   @override
   void initState() {
@@ -49,6 +53,17 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     );
     _selectedType = widget.atelier?.type ?? AtelierType.dribble;
     _selectedIcon = widget.atelier?.icone;
+    _configurationEvaluation =
+        widget.atelier?.configurationEvaluation?.toList() ?? [];
+    _chargerCriteres();
+  }
+
+  Future<void> _chargerCriteres() async {
+    final criteres = await DependencyInjection
+        .evaluationReferentielRepository.getAllCriteres();
+    if (mounted) {
+      setState(() => _criteres = criteres);
+    }
   }
 
   Future<void> _checkPermissions() async {
@@ -80,6 +95,15 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_criteres.isNotEmpty && _configurationEvaluation.length != 5) {
+      AcademyToast.show(
+        context,
+        title: 'Veuillez selectionner 2 elements par critere d\'evaluation',
+        isError: true,
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     bool success;
@@ -90,6 +114,9 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
         typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
         description: _descriptionController.text.trim(),
         icone: _selectedIcon,
+        configurationEvaluation: _configurationEvaluation.isNotEmpty
+            ? _configurationEvaluation
+            : null,
       );
     } else {
       success = await widget.atelierState.modifierAtelier(
@@ -99,8 +126,10 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
           typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
           description: _descriptionController.text.trim(),
           icone: _selectedIcon,
-          statut: AtelierStatut
-              .valide, // Le ticket mentionne "change le statut en valide"
+          configurationEvaluation: _configurationEvaluation.isNotEmpty
+              ? _configurationEvaluation
+              : null,
+          statut: AtelierStatut.valide,
         ),
       );
     }
@@ -112,7 +141,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
       AcademyToast.show(
         context,
         title: widget.atelier == null
-            ? 'Erreur lors de la création'
+            ? 'Erreur lors de la creation'
             : 'Erreur lors de la modification',
         isError: true,
       );
@@ -205,6 +234,18 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
                             prefixIcon: Icons.description_rounded,
                             maxLines: 4,
                           ),
+
+                          if (_criteres.isNotEmpty) ...[
+                            const SizedBox(height: 32),
+                            EvaluationConfigurationSelector(
+                              criteres: _criteres,
+                              configurationInitiale:
+                                  widget.atelier?.configurationEvaluation,
+                              onConfigurationChanged: (config) {
+                                _configurationEvaluation = config;
+                              },
+                            ),
+                          ],
 
                           const SizedBox(height: 40),
 

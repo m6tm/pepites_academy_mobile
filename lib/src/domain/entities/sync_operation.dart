@@ -18,6 +18,7 @@ enum SyncEntityType {
   fcmToken,
   dashboard,
   season,
+  evaluation,
 }
 
 /// Statuts possibles d'une operation de synchronisation.

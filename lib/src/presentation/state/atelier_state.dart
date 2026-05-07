@@ -71,6 +71,7 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
     String? typeCustom,
     String description = '',
     String? icone,
+    List<ConfigurationElementEvaluation>? configurationEvaluation,
   }) async {
     if (_seanceId == null) return false;
 
@@ -87,6 +88,7 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
         typeCustom: typeCustom,
         description: description,
         icone: icone,
+        configurationEvaluation: configurationEvaluation,
       );
       _successMessage = 'Atelier "$nom" ajoute avec succes.';
       await chargerAteliers(_seanceId!);

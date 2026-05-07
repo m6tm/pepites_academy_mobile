@@ -182,6 +182,8 @@ class SyncQueueLocalDatasource implements ClearableDatasource {
         return 10; // Dashboard en faible priorite (donnees agrégées)
       case SyncEntityType.season:
         return 1; // Saison en haute priorite (impact global)
+      case SyncEntityType.evaluation:
+        return 6;
     }
   }
 

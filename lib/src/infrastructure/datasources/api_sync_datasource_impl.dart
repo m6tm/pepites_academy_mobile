@@ -286,6 +286,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.dashboardStats;
       case SyncEntityType.season:
         return ApiEndpoints.seasons;
+      case SyncEntityType.evaluation:
+        return ApiEndpoints.evaluations;
     }
   }
 

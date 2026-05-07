@@ -38,6 +38,9 @@ class ApiEndpoints {
   /// Chemins pour les annotations.
   static const String annotations = '/annotations';
 
+  /// Chemins pour les evaluations multicriteres.
+  static const String evaluations = '/evaluations';
+
   /// Chemins pour les notifications.
   static const String notifications = '/notifications';
 

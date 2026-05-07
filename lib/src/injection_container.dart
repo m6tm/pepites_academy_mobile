@@ -6,6 +6,7 @@ import 'application/services/activity_service.dart';
 import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
 import 'application/services/atelier_service.dart';
+import 'application/services/evaluation_service.dart';
 import 'application/services/exercice_service.dart';
 import 'application/services/bulletin_service.dart';
 import 'application/services/connectivity_service.dart';
@@ -26,6 +27,7 @@ import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
+import 'infrastructure/datasources/evaluation_local_datasource.dart';
 import 'infrastructure/datasources/exercice_local_datasource.dart';
 import 'infrastructure/datasources/bulletin_local_datasource.dart';
 import 'infrastructure/datasources/connectivity_datasource.dart';
@@ -44,6 +46,7 @@ import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
+import 'infrastructure/repositories/evaluation_repository_impl.dart';
 import 'infrastructure/repositories/exercice_repository_impl.dart';
 import 'infrastructure/repositories/bulletin_repository_impl.dart';
 import 'infrastructure/repositories/connectivity_repository_impl.dart';
@@ -77,6 +80,7 @@ import 'presentation/state/language_state.dart';
 import 'presentation/state/exercice_state.dart';
 import 'presentation/state/atelier_state.dart';
 import 'presentation/state/annotation_state.dart';
+import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
@@ -132,6 +136,9 @@ class DependencyInjection {
   static late final UploadService uploadService;
   static late final EvaluationReferentielRepositoryImpl
       evaluationReferentielRepository;
+  static late final EvaluationRepositoryImpl evaluationRepository;
+  static late final EvaluationService evaluationService;
+  static late EvaluationState evaluationState;
   static late final CacheManager cacheManager;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -276,6 +283,14 @@ class DependencyInjection {
     evaluationReferentielRepository =
         EvaluationReferentielRepositoryImpl(evaluationReferentielDatasource);
 
+    // Initialisation du Repository et Service Evaluation
+    final evaluationDatasource = EvaluationLocalDatasource(sharedPrefs);
+    evaluationRepository = EvaluationRepositoryImpl(evaluationDatasource);
+    evaluationService = EvaluationService(
+      evaluationRepository: evaluationRepository,
+      atelierRepository: atelierRepository,
+    );
+
     // Initialisation du module Activites
     final activityDatasource = ActivityLocalDatasource(sharedPrefs);
     final activityRepository = ActivityRepositoryImpl(activityDatasource);
@@ -371,6 +386,7 @@ class DependencyInjection {
         bulletinDatasource,
         encadreurDatasource,
         evaluationReferentielDatasource,
+        evaluationDatasource,
         exerciceDatasource,
         niveauDatasource,
         notificationDatasource,
@@ -430,6 +446,7 @@ class DependencyInjection {
     exerciceState = ExerciceState(exerciceService);
     atelierState = AtelierState(atelierService);
     annotationState = AnnotationState(annotationService);
+    evaluationState = EvaluationState(evaluationService);
     medecinDashboardState = MedecinDashboardState(medecinRepository);
 
     // Injection du service de synchronisation dans les repositories
@@ -447,6 +464,8 @@ class DependencyInjection {
     exerciceRepository.setDioClient(dioClient);
     annotationRepository.setSyncService(syncService);
     annotationRepository.setDioClient(dioClient);
+    evaluationRepository.setSyncService(syncService);
+    evaluationRepository.setDioClient(dioClient);
     bulletinRepository.setSyncService(syncService);
     bulletinRepository.setDioClient(dioClient);
     smsRepository.setSyncService(syncService);
@@ -482,6 +501,9 @@ class DependencyInjection {
           break;
         case SyncEntityType.annotation:
           await annotationRepository.delete(entityId);
+          break;
+        case SyncEntityType.evaluation:
+          await evaluationRepository.delete(entityId);
           break;
         case SyncEntityType.bulletin:
           await bulletinRepository.delete(entityId);

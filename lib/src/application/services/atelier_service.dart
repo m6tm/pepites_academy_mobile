@@ -60,6 +60,7 @@ class AtelierService {
     String? typeCustom,
     String description = '',
     String? icone,
+    List<ConfigurationElementEvaluation>? configurationEvaluation,
   }) async {
     final seance = await _seanceRepository.getById(seanceId);
     if (seance == null) {
@@ -82,6 +83,7 @@ class AtelierService {
       ordre: ordre,
       statut: AtelierStatut.valide,
       seanceId: seanceId,
+      configurationEvaluation: configurationEvaluation,
     );
 
     final created = await _atelierRepository.create(atelier);

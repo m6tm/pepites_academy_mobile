@@ -1,6 +1,7 @@
 export 'academicien.dart';
 export 'annotation.dart';
 export 'atelier.dart';
+export 'evaluation.dart';
 export 'biometric_preferences.dart';
 export 'bulletin.dart';
 export 'dashboard_stats.dart';
