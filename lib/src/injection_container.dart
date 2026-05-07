@@ -62,6 +62,8 @@ import 'infrastructure/repositories/sync_repository_impl.dart';
 import 'infrastructure/repositories/role_repository_impl.dart';
 import 'infrastructure/repositories/dashboard_repository_impl.dart';
 import 'infrastructure/repositories/medecin_repository_impl.dart';
+import 'infrastructure/datasources/evaluation_referentiel_local_datasource.dart';
+import 'infrastructure/repositories/evaluation_referentiel_repository_impl.dart';
 import 'domain/repositories/medecin_repository.dart';
 import 'infrastructure/services/firebase_push_notification_service.dart';
 import 'infrastructure/services/upload_service.dart';
@@ -128,6 +130,8 @@ class DependencyInjection {
   static late final DashboardRepositoryImpl dashboardRepository;
   static late final MedecinRepository medecinRepository;
   static late final UploadService uploadService;
+  static late final EvaluationReferentielRepositoryImpl
+      evaluationReferentielRepository;
   static late final CacheManager cacheManager;
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -265,6 +269,13 @@ class DependencyInjection {
       niveauRepository: niveauRepository,
     );
 
+    // Initialisation du Referentiel d'Evaluation (seed idempotent)
+    final evaluationReferentielDatasource =
+        EvaluationReferentielLocalDatasource(sharedPrefs);
+    await evaluationReferentielDatasource.seed();
+    evaluationReferentielRepository =
+        EvaluationReferentielRepositoryImpl(evaluationReferentielDatasource);
+
     // Initialisation du module Activites
     final activityDatasource = ActivityLocalDatasource(sharedPrefs);
     final activityRepository = ActivityRepositoryImpl(activityDatasource);
@@ -359,6 +370,7 @@ class DependencyInjection {
         atelierDatasource,
         bulletinDatasource,
         encadreurDatasource,
+        evaluationReferentielDatasource,
         exerciceDatasource,
         niveauDatasource,
         notificationDatasource,
