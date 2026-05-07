@@ -112,61 +112,76 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
           ),
         ),
         Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _academicians.isEmpty
-              ? Center(child: Text(l10n.noPlayerFound))
-              : ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: _academicians.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final academician = _academicians[index];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                      leading: CircleAvatar(
-                        backgroundColor: colorScheme.primary.withValues(
-                          alpha: 0.1,
+          child: RefreshIndicator(
+            onRefresh: _loadAcademicians,
+            color: colorScheme.primary,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _academicians.isEmpty
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: 200,
+                        child: Center(child: Text(l10n.noPlayerFound)),
+                      ),
+                    ],
+                  )
+                : ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: _academicians.length,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final academician = _academicians[index];
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                        leading: CircleAvatar(
+                          backgroundColor: colorScheme.primary.withValues(
+                            alpha: 0.1,
+                          ),
+                          backgroundImage: academician.photoUrl.isNotEmpty
+                              ? NetworkImage(academician.photoUrl)
+                              : null,
+                          child: academician.photoUrl.isEmpty
+                              ? const Icon(Icons.person_rounded)
+                              : null,
                         ),
-                        backgroundImage: academician.photoUrl.isNotEmpty
-                            ? NetworkImage(academician.photoUrl)
-                            : null,
-                        child: academician.photoUrl.isEmpty
-                            ? const Icon(Icons.person_rounded)
-                            : null,
-                      ),
-                      title: Text(
-                        '${academician.prenom} ${academician.nom}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Row(
-                        children: [
-                          if (academician.aAllergie == true)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: Icon(
-                                Icons.warning_amber_rounded,
-                                size: 14,
-                                color: Colors.red.shade400,
+                        title: Text(
+                          '${academician.prenom} ${academician.nom}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Row(
+                          children: [
+                            if (academician.aAllergie == true)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Icon(
+                                  Icons.warning_amber_rounded,
+                                  size: 14,
+                                  color: Colors.red.shade400,
+                                ),
+                              ),
+                            Text('${academician.taille} cm'),
+                            const Text(' • '),
+                            Text(
+                              l10n.yearsOld(
+                                _calculateAge(academician.dateNaissance),
                               ),
                             ),
-                          Text('${academician.taille} cm'),
-                          const Text(' • '),
-                          Text(
-                            l10n.yearsOld(
-                              _calculateAge(academician.dateNaissance),
-                            ),
-                          ),
-                        ],
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () {
-                        // TODO: Naviguer vers le détail médical
-                      },
-                    );
-                  },
-                ),
+                          ],
+                        ),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () {
+                          // TODO: Naviguer vers le détail médical
+                        },
+                      );
+                    },
+                  ),
+          ),
         ),
       ],
     );

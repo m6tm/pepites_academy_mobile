@@ -40,9 +40,14 @@ class _EncadreurCommunicationScreenState
         final stats = DependencyInjection.smsState.statistiques;
         final historique = DependencyInjection.smsState.historique;
 
-        return CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
+        return RefreshIndicator(
+          onRefresh: () => DependencyInjection.smsState.chargerHistorique(),
+          color: colorScheme.primary,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -231,6 +236,7 @@ class _EncadreurCommunicationScreenState
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
           ],
+          ),
         );
       },
     );
