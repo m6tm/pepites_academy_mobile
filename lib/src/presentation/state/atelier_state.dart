@@ -10,11 +10,24 @@ import '../../../l10n/app_localizations.dart';
 class AtelierState extends ChangeNotifier with MessageStateMixin {
   final AtelierService _service;
   AppLocalizations? _l10n;
+  bool _isDisposed = false;
 
   AtelierState(this._service);
 
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
   }
 
   List<Atelier> _ateliers = [];

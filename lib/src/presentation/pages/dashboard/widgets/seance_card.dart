@@ -160,19 +160,25 @@ class SeanceCard extends StatelessWidget {
             // Barre d'informations
             Row(
               children: [
-                _InfoChip(
-                  icon: Icons.access_time_rounded,
-                  label: '$heureDebut - $heureFin',
+                Flexible(
+                  child: _InfoChip(
+                    icon: Icons.access_time_rounded,
+                    label: '$heureDebut - $heureFin',
+                  ),
                 ),
                 const SizedBox(width: 12),
-                _InfoChip(
-                  icon: Icons.people_outline_rounded,
-                  label: l10n.presentsInfoLabel(nbPresents),
+                Flexible(
+                  child: _InfoChip(
+                    icon: Icons.people_outline_rounded,
+                    label: l10n.presentsInfoLabel(nbPresents),
+                  ),
                 ),
                 const SizedBox(width: 12),
-                _InfoChip(
-                  icon: Icons.sports_soccer_rounded,
-                  label: l10n.workshopsInfoLabel(nbAteliers),
+                Flexible(
+                  child: _InfoChip(
+                    icon: Icons.sports_soccer_rounded,
+                    label: l10n.workshopsInfoLabel(nbAteliers),
+                  ),
                 ),
               ],
             ),
@@ -202,12 +208,15 @@ class _InfoChip extends StatelessWidget {
           color: colorScheme.onSurface.withValues(alpha: 0.3),
         ),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: GoogleFonts.montserrat(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface.withValues(alpha: 0.45),
+        Flexible(
+          child: Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.montserrat(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface.withValues(alpha: 0.45),
+            ),
           ),
         ),
       ],

@@ -448,6 +448,17 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     super.dispose();
   }
 
+  Future<void> _onRefresh() async {
+    await Future.wait([
+      _chargerAcademiciens(),
+      _refreshCoachActivityStats(),
+      _refreshCurrentSeanceStats(),
+      _loadRecentAnnotations(),
+    ]);
+    _seanceState.chargerSeances();
+    DependencyInjection.notificationState.chargerNotifications('encadreur');
+  }
+
   @override
   Widget build(BuildContext context) {
     _scheduleSeanceRefreshIfStale();
@@ -455,9 +466,14 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: colorScheme.primary,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
         SliverToBoxAdapter(
           child: ListenableBuilder(
             listenable: DependencyInjection.notificationState,
@@ -521,6 +537,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
         SliverToBoxAdapter(child: _buildRecentAnnotations()),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
+      ),
     );
   }
 

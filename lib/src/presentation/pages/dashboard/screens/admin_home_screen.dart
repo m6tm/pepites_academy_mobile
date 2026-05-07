@@ -138,14 +138,28 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    await Future.wait([
+      _chargerDerniereSeance(),
+      _chargerDashboardStats(),
+      _chargerActivitesRecentes(),
+    ]);
+    DependencyInjection.notificationState.chargerNotifications('admin');
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: colorScheme.primary,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
         SliverToBoxAdapter(
           child: ListenableBuilder(
             listenable: DependencyInjection.notificationState,
@@ -243,6 +257,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         SliverToBoxAdapter(child: _buildRecentActivity()),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
       ],
+      ),
     );
   }
 

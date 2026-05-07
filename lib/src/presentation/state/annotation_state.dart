@@ -7,8 +7,21 @@ import '../../domain/entities/annotation.dart';
 /// par academicien dans le contexte d'un atelier.
 class AnnotationState extends ChangeNotifier {
   final AnnotationService _service;
+  bool _isDisposed = false;
 
   AnnotationState(this._service);
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
+  }
 
   List<Annotation> _annotationsAtelier = [];
   List<Annotation> get annotationsAtelier => _annotationsAtelier;
