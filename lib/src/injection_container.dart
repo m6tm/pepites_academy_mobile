@@ -453,7 +453,7 @@ class DependencyInjection {
     );
 
     exerciceState = ExerciceState(exerciceService);
-    atelierState = AtelierState(atelierService);
+    atelierState = AtelierState(atelierService, domainEventBus);
     annotationState = AnnotationState(annotationService);
     evaluationState = EvaluationState(evaluationService, domainEventBus);
     medecinDashboardState = MedecinDashboardState(medecinRepository);

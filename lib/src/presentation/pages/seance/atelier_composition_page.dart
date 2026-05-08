@@ -543,7 +543,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
   }
 
   void _naviguerVersAnnotations(Atelier atelier) {
-    final atelierState = AtelierState(DependencyInjection.atelierService);
+    final atelierState = AtelierState(DependencyInjection.atelierService, DependencyInjection.domainEventBus);
     final exerciceState = ExerciceState(DependencyInjection.exerciceService);
 
     final l10n = AppLocalizations.of(context)!;

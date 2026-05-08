@@ -256,6 +256,54 @@ class EvaluationState extends ChangeNotifier
         .length;
   }
 
+  /// Retourne l'historique filtre d'un academicien.
+  /// Tous les parametres sont optionnels et peuvent etre combines.
+  List<Evaluation> getHistoriqueFiltre({
+    DateTime? dateDebut,
+    DateTime? dateFin,
+    String? atelierId,
+    String? critereId,
+  }) {
+    return _historiqueAcademicien.where((e) {
+      if (dateDebut != null && e.horodate.isBefore(dateDebut)) return false;
+      if (dateFin != null && e.horodate.isAfter(dateFin)) return false;
+      if (atelierId != null && e.atelierId != atelierId) return false;
+      if (critereId != null) {
+        final concerneParCritere = e.scores.any((s) => s.critereId == critereId);
+        if (!concerneParCritere) return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  /// Retourne les moyennes par critere sur l'historique filtre.
+  /// La cle est le critereId, la valeur est la moyenne des totaux du critere.
+  Map<String, double> getMoyennesParCritere({
+    DateTime? dateDebut,
+    DateTime? dateFin,
+    String? atelierId,
+  }) {
+    final evaluationsFiltrees = getHistoriqueFiltre(
+      dateDebut: dateDebut,
+      dateFin: dateFin,
+      atelierId: atelierId,
+    );
+
+    final totauxParCritere = <String, List<double>>{};
+    for (final evaluation in evaluationsFiltrees) {
+      for (final score in evaluation.scores) {
+        totauxParCritere
+            .putIfAbsent(score.critereId, () => [])
+            .add(score.totalCritere);
+      }
+    }
+
+    return {
+      for (final entry in totauxParCritere.entries)
+        entry.key: entry.value.reduce((a, b) => a + b) / entry.value.length,
+    };
+  }
+
   @override
   void clearMessages() {
     _errorMessage = null;

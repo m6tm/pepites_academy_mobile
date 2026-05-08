@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../application/services/atelier_service.dart';
+import '../../core/events/atelier_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../domain/entities/atelier.dart';
 import 'message_state_mixin.dart';
 import '../../../l10n/app_localizations.dart';
@@ -7,12 +10,14 @@ import '../../../l10n/app_localizations.dart';
 /// State management pour les ateliers d'une seance.
 /// Gere le chargement, l'ajout, la modification, la suppression
 /// et la reorganisation des ateliers.
-class AtelierState extends ChangeNotifier with MessageStateMixin {
+class AtelierState extends ChangeNotifier
+    with MessageStateMixin, EventBusSubscriberMixin {
   final AtelierService _service;
+  final DomainEventBus _eventBus;
   AppLocalizations? _l10n;
   bool _isDisposed = false;
 
-  AtelierState(this._service);
+  AtelierState(this._service, this._eventBus);
 
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
@@ -191,6 +196,33 @@ class AtelierState extends ChangeNotifier with MessageStateMixin {
     } catch (e) {
       _errorMessage = 'Erreur lors de la reorganisation : $e';
       notifyListeners();
+    }
+  }
+
+  /// Sauvegarde la configuration d'evaluation d'un atelier et emet
+  /// ConfigurationAtelierModifieeEvent pour notifier les composants dependants.
+  Future<bool> sauvegarderConfigurationEvaluation(Atelier atelier) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      await _service.modifierAtelier(atelier);
+      _successMessage = 'Configuration d\'evaluation sauvegardee.';
+      if (_seanceId != null) {
+        await chargerAteliers(_seanceId!);
+      }
+      _eventBus.emit(ConfigurationAtelierModifieeEvent(
+        atelierId: atelier.id,
+        seanceId: atelier.seanceId,
+      ));
+      return true;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la sauvegarde de la configuration : $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 

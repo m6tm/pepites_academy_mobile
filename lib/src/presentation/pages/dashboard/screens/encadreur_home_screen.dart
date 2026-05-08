@@ -353,7 +353,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     }
 
     final l10n = AppLocalizations.of(context)!;
-    final atelierState = AtelierState(DependencyInjection.atelierService)
+    final atelierState = AtelierState(DependencyInjection.atelierService, DependencyInjection.domainEventBus)
       ..setLocalizations(l10n);
     final exerciceState = ExerciceState(DependencyInjection.exerciceService)
       ..setLocalizations(l10n);
