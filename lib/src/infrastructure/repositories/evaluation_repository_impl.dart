@@ -1,4 +1,6 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
 import '../../domain/entities/evaluation.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/evaluation_repository.dart';
@@ -8,10 +10,15 @@ import '../network/dio_client.dart';
 
 /// Implementation locale du repository d'evaluations multicriteres.
 /// Delegue les operations au datasource local avec synchronisation differee.
+/// Un cache memoire LRU evite les deserialisations repetees depuis SharedPreferences.
 class EvaluationRepositoryImpl implements EvaluationRepository {
   final EvaluationLocalDatasource _datasource;
   SyncService? _syncService;
   DioClient? _dioClient;
+
+  final _cacheAtelier = RepositoryCache<List<Evaluation>>();
+  final _cacheAcademicien = RepositoryCache<List<Evaluation>>();
+  final _cacheSeance = RepositoryCache<List<Evaluation>>();
 
   EvaluationRepositoryImpl(this._datasource);
 
@@ -23,9 +30,16 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
     _dioClient = client;
   }
 
+  void _invalidateCaches() {
+    _cacheAtelier.invalidateByTag('evaluations');
+    _cacheAcademicien.invalidateByTag('evaluations');
+    _cacheSeance.invalidateByTag('evaluations');
+  }
+
   @override
   Future<Evaluation> create(Evaluation evaluation) async {
     final created = await _datasource.add(evaluation);
+    _invalidateCaches();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.evaluation,
       entityId: created.id,
@@ -42,17 +56,56 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
 
   @override
   Future<List<Evaluation>> getByAcademicien(String academicienId) async {
-    return _datasource.getByAcademicien(academicienId);
+    final key = 'academicien_$academicienId';
+    final cached = _cacheAcademicien.get(key);
+    if (cached != null) return cached;
+
+    return _cacheAcademicien.getOrFetch(key, () async {
+      final result = _datasource.getByAcademicien(academicienId);
+      _cacheAcademicien.set(
+        key,
+        result,
+        ttl: CacheTtl.evaluations,
+        tags: {'evaluations', 'academicien_$academicienId'},
+      );
+      return result;
+    });
   }
 
   @override
   Future<List<Evaluation>> getByAtelier(String atelierId) async {
-    return _datasource.getByAtelier(atelierId);
+    final key = 'atelier_$atelierId';
+    final cached = _cacheAtelier.get(key);
+    if (cached != null) return cached;
+
+    return _cacheAtelier.getOrFetch(key, () async {
+      final result = _datasource.getByAtelier(atelierId);
+      _cacheAtelier.set(
+        key,
+        result,
+        ttl: CacheTtl.evaluations,
+        tags: {'evaluations', 'atelier_$atelierId'},
+      );
+      return result;
+    });
   }
 
   @override
   Future<List<Evaluation>> getBySeance(String seanceId) async {
-    return _datasource.getBySeance(seanceId);
+    final key = 'seance_$seanceId';
+    final cached = _cacheSeance.get(key);
+    if (cached != null) return cached;
+
+    return _cacheSeance.getOrFetch(key, () async {
+      final result = _datasource.getBySeance(seanceId);
+      _cacheSeance.set(
+        key,
+        result,
+        ttl: CacheTtl.evaluations,
+        tags: {'evaluations', 'seance_$seanceId'},
+      );
+      return result;
+    });
   }
 
   @override
@@ -66,6 +119,7 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
   @override
   Future<Evaluation> update(Evaluation evaluation) async {
     final updated = await _datasource.update(evaluation);
+    _invalidateCaches();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.evaluation,
       entityId: updated.id,
@@ -78,6 +132,7 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
   @override
   Future<void> delete(String id) async {
     await _datasource.delete(id);
+    _invalidateCaches();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.evaluation,
       entityId: id,
@@ -86,7 +141,7 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
     );
   }
 
-  /// Synchronise les evaluations depuis le backend.
+  /// Synchronise les evaluations depuis le backend et invalide le cache local.
   Future<bool> syncFromApi() async {
     if (_dioClient == null) return false;
 
@@ -116,6 +171,7 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
               .toList();
 
           await _datasource.upsertAll(remote);
+          _invalidateCaches();
           // ignore: avoid_print
           print('[Evaluation] Synced ${remote.length} items from backend');
           return true;

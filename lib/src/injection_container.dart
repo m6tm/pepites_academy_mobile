@@ -82,10 +82,14 @@ import 'presentation/state/atelier_state.dart';
 import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
+import 'core/events/domain_event_bus.dart';
+import 'core/lifecycle/app_lifecycle_service.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
 class DependencyInjection {
+  static late final DomainEventBus domainEventBus;
+  static late final AppLifecycleService appLifecycleService;
   static late final ActivityService activityService;
   static late final AppPreferences preferences;
   static late final AuthService authService;
@@ -154,6 +158,11 @@ class DependencyInjection {
   /// Initialise les dependances asynchrones.
   static Future<void> init() async {
     final sharedPrefs = await SharedPreferences.getInstance();
+
+    // Bus d'evenements global — doit etre instancie en premier
+    domainEventBus = DomainEventBus();
+    // AppLifecycleService s'enregistre immediatement comme WidgetsBindingObserver
+    appLifecycleService = AppLifecycleService(domainEventBus);
 
     // Initialisation du Repository Preferences (Infrastructure)
     final preferencesRepository = PreferencesRepositoryImpl(sharedPrefs);
@@ -446,7 +455,7 @@ class DependencyInjection {
     exerciceState = ExerciceState(exerciceService);
     atelierState = AtelierState(atelierService);
     annotationState = AnnotationState(annotationService);
-    evaluationState = EvaluationState(evaluationService);
+    evaluationState = EvaluationState(evaluationService, domainEventBus);
     medecinDashboardState = MedecinDashboardState(medecinRepository);
 
     // Injection du service de synchronisation dans les repositories

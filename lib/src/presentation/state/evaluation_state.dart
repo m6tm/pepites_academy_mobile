@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../application/services/evaluation_service.dart';
+import '../../core/events/app_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/evaluation_events.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../domain/entities/evaluation.dart';
 import '../../domain/entities/atelier.dart';
 import 'message_state_mixin.dart';
 
 /// State management pour les evaluations multicriteres d'un atelier.
 /// Gere la creation d'evaluations et le suivi des scores en temps reel.
-class EvaluationState extends ChangeNotifier with MessageStateMixin {
+class EvaluationState extends ChangeNotifier
+    with MessageStateMixin, EventBusSubscriberMixin {
   final EvaluationService _service;
+  final DomainEventBus _eventBus;
   bool _isDisposed = false;
 
-  EvaluationState(this._service);
+  DateTime? _lastFetchedAt;
+
+  EvaluationState(this._service, this._eventBus) {
+    listenTo<AppResumedEvent>(_eventBus, _onAppResumed);
+  }
 
   @override
   void dispose() {
@@ -74,6 +84,7 @@ class EvaluationState extends ChangeNotifier with MessageStateMixin {
 
     try {
       _evaluationsAtelier = await _service.getEvaluationsAtelier(_atelierId!);
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des evaluations : $e';
     } finally {
@@ -123,35 +134,51 @@ class EvaluationState extends ChangeNotifier with MessageStateMixin {
   }
 
   /// Calcule le sous-total d'un critere en cours de saisie.
-  double getSousTotalCritere(String critereId, String element1Id, String element2Id) {
+  double getSousTotalCritere(
+    String critereId,
+    String element1Id,
+    String element2Id,
+  ) {
     final note1 = getNoteEnCours(critereId, element1Id);
     final note2 = getNoteEnCours(critereId, element2Id);
     return note1 + note2;
   }
 
   /// Calcule le score total en cours (sur 50).
-  double getScoreTotalEnCours(List<ConfigurationElementEvaluation> configuration) {
+  double getScoreTotalEnCours(
+    List<ConfigurationElementEvaluation> configuration,
+  ) {
     double total = 0;
     for (final config in configuration) {
-      total += getSousTotalCritere(config.critereId, config.element1Id, config.element2Id);
+      total += getSousTotalCritere(
+        config.critereId,
+        config.element1Id,
+        config.element2Id,
+      );
     }
     return total;
   }
 
   /// Verifie si tous les elements ont ete notes.
-  bool tousLesElementsNotes(List<ConfigurationElementEvaluation> configuration) {
+  bool tousLesElementsNotes(
+    List<ConfigurationElementEvaluation> configuration,
+  ) {
     for (final config in configuration) {
-      if (!_notesEnCours.containsKey('${config.critereId}_${config.element1Id}')) {
+      if (!_notesEnCours.containsKey(
+        '${config.critereId}_${config.element1Id}',
+      )) {
         return false;
       }
-      if (!_notesEnCours.containsKey('${config.critereId}_${config.element2Id}')) {
+      if (!_notesEnCours.containsKey(
+        '${config.critereId}_${config.element2Id}',
+      )) {
         return false;
       }
     }
     return true;
   }
 
-  /// Cree l'evaluation a partir des notes en cours.
+  /// Cree l'evaluation a partir des notes en cours, puis emet EvaluationCreeeEvent.
   Future<bool> creerEvaluation({
     required String encadreurId,
     required List<ConfigurationElementEvaluation> configuration,
@@ -199,6 +226,14 @@ class EvaluationState extends ChangeNotifier with MessageStateMixin {
       _notesEnCours.clear();
       _successMessage = 'Evaluation enregistree.';
       notifyListeners();
+
+      _eventBus.emit(EvaluationCreeeEvent(
+        evaluationId: evaluation.id,
+        academicienId: evaluation.academicienId,
+        atelierId: evaluation.atelierId,
+        seanceId: evaluation.seanceId,
+      ));
+
       return true;
     } catch (e) {
       _errorMessage = 'Erreur lors de l\'enregistrement : $e';
@@ -226,5 +261,15 @@ class EvaluationState extends ChangeNotifier with MessageStateMixin {
     _errorMessage = null;
     _successMessage = null;
     notifyListeners();
+  }
+
+  /// Rafraichit les evaluations de l'atelier si les donnees ont plus de 2 minutes.
+  /// Appele automatiquement a la reprise de l'application (AppResumedEvent).
+  void _onAppResumed(AppResumedEvent _) {
+    if (_atelierId == null) return;
+    final age = DateTime.now().difference(_lastFetchedAt ?? DateTime(0));
+    if (age > const Duration(minutes: 2)) {
+      chargerEvaluationsAtelier();
+    }
   }
 }
