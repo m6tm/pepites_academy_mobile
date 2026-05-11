@@ -40,19 +40,19 @@ class CacheManager {
       }
     }
 
-    // 2. Vider les StreamControllers des services
+    // 2. Reinitialiser les services pour le prochain utilisateur
     try {
-      _atelierService.dispose();
+      _atelierService.reset();
     } catch (e) {
       // ignore: avoid_print
-      print('[CacheManager] Erreur lors du vidage du stream atelier: $e');
+      print('[CacheManager] Erreur lors de la reinitialisation du service atelier: $e');
     }
 
     try {
-      _exerciceService.dispose();
+      _exerciceService.reset();
     } catch (e) {
       // ignore: avoid_print
-      print('[CacheManager] Erreur lors du vidage du stream exercice: $e');
+      print('[CacheManager] Erreur lors de la reinitialisation du service exercice: $e');
     }
   }
 }

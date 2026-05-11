@@ -197,6 +197,13 @@ class AtelierService {
     return false;
   }
 
+  /// Reinitialise le service pour un nouvel utilisateur.
+  /// Utilise par CacheManager lors de la deconnexion pour clearer l'etat
+  /// sans fermer definitivement le stream.
+  void reset() {
+    _ateliersController.add([]);
+  }
+
   /// Libere les ressources.
   void dispose() {
     _ateliersController.close();

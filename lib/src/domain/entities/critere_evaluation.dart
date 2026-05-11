@@ -6,12 +6,14 @@ class CritereEvaluation {
   final String id;
   final String nom;
   final String description;
+  final int? ordre;
   final List<ElementEvaluation> elements;
 
   const CritereEvaluation({
     required this.id,
     required this.nom,
     required this.description,
+    this.ordre,
     required this.elements,
   });
 
@@ -19,12 +21,14 @@ class CritereEvaluation {
     String? id,
     String? nom,
     String? description,
+    int? ordre,
     List<ElementEvaluation>? elements,
   }) {
     return CritereEvaluation(
       id: id ?? this.id,
       nom: nom ?? this.nom,
       description: description ?? this.description,
+      ordre: ordre ?? this.ordre,
       elements: elements ?? this.elements,
     );
   }
@@ -34,6 +38,7 @@ class CritereEvaluation {
       'id': id,
       'nom': nom,
       'description': description,
+      'ordre': ordre,
       'elements': elements.map((e) => e.toJson()).toList(),
     };
   }
@@ -43,6 +48,7 @@ class CritereEvaluation {
       id: json['id'] as String,
       nom: json['nom'] as String? ?? '',
       description: json['description'] as String? ?? '',
+      ordre: json['ordre'] as int?,
       elements: (json['elements'] as List<dynamic>?)
               ?.map((e) => ElementEvaluation.fromJson(e as Map<String, dynamic>))
               .toList() ??

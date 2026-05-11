@@ -177,6 +177,11 @@ class ExerciceService {
     return isAtelierClosed;
   }
 
+  /// Reinitialise le service pour un nouvel utilisateur.
+  void reset() {
+    _exercicesController.add([]);
+  }
+
   /// Libere les ressources.
   void dispose() {
     _exercicesController.close();
