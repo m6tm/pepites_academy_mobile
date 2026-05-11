@@ -40,6 +40,13 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
 
   void _onStateChanged() {
     if (mounted) setState(() {});
+    if (_seanceState.errorMessage != null) {
+      AcademyToast.show(
+        context,
+        title: _seanceState.errorMessage!,
+        isError: true,
+      );
+    }
   }
 
   /// Si connecté, récupère la liste depuis l'API et met à jour le cache local

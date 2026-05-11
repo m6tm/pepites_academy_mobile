@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
+import '../../core/events/seance_events.dart';
 import '../../application/services/seance_service.dart';
 import '../../domain/entities/seance.dart';
 
@@ -7,10 +10,26 @@ enum SeanceFilter { toutes, enCours, terminees, aVenir }
 
 /// State management pour les seances d'entrainement.
 /// Gere le chargement, le filtrage, l'ouverture et la fermeture des seances.
-class SeanceState extends ChangeNotifier {
+class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
   final SeanceService _service;
 
-  SeanceState(this._service);
+  SeanceState(this._service, DomainEventBus eventBus) {
+    _listenToConflict(eventBus);
+  }
+
+  String? _pendingConflictMessage;
+
+  void _listenToConflict(DomainEventBus eventBus) {
+    listenTo<SeanceConflictEvent>(
+      eventBus,
+      (event) async {
+        await chargerSeances();
+        _pendingConflictMessage =
+            'Impossible de créer la séance. Une autre séance est déjà ouverte.';
+        notifyListeners();
+      },
+    );
+  }
 
   List<Seance> _seances = [];
   List<Seance> get seances => _seancesFiltrees;
@@ -25,7 +44,14 @@ class SeanceState extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
-  String? get errorMessage => _errorMessage;
+  String? get errorMessage {
+    if (_pendingConflictMessage != null) {
+      final msg = _pendingConflictMessage;
+      _pendingConflictMessage = null;
+      return msg;
+    }
+    return _errorMessage;
+  }
 
   String? _successMessage;
   String? get successMessage => _successMessage;

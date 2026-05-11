@@ -7,6 +7,7 @@ import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
 import '../../../state/seance_state.dart';
 import '../../seance/seance_detail_page.dart';
+import '../../../widgets/academy_toast.dart';
 import '../widgets/seance_card.dart';
 
 /// Ecran Seances du dashboard administrateur.
@@ -26,13 +27,23 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
   @override
   void initState() {
     super.initState();
-    _seanceState = SeanceState(DependencyInjection.seanceService);
+    _seanceState = SeanceState(
+        DependencyInjection.seanceService,
+        DependencyInjection.domainEventBus,
+      );
     _seanceState.addListener(_onStateChanged);
     _refreshFromApiIfOnlineThenLoad();
   }
 
   void _onStateChanged() {
     if (mounted) setState(() {});
+    if (_seanceState.errorMessage != null) {
+      AcademyToast.show(
+        context,
+        title: _seanceState.errorMessage!,
+        isError: true,
+      );
+    }
   }
 
   /// Si connecté, récupère la liste depuis l'API et met à jour le cache local

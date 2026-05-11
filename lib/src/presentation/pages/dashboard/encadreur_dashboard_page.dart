@@ -51,7 +51,10 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _seanceState = SeanceState(DependencyInjection.seanceService);
+    _seanceState = SeanceState(
+      DependencyInjection.seanceService,
+      DependencyInjection.domainEventBus,
+    );
     _seanceState.chargerSeances();
     _fadeController = AnimationController(
       vsync: this,

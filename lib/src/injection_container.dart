@@ -83,6 +83,7 @@ import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
 import 'core/events/domain_event_bus.dart';
+import 'core/events/seance_events.dart';
 import 'core/lifecycle/app_lifecycle_service.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
@@ -485,11 +486,12 @@ class DependencyInjection {
     posteRepository.setDioClient(dioClient);
   }
 
-  /// Gere les erreurs de conflit (409) en supprimant l'enregistrement local.
-  /// Principalement pour les encadreurs (email duplique) et academiciens (telephone duplique).
+/// Gere les erreurs de conflit (409) en supprimant l'enregistrement local.
+  /// Pour les seances, recharge la liste depuis le serveur pour recuperer l'etat reel.
   static Future<void> _handleConflictError(
     SyncEntityType entityType,
     String entityId,
+    String? serverBlockedId,
   ) async {
     try {
       switch (entityType) {
@@ -501,6 +503,8 @@ class DependencyInjection {
           break;
         case SyncEntityType.seance:
           await seanceRepository.delete(entityId);
+          await syncSeances();
+          onSeanceConflict?.call(serverBlockedId ?? entityId);
           break;
         case SyncEntityType.atelier:
           await atelierRepository.delete(entityId);
@@ -521,9 +525,21 @@ class DependencyInjection {
           await smsRepository.delete(entityId);
           break;
         default:
-          // Les autres types n'ont pas de methode delete ou ne sont pas concernes
           break;
       }
+      // ignore: avoid_print
+      print(
+        '[DI] Conflit 409: suppression locale de ${entityType.name}/$entityId (bloque par: $serverBlockedId)',
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur suppression locale apres conflit: $e');
+    }
+  }
+
+  /// Callback pour informer l'UI d'un conflit de seance.
+  /// L'UI peut afficher un message a l'utilisateur et recharger la liste.
+  static void Function(String seanceBloqueanteId)? onSeanceConflict;
       // ignore: avoid_print
       print(
         '[DI] Conflit 409: suppression locale de ${entityType.name}/$entityId',
