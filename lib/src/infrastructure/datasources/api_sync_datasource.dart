@@ -10,6 +10,15 @@ class SyncResult {
   /// Indique si l'erreur est un conflit (409) - donnee deja existante.
   bool get isConflict => statusCode == 409;
 
+  /// ID de la seance bloqueante (recupere depuis la reponse serveur 409).
+  String? get blockedSeanceId {
+    if (!isConflict) return null;
+    if (serverResponse is Map<String, dynamic>) {
+      return (serverResponse as Map<String, dynamic>)['seance_ouverte_id']?.toString();
+    }
+    return null;
+  }
+
   SyncResult({
     required this.success,
     this.errorMessage,

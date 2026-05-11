@@ -504,7 +504,8 @@ class DependencyInjection {
         case SyncEntityType.seance:
           await seanceRepository.delete(entityId);
           await syncSeances();
-          onSeanceConflict?.call(serverBlockedId ?? entityId);
+          domainEventBus.emit(SeanceConflictEvent(seanceBloqueanteId: entityId));
+          onSeanceConflict?.call(entityId);
           break;
         case SyncEntityType.atelier:
           await atelierRepository.delete(entityId);
@@ -537,18 +538,9 @@ class DependencyInjection {
     }
   }
 
-  /// Callback pour informer l'UI d'un conflit de seance.
+/// Callback pour informer l'UI d'un conflit de seance.
   /// L'UI peut afficher un message a l'utilisateur et recharger la liste.
   static void Function(String seanceBloqueanteId)? onSeanceConflict;
-      // ignore: avoid_print
-      print(
-        '[DI] Conflit 409: suppression locale de ${entityType.name}/$entityId',
-      );
-    } catch (e) {
-      // ignore: avoid_print
-      print('[DI] Erreur suppression locale apres conflit: $e');
-    }
-  }
 
   /// Synchronise les referentiels (postes et niveaux) depuis le backend.
   /// Doit etre appelee apres l'authentification reussie.

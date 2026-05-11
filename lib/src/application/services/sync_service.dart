@@ -53,7 +53,9 @@ class SyncService {
 
   /// Callback notifie quand une operation echoue avec un conflit (409).
   /// Permet aux repositories de supprimer l'enregistrement local.
-  Future<void> Function(SyncEntityType entityType, String entityId)?
+  /// [entityId] = l'ID local qui a cause le conflit
+  /// [serverBlockedId] = l'ID de la ressource bloqueante sur le serveur (ex: seance ouverte)
+  Future<void> Function(SyncEntityType entityType, String entityId, String? serverBlockedId)?
   onConflictError;
 
   AppLocalizations? _l10n;
@@ -167,7 +169,11 @@ class SyncService {
             // Supprimer l'operation de la queue et l'enregistrement local
             await _syncRepository.markCompleted(operation.id);
             if (onConflictError != null) {
-              await onConflictError!(operation.entityType, operation.entityId);
+              await onConflictError!(
+                operation.entityType,
+                operation.entityId,
+                result.blockedSeanceId,
+              );
             }
             failureCount++;
             const conflictMsg = 'Donnee deja existante sur le serveur';
