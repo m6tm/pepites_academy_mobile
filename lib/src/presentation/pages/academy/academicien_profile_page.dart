@@ -1034,9 +1034,10 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
   Widget _buildOptionsSheet(ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Container(
             width: 40,
             height: 4,
@@ -1098,11 +1099,12 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
               _showDeleteConfirmation();
             },
           ),
+          ),
           const SizedBox(height: 16),
         ],
       ),
-    );
-  }
+    ),
+  );
 }
 
 /// Feuille modale plein ecran pour le QR code.
