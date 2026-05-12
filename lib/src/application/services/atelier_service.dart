@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import '../../../l10n/app_localizations.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/seance_events.dart';
 import '../../domain/entities/atelier.dart';
 import '../../domain/entities/exercice.dart';
 import '../../domain/repositories/atelier_repository.dart';
@@ -14,9 +16,9 @@ class AtelierService {
   final AtelierRepository _atelierRepository;
   final SeanceRepository _seanceRepository;
   final ExerciceRepository _exerciceRepository;
+  DomainEventBus? _eventBus;
   AppLocalizations? _l10n;
 
-  // Controllers pour la reactivite UI
   final _ateliersController = StreamController<List<Atelier>>.broadcast();
 
   AtelierService({
@@ -26,6 +28,10 @@ class AtelierService {
   }) : _atelierRepository = atelierRepository,
        _seanceRepository = seanceRepository,
        _exerciceRepository = exerciceRepository;
+
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
 
   /// Flux de donnees pour les ateliers.
   Stream<List<Atelier>> get ateliersStream => _ateliersController.stream;
@@ -97,6 +103,7 @@ class AtelierService {
       seance.copyWith(atelierIds: updatedIds, nbAteliers: updatedIds.length),
     );
 
+    _eventBus?.emit(AtelierCreatedEvent(seanceId, created.id));
     await refreshAteliers(seanceId);
     return created;
   }
@@ -168,6 +175,7 @@ class AtelierService {
       await _atelierRepository.reorder(seanceId, ids);
     }
 
+    _eventBus?.emit(AtelierDeletedEvent(seanceId));
     await refreshAteliers(seanceId);
   }
 

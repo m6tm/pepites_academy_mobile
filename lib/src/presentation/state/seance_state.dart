@@ -4,17 +4,39 @@ import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../core/events/seance_events.dart';
 import '../../application/services/seance_service.dart';
 import '../../domain/entities/seance.dart';
+import '../../injection_container.dart';
 
-/// Filtre applicable sur la liste des seances.
 enum SeanceFilter { toutes, enCours, terminees, aVenir }
 
-/// State management pour les seances d'entrainement.
-/// Gere le chargement, le filtrage, l'ouverture et la fermeture des seances.
 class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
   final SeanceService _service;
 
   SeanceState(this._service, DomainEventBus eventBus) {
     _listenToConflict(eventBus);
+    listenTo<SeanceStatsChangedEvent>(eventBus, (e) {
+      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _refreshStatsSilently();
+    });
+    listenTo<SeanceClosedEvent>(eventBus, (e) {
+      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      chargerSeances();
+    });
+    listenTo<PresenceRecordedEvent>(eventBus, (e) {
+      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _refreshStatsSilently();
+    });
+    listenTo<AtelierCreatedEvent>(eventBus, (e) {
+      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _refreshStatsSilently();
+    });
+    listenTo<AtelierDeletedEvent>(eventBus, (e) {
+      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _refreshStatsSilently();
+    });
+    listenTo<AnnotationCreatedEvent>(eventBus, (e) {
+      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _refreshStatsSilently();
+    });
   }
 
   String? _pendingConflictMessage;
@@ -56,7 +78,6 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
   String? _successMessage;
   String? get successMessage => _successMessage;
 
-  /// Retourne les seances filtrees selon le filtre actif.
   List<Seance> get _seancesFiltrees {
     switch (_filtre) {
       case SeanceFilter.toutes:
@@ -70,7 +91,6 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     }
   }
 
-  /// Charge toutes les seances et la seance ouverte.
   Future<void> chargerSeances() async {
     _isLoading = true;
     _errorMessage = null;
@@ -79,6 +99,7 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     try {
       _seances = await _service.getAllSeances();
       _seanceOuverte = await _service.getSeanceOuverte();
+      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des seances : $e';
     } finally {
@@ -87,13 +108,23 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     }
   }
 
-  /// Change le filtre actif.
+  bool _isRefreshingStats = false;
+
+  Future<void> _refreshStatsSilently() async {
+    if (_isRefreshingStats) return;
+    _isRefreshingStats = true;
+    try {
+      await DependencyInjection.seanceRepository.getSeanceEncoursWithStats();
+    } finally {
+      _isRefreshingStats = false;
+    }
+  }
+
   void setFiltre(SeanceFilter filtre) {
     _filtre = filtre;
     notifyListeners();
   }
 
-  /// Tente d'ouvrir une nouvelle seance.
   Future<OuvertureResult> ouvrirSeance({
     required String titre,
     required DateTime date,
@@ -136,7 +167,6 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     }
   }
 
-  /// Ferme la seance specifiee et retourne un recapitulatif.
   Future<FermetureResult> fermerSeance(String seanceId) async {
     _isLoading = true;
     _errorMessage = null;
@@ -167,7 +197,6 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     }
   }
 
-  /// Efface les messages de succes/erreur.
   void clearMessages() {
     _errorMessage = null;
     _successMessage = null;

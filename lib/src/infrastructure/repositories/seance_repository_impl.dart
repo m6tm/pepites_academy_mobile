@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import '../../../l10n/app_localizations.dart';
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
 import '../../domain/entities/seance.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/seance_repository.dart';
@@ -13,6 +15,8 @@ import '../network/dio_client.dart';
 /// Delegue les operations au datasource local.
 class SeanceRepositoryImpl implements SeanceRepository {
   final SeanceLocalDatasource _datasource;
+  final RepositoryCache<SeanceWithStats> _cache =
+      RepositoryCache<SeanceWithStats>(maxSize: 1);
   SyncService? _syncService;
   DioClient? _dioClient;
   AppLocalizations? _l10n;
@@ -97,6 +101,64 @@ class SeanceRepositoryImpl implements SeanceRepository {
   @override
   Future<Seance?> getSeanceOuverte() async {
     return _datasource.getSeanceOuverte();
+  }
+
+  @override
+  Future<SeanceWithStats?> getSeanceEncoursWithStats() async {
+    final cached = _cache.get('encours');
+    if (cached != null) return cached;
+
+    return _cache.getOrFetch('encours', () async {
+      final result = await _fetchSeanceEncoursFromApi();
+      if (result != null) {
+        _cache.set('encours', result, ttl: CacheTtl.seances);
+      }
+      return result ?? SeanceWithStats(
+        seance: _datasource.getSeanceOuverte()!,
+        nbPresents: 0,
+        nbAteliers: 0,
+        nbAnnotations: 0,
+        ateliers: [],
+      );
+    });
+  }
+
+  Future<SeanceWithStats?> _fetchSeanceEncoursFromApi() async {
+    final client = _dioClient;
+    if (client == null) return null;
+
+    try {
+      final result = await client.get<dynamic>(ApiEndpoints.seanceEncours);
+
+      return result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[SeanceRepo] _fetchSeanceEncoursFromApi failed: ${failure.message}');
+          return null;
+        },
+        (data) {
+          if (data is! Map<String, dynamic>) return null;
+
+          final seanceMap = data['seance'] as Map<String, dynamic>?;
+          final statsMap = data['stats'] as Map<String, dynamic>?;
+          if (seanceMap == null || statsMap == null) return null;
+
+          final seance = Seance.fromJson(seanceMap);
+          return SeanceWithStats(
+            seance: seance,
+            nbPresents: statsMap['nb_presents'] as int? ?? 0,
+            nbAteliers: statsMap['nb_ateliers'] as int? ?? 0,
+            nbAnnotations: statsMap['nb_annotations'] as int? ?? 0,
+            ateliers: (statsMap['ateliers'] as List<dynamic>?)
+                ?.cast<Map<String, dynamic>>() ?? [],
+          );
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[SeanceRepo] _fetchSeanceEncoursFromApi exception: $e');
+      return null;
+    }
   }
 
   @override
@@ -257,8 +319,20 @@ class SeanceRepositoryImpl implements SeanceRepository {
     return result;
   }
 
+  /// Invalide le cache des stats de seance en cours.
+  /// A appeler apres toute mutation (presence, atelier, annotation).
+  void invalidateSeanceEncoursCache() {
+    _cache.invalidateKey('encours');
+  }
+
+  /// Vide le cache in-memory (appelee lors de la deconnexion).
+  void clearCache() {
+    _cache.clear();
+  }
+
   @override
   Future<void> delete(String id) async {
+    invalidateSeanceEncoursCache();
     await _datasource.delete(id);
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.seance,

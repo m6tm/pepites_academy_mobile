@@ -1,11 +1,18 @@
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/seance_events.dart';
 import '../../domain/entities/annotation.dart';
 import '../../infrastructure/repositories/annotation_repository_impl.dart';
 
 class AnnotationService {
   final AnnotationRepositoryImpl _annotationRepository;
+  DomainEventBus? _eventBus;
 
   AnnotationService({required AnnotationRepositoryImpl annotationRepository})
     : _annotationRepository = annotationRepository;
+
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
 
   Future<Annotation> creerAnnotation({
     required List<ScoreAnnotation> scores,
@@ -28,7 +35,9 @@ class AnnotationService {
       horodate: DateTime.now(),
     );
 
-    return _annotationRepository.create(annotation);
+    final created = await _annotationRepository.create(annotation);
+    _eventBus?.emit(AnnotationCreatedEvent(seanceId));
+    return created;
   }
 
   Future<List<Annotation>> getAnnotationsAcademicien(

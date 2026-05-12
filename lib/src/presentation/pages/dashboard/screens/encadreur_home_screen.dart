@@ -124,11 +124,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
       final seancesDirigees = currentUserId == null || currentUserId.isEmpty
           ? seances
           : seances
-                .where(
-                  (s) =>
-                      s.encadreurResponsableId == 'current_user' ||
-                      s.encadreurResponsableId == currentUserId,
-                )
+                .where((s) => s.encadreurResponsableId == currentUserId)
                 .toList();
 
       final seanceIds = seancesDirigees.map((s) => s.id).toList();
@@ -253,19 +249,33 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     _isRefreshingCurrentSeanceStats = true;
 
     try {
-      final results = await Future.wait([
-        DependencyInjection.presenceRepository.getBySeance(seance.id),
-        DependencyInjection.atelierService.getAteliersParSeance(seance.id),
-        DependencyInjection.annotationService.getAnnotationsSeance(seance.id),
-      ]);
-
+      final result = await DependencyInjection.seanceRepository
+          .getSeanceEncoursWithStats();
       if (!mounted) return;
 
-      setState(() {
-        _currentNbPresents = (results[0] as List<Presence>).length;
-        _currentNbAteliers = (results[1] as List<Atelier>).length;
-        _currentNbAnnotations = (results[2] as List<Annotation>).length;
-      });
+      if (result != null) {
+        setState(() {
+          _currentNbPresents = result.nbPresents;
+          _currentNbAteliers = result.nbAteliers;
+          _currentNbAnnotations = result.nbAnnotations;
+        });
+      } else {
+        final results = await Future.wait([
+          DependencyInjection.presenceRepository.getBySeance(seance.id),
+          DependencyInjection.atelierService.getAteliersParSeance(seance.id),
+          DependencyInjection.annotationService.getAnnotationsSeance(seance.id),
+        ]);
+
+        if (!mounted) return;
+
+        setState(() {
+          _currentNbPresents = (results[0] as List<Presence>)
+              .where((p) => p.typeProfil == ProfilType.academicien)
+              .length;
+          _currentNbAteliers = (results[1] as List<Atelier>).length;
+          _currentNbAnnotations = (results[2] as List<Annotation>).length;
+        });
+      }
     } catch (_) {
       return;
     } finally {
@@ -449,6 +459,14 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
   }
 
   Future<void> _onRefresh() async {
+    // Forcer le rechargement depuis le serveur avant toute lecture locale.
+    await Future.wait([
+      DependencyInjection.syncSeances(),
+      DependencyInjection.syncPresences(),
+      DependencyInjection.syncAnnotations(),
+    ]);
+    DependencyInjection.atelierRepository.clearCache();
+
     await Future.wait([
       _chargerAcademiciens(),
       _refreshCoachActivityStats(),
@@ -665,7 +683,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     final seance = _seanceState.seanceOuverte!;
 
     final nbPresents = _currentNbPresents ?? seance.nbPresents;
-    final nbAteliers = _currentNbAteliers ?? seance.atelierIds.length;
+    final nbAteliers = _currentNbAteliers ?? seance.nbAteliers;
     final nbAnnotations = _currentNbAnnotations ?? 0;
 
     return GestureDetector(

@@ -22,6 +22,9 @@ class AtelierRepositoryImpl implements AtelierRepository {
     _cache.invalidateByTag('ateliers');
   }
 
+  /// Vide le cache memoire pour forcer un re-fetch depuis le datasource local.
+  void clearCache() => _invalidateCache();
+
   void setSyncService(SyncService service) {
     _syncService = service;
   }
@@ -39,7 +42,7 @@ class AtelierRepositoryImpl implements AtelierRepository {
     return _cache.getOrFetch(key, () async {
       var local = _datasource.getBySeance(seanceId);
       if (local.isEmpty && _dioClient != null) {
-        await syncFromApi();
+        await _syncAteliersForSeance(seanceId);
         local = _datasource.getBySeance(seanceId);
       }
       _cache.set(
@@ -50,6 +53,49 @@ class AtelierRepositoryImpl implements AtelierRepository {
       );
       return local;
     });
+  }
+
+  /// Synchronise les ateliers d'une seance specifique depuis le backend.
+  /// Utilise l'endpoint /seances/{seanceId}/ateliers pour avoir le seance_id.
+  Future<bool> _syncAteliersForSeance(String seanceId) async {
+    if (_dioClient == null) return false;
+
+    try {
+      final endpoint = '${ApiEndpoints.seances}/$seanceId/ateliers';
+      final result = await _dioClient!.get<dynamic>(endpoint);
+
+      return await result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[AtelierRepo] Erreur sync séance $seanceId: ${failure.message}');
+          return false;
+        },
+        (data) async {
+          final List<dynamic> rawList;
+          if (data is List) {
+            rawList = data;
+          } else if (data is Map<String, dynamic>) {
+            rawList = (data['ateliers'] as List<dynamic>?) ??
+                data.values.whereType<List>().expand((e) => e).toList();
+          } else {
+            return false;
+          }
+
+          final ateliers = rawList
+              .whereType<Map<String, dynamic>>()
+              .map((map) => Atelier.fromJson({...map, 'seance_id': seanceId}))
+              .where((a) => a.id.isNotEmpty)
+              .toList();
+
+          await _datasource.upsertAll(ateliers);
+          return true;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[AtelierRepo] Exception sync séance $seanceId: $e');
+      return false;
+    }
   }
 
   @override

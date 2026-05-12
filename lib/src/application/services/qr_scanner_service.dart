@@ -1,4 +1,6 @@
 import '../../../l10n/app_localizations.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/seance_events.dart';
 import '../../domain/entities/presence.dart';
 import '../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../infrastructure/repositories/encadreur_repository_impl.dart';
@@ -43,6 +45,7 @@ class QrScannerService {
   final EncadreurRepositoryImpl _encadreurRepository;
   final PresenceRepositoryImpl _presenceRepository;
   final SeanceRepositoryImpl _seanceRepository;
+  DomainEventBus? _eventBus;
   ActivityService? _activityService;
   AppLocalizations? _l10n;
 
@@ -56,12 +59,14 @@ class QrScannerService {
        _presenceRepository = presenceRepository,
        _seanceRepository = seanceRepository;
 
-  /// Injecte le service d'activites.
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
   void setActivityService(ActivityService service) {
     _activityService = service;
   }
 
-  /// Met a jour les traductions.
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
   }
@@ -180,6 +185,8 @@ class QrScannerService {
       nomComplet,
       saved.id,
     );
+
+    _eventBus?.emit(PresenceRecordedEvent(seanceId));
 
     return saved;
   }

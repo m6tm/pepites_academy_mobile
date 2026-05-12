@@ -26,6 +26,7 @@ class ApiEndpoints {
 
   /// Chemins pour les séances.
   static const String seances = '/seances';
+  static const String seanceEncours = '/seances/encours';
 
   /// Chemins pour les ateliers.
   static const String ateliers = '/ateliers';

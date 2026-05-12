@@ -1,9 +1,37 @@
 import 'domain_event.dart';
 
-/// Evenement emit quand une creation de seance est rejetee par le serveur (409 Conflict).
-/// Cela se produit quand une autre session a deja ouvert une seance.
 class SeanceConflictEvent extends DomainEvent {
   final String seanceBloqueanteId;
-
   const SeanceConflictEvent({required this.seanceBloqueanteId});
+}
+
+class SeanceStatsChangedEvent extends DomainEvent {
+  final String seanceId;
+  const SeanceStatsChangedEvent(this.seanceId);
+}
+
+class SeanceClosedEvent extends DomainEvent {
+  final String seanceId;
+  const SeanceClosedEvent(this.seanceId);
+}
+
+class PresenceRecordedEvent extends DomainEvent {
+  final String seanceId;
+  const PresenceRecordedEvent(this.seanceId);
+}
+
+class AtelierCreatedEvent extends DomainEvent {
+  final String seanceId;
+  final String atelierId;
+  const AtelierCreatedEvent(this.seanceId, this.atelierId);
+}
+
+class AtelierDeletedEvent extends DomainEvent {
+  final String seanceId;
+  const AtelierDeletedEvent(this.seanceId);
+}
+
+class AnnotationCreatedEvent extends DomainEvent {
+  final String seanceId;
+  const AnnotationCreatedEvent(this.seanceId);
 }

@@ -218,6 +218,7 @@ class DependencyInjection {
       seanceRepository: seanceRepository,
       exerciceRepository: exerciceRepository,
     );
+    atelierService.setEventBus(domainEventBus);
 
     // Initialisation du Service Exercice
     exerciceService = ExerciceService(
@@ -234,6 +235,7 @@ class DependencyInjection {
     annotationService = AnnotationService(
       annotationRepository: annotationRepository,
     );
+    annotationService.setEventBus(domainEventBus);
 
     // Initialisation du Repository Bulletin
     final bulletinDatasource = BulletinLocalDatasource(sharedPrefs);
@@ -314,6 +316,7 @@ class DependencyInjection {
     smsService.setActivityService(activityService);
     bulletinService.setActivityService(activityService);
     qrScannerService.setActivityService(activityService);
+    qrScannerService.setEventBus(domainEventBus);
     referentielService.setActivityService(activityService);
 
     // Initialisation du ThemeState
@@ -411,6 +414,7 @@ class DependencyInjection {
       ],
       atelierService,
       exerciceService,
+      seanceRepository,
     );
 
     // Initialisation du module Roles et Permissions
