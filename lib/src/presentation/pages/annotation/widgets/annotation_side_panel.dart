@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart' as intl;
-import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/annotation.dart';
 import '../../../../domain/entities/atelier.dart';
@@ -9,23 +7,12 @@ import '../../../../domain/entities/exercice.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../state/annotation_state.dart';
 import '../../../theme/app_colors.dart';
+import 'annotation_action_bar.dart';
+import 'annotation_comment_field.dart';
+import 'annotation_element_rating.dart';
+import 'annotation_historique_item.dart';
+import 'annotation_recap_item.dart';
 
-/// Tags d'observations rapides categorises.
-class _TagCategory {
-  final String label;
-  final List<String> tags;
-  final Color color;
-
-  const _TagCategory({
-    required this.label,
-    required this.tags,
-    required this.color,
-  });
-}
-
-/// Volet lateral (bottom sheet) pour annoter un academicien.
-/// Affiche les tags rapides, un champ de texte libre,
-/// une note optionnelle et l'historique des annotations precedentes.
 class AnnotationSidePanel extends StatefulWidget {
   final Academicien academicien;
   final Atelier atelier;
@@ -49,39 +36,32 @@ class AnnotationSidePanel extends StatefulWidget {
 }
 
 class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
-  final TextEditingController _contenuController = TextEditingController();
-  final List<String> _tagsSelectionnes = [];
-  double? _note;
+  final TextEditingController _commentaireController = TextEditingController();
+  final Map<String, double> _notesEnCours = {};
   bool _isSaving = false;
+  bool _showRecapitulatif = false;
 
-  static const List<_TagCategory> _categories = [
-    _TagCategory(
-      label: 'Positif',
-      tags: ['Excellent', 'En progres', 'Bonne attitude', 'Creatif'],
-      color: AppColors.success,
-    ),
-    _TagCategory(
-      label: 'A travailler',
-      tags: ['A travailler', 'Insuffisant', 'Manque d\'effort', 'Distrait'],
-      color: AppColors.error,
-    ),
-    _TagCategory(
-      label: 'Technique',
-      tags: ['Dribble', 'Passe', 'Tir', 'Placement', 'Endurance'],
-      color: Color(0xFF3498DB),
-    ),
-  ];
+  List<ConfigurationElementEvaluation> get _configuration =>
+      widget.atelier.configurationEvaluation ?? [];
 
   @override
   void initState() {
     super.initState();
     widget.annotationState.addListener(_onStateChanged);
+    _initNotes();
+  }
+
+  void _initNotes() {
+    for (final config in _configuration) {
+      _notesEnCours['${config.critereId}_${config.element1Id}'] = 0.0;
+      _notesEnCours['${config.critereId}_${config.element2Id}'] = 0.0;
+    }
   }
 
   @override
   void dispose() {
     widget.annotationState.removeListener(_onStateChanged);
-    _contenuController.dispose();
+    _commentaireController.dispose();
     super.dispose();
   }
 
@@ -89,36 +69,67 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
     if (mounted) setState(() {});
   }
 
-  void _toggleTag(String tag) {
+  double _getNote(String critereId, String elementId) {
+    return _notesEnCours['${critereId}_$elementId'] ?? 0.0;
+  }
+
+  void _setNote(String critereId, String elementId, double note) {
     setState(() {
-      if (_tagsSelectionnes.contains(tag)) {
-        _tagsSelectionnes.remove(tag);
-      } else {
-        _tagsSelectionnes.add(tag);
-      }
+      _notesEnCours['${critereId}_$elementId'] = note;
     });
   }
 
-  Future<void> _enregistrerAutomatiquement() async {
-    final contenu = _contenuController.text.trim();
-    if (_tagsSelectionnes.isEmpty && contenu.isEmpty) return;
+  double _getScoreTotal() {
+    double total = 0;
+    for (final config in _configuration) {
+      final note1 = _getNote(config.critereId, config.element1Id);
+      final note2 = _getNote(config.critereId, config.element2Id);
+      total += note1 + note2;
+    }
+    return total;
+  }
 
+  bool _tousLesElementsNotes() {
+    for (final config in _configuration) {
+      if (_getNote(config.critereId, config.element1Id) == 0) return false;
+      if (_getNote(config.critereId, config.element2Id) == 0) return false;
+    }
+    return true;
+  }
+
+  Future<void> _enregistrer() async {
     setState(() => _isSaving = true);
 
-    await widget.annotationState.creerAnnotation(
-      contenu: contenu,
-      tags: List<String>.from(_tagsSelectionnes),
-      note: _note,
+    final scores = _configuration.map((config) {
+      return ScoreAnnotation(
+        critereId: config.critereId,
+        element1Id: config.element1Id,
+        noteElement1: _getNote(config.critereId, config.element1Id),
+        element2Id: config.element2Id,
+        noteElement2: _getNote(config.critereId, config.element2Id),
+      );
+    }).toList();
+
+    final succes = await widget.annotationState.creerAnnotation(
+      scores: scores,
+      commentaire: _commentaireController.text.trim().isEmpty
+          ? null
+          : _commentaireController.text.trim(),
       encadreurId: widget.encadreurId,
     );
 
     if (mounted) {
-      setState(() {
-        _contenuController.clear();
-        _tagsSelectionnes.clear();
-        _note = null;
-        _isSaving = false;
-      });
+      setState(() => _isSaving = false);
+      if (succes && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else if (!succes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.annotationState.errorMessage ?? 'Erreur lors de l\'enregistrement'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -128,7 +139,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      height: screenHeight * 0.85,
+      height: screenHeight * 0.9,
       decoration: BoxDecoration(
         color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -138,71 +149,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
           _buildHandle(isDark),
           _buildHeader(isDark),
           Expanded(
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildStatusWarning(isDark),
-                const SizedBox(height: 16),
-                _buildTagsSection(isDark),
-                const SizedBox(height: 16),
-                _buildObservationField(isDark),
-                const SizedBox(height: 16),
-                _buildNoteSection(isDark),
-                const SizedBox(height: 8),
-                _buildEnregistrerButton(isDark),
-                const SizedBox(height: 24),
-                _buildHistoriqueSection(isDark),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusWarning(bool isDark) {
-    final isApplique = widget.exercice != null
-        ? widget.exercice!.statut == ExerciceStatut.applique
-        : widget.atelier.statut == AtelierStatut.applique;
-
-    if (isApplique) return const SizedBox.shrink();
-
-    final isFerme = widget.exercice != null
-        ? widget.exercice!.statut == ExerciceStatut.ferme
-        : widget.atelier.statut == AtelierStatut.ferme;
-
-    final message = isFerme
-        ? 'Cet élément est fermé. Les annotations sont en lecture seule.'
-        : 'Veuillez appliquer cet élément pour commencer les annotations.';
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: (isFerme ? Colors.grey : AppColors.warning).withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: (isFerme ? Colors.grey : AppColors.warning).withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isFerme ? Icons.lock_outline_rounded : Icons.info_outline_rounded,
-            size: 18,
-            color: isFerme ? Colors.grey : AppColors.warning,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: isFerme ? Colors.grey : AppColors.warning,
-              ),
-            ),
+            child: _showRecapitulatif
+                ? _buildRecapitulatif(isDark)
+                : _buildFormulaire(isDark),
           ),
         ],
       ),
@@ -228,7 +177,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Row(
         children: [
-          _buildAvatarSmall(),
+          _buildAvatar(),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -245,7 +194,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
                   ),
                 ),
                 Text(
-                  widget.exercice != null 
+                  widget.exercice != null
                       ? '${widget.atelier.nom} > ${widget.exercice!.nom}'
                       : widget.atelier.nom,
                   style: GoogleFonts.montserrat(
@@ -269,7 +218,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
     );
   }
 
-  Widget _buildAvatarSmall() {
+  Widget _buildAvatar() {
     return Container(
       width: 44,
       height: 44,
@@ -308,417 +257,146 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
     );
   }
 
-  Widget _buildTagsSection(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.quickTags,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
-            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ..._categories.map((cat) => _buildTagCategoryRow(cat, isDark)),
-      ],
-    );
-  }
-
-  Widget _buildTagCategoryRow(_TagCategory category, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            category.label,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: category.color,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: category.tags.map((tag) {
-              final isSelected = _tagsSelectionnes.contains(tag);
-              return GestureDetector(
-                onTap: () => _toggleTag(tag),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? category.color.withValues(alpha: 0.2)
-                        : isDark
-                        ? AppColors.surfaceDark
-                        : AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected
-                          ? category.color
-                          : isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.black.withValues(alpha: 0.08),
-                      width: isSelected ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Text(
-                    tag,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w400,
-                      color: isSelected
-                          ? category.color
-                          : isDark
-                          ? AppColors.textMainDark
-                          : AppColors.textMainLight,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildObservationField(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.detailedObservation,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
-            color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.08),
-            ),
-          ),
-          child: TextField(
-            controller: _contenuController,
-            maxLines: 3,
-            onChanged: (_) => setState(() {}),
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
-            ),
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.observationHintAnnotation,
-              hintStyle: GoogleFonts.montserrat(
-                fontSize: 13,
-                color: isDark
-                    ? AppColors.textMutedDark
-                    : AppColors.textMutedLight,
-              ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(16),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNoteSection(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              AppLocalizations.of(context)!.noteOptional,
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
-              ),
-            ),
-            const Spacer(),
-            if (_note != null)
-              Text(
-                AppLocalizations.of(
-                  context,
-                )!.noteFormat(_note!.toStringAsFixed(0)),
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: AppColors.primary,
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        SliderTheme(
-          data: SliderThemeData(
-            activeTrackColor: AppColors.primary,
-            inactiveTrackColor: AppColors.primary.withValues(alpha: 0.15),
-            thumbColor: AppColors.primary,
-            overlayColor: AppColors.primary.withValues(alpha: 0.1),
-            trackHeight: 4,
-          ),
-          child: Slider(
-            value: _note ?? 5,
-            min: 0,
-            max: 10,
-            divisions: 10,
-            onChanged: (value) {
-              setState(() => _note = value);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEnregistrerButton(bool isDark) {
-    final hasContent =
-        _tagsSelectionnes.isNotEmpty ||
-        _contenuController.text.trim().isNotEmpty;
-
-    final isApplique = widget.exercice != null 
+  Widget _buildFormulaire(bool isDark) {
+    final scoreTotal = _getScoreTotal();
+    final tousNotes = _tousLesElementsNotes();
+    final isApplique = widget.exercice != null
         ? widget.exercice!.statut == ExerciceStatut.applique
         : widget.atelier.statut == AtelierStatut.applique;
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: hasContent && !_isSaving && isApplique
-            ? _enregistrerAutomatiquement
-            : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
-          disabledForegroundColor: Colors.white.withValues(alpha: 0.5),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        icon: _isSaving
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Icon(Icons.save_rounded, size: 20),
-        label: Text(
-          _isSaving
-              ? AppLocalizations.of(context)!.saving
-              : AppLocalizations.of(context)!.saveAnnotation,
-          style: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHistoriqueSection(bool isDark) {
-    final historique = widget.annotationState.historiqueAcademicien;
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.history_rounded,
-              size: 18,
-              color: isDark
-                  ? AppColors.textMutedDark
-                  : AppColors.textMutedLight,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              AppLocalizations.of(
-                context,
-              )!.historyCountLabel(historique.length),
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
+        Expanded(
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              AnnotationScoreHeader(
+                scoreTotal: scoreTotal,
+                isDark: isDark,
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ..._configuration.map(
+                  (config) => AnnotationElementRating(
+                        config: config,
+                        getNote: _getNote,
+                        setNote: _setNote,
+                        isDark: isDark,
+                      )),
+              const SizedBox(height: 16),
+              AnnotationCommentField(
+                controller: _commentaireController,
+                isDark: isDark,
+              ),
+              const SizedBox(height: 16),
+              AnnotationHistoriqueSection(
+                historique: widget.annotationState.historiqueAcademicien,
+                isDark: isDark,
+                itemBuilder: (annotation) => AnnotationHistoriqueItem(
+                  annotation: annotation,
+                  isDark: isDark,
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
-        const SizedBox(height: 12),
-        if (historique.isEmpty)
-          _buildEmptyHistorique(isDark)
-        else
-          ...historique.map((a) => _buildHistoriqueItem(a, isDark)),
+        AnnotationActionBar(
+          tousNotes: tousNotes,
+          isSaving: _isSaving,
+          isApplique: isApplique,
+          showRecapitulatif: _showRecapitulatif,
+          errorMessage: widget.annotationState.errorMessage,
+          onEnregistrer: _enregistrer,
+          onAfficherRecap: () => setState(() => _showRecapitulatif = true),
+          onModifier: () => setState(() => _showRecapitulatif = false),
+          isDark: isDark,
+        ),
       ],
     );
   }
 
-  Widget _buildEmptyHistorique(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Text(
-          AppLocalizations.of(context)!.noPreviousAnnotation,
-          style: GoogleFonts.montserrat(
-            fontSize: 13,
-            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+  Widget _buildRecapitulatif(bool isDark) {
+    final scoreTotal = _getScoreTotal();
+
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHistoriqueItem(Annotation annotation, bool isDark) {
-    final date = _formatDate(annotation.horodate);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : Colors.black.withValues(alpha: 0.04),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          child: Column(
             children: [
-              Icon(
-                Icons.access_time_rounded,
-                size: 14,
-                color: isDark
-                    ? AppColors.textMutedDark
-                    : AppColors.textMutedLight,
-              ),
-              const SizedBox(width: 4),
               Text(
-                date,
+                'Recapitulatif de l\'annotation',
                 style: GoogleFonts.montserrat(
-                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
                   color: isDark
-                      ? AppColors.textMutedDark
-                      : AppColors.textMutedLight,
+                      ? AppColors.textMainDark
+                      : AppColors.textMainLight,
                 ),
               ),
-              const Spacer(),
-              if (annotation.note != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.noteFormat(annotation.note!.toStringAsFixed(0)),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
-                    ),
-                  ),
+              const SizedBox(height: 8),
+              Text(
+                '${scoreTotal.toStringAsFixed(1)} / 50',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 36,
+                  color: AppColors.primary,
                 ),
+              ),
             ],
           ),
-          if (annotation.tags.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: annotation.tags.map((tag) {
-                final color = _getTagColor(tag);
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    tag,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: color,
-                    ),
-                  ),
-                );
-              }).toList(),
+        ),
+        const SizedBox(height: 16),
+        ..._configuration.map(
+            (config) => AnnotationRecapItem(
+                  config: config,
+                  getNote: _getNote,
+                  isDark: isDark,
+                )),
+        if (_commentaireController.text.trim().isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
-          if (annotation.contenu.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              annotation.contenu,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
-                color: isDark
-                    ? AppColors.textMainDark
-                    : AppColors.textMainLight,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Commentaire',
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.textMutedDark
+                        : AppColors.textMutedLight,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _commentaireController.text.trim(),
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ],
-      ),
+        const SizedBox(height: 100),
+      ],
     );
-  }
-
-  Color _getTagColor(String tag) {
-    for (final category in _categories) {
-      if (category.tags.contains(tag)) {
-        return category.color;
-      }
-    }
-    return AppColors.primary;
-  }
-
-  String _formatDate(DateTime date) {
-    final locale = Localizations.localeOf(context).languageCode;
-    final dateStr = intl.DateFormat('d MMM yyyy', locale).format(date);
-    final heure = intl.DateFormat('HH:mm', locale).format(date);
-    return '$dateStr - $heure';
   }
 }
