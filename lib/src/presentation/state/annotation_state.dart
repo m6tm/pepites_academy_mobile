@@ -131,6 +131,19 @@ class AnnotationState extends ChangeNotifier {
       }
     }
 
+    // Vérification d'unicité : un exercice ne peut être annoté qu'une seule fois par académicien
+    if (_exerciceId != null) {
+      final dejaAnnote = _historiqueAcademicien.any(
+        (a) => a.exerciceId == _exerciceId,
+      );
+      if (dejaAnnote) {
+        _errorMessage =
+            'Cet exercice a déjà été annoté. Vous ne pouvez pas créer deux annotations pour le même exercice.';
+        notifyListeners();
+        return false;
+      }
+    }
+
     _errorMessage = null;
     _successMessage = null;
 
@@ -152,6 +165,57 @@ class AnnotationState extends ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = 'Erreur lors de l\'enregistrement : $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Annotation? get annotationPourExerciceActuel {
+    if (_exerciceId == null) return null;
+    try {
+      return _historiqueAcademicien.firstWhere(
+        (a) => a.exerciceId == _exerciceId,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> modifierAnnotation({
+    required String annotationId,
+    required List<ScoreAnnotation> scores,
+    String? commentaire,
+  }) async {
+    for (final score in scores) {
+      if (score.noteElement1 == 0 || score.noteElement2 == 0) {
+        _errorMessage = 'Tous les elements doivent etre notes (pas de 0).';
+        notifyListeners();
+        return false;
+      }
+    }
+
+    _errorMessage = null;
+    _successMessage = null;
+
+    try {
+      final existing = _historiqueAcademicien.firstWhere(
+        (a) => a.id == annotationId,
+      );
+      final updated = existing.copyWith(scores: scores, commentaire: commentaire);
+
+      await _service.modifierAnnotation(updated);
+
+      _annotationsAtelier = _annotationsAtelier
+          .map((a) => a.id == annotationId ? updated : a)
+          .toList();
+      _historiqueAcademicien = _historiqueAcademicien
+          .map((a) => a.id == annotationId ? updated : a)
+          .toList();
+      _successMessage = 'Annotation mise a jour.';
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la mise a jour : $e';
       notifyListeners();
       return false;
     }

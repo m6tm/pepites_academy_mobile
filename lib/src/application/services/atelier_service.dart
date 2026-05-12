@@ -42,8 +42,8 @@ class AtelierService {
   }
 
   /// Recupere tous les ateliers d'une seance, tries par ordre.
-  Future<List<Atelier>> getAteliersParSeance(String seanceId) async {
-    final ateliers = await _atelierRepository.getBySeanceId(seanceId);
+  Future<List<Atelier>> getAteliersParSeance(String seanceId, {bool forceRefresh = false}) async {
+    final ateliers = await _atelierRepository.getBySeanceId(seanceId, forceRefresh: forceRefresh);
     ateliers.sort((a, b) => a.ordre.compareTo(b.ordre));
     _ateliersController.add(ateliers);
     return ateliers;

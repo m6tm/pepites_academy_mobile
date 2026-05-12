@@ -118,7 +118,7 @@ class _AteliersPageState extends State<AteliersPage> {
   }
 
   Future<void> _refresh() async {
-    await _atelierState.chargerAteliers(widget.seance.id);
+    await _atelierState.rafraichirDepuisServeur(widget.seance.id);
     for (final atelier in _atelierState.ateliers) {
       await _exerciceState.chargerExercices(atelier.id);
     }
@@ -374,7 +374,6 @@ class _AteliersPageState extends State<AteliersPage> {
             isLoadingExercices: _exerciceState.isLoading(atelier.id),
             isEditable: _hasUpdatePermission && widget.seance.estOuverte,
             isExercicesEditable: _hasUpdateExercicePermission && widget.seance.estOuverte,
-            onAnnotate: () => _naviguerVersAnnotation(atelier),
             onAnnotateExercice: (ex) => _naviguerVersAnnotation(atelier, exercice: ex),
             onEdit: () => _showEditAtelier(context, atelier),
             onDelete: () => _showDeleteConfirmation(context, atelier),

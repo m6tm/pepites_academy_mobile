@@ -14,7 +14,6 @@ class AtelierCard extends StatefulWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onAddExercice;
-  final VoidCallback? onAnnotate;
   final Function(Exercice)? onAnnotateExercice;
   final Function(Exercice)? onEditExercice;
   final Function(Exercice)? onDeleteExercice;
@@ -34,7 +33,6 @@ class AtelierCard extends StatefulWidget {
     this.onEdit,
     this.onDelete,
     this.onAddExercice,
-    this.onAnnotate,
     this.onAnnotateExercice,
     this.onEditExercice,
     this.onDeleteExercice,
@@ -157,24 +155,6 @@ class _AtelierCardState extends State<AtelierCard> {
                               icon: Icon(Icons.play_circle_outline_rounded, size: 20, color: typeColor),
                               onPressed: widget.onApply,
                               tooltip: 'Appliquer en séance',
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(),
-                            ),
-                          if (widget.onAnnotate != null)
-                            IconButton(
-                              icon: Icon(
-                                Icons.note_alt_outlined,
-                                size: 20,
-                                color: widget.atelier.statut == AtelierStatut.applique
-                                    ? typeColor
-                                    : colorScheme.onSurface.withValues(alpha: 0.3),
-                              ),
-                              onPressed: widget.atelier.statut == AtelierStatut.applique
-                                  ? widget.onAnnotate
-                                  : null,
-                              tooltip: widget.atelier.statut == AtelierStatut.applique
-                                  ? 'Annoter l\'atelier'
-                                  : 'Veuillez appliquer l\'atelier pour commencer les annotations',
                               padding: const EdgeInsets.all(4),
                               constraints: const BoxConstraints(),
                             ),

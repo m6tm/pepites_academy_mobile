@@ -1099,12 +1099,12 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
               _showDeleteConfirmation();
             },
           ),
-          ),
           const SizedBox(height: 16),
         ],
       ),
     ),
   );
+}
 }
 
 /// Feuille modale plein ecran pour le QR code.

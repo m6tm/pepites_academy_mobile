@@ -6,13 +6,11 @@ import '../../../domain/entities/seance.dart';
 import '../../../domain/entities/permission.dart';
 import '../../../infrastructure/network/api_endpoints.dart';
 import '../../../injection_container.dart';
-import '../../state/annotation_state.dart';
 import '../../state/atelier_state.dart';
 import '../../state/exercice_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../../widgets/atelier_card.dart';
-import '../annotation/annotation_page.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Ecran de composition des ateliers rattache a une seance.
@@ -458,7 +456,6 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
               atelier: atelier,
               exercices: exercices,
               isEditable: false,
-              onAnnotate: () => _naviguerVersAnnotations(atelier),
             );
           }, childCount: state.ateliers.length),
         ),
@@ -491,7 +488,6 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
               onApplyExercice: (widget.seance.estOuverte && _hasApplyExercicePermission)
                   ? (ex) => _confirmApplyExercice(context, ex)
                   : null,
-              onAnnotate: () => _naviguerVersAnnotations(atelier),
             ),
           );
         },
@@ -539,31 +535,6 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  void _naviguerVersAnnotations(Atelier atelier) {
-    final atelierState = AtelierState(DependencyInjection.atelierService, DependencyInjection.domainEventBus);
-    final exerciceState = ExerciceState(DependencyInjection.exerciceService);
-
-    final l10n = AppLocalizations.of(context)!;
-    atelierState.setLocalizations(l10n);
-    exerciceState.setLocalizations(l10n);
-
-    // This method is intended to navigate to AnnotationPage, not AtelierCompositionPage.
-    // The provided diff seems to be for a different context or a copy-paste error.
-    // Reverting to original logic for AnnotationPage navigation.
-    final annotationState = AnnotationState(
-      DependencyInjection.annotationService,
-    );
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => AnnotationPage(
-          atelier: atelier,
-          seance: widget.seance,
-          annotationState: annotationState,
-        ),
       ),
     );
   }

@@ -34,12 +34,20 @@ class AtelierRepositoryImpl implements AtelierRepository {
   }
 
 @override
-  Future<List<Atelier>> getBySeanceId(String seanceId) async {
+  Future<List<Atelier>> getBySeanceId(String seanceId, {bool forceRefresh = false}) async {
     final key = 'seance_$seanceId';
-    final cached = _cache.get(key);
-    if (cached != null) return cached;
+
+    if (forceRefresh) {
+      _invalidateCache();
+    } else {
+      final cached = _cache.get(key);
+      if (cached != null) return cached;
+    }
 
     return _cache.getOrFetch(key, () async {
+      if (forceRefresh && _dioClient != null) {
+        await _syncAteliersForSeance(seanceId);
+      }
       var local = _datasource.getBySeance(seanceId);
       if (local.isEmpty && _dioClient != null) {
         await _syncAteliersForSeance(seanceId);

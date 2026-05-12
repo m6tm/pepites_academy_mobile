@@ -70,6 +70,23 @@ class AtelierState extends ChangeNotifier
     }
   }
 
+  /// Force un re-fetch depuis le serveur en bypassant le cache.
+  Future<void> rafraichirDepuisServeur(String seanceId) async {
+    _seanceId = seanceId;
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _ateliers = await _service.getAteliersParSeance(seanceId, forceRefresh: true);
+    } catch (e) {
+      _errorMessage = 'Erreur lors du rafraichissement : $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   /// Ajoute un atelier a la seance courante.
   Future<bool> ajouterAtelier({
     required String nom,

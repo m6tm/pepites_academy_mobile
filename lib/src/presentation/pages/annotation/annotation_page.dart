@@ -101,8 +101,9 @@ class _AnnotationPageState extends State<AnnotationPage> {
     }
   }
 
-  void _ouvrirVoletAnnotation(Academicien academicien) {
-    annotationState.selectionnerAcademicien(academicien.id);
+  Future<void> _ouvrirVoletAnnotation(Academicien academicien) async {
+    await annotationState.selectionnerAcademicien(academicien.id);
+    if (!mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

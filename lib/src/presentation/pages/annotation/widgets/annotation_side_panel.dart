@@ -10,7 +10,6 @@ import '../../../theme/app_colors.dart';
 import 'annotation_action_bar.dart';
 import 'annotation_comment_field.dart';
 import 'annotation_element_rating.dart';
-import 'annotation_historique_item.dart';
 import 'annotation_recap_item.dart';
 
 class AnnotationSidePanel extends StatefulWidget {
@@ -40,6 +39,8 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
   final Map<String, double> _notesEnCours = {};
   bool _isSaving = false;
   bool _showRecapitulatif = false;
+  bool _modeEdition = false;
+  String? _annotationExistanteId;
 
   List<ConfigurationElementEvaluation> get _configuration =>
       widget.atelier.configurationEvaluation ?? [];
@@ -55,6 +56,21 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
     for (final config in _configuration) {
       _notesEnCours['${config.critereId}_${config.element1Id}'] = 0.0;
       _notesEnCours['${config.critereId}_${config.element2Id}'] = 0.0;
+    }
+
+    final existante = widget.annotationState.annotationPourExerciceActuel;
+    if (existante != null) {
+      _modeEdition = true;
+      _annotationExistanteId = existante.id;
+      for (final score in existante.scores) {
+        _notesEnCours['${score.critereId}_${score.element1Id}'] =
+            score.noteElement1;
+        _notesEnCours['${score.critereId}_${score.element2Id}'] =
+            score.noteElement2;
+      }
+      if (existante.commentaire != null && existante.commentaire!.isNotEmpty) {
+        _commentaireController.text = existante.commentaire!;
+      }
     }
   }
 
@@ -110,13 +126,24 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
       );
     }).toList();
 
-    final succes = await widget.annotationState.creerAnnotation(
-      scores: scores,
-      commentaire: _commentaireController.text.trim().isEmpty
-          ? null
-          : _commentaireController.text.trim(),
-      encadreurId: widget.encadreurId,
-    );
+    final commentaire = _commentaireController.text.trim().isEmpty
+        ? null
+        : _commentaireController.text.trim();
+
+    final bool succes;
+    if (_modeEdition && _annotationExistanteId != null) {
+      succes = await widget.annotationState.modifierAnnotation(
+        annotationId: _annotationExistanteId!,
+        scores: scores,
+        commentaire: commentaire,
+      );
+    } else {
+      succes = await widget.annotationState.creerAnnotation(
+        scores: scores,
+        commentaire: commentaire,
+        encadreurId: widget.encadreurId,
+      );
+    }
 
     if (mounted) {
       setState(() => _isSaving = false);
@@ -137,6 +164,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenHeight = MediaQuery.of(context).size.height;
+    final isApplique = widget.exercice != null
+        ? widget.exercice!.statut == ExerciceStatut.applique
+        : widget.atelier.statut == AtelierStatut.applique;
 
     return Container(
       height: screenHeight * 0.9,
@@ -152,6 +182,17 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
             child: _showRecapitulatif
                 ? _buildRecapitulatif(isDark)
                 : _buildFormulaire(isDark),
+          ),
+          AnnotationActionBar(
+            tousNotes: _tousLesElementsNotes(),
+            isSaving: _isSaving,
+            isApplique: isApplique,
+            showRecapitulatif: _showRecapitulatif,
+            errorMessage: widget.annotationState.errorMessage,
+            onEnregistrer: _enregistrer,
+            onAfficherRecap: () => setState(() => _showRecapitulatif = true),
+            onModifier: () => setState(() => _showRecapitulatif = false),
+            isDark: isDark,
           ),
         ],
       ),
@@ -258,60 +299,28 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
   }
 
   Widget _buildFormulaire(bool isDark) {
-    final scoreTotal = _getScoreTotal();
-    final tousNotes = _tousLesElementsNotes();
-    final isApplique = widget.exercice != null
-        ? widget.exercice!.statut == ExerciceStatut.applique
-        : widget.atelier.statut == AtelierStatut.applique;
-
-    return Column(
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
-        Expanded(
-          child: ListView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              AnnotationScoreHeader(
-                scoreTotal: scoreTotal,
-                isDark: isDark,
-              ),
-              const SizedBox(height: 16),
-              ..._configuration.map(
-                  (config) => AnnotationElementRating(
-                        config: config,
-                        getNote: _getNote,
-                        setNote: _setNote,
-                        isDark: isDark,
-                      )),
-              const SizedBox(height: 16),
-              AnnotationCommentField(
-                controller: _commentaireController,
-                isDark: isDark,
-              ),
-              const SizedBox(height: 16),
-              AnnotationHistoriqueSection(
-                historique: widget.annotationState.historiqueAcademicien,
-                isDark: isDark,
-                itemBuilder: (annotation) => AnnotationHistoriqueItem(
-                  annotation: annotation,
-                  isDark: isDark,
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-        AnnotationActionBar(
-          tousNotes: tousNotes,
-          isSaving: _isSaving,
-          isApplique: isApplique,
-          showRecapitulatif: _showRecapitulatif,
-          errorMessage: widget.annotationState.errorMessage,
-          onEnregistrer: _enregistrer,
-          onAfficherRecap: () => setState(() => _showRecapitulatif = true),
-          onModifier: () => setState(() => _showRecapitulatif = false),
+        AnnotationScoreHeader(
+          scoreTotal: _getScoreTotal(),
           isDark: isDark,
         ),
+        const SizedBox(height: 16),
+        ..._configuration.map(
+            (config) => AnnotationElementRating(
+                  config: config,
+                  getNote: _getNote,
+                  setNote: _setNote,
+                  isDark: isDark,
+                )),
+        const SizedBox(height: 16),
+        AnnotationCommentField(
+          controller: _commentaireController,
+          isDark: isDark,
+        ),
+        const SizedBox(height: 24),
       ],
     );
   }

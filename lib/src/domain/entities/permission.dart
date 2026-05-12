@@ -280,11 +280,26 @@ enum Permission {
 ///
 /// Cette map définit quelles permissions sont accordées à chaque rôle.
 /// Les rôles de niveau supérieur héritent des permissions des rôles inférieurs.
-const Map<Role, Set<Permission>> rolePermissions = {
-  Role.supAdmin: {
-    // SupAdmin possède toutes les permissions
-    ...Permission.values,
-  },
+final Map<Role, Set<Permission>> rolePermissions = {
+  Role.supAdmin: Set<Permission>.from(Permission.values)
+    ..removeAll({
+      // Séances : lecture seule
+      Permission.seanceOpen,
+      Permission.seanceClose,
+      // Ateliers : lecture seule
+      Permission.atelierCreate,
+      Permission.atelierUpdate,
+      Permission.atelierDelete,
+      Permission.atelierApply,
+      Permission.atelierClose,
+      // Exercices : lecture seule
+      Permission.exerciceCreate,
+      Permission.exerciceUpdate,
+      Permission.exerciceDelete,
+      Permission.exerciceValidate,
+      Permission.exerciceApply,
+      Permission.exerciceClose,
+    }),
   Role.admin: {
     // Gestion des utilisateurs
     Permission.userCreate,
@@ -306,9 +321,7 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.encadreurUpdate,
     Permission.encadreurDelete,
     Permission.encadreurView,
-    // Gestion des séances
-    Permission.seanceOpen,
-    Permission.seanceClose,
+    // Gestion des séances (lecture seule)
     Permission.seanceView,
     // Gestion des entraînements
     Permission.entrainementCreate,
@@ -316,19 +329,9 @@ const Map<Role, Set<Permission>> rolePermissions = {
     Permission.entrainementDelete,
     Permission.entrainementApply,
     Permission.entrainementView,
-    // Gestion des ateliers
-    Permission.atelierCreate,
-    Permission.atelierUpdate,
-    Permission.atelierDelete,
-    Permission.exerciceCreate,
-    Permission.exerciceUpdate,
-    Permission.exerciceDelete,
-    Permission.exerciceValidate,
-    Permission.atelierApply,
-    Permission.atelierClose,
-    Permission.exerciceApply,
-    Permission.exerciceClose,
+    // Gestion des ateliers (lecture seule)
     Permission.atelierView,
+    // Gestion des exercices (lecture seule — inclus dans atelierView)
     // Évaluations et annotations
     Permission.annotationCreate,
     Permission.annotationUpdate,
