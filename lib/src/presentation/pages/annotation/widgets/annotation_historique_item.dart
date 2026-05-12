@@ -21,7 +21,7 @@ class AnnotationHistoriqueItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = _formatDate(annotation.horodate, context);
-    final scoreTotal = annotation.scoreTotal ?? 0.0;
+    final scoreTotal = annotation.scoreTotal;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

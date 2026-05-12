@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../application/services/annotation_service.dart';
 import '../../domain/entities/annotation.dart';
-import '../../domain/entities/atelier.dart';
 
 class AnnotationState extends ChangeNotifier {
   final AnnotationService _service;

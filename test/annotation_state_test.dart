@@ -15,30 +15,38 @@ void main() {
     state = AnnotationState(mockService);
   });
 
+  final testScore = ScoreAnnotation(
+    critereId: 'crite-1',
+    element1Id: 'elem-1',
+    noteElement1: 3.0,
+    element2Id: 'elem-2',
+    noteElement2: 4.0,
+  );
+
   final testAnnotation = Annotation(
     id: '1',
-    contenu: 'Test',
-    tags: [],
     academicienId: 'acad-1',
     atelierId: 'at-1',
     seanceId: 'se-1',
     encadreurId: 'enc-1',
     horodate: DateTime.now(),
+    scores: [testScore],
+    commentaire: 'Test',
   );
 
   final testAnnotationEx = Annotation(
     id: '2',
-    contenu: 'Test Ex',
-    tags: [],
     academicienId: 'acad-1',
     atelierId: 'at-1',
     exerciceId: 'ex-1',
     seanceId: 'se-1',
     encadreurId: 'enc-1',
     horodate: DateTime.now().add(const Duration(minutes: 1)),
+    scores: [testScore],
+    commentaire: 'Test Ex',
   );
 
-  test('initialiserContexte définit exerciceId et charge les annotations', () async {
+  test('initialiserContexte definit exerciceId et charge les annotations', () async {
     when(() => mockService.getAnnotationsAtelier(any()))
         .thenAnswer((_) async => [testAnnotation]);
 
@@ -55,7 +63,7 @@ void main() {
     verify(() => mockService.getAnnotationsAtelier('at-1')).called(1);
   });
 
-  test('selectionnerAcademicien trie l\'historique avec l\'exercice actuel en priorité', () async {
+  test('selectionnerAcademicien trie l\'historique avec l\'exercice actuel en priorite', () async {
     state.initialiserContexte(atelierId: 'at-1', seanceId: 'se-1', exerciceId: 'ex-1');
     
     when(() => mockService.getAnnotationsAcademicien(any()))
@@ -64,12 +72,11 @@ void main() {
     await state.selectionnerAcademicien('acad-1');
 
     expect(state.historiqueAcademicien.length, 2);
-    // L'annotation avec exerciceId 'ex-1' doit être en première position suite au tri
     expect(state.historiqueAcademicien.first.exerciceId, 'ex-1');
     expect(state.historiqueAcademicien.first.id, '2');
   });
 
-  test('creerAnnotation passe exerciceId au service', () async {
+  test('creerAnnotation passe les scores au service', () async {
     await state.initialiserContexte(
       atelierId: 'at-1',
       seanceId: 'se-1',
@@ -78,9 +85,8 @@ void main() {
     await state.selectionnerAcademicien('acad-1');
 
     when(() => mockService.creerAnnotation(
-          contenu: any(named: 'contenu'),
-          tags: any(named: 'tags'),
-          note: any(named: 'note'),
+          scores: any(named: 'scores'),
+          commentaire: any(named: 'commentaire'),
           academicienId: any(named: 'academicienId'),
           atelierId: any(named: 'atelierId'),
           exerciceId: any(named: 'exerciceId'),
@@ -89,17 +95,15 @@ void main() {
         )).thenAnswer((_) async => testAnnotationEx);
 
     final success = await state.creerAnnotation(
-      contenu: 'Nouveau',
-      tags: ['T1'],
-      note: 8.0,
+      scores: [testScore],
+      commentaire: 'Nouveau',
       encadreurId: 'enc-1',
     );
 
     expect(success, true);
     verify(() => mockService.creerAnnotation(
-          contenu: 'Nouveau',
-          tags: ['T1'],
-          note: 8.0,
+          scores: [testScore],
+          commentaire: 'Nouveau',
           academicienId: 'acad-1',
           atelierId: 'at-1',
           exerciceId: 'ex-1',

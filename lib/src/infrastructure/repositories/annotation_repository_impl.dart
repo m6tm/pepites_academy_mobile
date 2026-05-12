@@ -71,7 +71,6 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
 
       return result.fold(
         (failure) {
-          print('[Annotation] Sync failed: ${failure.message}');
           return false;
         },
         (data) async {
@@ -91,12 +90,10 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
               .toList();
 
           await _datasource.upsertAll(remote);
-          print('[Annotation] Synced ${remote.length} items from backend');
           return true;
         },
       );
     } catch (e) {
-      print('[Annotation] Sync exception: $e');
       return false;
     }
   }
