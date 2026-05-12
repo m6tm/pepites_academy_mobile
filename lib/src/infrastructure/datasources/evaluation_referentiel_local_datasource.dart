@@ -10,7 +10,7 @@ class EvaluationReferentielLocalDatasource implements ClearableDatasource {
   final SharedPreferences _prefs;
   static const String _storageKey = 'evaluation_referentiel_data';
   static const String _versionKey = 'evaluation_referentiel_version';
-  static const int _currentVersion = 1;
+  static const int _currentVersion = 3;
 
   EvaluationReferentielLocalDatasource(this._prefs);
 
@@ -23,10 +23,14 @@ class EvaluationReferentielLocalDatasource implements ClearableDatasource {
   /// Seed initial ou mise a jour du referentiel.
   /// Idempotent : une re-execution ne cree pas de doublons (upsert sur id).
   Future<void> seed() async {
+    final storedVersion = _prefs.getInt(_versionKey) ?? 0;
     final criteres = ReferentielEvaluationData.criteres;
     final existing = getAll();
 
-    if (existing.isEmpty) {
+    if (storedVersion < _currentVersion) {
+      await clearCache();
+      await _saveAll(criteres);
+    } else if (existing.isEmpty) {
       await _saveAll(criteres);
     } else {
       await _upsertAll(criteres, existing);

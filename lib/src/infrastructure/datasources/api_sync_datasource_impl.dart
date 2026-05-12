@@ -323,8 +323,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         continue;
       }
 
-      // Pour les créations, le serveur génère lui-même l'ID
-      // Ne pas envoyer l'ID local dans le payload POST
+      // Le backend genere lui-meme l'UUID. L'ID local (utilise pour le
+      // stockage offline) est exclu du payload POST.
       if (isCreate && key == 'id') {
         continue;
       }

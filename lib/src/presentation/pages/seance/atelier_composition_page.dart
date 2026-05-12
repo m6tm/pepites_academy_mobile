@@ -511,6 +511,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       builder: (ctx) => _AtelierFormSheet(
         onSubmit: (nom, type, typeCustom, description) {
           widget.atelierState.ajouterAtelier(
+            seanceId: widget.seance.id,
             nom: nom,
             type: type,
             typeCustom: typeCustom,

@@ -24,6 +24,15 @@ class SeanceRepositoryImpl implements SeanceRepository {
     _syncService = service;
   }
 
+  /// Migre une seance locale (ID timestamp) vers l'UUID assigne par le serveur.
+  Future<void> migrateLocalId(String localId, String serverId) async {
+    final local = _datasource.getById(localId);
+    if (local == null) return;
+    final migrated = local.copyWith(id: serverId);
+    await _datasource.add(migrated);
+    await _datasource.delete(localId);
+  }
+
   /// Injecte le client HTTP.
   void setDioClient(DioClient client) {
     _dioClient = client;
@@ -92,6 +101,65 @@ class SeanceRepositoryImpl implements SeanceRepository {
 
   @override
   Future<Seance> create(Seance seance) async {
+    if (_dioClient != null) {
+      return _createOnline(seance);
+    }
+    return _createOffline(seance);
+  }
+
+  /// Creation directe via API — l'UUID est attribue par le serveur.
+  /// Sur 409: synchronise les seances depuis le backend, purge les seances locales
+  /// stales (ID timestamp), puis propage l'erreur sans basculer en offline.
+  /// Sur succes: nettoie les seances stales avant de retourner la nouvelle seance.
+  Future<Seance> _createOnline(Seance seance) async {
+    try {
+      final payload = _buildCreatePayload(seance);
+      final result = await _dioClient!.post<dynamic>(
+        ApiEndpoints.seances,
+        data: payload,
+      );
+
+      return await result.fold(
+        (failure) async {
+          if (failure.statusCode == 409) {
+            // Seance deja ouverte sur le backend. Synchroniser pour recuperer
+            // la vraie seance et purger les entrees locales obsoletes.
+            await syncFromApi();
+            await _purgerSeancesStalesLocales();
+            throw Exception('SEANCE_CONFLIT');
+          }
+          // ignore: avoid_print
+          print('[SeanceRepo] Creation online echouee (${failure.statusCode}): ${failure.message}. Bascule offline.');
+          return _createOffline(seance);
+        },
+        (data) async {
+          final map = data is Map<String, dynamic> ? data : null;
+          final seanceMap = (map?['seance'] as Map<String, dynamic>?) ?? map;
+          if (seanceMap == null || seanceMap['id'] == null) {
+            return _createOffline(seance);
+          }
+          final seanceAvecIdServeur = _parseSeanceFromMap(seanceMap, seance);
+          await _datasource.add(seanceAvecIdServeur);
+          // Nettoyer les seances locales stales (ID timestamp) sauf la nouvelle.
+          await _purgerSeancesStalesLocales(exceptId: seanceAvecIdServeur.id);
+          return seanceAvecIdServeur;
+        },
+      );
+    } catch (e) {
+      if (e is Exception && e.toString().contains('SEANCE_CONFLIT')) rethrow;
+      // ignore: avoid_print
+      print('[SeanceRepo] Exception creation online: $e. Bascule offline.');
+      return _createOffline(seance);
+    }
+  }
+
+  /// Creation offline-first avec ID timestamp + mise en file de sync.
+  /// Verifie d'abord qu'aucune seance n'est deja ouverte localement.
+  Future<Seance> _createOffline(Seance seance) async {
+    final existing = _datasource.getSeanceOuverte();
+    if (existing != null) {
+      throw Exception('SEANCE_CONFLIT');
+    }
     final created = await _datasource.add(seance);
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.seance,
@@ -100,6 +168,43 @@ class SeanceRepositoryImpl implements SeanceRepository {
       data: created.toJson(),
     );
     return created;
+  }
+
+  /// Supprime les seances locales avec un ID numerique (timestamp) en statut
+  /// "ouverte". Ces seances n'ont jamais ete synchronisees avec le backend
+  /// et ne peuvent plus l'etre une fois que le backend a son propre UUID.
+  Future<void> _purgerSeancesStalesLocales({String? exceptId}) async {
+    final local = _datasource.getAll();
+    final staleIds = local
+        .where(
+          (s) =>
+              s.id != exceptId &&
+              s.statut == SeanceStatus.ouverte &&
+              RegExp(r'^\d{10,}$').hasMatch(s.id),
+        )
+        .map((s) => s.id)
+        .toList();
+    for (final id in staleIds) {
+      await _datasource.delete(id);
+    }
+  }
+
+  Map<String, dynamic> _buildCreatePayload(Seance seance) {
+    return {
+      'titre': seance.titre,
+      'date': seance.date.toIso8601String().split('T').first,
+      'heure_debut': seance.heureDebut.toIso8601String(),
+      'heure_fin': seance.heureFin.toIso8601String(),
+      'encadreur_responsable_id': seance.encadreurResponsableId,
+      if (seance.encadreurIds.isNotEmpty) 'encadreur_ids': seance.encadreurIds,
+    };
+  }
+
+  Seance _parseSeanceFromMap(Map<String, dynamic> map, Seance fallback) {
+    return fallback.copyWith(
+      id: map['id'] as String? ?? fallback.id,
+      statut: _parseStatut(map['statut'] as String?),
+    );
   }
 
   @override

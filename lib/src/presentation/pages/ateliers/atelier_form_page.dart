@@ -17,12 +17,14 @@ class AtelierFormPage extends StatefulWidget {
   final String seanceId;
   final Atelier? atelier;
   final AtelierState atelierState;
+  final bool syncSeanceIdWithState;
 
   const AtelierFormPage({
     super.key,
     required this.seanceId,
     this.atelier,
     required this.atelierState,
+    this.syncSeanceIdWithState = false,
   });
 
   @override
@@ -56,6 +58,12 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     _configurationEvaluation =
         widget.atelier?.configurationEvaluation?.toList() ?? [];
     _chargerCriteres();
+
+    if (widget.syncSeanceIdWithState) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.atelierState.chargerAteliers(widget.seanceId);
+      });
+    }
   }
 
   Future<void> _chargerCriteres() async {
@@ -109,6 +117,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     bool success;
     if (widget.atelier == null) {
       success = await widget.atelierState.ajouterAtelier(
+        seanceId: widget.seanceId,
         nom: _nomController.text.trim(),
         type: _selectedType,
         typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,

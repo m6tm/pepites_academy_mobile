@@ -78,7 +78,9 @@ class SeanceService {
   }
 
   /// Tente d'ouvrir une nouvelle seance.
-  /// Verifie qu'aucune seance n'est deja ouverte avant d'autoriser l'ouverture.
+  /// Le controle de doublons est delègue au backend (online) ou au repository
+  /// (offline). Les seances locales avec ID timestamp stales sont purgees
+  /// automatiquement par le repository lors de la creation en ligne.
   Future<OuvertureResult> ouvrirSeance({
     required String titre,
     required DateTime date,
@@ -86,20 +88,6 @@ class SeanceService {
     required DateTime heureFin,
     required String encadreurResponsableId,
   }) async {
-    final seanceOuverte = await _seanceRepository.getSeanceOuverte();
-
-    if (seanceOuverte != null) {
-      return OuvertureResult(
-        success: false,
-        message:
-            _l10n?.serviceSeanceCannotOpen(seanceOuverte.titre) ??
-            'Impossible d\'ouvrir une nouvelle seance. '
-                'La seance "${seanceOuverte.titre}" est encore ouverte. '
-                'Veuillez la cloturer avant d\'en ouvrir une nouvelle.',
-        seanceBloqueante: seanceOuverte,
-      );
-    }
-
     final seance = Seance(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       titre: titre,
@@ -110,15 +98,32 @@ class SeanceService {
       encadreurResponsableId: encadreurResponsableId,
     );
 
-    final created = await _seanceRepository.create(seance);
-    await _activityService?.enregistrerSeanceOuverte(titre, created.id);
-    return OuvertureResult(
-      success: true,
-      message:
-          _l10n?.serviceSeanceOpenedSuccess(titre) ??
-          'Seance "$titre" ouverte avec succes.',
-      seance: created,
-    );
+    try {
+      final created = await _seanceRepository.create(seance);
+      await _activityService?.enregistrerSeanceOuverte(titre, created.id);
+      return OuvertureResult(
+        success: true,
+        message:
+            _l10n?.serviceSeanceOpenedSuccess(titre) ??
+            'Seance "$titre" ouverte avec succes.',
+        seance: created,
+      );
+    } catch (e) {
+      if (e.toString().contains('SEANCE_CONFLIT')) {
+        final bloqueante = await _seanceRepository.getSeanceOuverte();
+        return OuvertureResult(
+          success: false,
+          message:
+              _l10n?.serviceSeanceCannotOpen(bloqueante?.titre ?? '') ??
+              'Impossible d\'ouvrir une nouvelle seance : une seance est deja ouverte.',
+          seanceBloqueante: bloqueante,
+        );
+      }
+      return OuvertureResult(
+        success: false,
+        message: 'Erreur inattendue : $e',
+      );
+    }
   }
 
   /// Cloture une seance et retourne un recapitulatif.

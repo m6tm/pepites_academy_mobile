@@ -117,6 +117,13 @@ class _AteliersPageState extends State<AteliersPage> {
     }
   }
 
+  Future<void> _refresh() async {
+    await _atelierState.chargerAteliers(widget.seance.id);
+    for (final atelier in _atelierState.ateliers) {
+      await _exerciceState.chargerExercices(atelier.id);
+    }
+  }
+
   void _onAtelierStateChanged() {
     if (mounted) setState(() {});
     _handleMessages(_atelierState);
@@ -154,9 +161,13 @@ class _AteliersPageState extends State<AteliersPage> {
       backgroundColor: isDark
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          slivers: [
           _buildAppBar(context, l10n),
           _buildHeader(context, l10n, colorScheme, isDark),
           if (_atelierState.isLoading)
@@ -171,6 +182,7 @@ class _AteliersPageState extends State<AteliersPage> {
             _buildAteliersList(l10n, colorScheme, isDark),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
+        ),
       ),
       floatingActionButton: (_hasCreatePermission && widget.seance.estOuverte)
           ? FloatingActionButton.extended(
@@ -389,6 +401,7 @@ class _AteliersPageState extends State<AteliersPage> {
         builder: (_) => AtelierFormPage(
           seanceId: widget.seance.id,
           atelierState: _atelierState,
+          syncSeanceIdWithState: true,
         ),
         fullscreenDialog: true,
       ),

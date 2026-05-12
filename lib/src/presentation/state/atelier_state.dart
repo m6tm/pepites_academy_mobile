@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../application/services/atelier_service.dart';
 import '../../core/events/atelier_events.dart';
+export '../../core/events/atelier_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../domain/entities/atelier.dart';
@@ -77,8 +78,10 @@ class AtelierState extends ChangeNotifier
     String description = '',
     String? icone,
     List<ConfigurationElementEvaluation>? configurationEvaluation,
+    String? seanceId,
   }) async {
-    if (_seanceId == null) return false;
+    final targetSeanceId = seanceId ?? _seanceId;
+    if (targetSeanceId == null) return false;
 
     _isLoading = true;
     _errorMessage = null;
@@ -86,8 +89,8 @@ class AtelierState extends ChangeNotifier
     notifyListeners();
 
     try {
-      await _service.ajouterAtelier(
-        seanceId: _seanceId!,
+      final created = await _service.ajouterAtelier(
+        seanceId: targetSeanceId,
         nom: nom,
         type: type,
         typeCustom: typeCustom,
@@ -96,7 +99,11 @@ class AtelierState extends ChangeNotifier
         configurationEvaluation: configurationEvaluation,
       );
       _successMessage = 'Atelier "$nom" ajoute avec succes.';
-      await chargerAteliers(_seanceId!);
+      _eventBus.emit(AtelierCreeEvent(
+        atelierId: created.id,
+        seanceId: targetSeanceId,
+      ));
+      await chargerAteliers(targetSeanceId);
       return true;
     } catch (e) {
       _errorMessage = 'Erreur lors de l\'ajout : $e';

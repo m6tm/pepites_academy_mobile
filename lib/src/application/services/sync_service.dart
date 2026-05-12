@@ -58,6 +58,12 @@ class SyncService {
   Future<void> Function(SyncEntityType entityType, String entityId, String? serverBlockedId)?
   onConflictError;
 
+  /// Callback notifie quand le serveur a assigne un UUID a une entite creee offline.
+  /// Permet aux repositories de migrer l'entite locale (ID timestamp → UUID serveur).
+  /// [entityType] = type d'entite, [localId] = ID timestamp local, [serverId] = UUID serveur
+  Future<void> Function(SyncEntityType entityType, String localId, String serverId)?
+  onServerIdAssigned;
+
   AppLocalizations? _l10n;
 
   /// Met a jour les traductions.
@@ -164,6 +170,18 @@ class SyncService {
           if (result.success) {
             await _syncRepository.markCompleted(operation.id);
             successCount++;
+            // Si le serveur a attribue un UUID different de l'ID local (creation offline),
+            // notifier le repository pour migrer l'entite locale.
+            if (operation.operationType == SyncOperationType.create) {
+              final serverId = _extractServerId(result.serverResponse);
+              if (serverId != null && serverId != operation.entityId) {
+                await onServerIdAssigned?.call(
+                  operation.entityType,
+                  operation.entityId,
+                  serverId,
+                );
+              }
+            }
           } else if (result.isConflict) {
             // Conflit (409): email/telephone deja existant
             // Supprimer l'operation de la queue et l'enregistrement local
@@ -180,6 +198,15 @@ class SyncService {
             errors.add(
               '${operation.entityType.name}/${operation.entityId}: '
               '$conflictMsg - ${result.errorMessage}',
+            );
+          } else if (result.isNotFound) {
+            // 404: l'entite n'existe pas sur le backend — echec permanent,
+            // inutile de reessayer. On purge l'operation de la queue.
+            await _syncRepository.markCompleted(operation.id);
+            failureCount++;
+            errors.add(
+              '${operation.entityType.name}/${operation.entityId}: '
+              'Entite introuvable sur le serveur (404) — operation abandonnee',
             );
           } else {
             await _syncRepository.incrementRetryCount(operation.id);
@@ -275,6 +302,19 @@ class SyncService {
   String _generateId() {
     return '${DateTime.now().millisecondsSinceEpoch}_'
         '${DateTime.now().microsecond}';
+  }
+
+  /// Extrait l'UUID serveur depuis la reponse d'un POST de creation.
+  /// Gere les formats : {"id": "uuid"} et {"seance": {"id": "uuid"}, ...}
+  String? _extractServerId(Map<String, dynamic>? response) {
+    if (response == null) return null;
+    if (response['id'] is String) return response['id'] as String;
+    for (final value in response.values) {
+      if (value is Map<String, dynamic> && value['id'] is String) {
+        return value['id'] as String;
+      }
+    }
+    return null;
   }
 
   /// Libere les ressources.

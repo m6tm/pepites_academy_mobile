@@ -360,6 +360,9 @@ class DependencyInjection {
     // Configuration du callback pour les erreurs de conflit (409)
     syncService.onConflictError = _handleConflictError;
 
+    // Configuration du callback pour la migration ID local → UUID serveur
+    syncService.onServerIdAssigned = _handleServerIdAssigned;
+
     // Initialisation du module Notifications
     notificationDatasource = NotificationLocalDatasource(sharedPrefs);
     notificationRepository = NotificationRepositoryImpl(
@@ -535,6 +538,31 @@ class DependencyInjection {
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur suppression locale apres conflit: $e');
+    }
+  }
+
+  /// Migre les entites creees offline dont le serveur a assigne un nouvel UUID.
+  static Future<void> _handleServerIdAssigned(
+    SyncEntityType entityType,
+    String localId,
+    String serverId,
+  ) async {
+    try {
+      switch (entityType) {
+        case SyncEntityType.seance:
+          await seanceRepository.migrateLocalId(localId, serverId);
+          break;
+        case SyncEntityType.exercice:
+          await exerciceRepository.migrateLocalId(localId, serverId);
+          break;
+        default:
+          break;
+      }
+      // ignore: avoid_print
+      print('[DI] Migration ID: ${entityType.name} $localId → $serverId');
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur migration ID apres sync: $e');
     }
   }
 

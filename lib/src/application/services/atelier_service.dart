@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/atelier.dart';
 import '../../domain/entities/exercice.dart';
@@ -74,14 +75,16 @@ class AtelierService {
     final ordre = ateliersExistants.length;
 
     final atelier = Atelier(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: _generateUuid(),
       nom: nom,
       description: description,
       type: type,
       typeCustom: typeCustom,
       icone: icone,
       ordre: ordre,
-      statut: AtelierStatut.valide,
+      statut: configurationEvaluation != null && configurationEvaluation.length == 5
+          ? AtelierStatut.valide
+          : AtelierStatut.cree,
       seanceId: seanceId,
       configurationEvaluation: configurationEvaluation,
     );
@@ -195,6 +198,17 @@ class AtelierService {
     }
     
     return false;
+  }
+
+  String _generateUuid() {
+    final rng = Random.secure();
+    final bytes = List<int>.generate(16, (_) => rng.nextInt(256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    String hex(List<int> b) => b.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
+    return '${hex(bytes.sublist(0, 4))}-${hex(bytes.sublist(4, 6))}-'
+        '${hex(bytes.sublist(6, 8))}-${hex(bytes.sublist(8, 10))}-'
+        '${hex(bytes.sublist(10, 16))}';
   }
 
   /// Reinitialise le service pour un nouvel utilisateur.

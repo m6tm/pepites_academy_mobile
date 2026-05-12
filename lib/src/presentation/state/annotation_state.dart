@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../application/services/annotation_service.dart';
 import '../../domain/entities/annotation.dart';
+import '../../domain/entities/atelier.dart';
 
-/// State management pour les annotations d'un atelier.
-/// Gere le chargement, la creation et l'affichage des annotations
-/// par academicien dans le contexte d'un atelier.
 class AnnotationState extends ChangeNotifier {
   final AnnotationService _service;
   bool _isDisposed = false;
@@ -50,7 +48,6 @@ class AnnotationState extends ChangeNotifier {
   String? _successMessage;
   String? get successMessage => _successMessage;
 
-  /// Initialise le contexte de l'atelier pour les annotations.
   Future<void> initialiserContexte({
     required String atelierId,
     required String seanceId,
@@ -62,7 +59,6 @@ class AnnotationState extends ChangeNotifier {
     await chargerAnnotationsAtelier();
   }
 
-  /// Charge toutes les annotations de l'atelier courant.
   Future<void> chargerAnnotationsAtelier() async {
     if (_atelierId == null) return;
 
@@ -80,7 +76,6 @@ class AnnotationState extends ChangeNotifier {
     }
   }
 
-  /// Selectionne un academicien et charge son historique.
   Future<void> selectionnerAcademicien(String academicienId) async {
     _academicienSelectionneId = academicienId;
     _isLoading = true;
@@ -91,7 +86,6 @@ class AnnotationState extends ChangeNotifier {
       _historiqueAcademicien = await _service.getAnnotationsAcademicien(
         academicienId,
       );
-      // Tri : on met les annotations de l'exercice actuel en premier (si applicable)
       if (_exerciceId != null) {
         _historiqueAcademicien.sort((a, b) {
           if (a.exerciceId == _exerciceId && b.exerciceId != _exerciceId) {
@@ -111,18 +105,15 @@ class AnnotationState extends ChangeNotifier {
     }
   }
 
-  /// Deselectionne l'academicien courant.
   void deselectionnerAcademicien() {
     _academicienSelectionneId = null;
     _historiqueAcademicien = [];
     notifyListeners();
   }
 
-  /// Cree une annotation pour l'academicien selectionne.
   Future<bool> creerAnnotation({
-    required String contenu,
-    required List<String> tags,
-    double? note,
+    required List<ScoreAnnotation> scores,
+    String? commentaire,
     required String encadreurId,
   }) async {
     if (_academicienSelectionneId == null ||
@@ -133,14 +124,21 @@ class AnnotationState extends ChangeNotifier {
       return false;
     }
 
+    for (final score in scores) {
+      if (score.noteElement1 == 0 || score.noteElement2 == 0) {
+        _errorMessage = 'Tous les elements doivent etre notes (pas de 0).';
+        notifyListeners();
+        return false;
+      }
+    }
+
     _errorMessage = null;
     _successMessage = null;
 
     try {
       final annotation = await _service.creerAnnotation(
-        contenu: contenu,
-        tags: tags,
-        note: note,
+        scores: scores,
+        commentaire: commentaire,
         academicienId: _academicienSelectionneId!,
         atelierId: _atelierId!,
         exerciceId: _exerciceId,
@@ -160,21 +158,18 @@ class AnnotationState extends ChangeNotifier {
     }
   }
 
-  /// Recupere les annotations de l'atelier pour un academicien donne.
   List<Annotation> annotationsPourAcademicien(String academicienId) {
     return _annotationsAtelier
         .where((a) => a.academicienId == academicienId)
         .toList();
   }
 
-  /// Compte le nombre d'annotations pour un academicien dans l'atelier.
   int nbAnnotationsPourAcademicien(String academicienId) {
     return _annotationsAtelier
         .where((a) => a.academicienId == academicienId)
         .length;
   }
 
-  /// Efface les messages de succes/erreur.
   void clearMessages() {
     _errorMessage = null;
     _successMessage = null;

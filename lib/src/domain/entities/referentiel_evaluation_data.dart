@@ -9,15 +9,15 @@ class ReferentielEvaluationData {
   static const String critereIdTechnique = 'critere_technique';
   static const String critereIdTactique = 'critere_tactique';
   static const String critereIdPhysique = 'critere_physique';
-  static const String critereIdDisciplineMental = 'critere_discipline_mental';
-  static const String critereIdPossessionGlobale = 'critere_possession_globale';
+  static const String critereIdDisciplineMentale = 'critere_discipline_mentale';
+  static const String critereIdProgressionGlobale = 'critere_progression_globale';
 
   static final List<CritereEvaluation> criteres = [
     _technique,
     _tactique,
     _physique,
-    _disciplineMental,
-    _possessionGlobale,
+    _disciplineMentale,
+    _progressionGlobale,
   ];
 
   // --- Technique ---
@@ -193,122 +193,115 @@ class ReferentielEvaluationData {
     ],
   );
 
-  // --- Discipline et Mental ---
+  // --- Discipline et Mentale ---
 
-  static final CritereEvaluation _disciplineMental = CritereEvaluation(
-    id: critereIdDisciplineMental,
-    nom: 'Discipline et Mental',
+  static final CritereEvaluation _disciplineMentale = CritereEvaluation(
+    id: critereIdDisciplineMentale,
+    nom: 'Discipline et Mentale',
     description: 'Comportement, attitude mentale et discipline personnelle',
     ordre: 3,
     elements: [
       ElementEvaluation(
-        id: 'discipline_mental_1',
+        id: 'discipline_mentale_1',
         libelle: 'Ponctualité',
         description: 'Respect des horaires, arrivee a l\'heure aux entrainements et seances, serieux',
-        critereId: critereIdDisciplineMental,
+        critereId: critereIdDisciplineMentale,
         ordre: 0,
       ),
       ElementEvaluation(
-        id: 'discipline_mental_2',
+        id: 'discipline_mentale_2',
         libelle: 'Respect',
         description: 'Attitude respectueuse envers les partenaires, adversaires, encadreurs et arbitres',
-        critereId: critereIdDisciplineMental,
+        critereId: critereIdDisciplineMentale,
         ordre: 1,
       ),
       ElementEvaluation(
-        id: 'discipline_mental_3',
+        id: 'discipline_mentale_3',
         libelle: 'Concentration',
         description: 'Capacite a rester attentif durant toute la seance, maintien de la vigilance',
-        critereId: critereIdDisciplineMental,
+        critereId: critereIdDisciplineMentale,
         ordre: 2,
       ),
       ElementEvaluation(
-        id: 'discipline_mental_4',
+        id: 'discipline_mentale_4',
         libelle: 'Motivation',
         description: 'Energie et implication dans les exercices, desir de progres et d\'apprentissage',
-        critereId: critereIdDisciplineMental,
+        critereId: critereIdDisciplineMentale,
         ordre: 3,
       ),
       ElementEvaluation(
-        id: 'discipline_mental_5',
+        id: 'discipline_mentale_5',
         libelle: 'Leadership',
         description: 'Capacite a guider et encourager les partenaires, prise d\'initiative positive',
-        critereId: critereIdDisciplineMental,
+        critereId: critereIdDisciplineMentale,
         ordre: 4,
       ),
       ElementEvaluation(
-        id: 'discipline_mental_6',
+        id: 'discipline_mentale_6',
         libelle: 'Collectif',
         description: 'Esprit d\'equipe, mise en avant du groupe avant l\'individuel, entraide',
-        critereId: critereIdDisciplineMental,
+        critereId: critereIdDisciplineMentale,
         ordre: 5,
       ),
       ElementEvaluation(
-        id: 'discipline_mental_7',
+        id: 'discipline_mentale_7',
         libelle: 'Gestion emotionnelle',
         description: 'Maitrise des emotions en situation de pression ou de frustration, autocontrol',
-        critereId: critereIdDisciplineMental,
+        critereId: critereIdDisciplineMentale,
         ordre: 6,
       ),
     ],
   );
 
-  // --- Possession globale ---
+  // --- Progression globale ---
 
-  static final CritereEvaluation _possessionGlobale = CritereEvaluation(
-    id: critereIdPossessionGlobale,
-    nom: 'Possession globale',
-    description: 'Maitrise collective du ballon et gestion des phases de jeu',
+  static final CritereEvaluation _progressionGlobale = CritereEvaluation(
+    id: critereIdProgressionGlobale,
+    nom: 'Progression globale',
+    description: 'Evolution globale et maitrise du jeu',
     ordre: 4,
     elements: [
       ElementEvaluation(
-        id: 'possession_globale_1',
+        id: 'progression_globale_1',
         libelle: 'Maitrise du ballon',
         description: 'Capacite a garder le ballon sous pression, protection du ballon face aux adversaires',
-        critereId: critereIdPossessionGlobale,
+        critereId: critereIdProgressionGlobale,
         ordre: 0,
       ),
       ElementEvaluation(
-        id: 'possession_globale_2',
-        libelle: 'Gestion des phases de jeu',
-        description: 'Aptitude a alterner entre jeu court et jeu long, controle du rythme de partie',
-        critereId: critereIdPossessionGlobale,
+        id: 'progression_globale_2',
+        libelle: 'Jeu collectif',
+        description: 'Aptitude a jouer en equipe, coordination avec les partenaires',
+        critereId: critereIdProgressionGlobale,
         ordre: 1,
       ),
       ElementEvaluation(
-        id: 'possession_globale_3',
-        libelle: 'Creation de possibilites',
-        description: 'Capacite a generer des espaces et des occasions de jeu, inspiration offensive',
-        critereId: critereIdPossessionGlobale,
+        id: 'progression_globale_3',
+        libelle: 'Intelligence de jeu',
+        description: 'Capacite a faire les bons choix en fonction des situations, prise de decision rapide',
+        critereId: critereIdProgressionGlobale,
         ordre: 2,
       ),
       ElementEvaluation(
-        id: 'possession_globale_4',
-        libelle: 'Communication',
-        description: 'Echanges verbaux et non-verbaux avec les partenaires, verbalisation des intentions',
-        critereId: critereIdPossessionGlobale,
+        id: 'progression_globale_4',
+        libelle: 'Adaptation',
+        description: 'Flexibilite face aux aleas du match, capacite a s\'ajuster aux situations nouvelles',
+        critereId: critereIdProgressionGlobale,
         ordre: 3,
       ),
       ElementEvaluation(
-        id: 'possession_globale_5',
-        libelle: 'Strategie',
-        description: 'Comprehension et application des plans de jeu, lecture des schemes tactiques',
-        critereId: critereIdPossessionGlobale,
+        id: 'progression_globale_5',
+        libelle: 'Progression technique',
+        description: 'Amelioration des gestes techniques individuels, maitrise de nouvelles techniques',
+        critereId: critereIdProgressionGlobale,
         ordre: 4,
       ),
       ElementEvaluation(
-        id: 'possession_globale_6',
-        libelle: 'Adaptation',
-        description: 'Flexibilite face aux aleas du match, capacite a s\'ajuster aux situations nouvelles',
-        critereId: critereIdPossessionGlobale,
+        id: 'progression_globale_6',
+        libelle: 'Progression tactique',
+        description: 'Amelioration de l\'intelligence de jeu et de la prise de decision collective, comprehension du jeu',
+        critereId: critereIdProgressionGlobale,
         ordre: 5,
-      ),
-      ElementEvaluation(
-        id: 'possession_globale_7',
-        libelle: 'Esprit d\'initiative',
-        description: 'Proactivite dans les actions, prise d\'initiative justifiee et risque controle',
-        critereId: critereIdPossessionGlobale,
-        ordre: 6,
       ),
     ],
   );

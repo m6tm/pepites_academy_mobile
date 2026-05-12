@@ -59,6 +59,64 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   @override
   Future<Atelier> create(Atelier atelier) async {
+    if (_dioClient != null) {
+      return _createOnline(atelier);
+    }
+    return _createOffline(atelier);
+  }
+
+  /// Appel direct API : le backend assigne l'UUID, la reponse est persistee
+  /// localement avec cet UUID. Pas d'entree dans la file de sync.
+  /// Si le serveur est inaccessible (5xx, timeout), bascule sur le mode offline.
+  /// Si la seance est inconnue du backend (404), propage l'erreur —
+  /// une seance fantome ne pourra jamais syncer et ne doit pas entrer dans la file.
+  Future<Atelier> _createOnline(Atelier atelier) async {
+    try {
+      final payload = _buildCreatePayload(atelier);
+      final endpoint = '${ApiEndpoints.seances}/${atelier.seanceId}/ateliers';
+      final result = await _dioClient!.post<dynamic>(endpoint, data: payload);
+
+      return await result.fold(
+        (failure) async {
+          if (failure.statusCode == 404) {
+            // La seance n'existe pas sur le backend — echec permanent.
+            // Ne pas enregistrer en offline pour eviter des retentatives infinies.
+            throw Exception(
+              'Séance introuvable sur le serveur (id: ${atelier.seanceId}). '
+              'Veuillez fermer cette séance et en créer une nouvelle.',
+            );
+          }
+          // ignore: avoid_print
+          print('[AtelierRepo] Creation online echouee (${failure.statusCode}): ${failure.message}. Bascule offline.');
+          return _createOffline(atelier);
+        },
+        (data) async {
+          final map = data is Map<String, dynamic> ? data : null;
+          final atelierMap = (map?['atelier'] as Map<String, dynamic>?) ?? map;
+          final serverId = atelierMap?['id'] as String?;
+          if (atelierMap == null || serverId == null || serverId.isEmpty) {
+            return _createOffline(atelier);
+          }
+          final serverAtelier = Atelier.fromJson({
+            ...atelierMap,
+            'seance_id': atelier.seanceId,
+          });
+          await _datasource.add(serverAtelier);
+          _invalidateCache();
+          return serverAtelier;
+        },
+      );
+    } catch (e) {
+      // Laisser remonter les echecs permanents (seance inexistante, etc.)
+      if (e is Exception && e.toString().contains('Séance introuvable')) rethrow;
+      // ignore: avoid_print
+      print('[AtelierRepo] Exception creation online: $e. Bascule offline.');
+      return _createOffline(atelier);
+    }
+  }
+
+  /// Creation offline-first : persiste localement et met en file de sync.
+  Future<Atelier> _createOffline(Atelier atelier) async {
     final created = await _datasource.add(atelier);
     _invalidateCache();
     await _syncService?.enqueueOperation(
@@ -68,6 +126,21 @@ class AtelierRepositoryImpl implements AtelierRepository {
       data: created.toJson(),
     );
     return created;
+  }
+
+  Map<String, dynamic> _buildCreatePayload(Atelier atelier) {
+    return {
+      'nom': atelier.nom,
+      'description': atelier.description,
+      'type': atelier.type.name,
+      if (atelier.typeCustom != null) 'type_custom': atelier.typeCustom,
+      if (atelier.icone != null) 'icone': atelier.icone,
+      'ordre': atelier.ordre,
+      if (atelier.configurationEvaluation != null)
+        'configuration_evaluation': atelier.configurationEvaluation!
+            .map((c) => c.toJson())
+            .toList(),
+    };
   }
 
   @override

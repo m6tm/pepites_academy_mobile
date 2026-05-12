@@ -10,6 +10,9 @@ class SyncResult {
   /// Indique si l'erreur est un conflit (409) - donnee deja existante.
   bool get isConflict => statusCode == 409;
 
+  /// Indique si l'entite est introuvable (404) - echec permanent, ne jamais reessayer.
+  bool get isNotFound => statusCode == 404;
+
   /// ID de la seance bloqueante (recupere depuis la reponse serveur 409).
   String? get blockedSeanceId {
     if (!isConflict) return null;

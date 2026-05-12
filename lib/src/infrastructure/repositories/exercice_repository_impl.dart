@@ -20,6 +20,15 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     _syncService = service;
   }
 
+  /// Migre un exercice local (ID timestamp) vers l'UUID assigne par le serveur.
+  Future<void> migrateLocalId(String localId, String serverId) async {
+    final local = _datasource.getById(localId);
+    if (local == null) return;
+    final migrated = local.copyWith(id: serverId);
+    await _datasource.add(migrated);
+    await _datasource.delete(localId);
+  }
+
   /// Injecte le client HTTP.
   void setDioClient(DioClient client) {
     _dioClient = client;

@@ -69,6 +69,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   }
 
   Future<void> _refreshAll() async {
+    // Forcer le re-fetch des presences depuis le repo local (et non depuis le cache
+    // memoire _presences) pour que _chargerPersonnes recupere toujours des donnees
+    // fraiches apres la synchronisation backend.
+    if (mounted) setState(() => _presences = null);
     await _refreshFromBackendIfConnected();
     await _loadLocalFast();
   }
@@ -86,35 +90,49 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       final seancesJson = await DependencyInjection.apiSyncDatasource.fetchAll(
         ApiEndpoints.seances,
       );
+
+      // Resoudre l'UUID effectif : si l'ID local est un timestamp (seance creee offline
+      // dont l'UUID serveur n'a pas encore ete propage), on cherche la seance ouverte
+      // dans la reponse du backend pour utiliser son vrai UUID.
+      String effectiveSeanceId = _seance.id;
       if (seancesJson != null) {
-        final remote = seancesJson
-            .map(Seance.fromJson)
-            .where((s) => s.id == _seance.id)
-            .toList();
-        if (remote.isNotEmpty) {
-          await DependencyInjection.seanceRepository.upsertAllFromRemote(
-            remote,
-          );
+        final remoteSeances = seancesJson.map(Seance.fromJson).toList();
+        final isTimestampId = RegExp(r'^\d{10,}$').hasMatch(_seance.id);
+        final List<Seance> toUpsert;
+        if (isTimestampId) {
+          final serverOpenSeance = remoteSeances
+              .where((s) => s.statut == SeanceStatus.ouverte)
+              .toList();
+          toUpsert = serverOpenSeance;
+          if (serverOpenSeance.isNotEmpty) {
+            effectiveSeanceId = serverOpenSeance.first.id;
+            if (mounted) setState(() => _seance = serverOpenSeance.first);
+          }
+        } else {
+          toUpsert = remoteSeances.where((s) => s.id == _seance.id).toList();
+        }
+        if (toUpsert.isNotEmpty) {
+          await DependencyInjection.seanceRepository.upsertAllFromRemote(toUpsert);
         }
       }
 
       final ateliersJson = await DependencyInjection.apiSyncDatasource.fetchAll(
-        '${ApiEndpoints.seances}/${_seance.id}/ateliers',
+        '${ApiEndpoints.seances}/$effectiveSeanceId/ateliers',
       );
       if (ateliersJson != null) {
         final remote = ateliersJson
             .map(Atelier.fromJson)
-            .where((a) => a.seanceId == _seance.id)
+            .where((a) => a.seanceId == effectiveSeanceId)
             .toList();
         await DependencyInjection.atelierRepository.upsertAllFromRemote(remote);
       }
 
       final presencesJson = await DependencyInjection.apiSyncDatasource
-          .fetchAll('${ApiEndpoints.presences}?seance_id=${_seance.id}');
+          .fetchAll('${ApiEndpoints.presences}?seance_id=$effectiveSeanceId');
       if (presencesJson != null) {
         final remote = presencesJson
             .map(Presence.fromJson)
-            .where((p) => p.seanceId == _seance.id)
+            .where((p) => p.seanceId == effectiveSeanceId)
             .toList();
         await DependencyInjection.presenceRepository.upsertAllFromRemote(
           remote,
@@ -174,11 +192,19 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
 
   /// Recharge la seance depuis le datasource pour refleter les modifications.
   Future<void> _rafraichirSeance() async {
-    final updated = await DependencyInjection.seanceRepository.getById(
-      widget.seance.id,
-    );
+    // Priorite a _seance.id : il peut avoir ete mis a jour vers l'UUID serveur
+    // par _refreshFromBackendIfConnected, auquel cas on ne doit pas revenir au
+    // widget.seance.id original qui est un timestamp stale.
+    var updated = await DependencyInjection.seanceRepository.getById(_seance.id);
+
+    // Fallback : l'ID courant (timestamp) n'existe plus en local car la seance
+    // a ete synchronisee et son entree migrée vers l'UUID serveur.
+    if (updated == null && RegExp(r'^\d{10,}$').hasMatch(_seance.id)) {
+      updated = await DependencyInjection.seanceRepository.getSeanceOuverte();
+    }
+
     if (mounted && updated != null) {
-      setState(() => _seance = updated);
+      setState(() => _seance = updated!);
       return;
     }
 
@@ -210,21 +236,24 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           _presences ??
           await DependencyInjection.presenceRepository.getBySeance(_seance.id);
 
-      final academicienIds = _seance.academicienIds.isNotEmpty
-          ? _seance.academicienIds
-          : presences
+      // Les presences sont la source de verite : si elles existent, on les utilise
+      // pour construire les listes de participants. On ne se fie aux IDs stockes
+      // sur la seance qu'en l'absence totale de presences (fallback offline).
+      final academicienIds = presences.isNotEmpty
+          ? presences
                 .where((p) => p.typeProfil == ProfilType.academicien)
                 .map((p) => p.profilId)
                 .toSet()
-                .toList();
+                .toList()
+          : _seance.academicienIds;
 
-      final encadreurIds = _seance.encadreurIds.isNotEmpty
-          ? _seance.encadreurIds
-          : presences
+      final encadreurIds = presences.isNotEmpty
+          ? presences
                 .where((p) => p.typeProfil == ProfilType.encadreur)
                 .map((p) => p.profilId)
                 .toSet()
-                .toList();
+                .toList()
+          : _seance.encadreurIds;
 
       final tousAcademiciens = await DependencyInjection.academicienRepository
           .getAll();
