@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import 'src/injection_container.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Initialisation de Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
