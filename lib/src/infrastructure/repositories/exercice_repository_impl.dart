@@ -35,10 +35,12 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
   }
 
   @override
-  Future<List<Exercice>> getByAtelierId(String atelierId) async {
+  Future<List<Exercice>> getByAtelierId(
+    String atelierId, {
+    bool forceRefresh = false,
+  }) async {
     final local = _datasource.getByAtelier(atelierId);
-    if (local.isEmpty && _dioClient != null) {
-      // Stratégie cache-first : si vide, on tente de synchroniser
+    if ((local.isEmpty || forceRefresh) && _dioClient != null) {
       await syncFromApi();
       return _datasource.getByAtelier(atelierId);
     }

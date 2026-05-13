@@ -66,8 +66,14 @@ class AnnotationService {
     );
   }
 
-  Future<List<Annotation>> getAnnotationsAtelier(String atelierId) async {
-    return _annotationRepository.getByAtelier(atelierId);
+  Future<List<Annotation>> getAnnotationsAtelier(
+    String atelierId, {
+    bool forceRefresh = false,
+  }) async {
+    return _annotationRepository.getByAtelier(
+      atelierId,
+      forceRefresh: forceRefresh,
+    );
   }
 
   Future<List<Annotation>> getAnnotationsExercice(String exerciceId) async {

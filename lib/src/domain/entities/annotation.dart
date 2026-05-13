@@ -63,31 +63,31 @@ class Annotation {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'academicienId': academicienId,
-      'atelierId': atelierId,
+      'academicien_id': academicienId,
+      'atelier_id': atelierId,
       'exercice_id': exerciceId,
-      'seanceId': seanceId,
-      'encadreurId': encadreurId,
+      'seance_id': seanceId,
+      'encadreur_id': encadreurId,
       'horodate': horodate.toIso8601String(),
       'scores': scores.map((s) => s.toJson()).toList(),
-      'commentaire': commentaire,
+      'contenu': commentaire,
     };
   }
 
   factory Annotation.fromJson(Map<String, dynamic> json) {
     return Annotation(
       id: json['id'] as String,
-      academicienId: json['academicienId'] as String,
-      atelierId: json['atelierId'] as String,
+      academicienId: (json['academicien_id'] ?? json['academicienId']) as String,
+      atelierId: (json['atelier_id'] ?? json['atelierId']) as String,
       exerciceId: json['exercice_id'] as String?,
-      seanceId: json['seanceId'] as String,
-      encadreurId: json['encadreurId'] as String,
+      seanceId: (json['seance_id'] ?? json['seanceId']) as String,
+      encadreurId: (json['encadreur_id'] ?? json['encadreurId']) as String,
       horodate: DateTime.parse(json['horodate'] as String),
       scores: (json['scores'] as List<dynamic>?)
               ?.map((e) => ScoreAnnotation.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      commentaire: json['commentaire'] as String?,
+      commentaire: (json['contenu'] ?? json['commentaire']) as String?,
     );
   }
 }

@@ -138,6 +138,7 @@ class AtelierService {
     }
 
     final updated = await _atelierRepository.apply(atelierId);
+    await _exerciceRepository.getByAtelierId(atelierId, forceRefresh: true);
     await refreshAteliers(atelier.seanceId);
     return updated;
   }

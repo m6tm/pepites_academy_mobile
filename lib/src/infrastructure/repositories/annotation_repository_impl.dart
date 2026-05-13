@@ -42,7 +42,12 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
 
   @override
   Future<List<Annotation>> getByAcademicien(String academicienId) async {
-    return _datasource.getByAcademicien(academicienId);
+    final local = _datasource.getByAcademicien(academicienId);
+    if (local.isEmpty && _dioClient != null) {
+      await _syncByFilter(academicienId: academicienId);
+      return _datasource.getByAcademicien(academicienId);
+    }
+    return local;
   }
 
   @override
@@ -54,13 +59,61 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
   }
 
   @override
-  Future<List<Annotation>> getByAtelier(String atelierId) async {
-    return _datasource.getByAtelier(atelierId);
+  Future<List<Annotation>> getByAtelier(
+    String atelierId, {
+    bool forceRefresh = false,
+  }) async {
+    final local = _datasource.getByAtelier(atelierId);
+    if ((local.isEmpty || forceRefresh) && _dioClient != null) {
+      await _syncByFilter(atelierId: atelierId);
+      return _datasource.getByAtelier(atelierId);
+    }
+    return local;
   }
 
   @override
   Future<List<Annotation>> getBySeance(String seanceId) async {
     return _datasource.getBySeance(seanceId);
+  }
+
+  Future<bool> _syncByFilter({
+    String? atelierId,
+    String? academicienId,
+  }) async {
+    if (_dioClient == null) return false;
+    try {
+      final params = <String, dynamic>{};
+      if (atelierId != null) params['atelier_id'] = atelierId;
+      if (academicienId != null) params['academicien_id'] = academicienId;
+
+      final result = await _dioClient!.get<dynamic>(
+        ApiEndpoints.annotations,
+        queryParameters: params,
+      );
+
+      return result.fold(
+        (_) => false,
+        (data) async {
+          final List<dynamic> rawList;
+          if (data is List) {
+            rawList = data;
+          } else if (data is Map<String, dynamic>) {
+            rawList = data.values.whereType<List>().expand((e) => e).toList();
+          } else {
+            return false;
+          }
+          final remote = rawList
+              .whereType<Map<String, dynamic>>()
+              .map((map) => Annotation.fromJson(map))
+              .where((a) => a.id.isNotEmpty)
+              .toList();
+          await _datasource.upsertAll(remote);
+          return true;
+        },
+      );
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<bool> syncFromApi() async {

@@ -15,7 +15,7 @@ abstract class AnnotationRepository {
   Future<List<Annotation>> getByEncadreur(String encadreurId);
 
   /// Récupère les annotations faites lors d'un atelier spécifique.
-  Future<List<Annotation>> getByAtelier(String atelierId);
+  Future<List<Annotation>> getByAtelier(String atelierId, {bool forceRefresh = false});
 
   /// Récupère les annotations faites lors d'une séance spécifique.
   Future<List<Annotation>> getBySeance(String seanceId);

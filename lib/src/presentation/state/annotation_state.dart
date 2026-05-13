@@ -55,10 +55,12 @@ class AnnotationState extends ChangeNotifier {
     _atelierId = atelierId;
     _seanceId = seanceId;
     _exerciceId = exerciceId;
-    await chargerAnnotationsAtelier();
+    _academicienSelectionneId = null;
+    _historiqueAcademicien = [];
+    await chargerAnnotationsAtelier(forceRefresh: true);
   }
 
-  Future<void> chargerAnnotationsAtelier() async {
+  Future<void> chargerAnnotationsAtelier({bool forceRefresh = false}) async {
     if (_atelierId == null) return;
 
     _isLoading = true;
@@ -66,7 +68,10 @@ class AnnotationState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _annotationsAtelier = await _service.getAnnotationsAtelier(_atelierId!);
+      _annotationsAtelier = await _service.getAnnotationsAtelier(
+        _atelierId!,
+        forceRefresh: forceRefresh,
+      );
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des annotations : $e';
     } finally {

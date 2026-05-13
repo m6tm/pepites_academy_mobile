@@ -83,6 +83,11 @@ class _AnnotationPageState extends State<AnnotationPage> {
     await _chargerAcademiciens();
   }
 
+  Future<void> _rafraichir() async {
+    await annotationState.chargerAnnotationsAtelier(forceRefresh: true);
+    await _chargerAcademiciens();
+  }
+
   Future<void> _chargerAcademiciens() async {
     setState(() => _isLoadingAcademiciens = true);
     try {
@@ -129,21 +134,27 @@ class _AnnotationPageState extends State<AnnotationPage> {
       backgroundColor: isDark
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          _buildAppBar(context),
-          SliverToBoxAdapter(child: _buildAtelierHeader(isDark)),
-          if (_isLoadingAcademiciens || annotationState.isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (_academiciens.isEmpty)
-            SliverFillRemaining(child: _buildEmptyState(isDark))
-          else
-            _buildAcademiciensList(isDark),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
+      body: RefreshIndicator(
+        onRefresh: _rafraichir,
+        color: AppColors.primary,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          slivers: [
+            _buildAppBar(context),
+            SliverToBoxAdapter(child: _buildAtelierHeader(isDark)),
+            if (_isLoadingAcademiciens || annotationState.isLoading)
+              const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_academiciens.isEmpty)
+              SliverFillRemaining(child: _buildEmptyState(isDark))
+            else
+              _buildAcademiciensList(isDark),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          ],
+        ),
       ),
     );
   }

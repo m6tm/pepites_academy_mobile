@@ -332,8 +332,12 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) =>
-          _AtelierPickerSheet(academicien: academicien, ateliers: _ateliers),
+      builder: (_) => _AtelierPickerSheet(
+        academicien: academicien,
+        ateliers: _ateliers
+            .where((a) => a.statut == AtelierStatut.applique)
+            .toList(),
+      ),
     ).then((atelier) {
       if (!mounted || atelier == null) return;
       _ouvrirAnnotationAcademicienPourAtelier(

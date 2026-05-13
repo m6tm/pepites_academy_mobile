@@ -3,7 +3,7 @@ import '../entities/exercice.dart';
 /// Contrat pour la gestion des exercices au sein d'un atelier.
 abstract class ExerciceRepository {
   /// Recupere tous les exercices d'un atelier.
-  Future<List<Exercice>> getByAtelierId(String atelierId);
+  Future<List<Exercice>> getByAtelierId(String atelierId, {bool forceRefresh = false});
 
   /// Recupere un exercice par son identifiant.
   Future<Exercice?> getById(String id);
