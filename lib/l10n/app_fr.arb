@@ -903,6 +903,9 @@
   "endLabel": "Fin",
   "startSession": "Demarrer la seance",
   "pleaseEnterTitle": "Veuillez saisir un titre.",
+  "invitedCoachesLabel": "Encadreurs invites",
+  "invitedCoachesHint": "Selectionnez les encadreurs invites",
+  "invitedCoachesNone": "Aucun encadreur invite",
   "sessionInProgressDialogTitle": "Seance en cours",
   "understoodButton": "Compris",
   "closeSessionButton": "Fermer la seance",
@@ -1909,7 +1912,7 @@
   "serviceExerciceAppliedSuccess": "Exercice appliqué avec succès en séance.",
   "applyAction": "Appliquer",
   "applyWorkshopTitle": "Appliquer l'atelier",
-  "applyWorkshopConfirmation": "Voulez-vous marquer \"{name}\" comme \"En cours\" ?",
+  "applyWorkshopConfirmation": "Voulez-vous appliquer l'atelier \"{name}\" en séance ?",
   "@applyWorkshopConfirmation": {
     "placeholders": {
       "name": {

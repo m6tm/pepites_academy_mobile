@@ -1827,6 +1827,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseEnterTitle => 'Please enter a title.';
 
   @override
+  String get invitedCoachesLabel => 'Invited coaches';
+
+  @override
+  String get invitedCoachesHint => 'Select invited coaches';
+
+  @override
+  String get invitedCoachesNone => 'No coach invited';
+
+  @override
   String get sessionInProgressDialogTitle => 'Session in progress';
 
   @override
@@ -3669,7 +3678,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String applyWorkshopConfirmation(String name) {
-    return 'Do you want to mark \"$name\" as \"In Progress\"?';
+    return 'Do you want to apply the workshop \"$name\" to the session?';
   }
 
   @override

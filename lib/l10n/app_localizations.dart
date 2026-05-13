@@ -3440,6 +3440,24 @@ abstract class AppLocalizations {
   /// **'Veuillez saisir un titre.'**
   String get pleaseEnterTitle;
 
+  /// No description provided for @invitedCoachesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encadreurs invites'**
+  String get invitedCoachesLabel;
+
+  /// No description provided for @invitedCoachesHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionnez les encadreurs invites'**
+  String get invitedCoachesHint;
+
+  /// No description provided for @invitedCoachesNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun encadreur invite'**
+  String get invitedCoachesNone;
+
   /// No description provided for @sessionInProgressDialogTitle.
   ///
   /// In fr, this message translates to:
@@ -6689,7 +6707,7 @@ abstract class AppLocalizations {
   /// No description provided for @applyWorkshopConfirmation.
   ///
   /// In fr, this message translates to:
-  /// **'Voulez-vous marquer \"{name}\" comme \"En cours\" ?'**
+  /// **'Voulez-vous appliquer l\'atelier \"{name}\" en séance ?'**
   String applyWorkshopConfirmation(String name);
 
   /// No description provided for @applyExerciseTitle.

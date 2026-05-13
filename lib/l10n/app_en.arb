@@ -831,6 +831,9 @@
   "endLabel": "End",
   "startSession": "Start session",
   "pleaseEnterTitle": "Please enter a title.",
+  "invitedCoachesLabel": "Invited coaches",
+  "invitedCoachesHint": "Select invited coaches",
+  "invitedCoachesNone": "No coach invited",
   "sessionInProgressDialogTitle": "Session in progress",
   "understoodButton": "Got it",
   "closeSessionButton": "Close session",
@@ -1836,7 +1839,7 @@
   "serviceExerciceAppliedSuccess": "Exercise applied successfully to the session.",
   "applyAction": "Apply",
   "applyWorkshopTitle": "Apply Workshop",
-  "applyWorkshopConfirmation": "Do you want to mark \"{name}\" as \"In Progress\"?",
+  "applyWorkshopConfirmation": "Do you want to apply the workshop \"{name}\" to the session?",
   "@applyWorkshopConfirmation": {
     "placeholders": {
       "name": {

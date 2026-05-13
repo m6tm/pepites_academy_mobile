@@ -87,6 +87,7 @@ class SeanceService {
     required DateTime heureDebut,
     required DateTime heureFin,
     required String encadreurResponsableId,
+    List<String> encadreurInvitesIds = const [],
   }) async {
     final seance = Seance(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -96,6 +97,7 @@ class SeanceService {
       heureFin: heureFin,
       statut: SeanceStatus.ouverte,
       encadreurResponsableId: encadreurResponsableId,
+      encadreurIds: encadreurInvitesIds,
     );
 
     try {

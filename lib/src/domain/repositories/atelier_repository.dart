@@ -20,4 +20,10 @@ abstract class AtelierRepository {
 
   /// Reordonne les ateliers d'une seance.
   Future<void> reorder(String seanceId, List<String> atelierIds);
+
+  /// Applique un atelier via l'endpoint dédié (met à jour le backend immédiatement).
+  Future<Atelier> apply(String id);
+
+  /// Ferme un atelier via l'endpoint dédié (met à jour le backend immédiatement).
+  Future<Atelier> close(String id);
 }

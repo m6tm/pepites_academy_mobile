@@ -199,6 +199,43 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   @override
   Future<Atelier> update(Atelier atelier) async {
+    if (_dioClient != null) {
+      return _updateOnline(atelier);
+    }
+    return _updateOffline(atelier);
+  }
+
+  Future<Atelier> _updateOnline(Atelier atelier) async {
+    try {
+      final payload = _buildUpdatePayload(atelier);
+      final endpoint = '${ApiEndpoints.ateliers}/${atelier.id}';
+      final result = await _dioClient!.put<dynamic>(endpoint, data: payload);
+      return await result.fold(
+        (failure) async {
+          // ignore: avoid_print
+          print('[AtelierRepo] Update online échoué (${failure.statusCode}): ${failure.message}. Bascule offline.');
+          return _updateOffline(atelier);
+        },
+        (data) async {
+          final map = data is Map<String, dynamic> ? data : null;
+          final atelierMap = (map?['atelier'] as Map<String, dynamic>?) ?? map;
+          if (atelierMap != null && (atelierMap['id'] as String?)?.isNotEmpty == true) {
+            final serverAtelier = Atelier.fromJson({...atelierMap, 'seance_id': atelier.seanceId});
+            await _datasource.update(serverAtelier);
+            _invalidateCache();
+            return serverAtelier;
+          }
+          return _updateOffline(atelier);
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[AtelierRepo] Exception update online: $e. Bascule offline.');
+      return _updateOffline(atelier);
+    }
+  }
+
+  Future<Atelier> _updateOffline(Atelier atelier) async {
     final updated = await _datasource.update(atelier);
     _invalidateCache();
     await _syncService?.enqueueOperation(
@@ -207,6 +244,87 @@ class AtelierRepositoryImpl implements AtelierRepository {
       operationType: SyncOperationType.update,
       data: updated.toJson(),
     );
+    return updated;
+  }
+
+  Map<String, dynamic> _buildUpdatePayload(Atelier atelier) {
+    return {
+      'nom': atelier.nom,
+      'description': atelier.description,
+      'type': atelier.type.name,
+      if (atelier.typeCustom != null) 'type_custom': atelier.typeCustom,
+      if (atelier.icone != null) 'icone': atelier.icone,
+      'ordre': atelier.ordre,
+      if (atelier.configurationEvaluation != null)
+        'configuration_evaluation': atelier.configurationEvaluation!
+            .map((c) => c.toJson())
+            .toList(),
+    };
+  }
+
+  @override
+  Future<Atelier> apply(String id) async {
+    if (_dioClient != null) {
+      final result = await _dioClient!.put<dynamic>(
+        '${ApiEndpoints.ateliers}/$id/apply',
+        data: {},
+      );
+      return await result.fold(
+        (failure) async => _applyLocally(id),
+        (data) async {
+          final map = data is Map<String, dynamic> ? (data['atelier'] as Map<String, dynamic>? ?? data) : null;
+          if (map != null) {
+            final atelier = Atelier.fromJson(map);
+            await _datasource.update(atelier);
+            _invalidateCache();
+            return atelier;
+          }
+          return _applyLocally(id);
+        },
+      );
+    }
+    return _applyLocally(id);
+  }
+
+  Future<Atelier> _applyLocally(String id) async {
+    final existing = _datasource.getById(id);
+    if (existing == null) throw Exception('Atelier $id introuvable localement');
+    final updated = existing.copyWith(statut: AtelierStatut.applique);
+    await _datasource.update(updated);
+    _invalidateCache();
+    return updated;
+  }
+
+  @override
+  Future<Atelier> close(String id) async {
+    if (_dioClient != null) {
+      final result = await _dioClient!.put<dynamic>(
+        '${ApiEndpoints.ateliers}/$id/close',
+        data: {},
+      );
+      return await result.fold(
+        (failure) async => _closeLocally(id),
+        (data) async {
+          final map = data is Map<String, dynamic> ? (data['atelier'] as Map<String, dynamic>? ?? data) : null;
+          if (map != null) {
+            final atelier = Atelier.fromJson(map);
+            await _datasource.update(atelier);
+            _invalidateCache();
+            return atelier;
+          }
+          return _closeLocally(id);
+        },
+      );
+    }
+    return _closeLocally(id);
+  }
+
+  Future<Atelier> _closeLocally(String id) async {
+    final existing = _datasource.getById(id);
+    if (existing == null) throw Exception('Atelier $id introuvable localement');
+    final updated = existing.copyWith(statut: AtelierStatut.ferme);
+    await _datasource.update(updated);
+    _invalidateCache();
     return updated;
   }
 

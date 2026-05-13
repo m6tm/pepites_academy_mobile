@@ -115,7 +115,7 @@ class AtelierService {
     return updated;
   }
 
-  /// Applique un atelier (statut 'valide' -> 'applique').
+  /// Applique un atelier et tous ses exercices en cascade via les endpoints dédiés.
   Future<Atelier> appliquerAtelier(String atelierId) async {
     final atelier = await _atelierRepository.getById(atelierId);
     if (atelier == null) {
@@ -125,11 +125,8 @@ class AtelierService {
       );
     }
 
-    if (atelier.statut != AtelierStatut.valide) {
-      throw Exception(
-        _l10n?.serviceAtelierOnlyValidatedCanApply ??
-            'Seul un atelier validé peut être appliqué.',
-      );
+    if (atelier.statut == AtelierStatut.ferme) {
+      throw Exception('Un atelier fermé ne peut pas être appliqué.');
     }
 
     final seance = await _seanceRepository.getById(atelier.seanceId);
@@ -140,8 +137,26 @@ class AtelierService {
       );
     }
 
-    final updated = atelier.copyWith(statut: AtelierStatut.applique);
-    return modifierAtelier(updated);
+    final updated = await _atelierRepository.apply(atelierId);
+    await refreshAteliers(atelier.seanceId);
+    return updated;
+  }
+
+  /// Ferme un atelier via l'endpoint dédié.
+  Future<Atelier> fermerAtelier(String atelierId) async {
+    final atelier = await _atelierRepository.getById(atelierId);
+    if (atelier == null) {
+      throw Exception(
+        _l10n?.serviceAtelierNotFound(atelierId) ??
+            'Atelier introuvable : $atelierId',
+      );
+    }
+    if (atelier.statut == AtelierStatut.ferme) {
+      throw Exception('Atelier déjà fermé.');
+    }
+    final updated = await _atelierRepository.close(atelierId);
+    await refreshAteliers(atelier.seanceId);
+    return updated;
   }
 
   /// Supprime un atelier et met a jour la seance.

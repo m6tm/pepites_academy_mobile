@@ -152,6 +152,28 @@ class AtelierState extends ChangeNotifier
     }
   }
 
+  /// Ferme un atelier directement.
+  Future<bool> fermerAtelier(String atelierId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      await _service.fermerAtelier(atelierId);
+      _successMessage = 'Atelier clôturé avec succès.';
+      if (_seanceId != null) {
+        await chargerAteliers(_seanceId!);
+      }
+      return true;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la clôture : $e';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Applique un atelier en seance.
   Future<bool> appliquerAtelier(String atelierId) async {
     _isLoading = true;

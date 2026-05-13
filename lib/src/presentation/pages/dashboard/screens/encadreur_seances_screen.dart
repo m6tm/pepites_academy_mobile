@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../../../application/services/seance_service.dart';
+import '../../../../domain/entities/encadreur.dart';
 import '../../../../domain/entities/seance.dart';
+import '../../../../domain/entities/user_role.dart';
 import '../../../../infrastructure/network/api_endpoints.dart';
 import '../../../../injection_container.dart';
 import '../../../../presentation/theme/app_colors.dart';
@@ -435,10 +437,17 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     );
   }
 
-  void _showOuvrirSeanceDialog() {
+  Future<void> _showOuvrirSeanceDialog() async {
+    final currentEncadreurId =
+        await DependencyInjection.preferences.getUserId();
+    if (!mounted) return;
+
     final titreController = TextEditingController();
     TimeOfDay heureDebut = const TimeOfDay(hour: 15, minute: 0);
     TimeOfDay heureFin = const TimeOfDay(hour: 17, minute: 0);
+    final selectedEncadreurIds = <String>{};
+
+    if (!mounted) return;
 
     showModalBottomSheet(
       context: context,
@@ -460,7 +469,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                   top: Radius.circular(24),
                 ),
               ),
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -571,6 +580,20 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
+                    _EncadreursInvitesSelector(
+                      excludedId: currentEncadreurId,
+                      selectedIds: selectedEncadreurIds,
+                      onToggle: (id) {
+                        setModalState(() {
+                          if (selectedEncadreurIds.contains(id)) {
+                            selectedEncadreurIds.remove(id);
+                          } else {
+                            selectedEncadreurIds.add(id);
+                          }
+                        });
+                      },
+                    ),
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -587,13 +610,8 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                             return;
                           }
 
-                          final encadreurId = await DependencyInjection
-                              .preferences
-                              .getUserId();
-
-                          if (!context.mounted) return;
-
-                          if (encadreurId == null || encadreurId.isEmpty) {
+                          if (currentEncadreurId == null ||
+                              currentEncadreurId.isEmpty) {
                             AcademyToast.show(
                               context,
                               title: 'Erreur d\'authentification',
@@ -622,7 +640,9 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                               heureFin.hour,
                               heureFin.minute,
                             ),
-                            encadreurResponsableId: encadreurId,
+                            encadreurResponsableId: currentEncadreurId,
+                            encadreurInvitesIds:
+                                selectedEncadreurIds.toList(),
                           );
 
                           if (!mounted) return;
@@ -1126,6 +1146,263 @@ class _TimePickerField extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Sélecteur multi-choix d'encadreurs invités pour le modal de création de séance.
+class _EncadreursInvitesSelector extends StatefulWidget {
+  final String? excludedId;
+  final Set<String> selectedIds;
+  final void Function(String id) onToggle;
+
+  const _EncadreursInvitesSelector({
+    required this.excludedId,
+    required this.selectedIds,
+    required this.onToggle,
+  });
+
+  @override
+  State<_EncadreursInvitesSelector> createState() =>
+      _EncadreursInvitesSelectorState();
+}
+
+class _EncadreursInvitesSelectorState
+    extends State<_EncadreursInvitesSelector> {
+  List<Encadreur> _encadreurs = [];
+  // Vrai uniquement lors du tout premier chargement (liste vide).
+  bool _isInitialLoading = true;
+  // Vrai lors d'un rafraîchissement (liste déjà visible).
+  bool _isRefreshing = false;
+
+  static final _rolesAutorises = {
+    UserRole.encadreur,
+    UserRole.encadreurChef,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadFromCache());
+  }
+
+  /// Lecture du cache local — chargement initial uniquement.
+  Future<void> _loadFromCache() async {
+    if (!mounted) return;
+    setState(() => _isInitialLoading = true);
+    try {
+      final all = await DependencyInjection.encadreurRepository.getAll();
+      if (mounted) setState(() => _encadreurs = _filter(all));
+    } catch (_) {
+      if (mounted) setState(() => _encadreurs = []);
+    } finally {
+      if (mounted) setState(() => _isInitialLoading = false);
+    }
+  }
+
+  /// Appel réseau réel — liste courante conservée jusqu'à la réponse complète.
+  Future<void> _refresh() async {
+    if (!mounted || _isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    try {
+      await DependencyInjection.encadreurRepository.syncFromApi();
+      final all = await DependencyInjection.encadreurRepository.getAll();
+      // Remplacement atomique : la liste ne disparaît jamais pendant l'attente.
+      if (mounted) setState(() => _encadreurs = _filter(all));
+    } catch (_) {
+      // En cas d'erreur on conserve la liste existante.
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
+  List<Encadreur> _filter(List<Encadreur> all) => all
+      .where(
+        (e) =>
+            e.id != widget.excludedId && _rolesAutorises.contains(e.role),
+      )
+      .toList()
+    ..sort((a, b) => a.nomComplet.compareTo(b.nomComplet));
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.group_add_rounded,
+              size: 18,
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              l10n.invitedCoachesLabel,
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            if (widget.selectedIds.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${widget.selectedIds.length}',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+            const Spacer(),
+            IconButton(
+              onPressed: (_isInitialLoading || _isRefreshing) ? null : _refresh,
+              icon: _isRefreshing
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorScheme.onSurface.withValues(alpha: 0.4),
+                      ),
+                    )
+                  : Icon(
+                      Icons.refresh_rounded,
+                      size: 18,
+                      color: colorScheme.onSurface.withValues(alpha: 0.4),
+                    ),
+              tooltip: 'Rafraichir',
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (_isInitialLoading)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
+            ),
+          )
+        else if (_encadreurs.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              l10n.invitedCoachesNone,
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                color: colorScheme.onSurface.withValues(alpha: 0.35),
+              ),
+            ),
+          )
+        else
+          Container(
+            constraints: const BoxConstraints(maxHeight: 220),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: _encadreurs.length,
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  color: colorScheme.onSurface.withValues(alpha: 0.06),
+                ),
+                itemBuilder: (context, index) {
+                  final enc = _encadreurs[index];
+                  final isSelected = widget.selectedIds.contains(enc.id);
+                  return InkWell(
+                    onTap: () => widget.onToggle(enc.id),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: AppColors.primary.withValues(
+                              alpha: 0.12,
+                            ),
+                            backgroundImage: enc.photoUrl.isNotEmpty
+                                ? NetworkImage(enc.photoUrl)
+                                : null,
+                            child: enc.photoUrl.isEmpty
+                                ? Text(
+                                    enc.prenom.isNotEmpty
+                                        ? enc.prenom[0].toUpperCase()
+                                        : '?',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.primary,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  enc.nomComplet,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                ),
+                                if (enc.specialite.isNotEmpty)
+                                  Text(
+                                    enc.specialite,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 11,
+                                      color: colorScheme.onSurface.withValues(
+                                        alpha: 0.45,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Checkbox(
+                            value: isSelected,
+                            onChanged: (_) => widget.onToggle(enc.id),
+                            activeColor: AppColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

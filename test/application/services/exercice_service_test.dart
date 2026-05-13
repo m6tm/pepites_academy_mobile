@@ -3,20 +3,16 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/application/services/exercice_service.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/atelier.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/exercice.dart';
-import 'package:pepites_academy_mobile/src/domain/entities/seance.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/atelier_repository.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/exercice_repository.dart';
-import 'package:pepites_academy_mobile/src/domain/repositories/seance_repository.dart';
 
 class MockExerciceRepository extends Mock implements ExerciceRepository {}
 class MockAtelierRepository extends Mock implements AtelierRepository {}
-class MockSeanceRepository extends Mock implements SeanceRepository {}
 
 void main() {
   late ExerciceService service;
   late MockExerciceRepository mockExerciceRepo;
   late MockAtelierRepository mockAtelierRepo;
-  late MockSeanceRepository mockSeanceRepo;
 
   const tExercice = Exercice(
     id: '1',
@@ -37,31 +33,16 @@ void main() {
     seanceId: '42',
   );
 
-  final tSeance = Seance(
-    id: '42',
-    titre: 'Séance Test',
-    date: DateTime.now(),
-    heureDebut: DateTime.now(),
-    heureFin: DateTime.now(),
-    statut: SeanceStatus.ouverte,
-    encadreurResponsableId: 'enc-1',
-    nbAteliers: 1,
-    atelierIds: ['10'],
-  );
-
   setUp(() {
     mockExerciceRepo = MockExerciceRepository();
     mockAtelierRepo = MockAtelierRepository();
-    mockSeanceRepo = MockSeanceRepository();
     service = ExerciceService(
       exerciceRepository: mockExerciceRepo,
       atelierRepository: mockAtelierRepo,
-      seanceRepository: mockSeanceRepo,
     );
 
     registerFallbackValue(tExercice);
     registerFallbackValue(tAtelier);
-    registerFallbackValue(tSeance);
     registerFallbackValue(ExerciceStatut.cree);
   });
 

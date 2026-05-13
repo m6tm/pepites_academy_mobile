@@ -8,7 +8,6 @@ class ExerciceListTile extends StatelessWidget {
   final Exercice exercice;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
-  final VoidCallback? onApply;
   final VoidCallback? onClose;
   final VoidCallback? onAnnotate;
   final bool isEditable;
@@ -19,7 +18,6 @@ class ExerciceListTile extends StatelessWidget {
     required this.exercice,
     this.onEdit,
     this.onDelete,
-    this.onApply,
     this.onClose,
     this.onAnnotate,
     this.isEditable = false,
@@ -60,14 +58,6 @@ class ExerciceListTile extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: -4, // Resserre les icônes
               children: [
-                if (onApply != null && exercice.statut == ExerciceStatut.valide)
-                  IconButton(
-                    icon: Icon(Icons.play_circle_outline_rounded, size: 18, color: colorScheme.primary),
-                    onPressed: onApply,
-                    tooltip: 'Appliquer en séance',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
                 if (onClose != null && exercice.statut == ExerciceStatut.applique)
                   IconButton(
                     icon: const Icon(Icons.check_circle_outline_rounded, size: 18, color: Colors.green),

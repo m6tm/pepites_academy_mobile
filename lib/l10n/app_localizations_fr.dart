@@ -1840,6 +1840,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pleaseEnterTitle => 'Veuillez saisir un titre.';
 
   @override
+  String get invitedCoachesLabel => 'Encadreurs invites';
+
+  @override
+  String get invitedCoachesHint => 'Selectionnez les encadreurs invites';
+
+  @override
+  String get invitedCoachesNone => 'Aucun encadreur invite';
+
+  @override
   String get sessionInProgressDialogTitle => 'Seance en cours';
 
   @override
@@ -3691,7 +3700,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String applyWorkshopConfirmation(String name) {
-    return 'Voulez-vous marquer \"$name\" comme \"En cours\" ?';
+    return 'Voulez-vous appliquer l\'atelier \"$name\" en séance ?';
   }
 
   @override

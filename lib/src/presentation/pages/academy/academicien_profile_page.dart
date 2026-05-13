@@ -676,72 +676,50 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             isDark,
           ),
           const SizedBox(height: 24),
-          GestureDetector(
-            onTap: _ouvrirBulletin,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: isDark ? colorScheme.surface : Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: colorScheme.onSurface.withValues(alpha: 0.06),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? colorScheme.surface : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: colorScheme.onSurface.withValues(alpha: 0.06),
+              ),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurface.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.assessment_rounded,
+                    size: 32,
+                    color: colorScheme.onSurface.withValues(alpha: 0.3),
+                  ),
                 ),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.assessment_rounded,
-                      size: 32,
-                      color: AppColors.primary,
-                    ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.trainingReport,
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.trainingReport,
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: colorScheme.onSurface,
-                    ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Bientôt disponible',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withValues(alpha: 0.3),
+                    height: 1.5,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    l10n.trainingReportDesc,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withValues(alpha: 0.5),
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      l10n.accessReport,
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1054,15 +1032,6 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             onTap: () {
               Navigator.pop(context);
               _showQrFullScreen();
-            },
-          ),
-          _OptionItem(
-            icon: Icons.assessment_rounded,
-            label: 'Bulletin de formation',
-            color: AppColors.primary,
-            onTap: () {
-              Navigator.pop(context);
-              _ouvrirBulletin();
             },
           ),
           _OptionItem(

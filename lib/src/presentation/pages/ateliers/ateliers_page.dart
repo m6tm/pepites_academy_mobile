@@ -60,7 +60,7 @@ class _AteliersPageState extends State<AteliersPage> {
   bool _hasUpdatePermission = false;
   bool _hasUpdateExercicePermission = false;
   bool _hasApplyAtelierPermission = false;
-  bool _hasApplyExercicePermission = false;
+  bool _hasCloseAtelierPermission = false;
   bool _hasCloseExercicePermission = false;
 
   @override
@@ -104,7 +104,7 @@ class _AteliersPageState extends State<AteliersPage> {
         _hasUpdatePermission = role.hasPermission(Permission.atelierUpdate);
         _hasUpdateExercicePermission = role.hasPermission(Permission.exerciceUpdate);
         _hasApplyAtelierPermission = role.hasPermission(Permission.atelierApply);
-        _hasApplyExercicePermission = role.hasPermission(Permission.exerciceApply);
+        _hasCloseAtelierPermission = role.hasPermission(Permission.atelierClose);
         _hasCloseExercicePermission = role.hasPermission(Permission.exerciceClose);
       });
     }
@@ -382,7 +382,7 @@ class _AteliersPageState extends State<AteliersPage> {
             onDeleteExercice: (ex) =>
                 _exerciceState.supprimerExercice(ex.id, atelier.id),
             onApply: (_hasApplyAtelierPermission && widget.seance.estOuverte) ? () => _confirmApplyAtelier(context, atelier) : null,
-            onApplyExercice: (_hasApplyExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmApplyExercice(context, ex) : null,
+            onClose: (_hasCloseAtelierPermission && widget.seance.estOuverte) ? () => _confirmCloseAtelier(context, atelier) : null,
             onCloseExercice: (_hasCloseExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmCloseExercice(context, ex) : null,
             onReorderExercice: (oldIndex, newIndex) =>
                 _exerciceState.reordonnerExercices(atelier.id, oldIndex, newIndex),
@@ -526,8 +526,8 @@ class _AteliersPageState extends State<AteliersPage> {
     );
   }
 
-  void _confirmApplyExercice(BuildContext context, Exercice exercice) {
-    if (!_hasApplyExercicePermission || !widget.seance.estOuverte) return;
+  void _confirmCloseAtelier(BuildContext context, Atelier atelier) {
+    if (!_hasCloseAtelierPermission || !widget.seance.estOuverte) return;
 
     final l10n = AppLocalizations.of(context)!;
 
@@ -536,11 +536,11 @@ class _AteliersPageState extends State<AteliersPage> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          l10n.applyExerciseTitle,
+          'Clôturer l\'atelier',
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
         ),
         content: Text(
-          l10n.applyExerciseConfirmation(exercice.nom),
+          'Voulez-vous clôturer "${atelier.nom}" ? Cette action est définitive.',
           style: GoogleFonts.montserrat(fontSize: 14),
         ),
         actions: [
@@ -552,17 +552,20 @@ class _AteliersPageState extends State<AteliersPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              _exerciceState.appliquerExercice(exercice.id, exercice.atelierId);
+            onPressed: () async {
               Navigator.pop(ctx);
+              await _atelierState.fermerAtelier(atelier.id);
+              if (mounted) {
+                await _exerciceState.chargerExercices(atelier.id);
+              }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: Text(
-              l10n.confirmButton,
+              'Clôturer',
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
           ),

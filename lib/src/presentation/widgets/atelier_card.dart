@@ -18,7 +18,7 @@ class AtelierCard extends StatefulWidget {
   final Function(Exercice)? onEditExercice;
   final Function(Exercice)? onDeleteExercice;
   final VoidCallback? onApply;
-  final Function(Exercice)? onApplyExercice;
+  final VoidCallback? onClose;
   final Function(Exercice)? onCloseExercice;
   final int index;
   final Function(int, int)? onReorderExercice;
@@ -37,7 +37,7 @@ class AtelierCard extends StatefulWidget {
     this.onEditExercice,
     this.onDeleteExercice,
     this.onApply,
-    this.onApplyExercice,
+    this.onClose,
     this.onCloseExercice,
     required this.index,
     this.onReorderExercice,
@@ -150,11 +150,21 @@ class _AtelierCardState extends State<AtelierCard> {
                         spacing: 2,
                         runSpacing: -8,
                         children: [
-                          if (widget.onApply != null && widget.atelier.statut == AtelierStatut.valide)
+                          if (widget.onApply != null &&
+                              widget.atelier.statut != AtelierStatut.applique &&
+                              widget.atelier.statut != AtelierStatut.ferme)
                             IconButton(
                               icon: Icon(Icons.play_circle_outline_rounded, size: 20, color: typeColor),
                               onPressed: widget.onApply,
                               tooltip: 'Appliquer en séance',
+                              padding: const EdgeInsets.all(4),
+                              constraints: const BoxConstraints(),
+                            ),
+                          if (widget.onClose != null && widget.atelier.statut == AtelierStatut.applique)
+                            IconButton(
+                              icon: const Icon(Icons.stop_circle_outlined, size: 20, color: Colors.orange),
+                              onPressed: widget.onClose,
+                              tooltip: 'Clôturer l\'atelier',
                               padding: const EdgeInsets.all(4),
                               constraints: const BoxConstraints(),
                             ),
@@ -245,7 +255,6 @@ class _AtelierCardState extends State<AtelierCard> {
                         isEditable: widget.isExercicesEditable,
                         onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
-                        onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
                         onClose: widget.onCloseExercice != null ? () => widget.onCloseExercice!(ex) : null,
                         onAnnotate: widget.onAnnotateExercice != null ? () => widget.onAnnotateExercice!(ex) : null,
                       );
@@ -258,7 +267,6 @@ class _AtelierCardState extends State<AtelierCard> {
                         isEditable: widget.isExercicesEditable,
                         onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
-                        onApply: widget.onApplyExercice != null ? () => widget.onApplyExercice!(ex) : null,
                         onClose: widget.onCloseExercice != null ? () => widget.onCloseExercice!(ex) : null,
                         onAnnotate: widget.onAnnotateExercice != null ? () => widget.onAnnotateExercice!(ex) : null,
                       )),

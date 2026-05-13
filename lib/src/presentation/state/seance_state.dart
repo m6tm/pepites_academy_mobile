@@ -131,6 +131,7 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     required DateTime heureDebut,
     required DateTime heureFin,
     required String encadreurResponsableId,
+    List<String> encadreurInvitesIds = const [],
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -144,6 +145,7 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
         heureDebut: heureDebut,
         heureFin: heureFin,
         encadreurResponsableId: encadreurResponsableId,
+        encadreurInvitesIds: encadreurInvitesIds,
       );
 
       if (result.success) {

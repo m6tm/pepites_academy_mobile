@@ -4,19 +4,16 @@ import 'package:pepites_academy_mobile/src/application/services/exercice_service
 import 'package:pepites_academy_mobile/src/domain/entities/exercice.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/atelier_repository.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/exercice_repository.dart';
-import 'package:pepites_academy_mobile/src/domain/repositories/seance_repository.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/exercice_state.dart';
 
 class MockAtelierRepository extends Mock implements AtelierRepository {}
 class MockExerciceRepository extends Mock implements ExerciceRepository {}
-class MockSeanceRepository extends Mock implements SeanceRepository {}
 
 void main() {
   late ExerciceState state;
   late ExerciceService service;
   late MockExerciceRepository mockExerciceRepo;
   late MockAtelierRepository mockAtelierRepo;
-  late MockSeanceRepository mockSeanceRepo;
 
   const atelierId = 'atelier-1';
   const exerciceId = 'ex-1';
@@ -34,11 +31,9 @@ void main() {
   setUp(() {
     mockExerciceRepo = MockExerciceRepository();
     mockAtelierRepo = MockAtelierRepository();
-    mockSeanceRepo = MockSeanceRepository();
     service = ExerciceService(
       exerciceRepository: mockExerciceRepo,
       atelierRepository: mockAtelierRepo,
-      seanceRepository: mockSeanceRepo,
     );
     state = ExerciceState(service);
 

@@ -8,10 +8,13 @@ enum UserRole {
   /// y compris la gestion des référentiels, des inscriptions et des SMS.
   admin('admin'),
 
+  /// Encadreur Chef : Structuration et validation des entraînements.
+  encadreurChef('encadreur_chef'),
+
   /// Encadreur : Possède un accès aux fonctionnalités de terrain telles que
   /// le scan de présence, la gestion des séances, les ateliers et les annotations.
   encadreur('encadreur'),
-  
+
   /// Medecin Chef : Suivi sanitaire et médical.
   medecinChef('medecin_chef');
 
