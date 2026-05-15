@@ -78,8 +78,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
               .toList();
 
           if (remoteList.isNotEmpty) {
-            // Accès direct à l'impl pour éviter l'interface abstraite
-            await DependencyInjection.encadreurRepository.upsertAllFromRemote(
+            await DependencyInjection.encadreurRepository.replaceAllFromRemote(
               remoteList,
             );
           }
@@ -160,7 +159,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
       ),
     );
     if (result == true) {
-      _loadEncadreurs();
+      _refreshFromApiIfOnlineThenLoad();
     }
   }
 

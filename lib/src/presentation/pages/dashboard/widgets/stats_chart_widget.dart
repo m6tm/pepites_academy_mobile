@@ -86,11 +86,14 @@ class _StatsChartWidgetState extends State<StatsChartWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Statistiques Globales',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          Expanded(
+            child: Text(
+              'Statistiques Globales',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           if (widget.onRefresh != null)
             IconButton(

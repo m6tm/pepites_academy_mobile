@@ -67,6 +67,15 @@ class EncadreurLocalDatasource implements ClearableDatasource {
     }
   }
 
+  /// Remplace l'ID temporaire (timestamp) d'un encadreur par l'UUID serveur.
+  Future<void> migrateLocalId(String localId, String serverId) async {
+    final list = getAll();
+    final index = list.indexWhere((e) => e.id == localId);
+    if (index == -1) return;
+    list[index] = list[index].copyWith(id: serverId);
+    await saveAll(list);
+  }
+
   /// Récupère un encadreur par son code QR.
   Encadreur? getByQrCode(String qrCode) {
     final list = getAll();

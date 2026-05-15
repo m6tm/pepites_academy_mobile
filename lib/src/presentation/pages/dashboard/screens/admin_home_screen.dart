@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
@@ -11,6 +12,7 @@ import '../../../../presentation/widgets/circular_progress_widget.dart';
 import '../../../../presentation/widgets/season_management_card.dart';
 import '../../../../presentation/widgets/supadmin_module_grid.dart';
 import '../../../../injection_container.dart';
+import '../../../../core/events/encadreur_events.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../domain/entities/dashboard_stats.dart';
@@ -49,6 +51,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   bool _activitesLoading = true;
   DashboardStats? _dashboardStats;
   bool _statsIsLoading = false;
+  StreamSubscription<EncadreurListChangedEvent>? _encadreurSub;
 
   @override
   void initState() {
@@ -57,6 +60,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     _chargerActivitesRecentes();
     _chargerDashboardStats();
     DependencyInjection.notificationState.chargerNotifications('admin');
+    _encadreurSub = DependencyInjection.domainEventBus
+        .on<EncadreurListChangedEvent>()
+        .listen((_) => _rafraichirStats());
+  }
+
+  @override
+  void dispose() {
+    _encadreurSub?.cancel();
+    super.dispose();
   }
 
   /// Charge la derniere seance (ouverte en priorite, sinon la plus recente).
@@ -141,7 +153,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Future<void> _onRefresh() async {
     await Future.wait([
       _chargerDerniereSeance(),
-      _chargerDashboardStats(),
+      _rafraichirStats(),
       _chargerActivitesRecentes(),
     ]);
     DependencyInjection.notificationState.chargerNotifications('admin');

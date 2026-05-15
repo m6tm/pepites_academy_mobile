@@ -5,6 +5,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../../domain/repositories/encadreur_repository.dart';
+import '../../../injection_container.dart';
+import '../../../core/events/encadreur_events.dart';
 import '../../theme/app_colors.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../widgets/academy_toast.dart';
@@ -109,6 +111,8 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
               final navigator = Navigator.of(context);
               navigator.pop();
               await widget.repository.delete(_encadreur.id);
+              DependencyInjection.domainEventBus.emit(const EncadreurListChangedEvent());
+              await DependencyInjection.dashboardService.invalidateCache();
               if (mounted) navigator.pop(true);
             },
             style: ElevatedButton.styleFrom(

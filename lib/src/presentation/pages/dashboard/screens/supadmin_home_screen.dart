@@ -7,6 +7,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../domain/entities/dashboard_stats.dart';
 import '../../../../domain/entities/chart_stats.dart';
 import '../../../../injection_container.dart';
+import '../../../../core/events/encadreur_events.dart';
 import '../../../widgets/global_stats_card.dart';
 import '../../../widgets/season_management_card.dart';
 import '../../../widgets/supadmin_module_grid.dart';
@@ -47,6 +48,7 @@ class SupAdminHomeScreenState extends State<SupAdminHomeScreen> {
   bool _isChartLoading = false;
   ChartPeriod _selectedPeriod = ChartPeriod.month;
   Timer? _refreshTimer;
+  StreamSubscription<EncadreurListChangedEvent>? _encadreurSub;
 
   static const int _refreshIntervalSeconds = 300;
 
@@ -55,11 +57,15 @@ class SupAdminHomeScreenState extends State<SupAdminHomeScreen> {
     super.initState();
     _loadInitialData();
     _startPeriodicRefresh();
+    _encadreurSub = DependencyInjection.domainEventBus
+        .on<EncadreurListChangedEvent>()
+        .listen((_) => _fetchStats(force: true));
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    _encadreurSub?.cancel();
     super.dispose();
   }
 
@@ -83,13 +89,13 @@ class SupAdminHomeScreenState extends State<SupAdminHomeScreen> {
     );
   }
 
-  Future<void> _fetchStats() async {
+  Future<void> _fetchStats({bool force = false}) async {
     if (_isLoading) return;
     setState(() => _isLoading = true);
 
     try {
       final (stats, _, isFromCache) = await DependencyInjection.dashboardService
-          .getStats();
+          .getStats(forceRefresh: force);
       if (mounted) {
         setState(() {
           _dashboardStats = stats;
@@ -121,7 +127,7 @@ class SupAdminHomeScreenState extends State<SupAdminHomeScreen> {
   }
 
   Future<void> _refreshAll() async {
-    await Future.wait([_fetchStats(), _fetchChartStats()]);
+    await Future.wait([_fetchStats(force: true), _fetchChartStats()]);
   }
 
   void _onPeriodChanged(ChartPeriod period) {

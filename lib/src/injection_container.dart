@@ -561,6 +561,9 @@ class DependencyInjection {
         case SyncEntityType.academicien:
           await academicienRepository.migrateLocalId(localId, serverId);
           break;
+        case SyncEntityType.encadreur:
+          await encadreurRepository.migrateLocalId(localId, serverId);
+          break;
         default:
           break;
       }

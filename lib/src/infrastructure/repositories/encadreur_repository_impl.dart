@@ -46,6 +46,21 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     await _datasource.saveAll(localMap.values.toList());
   }
 
+  /// Remplace le cache local par la liste distante (le serveur fait autorité).
+  /// Conserve uniquement les entrées locales avec un ID temporaire (timestamp)
+  /// qui ont une opération de sync en attente, pour ne pas perdre les créations
+  /// offline non encore envoyées au serveur.
+  Future<void> replaceAllFromRemote(List<Encadreur> remoteList) async {
+    final local = _datasource.getAll();
+    final remoteIds = {for (final e in remoteList) e.id};
+    // Un ID temporaire est purement numérique (ex: 1747317145000).
+    // Un UUID serveur contient des tirets (ex: b4a3e268-af46-...).
+    final pendingLocal = local.where(
+      (e) => !remoteIds.contains(e.id) && RegExp(r'^\d+$').hasMatch(e.id),
+    ).toList();
+    await _datasource.saveAll([...remoteList, ...pendingLocal]);
+  }
+
   @override
   Future<Encadreur> create(Encadreur encadreur) async {
     final created = await _datasource.add(encadreur);
@@ -79,6 +94,11 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  /// Migre l'ID temporaire local (timestamp) vers l'UUID attribué par le serveur.
+  Future<void> migrateLocalId(String localId, String serverId) async {
+    await _datasource.migrateLocalId(localId, serverId);
   }
 
   @override
@@ -162,7 +182,7 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
         currentPage++;
       } while (currentPage <= totalPages);
 
-      await upsertAllFromRemote(allRemoteEncadreurs);
+      await replaceAllFromRemote(allRemoteEncadreurs);
       // ignore: avoid_print
       print(
         '[EncadreurRepo] Synced ${allRemoteEncadreurs.length} encadreurs across ${currentPage - 1} pages',

@@ -158,7 +158,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
           .fetchAll(ApiEndpoints.encadreurs);
       if (encadreursJson != null) {
         final remote = encadreursJson.map(Encadreur.fromJson).toList();
-        await DependencyInjection.encadreurRepository.upsertAllFromRemote(
+        await DependencyInjection.encadreurRepository.replaceAllFromRemote(
           remote,
         );
       }

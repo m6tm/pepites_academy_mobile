@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../injection_container.dart';
+import '../../../core/events/encadreur_events.dart';
 import '../../../infrastructure/services/upload_service.dart';
 import '../../utils/image_compressor.dart';
 import '../../utils/image_cropper_helper.dart';
@@ -272,6 +273,10 @@ class _EncadreurRegistrationPageState extends State<EncadreurRegistrationPage>
       );
 
       final created = await widget.repository.create(encadreur);
+
+      // Notifie tous les écrans consommateurs (dashboard stats, listes, etc.)
+      DependencyInjection.domainEventBus.emit(const EncadreurListChangedEvent());
+      await DependencyInjection.dashboardService.invalidateCache();
 
       if (mounted) {
         setState(() {
