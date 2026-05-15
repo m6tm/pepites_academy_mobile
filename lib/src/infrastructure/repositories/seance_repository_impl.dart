@@ -197,14 +197,24 @@ class SeanceRepositoryImpl implements SeanceRepository {
         (data) async {
           final map = data is Map<String, dynamic> ? data : null;
           final seanceMap = (map?['seance'] as Map<String, dynamic>?) ?? map;
-          if (seanceMap == null || seanceMap['id'] == null) {
-            return _createOffline(seance);
+          if (seanceMap != null && seanceMap['id'] != null) {
+            final seanceAvecIdServeur = _parseSeanceFromMap(seanceMap, seance);
+            await _datasource.add(seanceAvecIdServeur);
+            await _purgerSeancesStalesLocales(exceptId: seanceAvecIdServeur.id);
+            return seanceAvecIdServeur;
           }
-          final seanceAvecIdServeur = _parseSeanceFromMap(seanceMap, seance);
-          await _datasource.add(seanceAvecIdServeur);
-          // Nettoyer les seances locales stales (ID timestamp) sauf la nouvelle.
-          await _purgerSeancesStalesLocales(exceptId: seanceAvecIdServeur.id);
-          return seanceAvecIdServeur;
+          // La seance a ete creee cote serveur (2xx) mais le corps de la
+          // reponse est absent ou mal forme. Synchroniser pour recuperer
+          // l'UUID reel sans creer de doublon local avec un ID timestamp.
+          await syncFromApi();
+          final created = _datasource.getSeanceOuverte();
+          if (created != null) {
+            await _purgerSeancesStalesLocales(exceptId: created.id);
+            return created;
+          }
+          throw Exception(
+            'Seance creee sur le serveur mais UUID introuvable apres sync.',
+          );
         },
       );
     } catch (e) {

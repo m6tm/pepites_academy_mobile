@@ -30,9 +30,15 @@ class AcademicienLocalDatasource implements ClearableDatasource {
     }
   }
 
+  /// Enregistre un academicien (idempotent : remplace si l'ID existe deja).
   Future<Academicien> create(Academicien academicien) async {
     final all = await getAll();
-    all.add(academicien);
+    final index = all.indexWhere((e) => e.id == academicien.id);
+    if (index != -1) {
+      all[index] = academicien;
+    } else {
+      all.add(academicien);
+    }
     await saveAll(all);
     return academicien;
   }

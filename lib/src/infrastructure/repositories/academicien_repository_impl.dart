@@ -27,6 +27,16 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
     _syncService = service;
   }
 
+  /// Migre un academicien cree offline (ID timestamp) vers l'UUID assigne par le serveur.
+  Future<void> migrateLocalId(String localId, String serverId) async {
+    final local = await _datasource.getById(localId);
+    if (local == null) return;
+    final json = local.toJson()..['id'] = serverId;
+    final migrated = Academicien.fromJson(json);
+    await _datasource.create(migrated);
+    await _datasource.delete(localId);
+  }
+
   @override
   Future<Academicien?> getById(String id) => _datasource.getById(id);
 

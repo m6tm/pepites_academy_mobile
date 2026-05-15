@@ -558,6 +558,9 @@ class DependencyInjection {
         case SyncEntityType.exercice:
           await exerciceRepository.migrateLocalId(localId, serverId);
           break;
+        case SyncEntityType.academicien:
+          await academicienRepository.migrateLocalId(localId, serverId);
+          break;
         default:
           break;
       }

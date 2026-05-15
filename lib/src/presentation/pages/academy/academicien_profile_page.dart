@@ -12,7 +12,6 @@ import '../../../injection_container.dart';
 import '../../../application/services/registration_form_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
-import '../bulletin/bulletin_page.dart';
 import 'academicien_edit_page.dart';
 import '../../utils/screenshot_helper.dart';
 
@@ -173,14 +172,6 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _ouvrirBulletin() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BulletinPage(academicien: _academicien),
       ),
     );
   }
@@ -738,129 +729,129 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
             child: RepaintBoundary(
               key: _qrKey,
               child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
+                width: double.infinity,
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
                         ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'PEPITES ACADEMY',
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12,
+                            letterSpacing: 3,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 4,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'PEPITES ACADEMY',
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.academicianBadgeType,
                         style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                          letterSpacing: 3,
-                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 10,
+                          letterSpacing: 2,
+                          color: const Color(0xFF3B82F6),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
+                    ),
+                    const SizedBox(height: 24),
+                    QrImageView(
+                      data: _academicien.codeQrUnique,
+                      version: QrVersions.auto,
+                      size: 200,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Color(0xFF1C1C1C),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 4,
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Color(0xFF1C1C1C),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.academicianBadgeType,
+                    const SizedBox(height: 24),
+                    Text(
+                      '${_academicien.prenom} ${_academicien.nom}',
                       style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 10,
-                        letterSpacing: 2,
-                        color: const Color(0xFF3B82F6),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: const Color(0xFF1C1C1C),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  QrImageView(
-                    data: _academicien.codeQrUnique,
-                    version: QrVersions.auto,
-                    size: 200,
-                    eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.square,
-                      color: Color(0xFF1C1C1C),
-                    ),
-                    dataModuleStyle: const QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.square,
-                      color: Color(0xFF1C1C1C),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    '${_academicien.prenom} ${_academicien.nom}',
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: const Color(0xFF1C1C1C),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _getPosteName(),
-                    style: GoogleFonts.montserrat(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _academicien.codeQrUnique,
-                      style: GoogleFonts.sourceCodePro(
-                        fontSize: 11,
+                    const SizedBox(height: 4),
+                    Text(
+                      _getPosteName(),
+                      style: GoogleFonts.montserrat(
                         color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _academicien.codeQrUnique,
+                        style: GoogleFonts.sourceCodePro(
+                          fontSize: 11,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             AppLocalizations.of(context)!.tapToEnlargeBadge,
             style: GoogleFonts.montserrat(
@@ -877,9 +868,14 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                     final l10n = AppLocalizations.of(context)!;
                     await ScreenshotHelper.captureAndShare(
                       _qrKey,
-                      fileName: 'badge_${_academicien.nom}_${_academicien.prenom}',
-                      subject: l10n.badgeShareSubject('${_academicien.prenom} ${_academicien.nom}'),
-                      text: l10n.badgeShareText('${_academicien.prenom} ${_academicien.nom}'),
+                      fileName:
+                          'badge_${_academicien.nom}_${_academicien.prenom}',
+                      subject: l10n.badgeShareSubject(
+                        '${_academicien.prenom} ${_academicien.nom}',
+                      ),
+                      text: l10n.badgeShareText(
+                        '${_academicien.prenom} ${_academicien.nom}',
+                      ),
                     );
                   },
                   icon: const Icon(Icons.share_rounded, size: 18),
@@ -905,9 +901,10 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                     final l10n = AppLocalizations.of(context)!;
                     final path = await ScreenshotHelper.captureAndSave(
                       _qrKey,
-                      fileName: 'badge_${_academicien.nom}_${_academicien.prenom}',
+                      fileName:
+                          'badge_${_academicien.nom}_${_academicien.prenom}',
                     );
-                    
+
                     if (mounted && path != null) {
                       AcademyToast.show(
                         context,
@@ -1016,64 +1013,64 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: colorScheme.onSurface.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(2),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          _OptionItem(
-            icon: Icons.qr_code_rounded,
-            label: 'Voir le badge QR',
-            color: const Color(0xFF3B82F6),
-            onTap: () {
-              Navigator.pop(context);
-              _showQrFullScreen();
-            },
-          ),
-          _OptionItem(
-            icon: Icons.edit_rounded,
-            label: 'Modifier le profil',
-            color: const Color(0xFFF59E0B),
-            onTap: () {
-              Navigator.pop(context);
-              _ouvrirEdition();
-            },
-          ),
-          _OptionItem(
-            icon: Icons.description_rounded,
-            label: 'Générer la fiche d\'inscription',
-            color: const Color(0xFF8B5CF6),
-            onTap: () {
-              Navigator.pop(context);
-              _genererFicheInscription();
-            },
-          ),
-          _OptionItem(
-            icon: Icons.share_rounded,
-            label: 'Partager le profil',
-            color: const Color(0xFF10B981),
-            onTap: () => Navigator.pop(context),
-          ),
-          const SizedBox(height: 8),
-          _OptionItem(
-            icon: Icons.delete_outline_rounded,
-            label: 'Supprimer le joueur',
-            color: AppColors.error,
-            onTap: () {
-              Navigator.pop(context);
-              _showDeleteConfirmation();
-            },
-          ),
-          const SizedBox(height: 16),
-        ],
+            const SizedBox(height: 24),
+            _OptionItem(
+              icon: Icons.qr_code_rounded,
+              label: 'Voir le badge QR',
+              color: const Color(0xFF3B82F6),
+              onTap: () {
+                Navigator.pop(context);
+                _showQrFullScreen();
+              },
+            ),
+            _OptionItem(
+              icon: Icons.edit_rounded,
+              label: 'Modifier le profil',
+              color: const Color(0xFFF59E0B),
+              onTap: () {
+                Navigator.pop(context);
+                _ouvrirEdition();
+              },
+            ),
+            _OptionItem(
+              icon: Icons.description_rounded,
+              label: 'Générer la fiche d\'inscription',
+              color: const Color(0xFF8B5CF6),
+              onTap: () {
+                Navigator.pop(context);
+                _genererFicheInscription();
+              },
+            ),
+            _OptionItem(
+              icon: Icons.share_rounded,
+              label: 'Partager le profil',
+              color: const Color(0xFF10B981),
+              onTap: () => Navigator.pop(context),
+            ),
+            const SizedBox(height: 8),
+            _OptionItem(
+              icon: Icons.delete_outline_rounded,
+              label: 'Supprimer le joueur',
+              color: AppColors.error,
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation();
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 /// Feuille modale plein ecran pour le QR code.

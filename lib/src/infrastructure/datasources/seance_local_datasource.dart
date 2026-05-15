@@ -40,10 +40,15 @@ class SeanceLocalDatasource implements ClearableDatasource {
     return ouvertes.isEmpty ? null : ouvertes.first;
   }
 
-  /// Enregistre une nouvelle seance.
+  /// Enregistre une nouvelle seance (idempotent : remplace si l'ID existe deja).
   Future<Seance> add(Seance seance) async {
     final list = getAll();
-    list.add(seance);
+    final index = list.indexWhere((s) => s.id == seance.id);
+    if (index != -1) {
+      list[index] = seance;
+    } else {
+      list.add(seance);
+    }
     await saveAll(list);
     return seance;
   }
