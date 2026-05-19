@@ -13,6 +13,19 @@ class AtelierCreeEvent extends DomainEvent {
 /// Emis apres la mise a jour reussie de la configuration d'evaluation d'un atelier.
 /// Les composants dependants (EvaluationState, ecrans de seance) doivent s'abonner
 /// via `EventBusSubscriberMixin.listenTo` sur ce type pour invalider leur cache.
+class AtelierUpdatedEvent extends DomainEvent {
+  final String atelierId;
+  final String seanceId;
+
+  const AtelierUpdatedEvent({required this.atelierId, required this.seanceId});
+}
+
+class AtelierDeletedEvent extends DomainEvent {
+  final String seanceId;
+
+  const AtelierDeletedEvent(this.seanceId);
+}
+
 class ConfigurationAtelierModifieeEvent extends DomainEvent {
   final String atelierId;
   final String seanceId;

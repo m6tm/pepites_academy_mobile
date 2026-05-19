@@ -1,6 +1,9 @@
 import '../../application/services/sync_service.dart';
 import '../../core/cache/cache_ttl.dart';
 import '../../core/cache/repository_cache.dart';
+import '../../core/events/atelier_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
 import '../../domain/entities/atelier.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/atelier_repository.dart';
@@ -15,6 +18,8 @@ class AtelierRepositoryImpl implements AtelierRepository {
   final _cache = RepositoryCache<List<Atelier>>();
   SyncService? _syncService;
   DioClient? _dioClient;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
 
   AtelierRepositoryImpl(this._datasource);
 
@@ -31,6 +36,14 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   void setDioClient(DioClient client) {
     _dioClient = client;
+  }
+
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
   }
 
 @override
@@ -157,6 +170,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
           });
           await _datasource.add(serverAtelier);
           _invalidateCache();
+          _eventBus?.emit(AtelierCreeEvent(
+            atelierId: serverAtelier.id,
+            seanceId: serverAtelier.seanceId,
+          ));
+          _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
           return serverAtelier;
         },
       );
@@ -173,6 +191,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
   Future<Atelier> _createOffline(Atelier atelier) async {
     final created = await _datasource.add(atelier);
     _invalidateCache();
+    _eventBus?.emit(AtelierCreeEvent(
+      atelierId: created.id,
+      seanceId: created.seanceId,
+    ));
+    _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.atelier,
       entityId: created.id,
@@ -223,6 +246,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
             final serverAtelier = Atelier.fromJson({...atelierMap, 'seance_id': atelier.seanceId});
             await _datasource.update(serverAtelier);
             _invalidateCache();
+            _eventBus?.emit(AtelierCreeEvent(
+              atelierId: serverAtelier.id,
+              seanceId: serverAtelier.seanceId,
+            ));
+            _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
             return serverAtelier;
           }
           return _updateOffline(atelier);
@@ -238,6 +266,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
   Future<Atelier> _updateOffline(Atelier atelier) async {
     final updated = await _datasource.update(atelier);
     _invalidateCache();
+    _eventBus?.emit(AtelierCreeEvent(
+      atelierId: updated.id,
+      seanceId: updated.seanceId,
+    ));
+    _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.atelier,
       entityId: updated.id,
@@ -277,6 +310,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
             final atelier = Atelier.fromJson(map);
             await _datasource.update(atelier);
             _invalidateCache();
+            _eventBus?.emit(AtelierCreeEvent(
+              atelierId: atelier.id,
+              seanceId: atelier.seanceId,
+            ));
+            _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
             return atelier;
           }
           return _applyLocally(id);
@@ -332,6 +370,8 @@ class AtelierRepositoryImpl implements AtelierRepository {
   Future<void> delete(String id) async {
     await _datasource.delete(id);
     _invalidateCache();
+    _eventBus?.emit(AtelierDeletedEvent(id));
+    _invalidationRegistry?.markInvalidated<AtelierDeletedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.atelier,
       entityId: id,
@@ -344,6 +384,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
   Future<void> reorder(String seanceId, List<String> atelierIds) async {
     await _datasource.reorder(seanceId, atelierIds);
     _invalidateCache();
+    _eventBus?.emit(AtelierCreeEvent(
+      atelierId: seanceId,
+      seanceId: seanceId,
+    ));
+    _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.atelier,
       entityId: seanceId,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../application/services/atelier_service.dart';
+import '../../core/events/app_events.dart';
 import '../../core/events/atelier_events.dart';
 export '../../core/events/atelier_events.dart';
 import '../../core/events/domain_event_bus.dart';
@@ -18,10 +19,25 @@ class AtelierState extends ChangeNotifier
   AppLocalizations? _l10n;
   bool _isDisposed = false;
 
-  AtelierState(this._service, this._eventBus);
+  AtelierState(this._service, this._eventBus) {
+    listenTo<AppResumedEvent>(_eventBus, (_) => _onAppResumed());
+  }
 
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
+  }
+
+  bool _isFetching = false;
+  DateTime? _lastFetchedAt;
+
+  Future<void> _onAppResumed() async {
+    if (_isFetching) return;
+    if (_seanceId == null) return;
+    if (_lastFetchedAt == null) return;
+    final age = DateTime.now().difference(_lastFetchedAt!);
+    if (age > const Duration(minutes: 2)) {
+      await rafraichirDepuisServeur(_seanceId!);
+    }
   }
 
   @override
@@ -55,6 +71,8 @@ class AtelierState extends ChangeNotifier
 
   /// Charge les ateliers d'une seance.
   Future<void> chargerAteliers(String seanceId) async {
+    if (_isFetching) return;
+    _isFetching = true;
     _seanceId = seanceId;
     _isLoading = true;
     _errorMessage = null;
@@ -62,9 +80,11 @@ class AtelierState extends ChangeNotifier
 
     try {
       _ateliers = await _service.getAteliersParSeance(seanceId);
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des ateliers : $e';
     } finally {
+      _isFetching = false;
       _isLoading = false;
       notifyListeners();
     }
@@ -72,6 +92,8 @@ class AtelierState extends ChangeNotifier
 
   /// Force un re-fetch depuis le serveur en bypassant le cache.
   Future<void> rafraichirDepuisServeur(String seanceId) async {
+    if (_isFetching) return;
+    _isFetching = true;
     _seanceId = seanceId;
     _isLoading = true;
     _errorMessage = null;
@@ -79,9 +101,11 @@ class AtelierState extends ChangeNotifier
 
     try {
       _ateliers = await _service.getAteliersParSeance(seanceId, forceRefresh: true);
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du rafraichissement : $e';
     } finally {
+      _isFetching = false;
       _isLoading = false;
       notifyListeners();
     }

@@ -4,6 +4,10 @@ import '../../../l10n/app_localizations.dart';
 import '../../application/services/sync_service.dart';
 import '../../core/cache/cache_ttl.dart';
 import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/events/seance_events.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/seance.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/seance_repository.dart';
@@ -17,9 +21,13 @@ class SeanceRepositoryImpl implements SeanceRepository {
   final SeanceLocalDatasource _datasource;
   final RepositoryCache<SeanceWithStats> _cache =
       RepositoryCache<SeanceWithStats>(maxSize: 1);
+  final RepositoryCache<List<Seance>> _listCache = RepositoryCache<List<Seance>>();
   SyncService? _syncService;
   DioClient? _dioClient;
   AppLocalizations? _l10n;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
 
   SeanceRepositoryImpl(this._datasource);
 
@@ -47,6 +55,26 @@ class SeanceRepositoryImpl implements SeanceRepository {
     _l10n = l10n;
   }
 
+  /// Injecte le bus d'evenements de domaine.
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  /// Injecte le registre d'invalidation.
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  /// Injecte le garde de connectivite.
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
+  void _invalidateCaches() {
+    _cache.invalidateByTag('seances');
+    _listCache.invalidateByTag('seances');
+  }
+
   @override
   Future<Seance?> getById(String id) async {
     return _datasource.getById(id);
@@ -54,7 +82,21 @@ class SeanceRepositoryImpl implements SeanceRepository {
 
   @override
   Future<List<Seance>> getAll() async {
-    return _datasource.getAll();
+    const key = 'all';
+    final cached = _listCache.get(key);
+    if (cached != null) return cached;
+
+    return _listCache.getOrFetch(key, () async {
+      final list = _datasource.getAll();
+      _listCache.set(key, list, ttl: CacheTtl.seances, tags: {'seances'});
+      return list;
+    });
+  }
+
+  /// Vide les caches memoire (appel lors de la deconnexion).
+  void clearCache() {
+    _cache.clear();
+    _listCache.clear();
   }
 
   /// Fusionne une liste de donnees distantes dans le cache local
@@ -124,6 +166,8 @@ class SeanceRepositoryImpl implements SeanceRepository {
   }
 
   Future<SeanceWithStats?> _fetchSeanceEncoursFromApi() async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return null;
     final client = _dioClient;
     if (client == null) return null;
 
@@ -163,10 +207,13 @@ class SeanceRepositoryImpl implements SeanceRepository {
 
   @override
   Future<Seance> create(Seance seance) async {
-    if (_dioClient != null) {
-      return _createOnline(seance);
-    }
-    return _createOffline(seance);
+    final created = _dioClient != null
+        ? await _createOnline(seance)
+        : await _createOffline(seance);
+    _invalidateCaches();
+    _eventBus?.emit(SeanceCreatedEvent(created.id));
+    _invalidationRegistry?.markInvalidated<SeanceCreatedEvent>();
+    return created;
   }
 
   /// Creation directe via API — l'UUID est attribue par le serveur.
@@ -282,6 +329,11 @@ class SeanceRepositoryImpl implements SeanceRepository {
   @override
   Future<Seance> update(Seance seance) async {
     final updated = await _datasource.update(seance);
+    _cache.invalidateKey('encours');
+    _listCache.invalidateByTag('seance_${seance.id}');
+    _invalidateCaches();
+    _eventBus?.emit(SeanceUpdatedEvent(seance.id));
+    _invalidationRegistry?.markInvalidated<SeanceUpdatedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.seance,
       entityId: updated.id,
@@ -320,6 +372,10 @@ class SeanceRepositoryImpl implements SeanceRepository {
     }
     final updated = seance.copyWith(statut: SeanceStatus.fermee);
     final result = await _datasource.update(updated);
+    _cache.invalidateKey('encours');
+    _invalidateCaches();
+    _eventBus?.emit(SeanceClosedEvent(id));
+    _invalidationRegistry?.markInvalidated<SeanceClosedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.seance,
       entityId: result.id,
@@ -335,15 +391,11 @@ class SeanceRepositoryImpl implements SeanceRepository {
     _cache.invalidateKey('encours');
   }
 
-  /// Vide le cache in-memory (appelee lors de la deconnexion).
-  void clearCache() {
-    _cache.clear();
-  }
-
   @override
   Future<void> delete(String id) async {
     invalidateSeanceEncoursCache();
     await _datasource.delete(id);
+    _invalidateCaches();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.seance,
       entityId: id,

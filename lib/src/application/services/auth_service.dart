@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'sync_service.dart';
@@ -10,6 +11,7 @@ class AuthService {
   SyncService? _syncService;
   CacheManager? _cacheManager;
   RoleService? _roleService;
+  VoidCallback? onLogout;
 
   AuthService(this._authRepository);
 
@@ -81,7 +83,10 @@ class AuthService {
     // 2. Vider la queue de synchronisation
     await _syncService?.clearAll();
 
-    // 3. Deconnecter via le repository (appel API + nettoyage preferences)
+    // 3. Callback post-nettoyage (invalidation des caches memoire)
+    onLogout?.call();
+
+    // 4. Deconnecter via le repository (appel API + nettoyage preferences)
     return _authRepository.logout();
   }
 

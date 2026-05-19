@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/events/app_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../core/events/seance_events.dart';
@@ -13,6 +14,8 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
 
   SeanceState(this._service, DomainEventBus eventBus) {
     _listenToConflict(eventBus);
+    listenTo<SeanceCreatedEvent>(eventBus, (_) => chargerSeances());
+    listenTo<SeanceUpdatedEvent>(eventBus, (_) => chargerSeances());
     listenTo<SeanceStatsChangedEvent>(eventBus, (e) {
       DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
       _refreshStatsSilently();
@@ -37,6 +40,7 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
       DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
       _refreshStatsSilently();
     });
+    listenTo<AppResumedEvent>(eventBus, (_) => _onAppResumed());
   }
 
   String? _pendingConflictMessage;
@@ -92,6 +96,8 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
   }
 
   Future<void> chargerSeances() async {
+    if (_isFetching) return;
+    _isFetching = true;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -100,9 +106,11 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
       _seances = await _service.getAllSeances();
       _seanceOuverte = await _service.getSeanceOuverte();
       DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des seances : $e';
     } finally {
+      _isFetching = false;
       _isLoading = false;
       notifyListeners();
     }
@@ -117,6 +125,18 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
       await DependencyInjection.seanceRepository.getSeanceEncoursWithStats();
     } finally {
       _isRefreshingStats = false;
+    }
+  }
+
+  bool _isFetching = false;
+  DateTime? _lastFetchedAt;
+
+  Future<void> _onAppResumed() async {
+    if (_isFetching) return;
+    if (_lastFetchedAt == null) return;
+    final age = DateTime.now().difference(_lastFetchedAt!);
+    if (age > const Duration(minutes: 2)) {
+      await chargerSeances();
     }
   }
 

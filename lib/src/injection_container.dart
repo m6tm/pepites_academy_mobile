@@ -83,13 +83,17 @@ import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
 import 'core/events/domain_event_bus.dart';
+import 'core/events/invalidation_registry.dart';
 import 'core/events/seance_events.dart';
 import 'core/lifecycle/app_lifecycle_service.dart';
+import 'core/network/connectivity_guard.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
 class DependencyInjection {
   static late final DomainEventBus domainEventBus;
+  static late final InvalidationRegistry invalidationRegistry;
+  static late final ConnectivityGuard connectivityGuard;
   static late final AppLifecycleService appLifecycleService;
   static late final ActivityService activityService;
   static late final AppPreferences preferences;
@@ -162,6 +166,8 @@ class DependencyInjection {
 
     // Bus d'evenements global — doit etre instancie en premier
     domainEventBus = DomainEventBus();
+    invalidationRegistry = InvalidationRegistry();
+    connectivityGuard = ConnectivityGuard();
     // AppLifecycleService s'enregistre immediatement comme WidgetsBindingObserver
     appLifecycleService = AppLifecycleService(domainEventBus);
 
@@ -180,15 +186,23 @@ class DependencyInjection {
     // Initialisation du Repository Academicien
     final academicienDatasource = AcademicienLocalDatasource(sharedPrefs);
     academicienRepository = AcademicienRepositoryImpl(academicienDatasource);
+    academicienRepository.setEventBus(domainEventBus);
+    academicienRepository.setInvalidationRegistry(invalidationRegistry);
+    academicienRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du Repository Presence
     final presenceDatasource = PresenceLocalDatasource(sharedPrefs);
     presenceRepository = PresenceRepositoryImpl(presenceDatasource);
+    presenceRepository.setEventBus(domainEventBus);
+    presenceRepository.setInvalidationRegistry(invalidationRegistry);
 
     // Initialisation du Repository Seance
     final seanceDatasource = SeanceLocalDatasource(sharedPrefs);
     _seanceDatasource = seanceDatasource;
     seanceRepository = SeanceRepositoryImpl(seanceDatasource);
+    seanceRepository.setEventBus(domainEventBus);
+    seanceRepository.setInvalidationRegistry(invalidationRegistry);
+    seanceRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du Service QR Scanner
     qrScannerService = QrScannerService(
@@ -201,6 +215,8 @@ class DependencyInjection {
     // Initialisation du Repository Atelier
     final atelierDatasource = AtelierLocalDatasource(sharedPrefs);
     atelierRepository = AtelierRepositoryImpl(atelierDatasource);
+    atelierRepository.setEventBus(domainEventBus);
+    atelierRepository.setInvalidationRegistry(invalidationRegistry);
 
     // Initialisation du Repository Exercice
     final exerciceDatasource = ExerciceLocalDatasource(sharedPrefs);
@@ -490,6 +506,15 @@ class DependencyInjection {
     niveauRepository.setDioClient(dioClient);
     posteRepository.setSyncService(syncService);
     posteRepository.setDioClient(dioClient);
+
+    // Nettoyage des caches lors de la deconnexion
+    authService.onLogout = () {
+      academicienRepository.clearCache();
+      seanceRepository.clearCache();
+      presenceRepository.clearCache();
+      atelierRepository.clearCache();
+      invalidationRegistry.clear();
+    };
   }
 
 /// Gere les erreurs de conflit (409) en supprimant l'enregistrement local.

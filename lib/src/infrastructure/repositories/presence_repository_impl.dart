@@ -1,4 +1,8 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/presence_events.dart';
+import '../../core/events/invalidation_registry.dart';
 import '../../domain/entities/presence.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/presence_repository.dart';
@@ -10,8 +14,11 @@ import '../network/api_endpoints.dart';
 /// Delegue les operations au datasource local.
 class PresenceRepositoryImpl implements PresenceRepository {
   final PresenceLocalDatasource _datasource;
+  final RepositoryCache<List<Presence>> _cache = RepositoryCache<List<Presence>>();
   DioClient? _dioClient;
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
 
   PresenceRepositoryImpl(this._datasource);
 
@@ -25,9 +32,33 @@ class PresenceRepositoryImpl implements PresenceRepository {
     _syncService = service;
   }
 
+  /// Injecte le bus d'evenements de domaine.
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  /// Injecte le registre d'invalidation.
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void _invalidateCaches() {
+    _cache.invalidateByTag('presences');
+  }
+
+  /// Vide les caches memoire (appel lors de la deconnexion).
+  void clearCache() => _invalidateCaches();
+
   @override
   Future<Presence> mark(Presence presence) async {
     final marked = await _datasource.add(presence);
+    _invalidateCaches();
+    _eventBus?.emit(PresenceCreatedEvent(
+      presenceId: marked.id,
+      seanceId: marked.seanceId,
+      profilId: marked.profilId,
+    ));
+    _invalidationRegistry?.markInvalidated<PresenceCreatedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.presence,
       entityId: marked.id,
@@ -39,7 +70,15 @@ class PresenceRepositoryImpl implements PresenceRepository {
 
   @override
   Future<List<Presence>> getBySeance(String seanceId) async {
-    return _datasource.getBySeance(seanceId);
+    final key = 'seance_$seanceId';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    return _cache.getOrFetch(key, () async {
+      final list = _datasource.getBySeance(seanceId);
+      _cache.set(key, list, tags: {'presences', key});
+      return list;
+    });
   }
 
   @override

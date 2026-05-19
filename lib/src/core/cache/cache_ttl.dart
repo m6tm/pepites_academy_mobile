@@ -8,4 +8,12 @@ abstract class CacheTtl {
   static const ateliers = Duration(minutes: 10);
   static const academiciens = Duration(minutes: 15);
   static const presences = Duration(minutes: 5);
+  static const annotations = Duration(minutes: 5);
+  static const exercices = Duration(minutes: 10);
+  static const dashboardStats = Duration(minutes: 2);
+  static const notifications = Duration(minutes: 3);
+  static const bulletins = Duration(minutes: 5);
+  static const encadreurs = Duration(minutes: 15);
+  static const activities = Duration(minutes: 5);
+  static const roles = Duration(hours: 1);
 }

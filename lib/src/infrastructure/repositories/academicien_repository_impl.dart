@@ -1,5 +1,11 @@
 import 'package:flutter/foundation.dart';
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/academicien_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/academicien.dart';
 import '../../domain/entities/historique_parcours_sportif.dart';
 import '../../domain/entities/sync_operation.dart';
@@ -12,8 +18,13 @@ import '../network/api_endpoints.dart';
 /// Delegue les operations au datasource local.
 class AcademicienRepositoryImpl implements AcademicienRepository {
   final AcademicienLocalDatasource _datasource;
+  final RepositoryCache<Academicien?> _cache = RepositoryCache<Academicien?>();
+  final RepositoryCache<List<Academicien>> _listCache = RepositoryCache<List<Academicien>>();
   DioClient? _dioClient;
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
 
   AcademicienRepositoryImpl(this._datasource);
 
@@ -27,6 +38,26 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
     _syncService = service;
   }
 
+  /// Injecte le bus d'evenements de domaine.
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  /// Injecte le registre d'invalidation.
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  /// Injecte le garde de connectivite.
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
+  void _invalidateCaches() {
+    _cache.invalidateByTag('academiciens');
+    _listCache.invalidateByTag('academiciens');
+  }
+
   /// Migre un academicien cree offline (ID timestamp) vers l'UUID assigne par le serveur.
   Future<void> migrateLocalId(String localId, String serverId) async {
     final local = await _datasource.getById(localId);
@@ -38,10 +69,72 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   }
 
   @override
-  Future<Academicien?> getById(String id) => _datasource.getById(id);
+  Future<Academicien?> getById(String id) async {
+    final fresh = _cache.get(id);
+    if (fresh != null) return fresh;
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) {
+      return _cache.getStale(id) ?? await _datasource.getById(id);
+    }
+
+    return _cache.getOrFetch(id, () async {
+      final academicien = await _datasource.getById(id);
+      if (academicien != null) {
+        _cache.set(
+          id,
+          academicien,
+          ttl: CacheTtl.academiciens,
+          tags: {'academiciens', 'academicien_$id'},
+        );
+      }
+      return academicien;
+    });
+  }
+
+  /// Variante SWR : emet d'abord la donnee stale puis la fraiche.
+  Stream<Academicien> getAcademicienSwr(String id) async* {
+    final stale = _cache.getStale(id) ?? await _datasource.getById(id);
+    if (stale != null) yield stale;
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return;
+
+    final fresh = await _cache.getOrFetch(id, () async {
+      final a = await _datasource.getById(id);
+      if (a == null) throw Exception('Academicien $id introuvable');
+      return a;
+    });
+    if (fresh != null) {
+      _cache.set(id, fresh, ttl: CacheTtl.academiciens, tags: {'academiciens', 'academicien_$id'});
+      yield fresh;
+    }
+  }
 
   @override
-  Future<List<Academicien>> getAll() => _datasource.getAll();
+  Future<List<Academicien>> getAll() async {
+    const key = 'all';
+    final cached = _listCache.get(key);
+    if (cached != null) return cached;
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) {
+      final stale = _listCache.getStale(key);
+      if (stale != null) return stale;
+    }
+
+    return _listCache.getOrFetch(key, () async {
+      final list = await _datasource.getAll();
+      _listCache.set(key, list, ttl: CacheTtl.academiciens, tags: {'academiciens'});
+      return list;
+    });
+  }
+
+  /// Vide les caches memoire (appel lors de la deconnexion).
+  void clearCache() {
+    _cache.clear();
+    _listCache.clear();
+  }
 
   /// Fusionne une liste de donnees distantes dans le cache local
   /// sans declencher d'operation de synchronisation vers le serveur.
@@ -57,6 +150,9 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   @override
   Future<Academicien> create(Academicien academicien) async {
     final created = await _datasource.create(academicien);
+    _invalidateCaches();
+    _eventBus?.emit(AcademicienCreatedEvent(created.id));
+    _invalidationRegistry?.markInvalidated<AcademicienCreatedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.academicien,
       entityId: created.id,
@@ -69,6 +165,10 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   @override
   Future<Academicien> update(Academicien academicien) async {
     final updated = await _datasource.update(academicien);
+    _cache.invalidateByTag('academicien_${academicien.id}');
+    _invalidateCaches();
+    _eventBus?.emit(AcademicienUpdatedEvent(academicien.id));
+    _invalidationRegistry?.markInvalidated<AcademicienUpdatedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.academicien,
       entityId: updated.id,
@@ -87,6 +187,10 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
 
   Future<void> delete(String id) async {
     await _datasource.delete(id);
+    _cache.invalidateKey(id);
+    _invalidateCaches();
+    _eventBus?.emit(AcademicienDeletedEvent(id));
+    _invalidationRegistry?.markInvalidated<AcademicienDeletedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.academicien,
       entityId: id,
