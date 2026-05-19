@@ -1,4 +1,8 @@
 import 'dart:convert';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/events/role_events.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/permission.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/entities/user.dart';
@@ -33,7 +37,23 @@ class RoleRepositoryImpl implements RoleRepository {
   User? _cachedUser;
   List<User>? _cachedUsersList;
 
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
+
   RoleRepositoryImpl(this._dioClient, this._sharedPrefs);
+
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
 
   /// Retourne le rôle en cache de manière synchrone.
   ///
@@ -61,14 +81,16 @@ class RoleRepositoryImpl implements RoleRepository {
   @override
   Future<NetworkFailure?> updateCurrentUserRole(Role newRole) async {
     try {
-      // Utiliser l'endpoint encadreurs pour récupérer le profil
       final result = await _dioClient.get(ApiEndpoints.encadreurs);
 
       return result.fold((failure) => failure, (data) async {
         if (data is Map<String, dynamic> || data is List) {
           await persistRoleLocally(newRole);
           _cachedRole = newRole;
-          _cachedUser = null; // Invalider le cache utilisateur
+          _cachedUser = null;
+          _cachedUsersList = null;
+          _invalidationRegistry?.markInvalidated<RoleAssignedEvent>();
+          _eventBus?.emit(const RoleAssignedEvent(userId: '', roleId: ''));
         }
         return null;
       });
@@ -95,13 +117,25 @@ class RoleRepositoryImpl implements RoleRepository {
     required String userId,
     required Role newRole,
   }) async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) {
+      return const NetworkFailure(
+        type: NetworkFailureType.noConnection,
+        message: 'Aucune connexion internet',
+      );
+    }
     try {
       final result = await _dioClient.put(
         '${ApiEndpoints.roleUsers}/$userId/role',
         data: {'role': newRole.id},
       );
 
-      return result.fold((failure) => failure, (_) => null);
+      return result.fold((failure) => failure, (_) {
+        _cachedUsersList = null;
+        _invalidationRegistry?.markInvalidated<RoleAssignedEvent>();
+        _eventBus?.emit(RoleAssignedEvent(userId: userId, roleId: newRole.id));
+        return null;
+      });
     } catch (e) {
       return const NetworkFailure(
         type: NetworkFailureType.serverError,

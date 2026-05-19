@@ -1,4 +1,10 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/events/referentiel_events.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/niveau_scolaire.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/niveau_scolaire_repository.dart';
@@ -13,34 +19,65 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
   final AcademicienLocalDatasource _academicienDatasource;
   DioClient? _dioClient;
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
+
+  final _cache = RepositoryCache<List<NiveauScolaire>>();
+  final _detailCache = RepositoryCache<NiveauScolaire>();
 
   NiveauScolaireRepositoryImpl(this._datasource, this._academicienDatasource);
 
-  /// Injecte le client HTTP pour les appels API.
   void setDioClient(DioClient client) {
     _dioClient = client;
   }
 
-  /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
     _syncService = service;
   }
 
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   @override
   Future<List<NiveauScolaire>> getAll() async {
-    final niveaux = _datasource.getAll();
-    niveaux.sort((a, b) => a.ordre.compareTo(b.ordre));
-    return niveaux;
+    const key = 'all';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getAll();
+    result.sort((a, b) => a.ordre.compareTo(b.ordre));
+    _cache.set(key, result, ttl: CacheTtl.referentiel, tags: {'referentiel', 'niveaux'});
+    return result;
   }
 
   @override
   Future<NiveauScolaire?> getById(String id) async {
-    return _datasource.getById(id);
+    final cached = _detailCache.get(id);
+    if (cached != null) return cached;
+
+    final result = _datasource.getById(id);
+    if (result != null) {
+      _detailCache.set(id, result, ttl: CacheTtl.referentiel, tags: {'referentiel', 'niveau_$id'});
+    }
+    return result;
   }
 
   @override
   Future<NiveauScolaire> create(NiveauScolaire niveau) async {
     final created = await _datasource.add(niveau);
+    _cache.invalidateByTag('referentiel');
+    _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+    _eventBus?.emit(const ReferentielUpdatedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.niveauScolaire,
       entityId: created.id,
@@ -53,6 +90,10 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
   @override
   Future<NiveauScolaire> update(NiveauScolaire niveau) async {
     final updated = await _datasource.update(niveau);
+    _cache.invalidateByTag('referentiel');
+    _detailCache.invalidateKey(niveau.id);
+    _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+    _eventBus?.emit(const ReferentielUpdatedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.niveauScolaire,
       entityId: updated.id,
@@ -65,6 +106,10 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
   @override
   Future<void> delete(String id) async {
     await _datasource.delete(id);
+    _cache.invalidateByTag('referentiel');
+    _detailCache.invalidateKey(id);
+    _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+    _eventBus?.emit(const ReferentielUpdatedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.niveauScolaire,
       entityId: id,
@@ -79,9 +124,9 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
     return academiciens.where((a) => a.niveauScolaireId == niveauId).length;
   }
 
-  /// Synchronise les niveaux scolaires depuis le backend vers le cache local.
-  /// Retourne true si la synchronisation a reussi.
   Future<bool> syncFromApi() async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return false;
     final client = _dioClient;
     if (client == null) return false;
 
@@ -90,8 +135,6 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
 
       return await result.fold(
         (failure) {
-          // ignore: avoid_print
-          print('[NiveauScolaireRepo] Erreur sync: ${failure.message}');
           return false;
         },
         (data) async {
@@ -111,21 +154,15 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
               .toList();
 
           await _datasource.saveAll(niveaux);
-          // ignore: avoid_print
-          print(
-            '[NiveauScolaireRepo] Synced ${niveaux.length} niveaux from backend',
-          );
+          _cache.invalidateByTag('referentiel');
           return true;
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[NiveauScolaireRepo] Exception sync: $e');
       return false;
     }
   }
 
-  /// Parse un niveau scolaire depuis les donnees du backend.
   NiveauScolaire _parseNiveauScolaire(Map<String, dynamic> map) {
     return NiveauScolaire(
       id: (map['id']?.toString() ?? ''),
@@ -146,5 +183,10 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
           ) ??
           DateTime.now(),
     );
+  }
+
+  void clearCache() {
+    _cache.clear();
+    _detailCache.clear();
   }
 }

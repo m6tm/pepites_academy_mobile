@@ -1,4 +1,10 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/events/referentiel_events.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/poste_football.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/poste_football_repository.dart';
@@ -13,32 +19,64 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
   final AcademicienLocalDatasource _academicienDatasource;
   DioClient? _dioClient;
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
+
+  final _cache = RepositoryCache<List<PosteFootball>>();
+  final _detailCache = RepositoryCache<PosteFootball>();
 
   PosteFootballRepositoryImpl(this._datasource, this._academicienDatasource);
 
-  /// Injecte le client HTTP pour les appels API.
   void setDioClient(DioClient client) {
     _dioClient = client;
   }
 
-  /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
     _syncService = service;
   }
 
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   @override
   Future<List<PosteFootball>> getAll() async {
-    return _datasource.getAll();
+    const key = 'all';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getAll();
+    _cache.set(key, result, ttl: CacheTtl.referentiel, tags: {'referentiel', 'postes'});
+    return result;
   }
 
   @override
   Future<PosteFootball?> getById(String id) async {
-    return _datasource.getById(id);
+    final cached = _detailCache.get(id);
+    if (cached != null) return cached;
+
+    final result = _datasource.getById(id);
+    if (result != null) {
+      _detailCache.set(id, result, ttl: CacheTtl.referentiel, tags: {'referentiel', 'poste_$id'});
+    }
+    return result;
   }
 
   @override
   Future<PosteFootball> create(PosteFootball poste) async {
     final created = await _datasource.add(poste);
+    _cache.invalidateByTag('referentiel');
+    _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+    _eventBus?.emit(const ReferentielUpdatedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.posteFootball,
       entityId: created.id,
@@ -51,6 +89,10 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
   @override
   Future<PosteFootball> update(PosteFootball poste) async {
     final updated = await _datasource.update(poste);
+    _cache.invalidateByTag('referentiel');
+    _detailCache.invalidateKey(poste.id);
+    _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+    _eventBus?.emit(const ReferentielUpdatedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.posteFootball,
       entityId: updated.id,
@@ -63,6 +105,10 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
   @override
   Future<void> delete(String id) async {
     await _datasource.delete(id);
+    _cache.invalidateByTag('referentiel');
+    _detailCache.invalidateKey(id);
+    _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+    _eventBus?.emit(const ReferentielUpdatedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.posteFootball,
       entityId: id,
@@ -77,9 +123,9 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
     return academiciens.where((a) => a.posteFootballId == posteId).length;
   }
 
-  /// Synchronise les postes de football depuis le backend vers le cache local.
-  /// Retourne true si la synchronisation a reussi.
   Future<bool> syncFromApi() async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return false;
     final client = _dioClient;
     if (client == null) return false;
 
@@ -88,8 +134,6 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
 
       return await result.fold(
         (failure) {
-          // ignore: avoid_print
-          print('[PosteFootballRepo] Erreur sync: ${failure.message}');
           return false;
         },
         (data) async {
@@ -109,21 +153,15 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
               .toList();
 
           await _datasource.saveAll(postes);
-          // ignore: avoid_print
-          print(
-            '[PosteFootballRepo] Synced ${postes.length} postes from backend',
-          );
+          _cache.invalidateByTag('referentiel');
           return true;
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[PosteFootballRepo] Exception sync: $e');
       return false;
     }
   }
 
-  /// Parse un poste de football depuis les donnees du backend.
   PosteFootball _parsePosteFootball(Map<String, dynamic> map) {
     return PosteFootball(
       id: (map['id']?.toString() ?? ''),
@@ -145,5 +183,10 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
           ) ??
           DateTime.now(),
     );
+  }
+
+  void clearCache() {
+    _cache.clear();
+    _detailCache.clear();
   }
 }

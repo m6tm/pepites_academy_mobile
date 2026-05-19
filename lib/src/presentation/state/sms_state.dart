@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../application/services/sms_service.dart';
+import '../../core/events/app_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
+import '../../core/events/sms_events.dart';
 import '../../domain/entities/academicien.dart';
 import '../../domain/entities/encadreur.dart';
 import '../../domain/entities/sms_message.dart';
@@ -7,9 +11,7 @@ import '../../infrastructure/repositories/academicien_repository_impl.dart';
 import '../../infrastructure/repositories/encadreur_repository_impl.dart';
 
 /// State management pour le module SMS.
-/// Gere la composition, la selection des destinataires,
-/// l'envoi et l'historique des messages.
-class SmsState extends ChangeNotifier {
+class SmsState extends ChangeNotifier with EventBusSubscriberMixin {
   final SmsService _smsService;
   final AcademicienRepositoryImpl _academicienRepository;
   final EncadreurRepositoryImpl _encadreurRepository;
@@ -18,9 +20,14 @@ class SmsState extends ChangeNotifier {
     required SmsService smsService,
     required AcademicienRepositoryImpl academicienRepository,
     required EncadreurRepositoryImpl encadreurRepository,
-  }) : _smsService = smsService,
-       _academicienRepository = academicienRepository,
-       _encadreurRepository = encadreurRepository;
+    required DomainEventBus eventBus,
+  })  : _smsService = smsService,
+        _academicienRepository = academicienRepository,
+        _encadreurRepository = encadreurRepository {
+    listenTo<SmsMessageSentEvent>(eventBus, (_) => _onSmsChanged());
+    listenTo<SmsMessageDeletedEvent>(eventBus, (_) => _onSmsChanged());
+    listenTo<AppResumedEvent>(eventBus, (_) => _onRefreshIfStale());
+  }
 
   // --- Donnees ---
   List<Academicien> _academiciens = [];
@@ -55,7 +62,22 @@ class SmsState extends ChangeNotifier {
   String? _successMessage;
   String? get successMessage => _successMessage;
 
-  // --- Chargement des contacts ---
+  DateTime? _lastFetchedAt;
+  bool _isFetching = false;
+
+  void _onSmsChanged() {
+    chargerHistorique();
+  }
+
+  void _onRefreshIfStale() {
+    if (_isFetching) return;
+    final last = _lastFetchedAt;
+    if (last == null) return;
+    final age = DateTime.now().difference(last);
+    if (age > const Duration(minutes: 2)) {
+      chargerHistorique();
+    }
+  }
 
   /// Charge les academiciens et encadreurs disponibles.
   Future<void> chargerContacts() async {
@@ -76,6 +98,8 @@ class SmsState extends ChangeNotifier {
 
   /// Charge l'historique des SMS et les statistiques.
   Future<void> chargerHistorique() async {
+    if (_isFetching) return;
+    _isFetching = true;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -83,15 +107,15 @@ class SmsState extends ChangeNotifier {
     try {
       _historique = await _smsService.getHistorique();
       _statistiques = await _smsService.getStatistiques();
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement de l\'historique : $e';
     } finally {
+      _isFetching = false;
       _isLoading = false;
       notifyListeners();
     }
   }
-
-  // --- Selection des destinataires ---
 
   /// Ajoute un academicien comme destinataire.
   void ajouterAcademicien(Academicien academicien) {
@@ -174,15 +198,11 @@ class SmsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Composition du message ---
-
   /// Met a jour le contenu du message.
   void setContenuMessage(String contenu) {
     _contenuMessage = contenu;
     notifyListeners();
   }
-
-  // --- Envoi ---
 
   /// Envoie le SMS aux destinataires selectionnes via l'API NEXAH.
   Future<bool> envoyerSms() async {
@@ -220,16 +240,15 @@ class SmsState extends ChangeNotifier {
               'SMS envoye avec succes a $nbSucces destinataire(s).';
         }
 
-        // Reinitialiser apres envoi
         _contenuMessage = '';
         _destinatairesSelectionnes.clear();
       } else {
         _errorMessage = result.erreur ?? result.message;
       }
 
-      // Rafraichir les stats
       _statistiques = await _smsService.getStatistiques();
       _historique = await _smsService.getHistorique();
+      _lastFetchedAt = DateTime.now();
 
       notifyListeners();
       return result.succes;

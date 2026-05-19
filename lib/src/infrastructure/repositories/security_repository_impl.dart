@@ -1,3 +1,4 @@
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/security_repository.dart';
 import '../network/api_endpoints.dart';
@@ -6,14 +7,27 @@ import '../network/dio_client.dart';
 /// Implementation du depot de securite utilisant l'API.
 class SecurityRepositoryImpl implements SecurityRepository {
   final DioClient _dioClient;
+  ConnectivityGuard? _connectivityGuard;
 
   SecurityRepositoryImpl(this._dioClient);
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
 
   @override
   Future<NetworkFailure?> changePassword({
     required String oldPassword,
     required String newPassword,
   }) async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) {
+      return const NetworkFailure(
+        type: NetworkFailureType.noConnection,
+        message: 'Aucune connexion internet. Le changement de mot de passe necessite une connexion.',
+      );
+    }
+
     final result = await _dioClient.post(
       ApiEndpoints.changePassword,
       data: {

@@ -173,6 +173,7 @@ class DependencyInjection {
 
     // Initialisation du Repository Preferences (Infrastructure)
     final preferencesRepository = PreferencesRepositoryImpl(sharedPrefs);
+    preferencesRepository.setEventBus(domainEventBus);
     _preferencesRepository = preferencesRepository;
 
     // Initialisation du Service Preferences (Application)
@@ -277,11 +278,15 @@ class DependencyInjection {
     final smsDatasource = SmsLocalDatasource(sharedPrefs);
     _smsDatasource = smsDatasource;
     smsRepository = SmsRepositoryImpl(smsDatasource);
+    smsRepository.setEventBus(domainEventBus);
+    smsRepository.setInvalidationRegistry(invalidationRegistry);
+    smsRepository.setConnectivityGuard(connectivityGuard);
     smsService = SmsService(smsRepository: smsRepository);
     smsState = SmsState(
       smsService: smsService,
       academicienRepository: academicienRepository,
       encadreurRepository: encadreurRepoImpl,
+      eventBus: domainEventBus,
     );
 
     // Initialisation du module Recherche Universelle
@@ -299,6 +304,9 @@ class DependencyInjection {
       posteDatasource,
       academicienDatasource,
     );
+    posteRepository.setEventBus(domainEventBus);
+    posteRepository.setInvalidationRegistry(invalidationRegistry);
+    posteRepository.setConnectivityGuard(connectivityGuard);
 
     final niveauDatasource = NiveauScolaireLocalDatasource(sharedPrefs);
     await niveauDatasource.ensureInitialized();
@@ -306,6 +314,9 @@ class DependencyInjection {
       niveauDatasource,
       academicienDatasource,
     );
+    niveauRepository.setEventBus(domainEventBus);
+    niveauRepository.setInvalidationRegistry(invalidationRegistry);
+    niveauRepository.setConnectivityGuard(connectivityGuard);
 
     referentielService = ReferentielService(
       posteRepository: posteRepository,
@@ -441,6 +452,9 @@ class DependencyInjection {
 
     // Initialisation du module Roles et Permissions
     roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
+    roleRepository.setEventBus(domainEventBus);
+    roleRepository.setInvalidationRegistry(invalidationRegistry);
+    roleRepository.setConnectivityGuard(connectivityGuard);
     roleService = RoleService(roleRepository: roleRepository);
 
     // Initialisation de l'authentification
@@ -452,6 +466,7 @@ class DependencyInjection {
 
     // Initialisation du module de securite et biometrie
     securityRepository = SecurityRepositoryImpl(dioClient);
+    securityRepository.setConnectivityGuard(connectivityGuard);
     final localAuth = LocalAuthentication();
     biometricService = BiometricService(
       localAuth: localAuth,
@@ -534,6 +549,11 @@ class DependencyInjection {
       encadreurRepository.clearCache();
       bulletinRepository.clearCache();
       notificationRepository.clearCache();
+      posteRepository.clearCache();
+      niveauRepository.clearCache();
+      evaluationReferentielRepository.clearCache();
+      smsRepository.clearCache();
+      activityRepository.clearCache();
       invalidationRegistry.clear();
     };
   }

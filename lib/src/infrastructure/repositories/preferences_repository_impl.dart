@@ -1,19 +1,28 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/preferences_events.dart';
 import '../../domain/exceptions/cache_exception.dart';
 import '../../domain/repositories/preferences_repository.dart';
 
-/// Implémentation concrète de [PreferencesRepository] utilisant shared_preferences.
-/// Gère la robustesse avec des blocs try-catch et le mapping vers les exceptions de domaine.
+/// Implementation concrete de [PreferencesRepository] utilisant shared_preferences.
 class PreferencesRepositoryImpl implements PreferencesRepository {
   final SharedPreferences _prefs;
   AppLocalizations? _l10n;
+  DomainEventBus? _eventBus;
 
   PreferencesRepositoryImpl(this._prefs);
 
-  /// Met a jour les traductions.
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
+  }
+
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void _emitUpdated() {
+    _eventBus?.emit(const PreferencesUpdatedEvent());
   }
 
   @override
@@ -32,6 +41,7 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   Future<void> setBool(String key, bool value) async {
     try {
       await _prefs.setBool(key, value);
+      _emitUpdated();
     } catch (e) {
       throw CacheException(
         _l10n?.exceptionCacheWriteKey(key, e.toString()) ??
@@ -56,6 +66,7 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   Future<void> setString(String key, String value) async {
     try {
       await _prefs.setString(key, value);
+      _emitUpdated();
     } catch (e) {
       throw CacheException(
         _l10n?.exceptionCacheWriteString(key, e.toString()) ??
@@ -80,6 +91,7 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   Future<void> setInt(String key, int value) async {
     try {
       await _prefs.setInt(key, value);
+      _emitUpdated();
     } catch (e) {
       throw CacheException(
         _l10n?.exceptionCacheWriteKey(key, e.toString()) ??
@@ -97,6 +109,7 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   Future<void> remove(String key) async {
     try {
       await _prefs.remove(key);
+      _emitUpdated();
     } catch (e) {
       throw CacheException(
         _l10n?.exceptionCacheDeleteKey(key, e.toString()) ??
@@ -109,6 +122,7 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
   Future<void> clear() async {
     try {
       await _prefs.clear();
+      _emitUpdated();
     } catch (e) {
       throw CacheException(
         _l10n?.exceptionCacheResetPrefs(e.toString()) ??

@@ -1,4 +1,10 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/events/sms_events.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/sms_message.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/sms_repository.dart';
@@ -39,42 +45,67 @@ class SmsCreditInfo {
 }
 
 /// Implementation locale du repository SMS.
-/// Delegue les operations au datasource local et appelle l'API backend NEXAH.
 class SmsRepositoryImpl implements SmsRepository {
   final SmsLocalDatasource _datasource;
   DioClient? _dioClient;
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
+
+  final _historyCache = RepositoryCache<List<SmsMessage>>();
+  final _statsCache = RepositoryCache<int>();
 
   SmsRepositoryImpl(this._datasource);
 
-  /// Injecte le client HTTP pour les appels API.
   void setDioClient(DioClient client) {
     _dioClient = client;
   }
 
-  /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
     _syncService = service;
   }
 
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   @override
   Future<SmsMessage> send(SmsMessage message) async {
-    // Enregistrer d'abord localement avec statut en attente
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) {
+      final pendingMessage = message.copyWith(statut: StatutEnvoi.enAttente);
+      await _datasource.add(pendingMessage);
+      await _syncService?.enqueueOperation(
+        entityType: SyncEntityType.smsMessage,
+        entityId: pendingMessage.id,
+        operationType: SyncOperationType.create,
+        data: pendingMessage.toJson(),
+      );
+      _historyCache.invalidateByTag('sms');
+      _invalidationRegistry?.markInvalidated<SmsMessageSentEvent>();
+      _eventBus?.emit(SmsMessageSentEvent(pendingMessage.id));
+      return pendingMessage;
+    }
+
     final pendingMessage = message.copyWith(statut: StatutEnvoi.enAttente);
     await _datasource.add(pendingMessage);
 
-    // Tenter l'envoi via l'API backend
     final result = await _sendViaApi(pendingMessage);
 
-    // Mettre a jour le message avec le resultat
     final updatedMessage = pendingMessage.copyWith(
       statut: result.succes ? StatutEnvoi.envoye : StatutEnvoi.echec,
     );
 
-    // Mettre a jour le datasource local
     await _datasource.update(updatedMessage);
-
-    // Enregistrer l'operation de synchronisation
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.smsMessage,
       entityId: updatedMessage.id,
@@ -82,10 +113,13 @@ class SmsRepositoryImpl implements SmsRepository {
       data: updatedMessage.toJson(),
     );
 
+    _historyCache.invalidateByTag('sms');
+    _statsCache.invalidateByTag('sms');
+    _invalidationRegistry?.markInvalidated<SmsMessageSentEvent>();
+    _eventBus?.emit(SmsMessageSentEvent(updatedMessage.id));
     return updatedMessage;
   }
 
-  /// Envoie le SMS via l'API backend NEXAH.
   Future<SmsSendResult> _sendViaApi(SmsMessage message) async {
     final client = _dioClient;
     if (client == null) {
@@ -101,9 +135,7 @@ class SmsRepositoryImpl implements SmsRepository {
         ApiEndpoints.sms,
         data: {
           'contenu': message.contenu,
-          'destinataires': message.destinataires
-              .map((d) => d.toJson())
-              .toList(),
+          'destinataires': message.destinataires.map((d) => d.toJson()).toList(),
         },
       );
 
@@ -138,7 +170,6 @@ class SmsRepositoryImpl implements SmsRepository {
     }
   }
 
-  /// Obtient le credit SMS restant depuis l'API backend.
   Future<SmsCreditInfo?> getCredit() async {
     final client = _dioClient;
     if (client == null) return null;
@@ -161,12 +192,22 @@ class SmsRepositoryImpl implements SmsRepository {
 
   @override
   Future<List<SmsMessage>> getHistory() async {
-    return _datasource.getAll();
+    const key = 'history';
+    final cached = _historyCache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getAll();
+    _historyCache.set(key, result, ttl: CacheTtl.activities, tags: {'sms'});
+    return result;
   }
 
   @override
   Future<void> delete(String id) async {
     await _datasource.delete(id);
+    _historyCache.invalidateByTag('sms');
+    _statsCache.invalidateByTag('sms');
+    _invalidationRegistry?.markInvalidated<SmsMessageDeletedEvent>();
+    _eventBus?.emit(SmsMessageDeletedEvent(id));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.smsMessage,
       entityId: id,
@@ -177,21 +218,37 @@ class SmsRepositoryImpl implements SmsRepository {
 
   @override
   Future<int> getTotalEnvoyes() async {
-    return _datasource.getTotalEnvoyes();
+    const key = 'total_envoyes';
+    final cached = _statsCache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getTotalEnvoyes();
+    _statsCache.set(key, result, ttl: CacheTtl.activities, tags: {'sms'});
+    return result;
   }
 
   @override
   Future<int> getEnvoyesCeMois() async {
-    return _datasource.getEnvoyesCeMois();
+    const key = 'envoyes_ce_mois';
+    final cached = _statsCache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getEnvoyesCeMois();
+    _statsCache.set(key, result, ttl: CacheTtl.activities, tags: {'sms'});
+    return result;
   }
 
   @override
   Future<int> getEnEchec() async {
-    return _datasource.getEnEchec();
+    const key = 'en_echec';
+    final cached = _statsCache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getEnEchec();
+    _statsCache.set(key, result, ttl: CacheTtl.activities, tags: {'sms'});
+    return result;
   }
 
-  /// Fusionne une liste de donnees distantes dans le cache local
-  /// sans declencher d'operation de synchronisation vers le serveur.
   Future<void> upsertAllFromRemote(List<SmsMessage> remoteList) async {
     final local = _datasource.getAll();
     final localMap = {for (final m in local) m.id: m};
@@ -201,9 +258,9 @@ class SmsRepositoryImpl implements SmsRepository {
     await _datasource.saveAll(localMap.values.toList());
   }
 
-  /// Synchronise les SMS depuis le backend vers le cache local.
-  /// Retourne true si la synchronisation a reussi.
   Future<bool> syncFromApi() async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return false;
     final client = _dioClient;
     if (client == null) return false;
 
@@ -212,8 +269,6 @@ class SmsRepositoryImpl implements SmsRepository {
 
       return await result.fold(
         (failure) {
-          // ignore: avoid_print
-          print('[SmsRepo] Erreur sync: ${failure.message}');
           return false;
         },
         (data) async {
@@ -233,19 +288,16 @@ class SmsRepositoryImpl implements SmsRepository {
               .toList();
 
           await upsertAllFromRemote(messages);
-          // ignore: avoid_print
-          print('[SmsRepo] Synced ${messages.length} messages from backend');
+          _historyCache.invalidateByTag('sms');
+          _statsCache.invalidateByTag('sms');
           return true;
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[SmsRepo] Exception sync: $e');
       return false;
     }
   }
 
-  /// Parse un SMS depuis les donnees du backend.
   SmsMessage _parseSmsMessage(Map<String, dynamic> map) {
     final destinatairesData = map['destinataires'] as List<dynamic>? ?? [];
     final destinataires = destinatairesData
@@ -269,5 +321,10 @@ class SmsRepositoryImpl implements SmsRepository {
         orElse: () => StatutEnvoi.enAttente,
       ),
     );
+  }
+
+  void clearCache() {
+    _historyCache.clear();
+    _statsCache.clear();
   }
 }
