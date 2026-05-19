@@ -1,4 +1,10 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/exercice_events.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/exercice.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/exercice_repository.dart';
@@ -6,12 +12,18 @@ import '../datasources/exercice_local_datasource.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
 
-/// Implémentation locale du repository d'exercices.
-/// Délégué les opérations au datasource local et gère la synchronisation.
+/// Implementation locale du repository d'exercices.
+/// Delegue les operations au datasource local et gere la synchronisation.
 class ExerciceRepositoryImpl implements ExerciceRepository {
   final ExerciceLocalDatasource _datasource;
   SyncService? _syncService;
   DioClient? _dioClient;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
+
+  final _cache = RepositoryCache<List<Exercice>>();
+  final _detailCache = RepositoryCache<Exercice>();
 
   ExerciceRepositoryImpl(this._datasource);
 
@@ -34,27 +46,84 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     _dioClient = client;
   }
 
+  /// Injecte le bus d'evenements.
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  /// Injecte le registre d'invalidation.
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  /// Injecte le gardien de connectivite.
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   @override
   Future<List<Exercice>> getByAtelierId(
     String atelierId, {
     bool forceRefresh = false,
   }) async {
-    final local = _datasource.getByAtelier(atelierId);
-    if ((local.isEmpty || forceRefresh) && _dioClient != null) {
-      await syncFromApi();
+    final key = 'atelier_$atelierId';
+    if (!forceRefresh) {
+      final cached = _cache.get(key);
+      if (cached != null) return cached;
+    }
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) {
+      final stale = _cache.getStale(key);
+      if (stale != null) return stale;
       return _datasource.getByAtelier(atelierId);
     }
-    return local;
+
+    return _cache.getOrFetch(key, () async {
+      final local = _datasource.getByAtelier(atelierId);
+      if (local.isEmpty && _dioClient != null) {
+        await syncFromApi();
+      }
+      final result = _datasource.getByAtelier(atelierId);
+      _cache.set(key, result, ttl: CacheTtl.exercices, tags: {'exercices', 'atelier_$atelierId'});
+      return result;
+    });
+  }
+
+  /// Variante SWR : emet d'abord les donnees stale puis les fraiches.
+  Stream<List<Exercice>> getByAtelierIdSwr(String atelierId) async* {
+    final key = 'atelier_$atelierId';
+    final stale = _cache.getStale(key) ?? _datasource.getByAtelier(atelierId);
+    if (stale.isNotEmpty) yield stale;
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return;
+
+    final fresh = await _cache.getOrFetch(key, () async {
+      if (_dioClient != null) await syncFromApi();
+      return _datasource.getByAtelier(atelierId);
+    });
+    _cache.set(key, fresh, ttl: CacheTtl.exercices, tags: {'exercices', 'atelier_$atelierId'});
+    yield fresh;
   }
 
   @override
   Future<Exercice?> getById(String id) async {
-    return _datasource.getById(id);
+    final cached = _detailCache.get(id);
+    if (cached != null) return cached;
+    final result = _datasource.getById(id);
+    if (result != null) {
+      _detailCache.set(id, result, ttl: CacheTtl.exercices, tags: {'exercices', 'exercice_$id'});
+    }
+    return result;
   }
 
   @override
   Future<Exercice> create(Exercice exercice) async {
     final created = await _datasource.add(exercice);
+    _cache.invalidateByTag('atelier_${exercice.atelierId}');
+    _invalidationRegistry?.markInvalidated<ExerciceCreatedEvent>();
+    _eventBus?.emit(ExerciceCreatedEvent(exerciceId: created.id, atelierId: exercice.atelierId));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.exercice,
       entityId: created.id,
@@ -67,6 +136,10 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
   @override
   Future<Exercice> update(Exercice exercice) async {
     final updated = await _datasource.update(exercice);
+    _cache.invalidateByTag('atelier_${exercice.atelierId}');
+    _detailCache.invalidateKey(exercice.id);
+    _invalidationRegistry?.markInvalidated<ExerciceUpdatedEvent>();
+    _eventBus?.emit(ExerciceUpdatedEvent(exerciceId: updated.id, atelierId: exercice.atelierId));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.exercice,
       entityId: updated.id,
@@ -78,7 +151,15 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
+    final atelierId = existing?.atelierId;
     await _datasource.delete(id);
+    if (atelierId != null) {
+      _cache.invalidateByTag('atelier_$atelierId');
+    }
+    _detailCache.invalidateKey(id);
+    _invalidationRegistry?.markInvalidated<ExerciceDeletedEvent>();
+    _eventBus?.emit(ExerciceDeletedEvent(exerciceId: id, atelierId: atelierId ?? ''));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.exercice,
       entityId: id,
@@ -90,11 +171,13 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
   @override
   Future<void> reorder(String atelierId, List<String> exerciceIds) async {
     await _datasource.reorder(atelierId, exerciceIds);
+    _cache.invalidateByTag('atelier_$atelierId');
+    _invalidationRegistry?.markInvalidated<ExerciceReorderedEvent>();
+    _eventBus?.emit(ExerciceReorderedEvent(atelierId));
 
-    // Enregistre l'opération de réordonnancement pour synchronisation
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.exercice,
-      entityId: atelierId, // On utilise l'ID de l'atelier comme référence
+      entityId: atelierId,
       operationType: SyncOperationType.reorder,
       data: {'order': exerciceIds},
     );
@@ -102,13 +185,14 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
 
   @override
   Future<bool> close(String id) async {
-    // 1. Mise à jour locale
     final existing = _datasource.getById(id);
+    final atelierId = existing?.atelierId;
     if (existing != null) {
       await _datasource.update(existing.copyWith(statut: ExerciceStatut.ferme));
     }
+    _cache.invalidateByTag('atelier_$atelierId');
+    _detailCache.invalidateKey(id);
 
-    // 2. Appel API si en ligne
     if (_dioClient != null) {
       final result = await _dioClient!.put<dynamic>(
         '${ApiEndpoints.exercices}/$id/close',
@@ -117,22 +201,20 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
 
       return await result.fold(
         (failure) {
-          // ignore: avoid_print
-          print(
-            '[ExerciceRepo] Erreur lors de la fermeture : ${failure.message}',
-          );
           return false;
         },
         (data) async {
           if (data is Map<String, dynamic>) {
-            return data['atelier_closed'] == true;
+            final atelierClosed = data['atelier_closed'] == true;
+            _invalidationRegistry?.markInvalidated<ExerciceClosedEvent>();
+            _eventBus?.emit(ExerciceClosedEvent(exerciceId: id, atelierId: atelierId ?? ''));
+            return atelierClosed;
           }
           return false;
         },
       );
     }
 
-    // 3. Enregistrement de l'opération de synchronisation (si hors-ligne)
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.exercice,
       entityId: id,
@@ -140,6 +222,8 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
       data: {'statut': 'ferme'},
     );
 
+    _invalidationRegistry?.markInvalidated<ExerciceClosedEvent>();
+    _eventBus?.emit(ExerciceClosedEvent(exerciceId: id, atelierId: atelierId ?? ''));
     return false;
   }
 
@@ -152,8 +236,6 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
 
       return await result.fold(
         (failure) {
-          // ignore: avoid_print
-          print('[ExerciceRepo] Erreur sync: ${failure.message}');
           return false;
         },
         (data) async {
@@ -177,14 +259,18 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[ExerciceRepo] Exception sync: $e');
       return false;
     }
   }
 
-  /// Met à jour le cache local avec les exercices provenant de l'API.
+  /// Met a jour le cache local avec les exercices provenant de l'API.
   Future<void> upsertAllFromRemote(List<Exercice> exercices) async {
     await _datasource.upsertAll(exercices);
+  }
+
+  /// Vide le cache in-memory.
+  void clearCache() {
+    _cache.clear();
+    _detailCache.clear();
   }
 }

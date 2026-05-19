@@ -4,6 +4,7 @@ import 'package:pepites_academy_mobile/src/application/services/exercice_service
 import 'package:pepites_academy_mobile/src/domain/entities/exercice.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/atelier_repository.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/exercice_repository.dart';
+import 'package:pepites_academy_mobile/src/core/events/domain_event_bus.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/exercice_state.dart';
 
 class MockAtelierRepository extends Mock implements AtelierRepository {}
@@ -14,6 +15,7 @@ void main() {
   late ExerciceService service;
   late MockExerciceRepository mockExerciceRepo;
   late MockAtelierRepository mockAtelierRepo;
+  late DomainEventBus eventBus;
 
   const atelierId = 'atelier-1';
   const exerciceId = 'ex-1';
@@ -35,7 +37,8 @@ void main() {
       exerciceRepository: mockExerciceRepo,
       atelierRepository: mockAtelierRepo,
     );
-    state = ExerciceState(service);
+    eventBus = DomainEventBus();
+    state = ExerciceState(service, eventBus);
 
     registerFallbackValue(Exercice(
       id: '',

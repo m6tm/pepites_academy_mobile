@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../application/services/exercice_service.dart';
+import '../../core/events/app_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
+import '../../core/events/exercice_events.dart';
 import '../../domain/entities/exercice.dart';
 import 'message_state_mixin.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// State management pour les exercices d'un atelier.
-class ExerciceState extends ChangeNotifier with MessageStateMixin {
+class ExerciceState extends ChangeNotifier
+    with MessageStateMixin, EventBusSubscriberMixin {
   final ExerciceService _service;
+  final DomainEventBus _eventBus;
   AppLocalizations? _l10n;
   bool _isDisposed = false;
 
-  ExerciceState(this._service);
+  DateTime? _lastFetchedAt;
+  bool _isFetching = false;
+
+  ExerciceState(this._service, this._eventBus) {
+    listenTo<ExerciceCreatedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
+    listenTo<ExerciceUpdatedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
+    listenTo<ExerciceDeletedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
+    listenTo<ExerciceReorderedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
+    listenTo<ExerciceClosedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
+    listenTo<AppResumedEvent>(_eventBus, (_) => _onRefreshIfStale());
+  }
 
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
@@ -42,8 +58,28 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
   @override
   String? get successMessage => _successMessage;
 
+  void _onExerciceChanged(String atelierId) {
+    if (_exercicesParAtelier.containsKey(atelierId)) {
+      chargerExercices(atelierId);
+    }
+  }
+
+  void _onRefreshIfStale() {
+    if (_isFetching) return;
+    final last = _lastFetchedAt;
+    if (last == null) return;
+    final age = DateTime.now().difference(last);
+    if (age > const Duration(minutes: 2)) {
+      for (final atelierId in _exercicesParAtelier.keys) {
+        chargerExercices(atelierId);
+      }
+    }
+  }
+
   /// Charge les exercices d'un atelier.
   Future<void> chargerExercices(String atelierId) async {
+    if (_isFetching) return;
+    _isFetching = true;
     _loadingStates[atelierId] = true;
     _errorMessage = null;
     notifyListeners();
@@ -51,9 +87,11 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
     try {
       final exercices = await _service.getExercicesParAtelier(atelierId);
       _exercicesParAtelier[atelierId] = exercices;
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des exercices : $e';
     } finally {
+      _isFetching = false;
       _loadingStates[atelierId] = false;
       notifyListeners();
     }
@@ -78,7 +116,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
         description: description,
         statut: statut,
       );
-      _successMessage = 'Exercice "$nom" ajouté avec succès.';
+      _successMessage = 'Exercice "$nom" ajoute avec succes.';
       await chargerExercices(atelierId);
       return true;
     } catch (e) {
@@ -98,7 +136,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
 
     try {
       await _service.modifierExercice(exercice);
-      _successMessage = 'Exercice "${exercice.nom}" modifié avec succès.';
+      _successMessage = 'Exercice "${exercice.nom}" modifie avec succes.';
       await chargerExercices(exercice.atelierId);
       return true;
     } catch (e) {
@@ -109,7 +147,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
     }
   }
 
-  /// Applique un exercice en séance.
+  /// Applique un exercice en seance.
   Future<bool> appliquerExercice(String exerciceId, String atelierId) async {
     _loadingStates[atelierId] = true;
     _errorMessage = null;
@@ -118,7 +156,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
 
     try {
       await _service.appliquerExercice(exerciceId);
-      _successMessage = _l10n?.serviceExerciceAppliedSuccess ?? 'Exercice appliqué avec succès en séance.';
+      _successMessage = _l10n?.serviceExerciceAppliedSuccess ?? 'Exercice applique avec succes en seance.';
       await chargerExercices(atelierId);
       return true;
     } catch (e) {
@@ -130,7 +168,6 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
   }
 
   /// Ferme un exercice (statut 'ferme').
-  /// Retourne un flag indiquant si l'atelier a été fermé automatiquement.
   Future<bool> fermerExercice(String exerciceId, String atelierId, String nom) async {
     _loadingStates[atelierId] = true;
     _errorMessage = null;
@@ -139,9 +176,9 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
 
     try {
       final isAtelierClosed = await _service.fermerExercice(exerciceId);
-      _successMessage = _l10n?.serviceExerciceClosedSuccess(nom) ?? 'Exercice "$nom" fermé avec succès.';
+      _successMessage = _l10n?.serviceExerciceClosedSuccess(nom) ?? 'Exercice "$nom" ferme avec succes.';
       if (isAtelierClosed) {
-        _successMessage = '${_successMessage!}\n${_l10n?.serviceAtelierClosedAuto ?? "L'atelier a été fermé automatiquement."}';
+        _successMessage = '${_successMessage!}\n${_l10n?.serviceAtelierClosedAuto ?? "L'atelier a ete ferme automatiquement."}';
       }
       await chargerExercices(atelierId);
       return isAtelierClosed;
@@ -162,7 +199,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
 
     try {
       await _service.supprimerExercice(exerciceId);
-      _successMessage = 'Exercice supprimé avec succès.';
+      _successMessage = 'Exercice supprime avec succes.';
       await chargerExercices(atelierId);
       return true;
     } catch (e) {
@@ -193,7 +230,7 @@ class ExerciceState extends ChangeNotifier with MessageStateMixin {
       await _service.reorderExercices(atelierId, ids);
       await chargerExercices(atelierId);
     } catch (e) {
-      _errorMessage = 'Erreur lors de la réorganisation : $e';
+      _errorMessage = 'Erreur lors de la reorganisation : $e';
       notifyListeners();
     }
   }

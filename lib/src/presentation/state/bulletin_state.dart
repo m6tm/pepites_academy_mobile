@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../application/services/bulletin_service.dart';
+import '../../core/events/app_events.dart';
+import '../../core/events/bulletin_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../domain/entities/bulletin.dart';
 import '../../injection_container.dart';
 
 /// State management pour les bulletins de formation.
-/// Gere la generation, la consultation et la navigation
-/// entre les bulletins d'un academicien.
-class BulletinState extends ChangeNotifier {
+class BulletinState extends ChangeNotifier with EventBusSubscriberMixin {
   final BulletinService _service;
+  final DomainEventBus _eventBus;
 
-  BulletinState(this._service);
+  BulletinState(this._service, this._eventBus) {
+    listenTo<BulletinCreatedEvent>(_eventBus, (e) => _onBulletinChanged(e.academicienId));
+    listenTo<BulletinDeletedEvent>(_eventBus, (e) => _onBulletinChanged(e.academicienId));
+    listenTo<AppResumedEvent>(_eventBus, (_) => _onRefreshIfStale());
+  }
 
   List<Bulletin> _bulletins = [];
   List<Bulletin> get bulletins => _bulletins;
@@ -35,6 +42,27 @@ class BulletinState extends ChangeNotifier {
   String? _successMessage;
   String? get successMessage => _successMessage;
 
+  String? _currentAcademicienId;
+  DateTime? _lastFetchedAt;
+  bool _isFetching = false;
+
+  void _onBulletinChanged(String academicienId) {
+    if (_currentAcademicienId == academicienId) {
+      chargerBulletins(academicienId);
+    }
+  }
+
+  void _onRefreshIfStale() {
+    if (_isFetching) return;
+    final last = _lastFetchedAt;
+    final academicienId = _currentAcademicienId;
+    if (last == null || academicienId == null) return;
+    final age = DateTime.now().difference(last);
+    if (age > const Duration(minutes: 2)) {
+      chargerBulletins(academicienId);
+    }
+  }
+
   /// Change le type de periode selectionne.
   void changerTypePeriode(PeriodeType type) {
     _typePeriode = type;
@@ -48,25 +76,26 @@ class BulletinState extends ChangeNotifier {
   }
 
   /// Charge les bulletins d'un academicien.
-  /// Synchronise d'abord avec le backend si possible.
   Future<void> chargerBulletins(String academicienId) async {
+    if (_isFetching) return;
+    _isFetching = true;
     _isLoading = true;
     _errorMessage = null;
+    _currentAcademicienId = academicienId;
     notifyListeners();
 
     try {
-      // Synchroniser avec le backend d'abord
       await DependencyInjection.syncBulletins();
-      // Synchroniser aussi les annotations, seances et presences pour la generation
       await DependencyInjection.syncAnnotations();
       await DependencyInjection.syncSeances();
       await DependencyInjection.syncPresences();
 
-      // Puis charger les donnees locales
       _bulletins = await _service.getBulletinsAcademicien(academicienId);
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des bulletins : $e';
     } finally {
+      _isFetching = false;
       _isLoading = false;
       notifyListeners();
     }

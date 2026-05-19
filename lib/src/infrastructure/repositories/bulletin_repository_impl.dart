@@ -1,4 +1,10 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/bulletin_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/bulletin.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/bulletin_repository.dart';
@@ -12,6 +18,12 @@ class BulletinRepositoryImpl implements BulletinRepository {
   final BulletinLocalDatasource _datasource;
   SyncService? _syncService;
   DioClient? _dioClient;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
+
+  final _cache = RepositoryCache<List<Bulletin>>();
+  final _detailCache = RepositoryCache<Bulletin>();
 
   BulletinRepositoryImpl(this._datasource);
 
@@ -25,9 +37,27 @@ class BulletinRepositoryImpl implements BulletinRepository {
     _dioClient = client;
   }
 
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   @override
   Future<Bulletin> create(Bulletin bulletin) async {
     final created = await _datasource.add(bulletin);
+    _cache.invalidateByTag('bulletins');
+    _invalidationRegistry?.markInvalidated<BulletinCreatedEvent>();
+    _eventBus?.emit(BulletinCreatedEvent(
+      bulletinId: created.id,
+      academicienId: created.academicienId,
+    ));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.bulletin,
       entityId: created.id,
@@ -40,6 +70,13 @@ class BulletinRepositoryImpl implements BulletinRepository {
   @override
   Future<Bulletin> update(Bulletin bulletin) async {
     final updated = await _datasource.update(bulletin);
+    _cache.invalidateByTag('bulletins');
+    _detailCache.invalidateKey(bulletin.id);
+    _invalidationRegistry?.markInvalidated<BulletinCreatedEvent>();
+    _eventBus?.emit(BulletinCreatedEvent(
+      bulletinId: updated.id,
+      academicienId: updated.academicienId,
+    ));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.bulletin,
       entityId: updated.id,
@@ -51,22 +88,48 @@ class BulletinRepositoryImpl implements BulletinRepository {
 
   @override
   Future<Bulletin?> getById(String id) async {
-    return _datasource.getById(id);
+    final cached = _detailCache.get(id);
+    if (cached != null) return cached;
+    final result = _datasource.getById(id);
+    if (result != null) {
+      _detailCache.set(id, result, ttl: CacheTtl.bulletins, tags: {'bulletins', 'bulletin_$id'});
+    }
+    return result;
   }
 
   @override
   Future<List<Bulletin>> getByAcademicien(String academicienId) async {
-    return _datasource.getByAcademicien(academicienId);
+    final key = 'academicien_$academicienId';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getByAcademicien(academicienId);
+    _cache.set(key, result, ttl: CacheTtl.bulletins, tags: {'bulletins', 'academicien_$academicienId'});
+    return result;
   }
 
   @override
   Future<List<Bulletin>> getAll() async {
-    return _datasource.getAll();
+    const key = 'all';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getAll();
+    _cache.set(key, result, ttl: CacheTtl.bulletins, tags: {'bulletins'});
+    return result;
   }
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
     await _datasource.delete(id);
+    _cache.invalidateByTag('bulletins');
+    _detailCache.invalidateKey(id);
+    _invalidationRegistry?.markInvalidated<BulletinDeletedEvent>();
+    _eventBus?.emit(BulletinDeletedEvent(
+      bulletinId: id,
+      academicienId: existing?.academicienId ?? '',
+    ));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.bulletin,
       entityId: id,
@@ -79,6 +142,8 @@ class BulletinRepositoryImpl implements BulletinRepository {
   /// Fusionne les donnees distantes dans le cache local.
   /// Retourne false si le serveur est inaccessible ou en cas d'erreur.
   Future<bool> syncFromApi() async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return false;
     if (_dioClient == null) return false;
 
     try {
@@ -86,8 +151,6 @@ class BulletinRepositoryImpl implements BulletinRepository {
 
       return result.fold(
         (failure) {
-          // ignore: avoid_print
-          print('[Bulletin] Sync failed: ${failure.message}');
           return false;
         },
         (data) async {
@@ -95,7 +158,6 @@ class BulletinRepositoryImpl implements BulletinRepository {
           if (data is List) {
             rawList = data;
           } else if (data is Map<String, dynamic>) {
-            // Peut etre enveloppe dans un champ 'bulletins' ou 'data'
             rawList = data.values.whereType<List>().expand((e) => e).toList();
           } else {
             return false;
@@ -108,14 +170,10 @@ class BulletinRepositoryImpl implements BulletinRepository {
               .toList();
 
           await _datasource.upsertAll(remote);
-          // ignore: avoid_print
-          print('[Bulletin] Synced ${remote.length} items from backend');
           return true;
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[Bulletin] Sync exception: $e');
       return false;
     }
   }
@@ -228,5 +286,10 @@ class BulletinRepositoryImpl implements BulletinRepository {
           ),
         )
         .toList();
+  }
+
+  void clearCache() {
+    _cache.clear();
+    _detailCache.clear();
   }
 }

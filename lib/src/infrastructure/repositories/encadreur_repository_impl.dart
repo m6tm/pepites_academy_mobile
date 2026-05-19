@@ -1,4 +1,10 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/encadreur_events.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/encadreur.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/entities/user_role.dart';
@@ -7,11 +13,17 @@ import '../datasources/encadreur_local_datasource.dart';
 import '../network/dio_client.dart';
 import '../network/api_endpoints.dart';
 
-/// Implémentation concrète de [EncadreurRepository] utilisant le stockage local.
+/// Implementation concrete de [EncadreurRepository] utilisant le stockage local.
 class EncadreurRepositoryImpl implements EncadreurRepository {
   final EncadreurLocalDatasource _datasource;
   DioClient? _dioClient;
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
+
+  final _cache = RepositoryCache<List<Encadreur>>();
+  final _detailCache = RepositoryCache<Encadreur>();
 
   EncadreurRepositoryImpl(this._datasource);
 
@@ -25,14 +37,38 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     _syncService = service;
   }
 
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   @override
   Future<Encadreur?> getById(String id) async {
-    return _datasource.getById(id);
+    final cached = _detailCache.get(id);
+    if (cached != null) return cached;
+    final result = _datasource.getById(id);
+    if (result != null) {
+      _detailCache.set(id, result, ttl: CacheTtl.encadreurs, tags: {'encadreurs', 'encadreur_$id'});
+    }
+    return result;
   }
 
   @override
   Future<List<Encadreur>> getAll() async {
-    return _datasource.getAll();
+    const key = 'all';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getAll();
+    _cache.set(key, result, ttl: CacheTtl.encadreurs, tags: {'encadreurs'});
+    return result;
   }
 
   /// Fusionne une liste de donnees distantes dans le cache local
@@ -46,15 +82,13 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     await _datasource.saveAll(localMap.values.toList());
   }
 
-  /// Remplace le cache local par la liste distante (le serveur fait autorité).
-  /// Conserve uniquement les entrées locales avec un ID temporaire (timestamp)
-  /// qui ont une opération de sync en attente, pour ne pas perdre les créations
-  /// offline non encore envoyées au serveur.
+  /// Remplace le cache local par la liste distante (le serveur fait autorite).
+  /// Conserve uniquement les entrees locales avec un ID temporaire (timestamp)
+  /// qui ont une operation de sync en attente, pour ne pas perdre les creations
+  /// offline non encore envoyees au serveur.
   Future<void> replaceAllFromRemote(List<Encadreur> remoteList) async {
     final local = _datasource.getAll();
     final remoteIds = {for (final e in remoteList) e.id};
-    // Un ID temporaire est purement numérique (ex: 1747317145000).
-    // Un UUID serveur contient des tirets (ex: b4a3e268-af46-...).
     final pendingLocal = local.where(
       (e) => !remoteIds.contains(e.id) && RegExp(r'^\d+$').hasMatch(e.id),
     ).toList();
@@ -64,6 +98,9 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
   @override
   Future<Encadreur> create(Encadreur encadreur) async {
     final created = await _datasource.add(encadreur);
+    _cache.invalidateByTag('encadreurs');
+    _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
+    _eventBus?.emit(const EncadreurListChangedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.encadreur,
       entityId: created.id,
@@ -76,6 +113,10 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
   @override
   Future<Encadreur> update(Encadreur encadreur) async {
     final updated = await _datasource.update(encadreur);
+    _cache.invalidateByTag('encadreurs');
+    _detailCache.invalidateKey(encadreur.id);
+    _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
+    _eventBus?.emit(const EncadreurListChangedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.encadreur,
       entityId: updated.id,
@@ -88,6 +129,10 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
   @override
   Future<void> delete(String id) async {
     await _datasource.delete(id);
+    _cache.invalidateByTag('encadreurs');
+    _detailCache.invalidateKey(id);
+    _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
+    _eventBus?.emit(const EncadreurListChangedEvent());
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.encadreur,
       entityId: id,
@@ -96,7 +141,7 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     );
   }
 
-  /// Migre l'ID temporaire local (timestamp) vers l'UUID attribué par le serveur.
+  /// Migre l'ID temporaire local (timestamp) vers l'UUID attribue par le serveur.
   Future<void> migrateLocalId(String localId, String serverId) async {
     await _datasource.migrateLocalId(localId, serverId);
   }
@@ -120,6 +165,8 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
   /// Synchronise les encadreurs depuis le backend vers le cache local.
   /// Retourne true si la synchronisation a reussi.
   Future<bool> syncFromApi() async {
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return false;
     final client = _dioClient;
     if (client == null) return false;
 
@@ -136,19 +183,14 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
 
         final pageSuccess = await result.fold(
           (failure) async {
-            // ignore: avoid_print
-            print(
-              '[EncadreurRepo] Erreur sync page $currentPage: ${failure.message}',
-            );
             return false;
           },
           (data) async {
             final List<dynamic> rawList;
             if (data is List) {
               rawList = data;
-              totalPages = currentPage; // Pas d'infos de pagination
+              totalPages = currentPage;
             } else if (data is Map<String, dynamic>) {
-              // Extraction de la liste d'items
               if (data.containsKey('items') && data['items'] is List) {
                 rawList = data['items'];
               } else if (data.containsKey('encadreurs') &&
@@ -159,7 +201,6 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
                     data.values.whereType<List>().expand((e) => e).toList();
               }
 
-              // Extraction des infos de pagination
               totalPages = (data['pages'] as int?) ??
                   (data['total_pages'] as int?) ??
                   currentPage;
@@ -183,14 +224,8 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
       } while (currentPage <= totalPages);
 
       await replaceAllFromRemote(allRemoteEncadreurs);
-      // ignore: avoid_print
-      print(
-        '[EncadreurRepo] Synced ${allRemoteEncadreurs.length} encadreurs across ${currentPage - 1} pages',
-      );
       return true;
     } catch (e) {
-      // ignore: avoid_print
-      print('[EncadreurRepo] Exception sync: $e');
       return false;
     }
   }
@@ -227,5 +262,10 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
           (map['nbAnnotations'] as int?) ??
           0,
     );
+  }
+
+  void clearCache() {
+    _cache.clear();
+    _detailCache.clear();
   }
 }

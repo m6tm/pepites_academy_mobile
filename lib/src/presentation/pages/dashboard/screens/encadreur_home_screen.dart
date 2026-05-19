@@ -365,7 +365,7 @@ class _EncadreurHomeScreenState extends State<EncadreurHomeScreen>
     final l10n = AppLocalizations.of(context)!;
     final atelierState = AtelierState(DependencyInjection.atelierService, DependencyInjection.domainEventBus)
       ..setLocalizations(l10n);
-    final exerciceState = ExerciceState(DependencyInjection.exerciceService)
+    final exerciceState = ExerciceState(DependencyInjection.exerciceService, DependencyInjection.domainEventBus)
       ..setLocalizations(l10n);
 
     await atelierState.chargerAteliers(seanceOuverte.id);

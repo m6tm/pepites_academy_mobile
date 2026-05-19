@@ -9,6 +9,8 @@ import '../../domain/entities/sync_operation.dart';
 import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/dashboard_repository.dart';
 import '../../application/services/sync_service.dart';
+import '../../core/events/dashboard_events.dart';
+import '../../core/events/domain_event_bus.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
 
@@ -44,12 +46,18 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   // Service de synchronisation (injection optionnelle pour mode hors-ligne)
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
 
   DashboardRepositoryImpl(this._dioClient, this._sharedPrefs);
 
   /// Injecte le service de synchronisation pour le mode hors-ligne.
   void setSyncService(SyncService service) {
     _syncService = service;
+  }
+
+  /// Injecte le bus d'evenements.
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
   }
 
   @override
@@ -185,6 +193,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
     // Invalider le cache des stats
     invalidateCache();
+    _eventBus?.emit(const DashboardStatsUpdatedEvent());
+    _eventBus?.emit(const DashboardStatsUpdatedEvent());
 
     // Enqueuer l'operation de synchronisation
     await _syncService?.enqueueOperation(
@@ -262,6 +272,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
     // Invalider le cache des stats
     invalidateCache();
+    _eventBus?.emit(const DashboardStatsUpdatedEvent());
+    _eventBus?.emit(const DashboardStatsUpdatedEvent());
 
     // Enqueuer l'operation de synchronisation
     await _syncService?.enqueueOperation(

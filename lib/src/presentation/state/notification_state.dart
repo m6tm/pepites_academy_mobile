@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../../application/services/notification_service.dart';
+import '../../core/events/app_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
+import '../../core/events/notification_events.dart';
 import '../../domain/entities/notification_item.dart';
 
 /// State management pour le module de notifications.
-/// Gere le chargement, le filtrage, le marquage et la suppression
-/// des notifications pour un role donne.
-class NotificationState extends ChangeNotifier {
+class NotificationState extends ChangeNotifier with EventBusSubscriberMixin {
   final NotificationService _notificationService;
+  final DomainEventBus _eventBus;
 
-  NotificationState({required NotificationService notificationService})
-    : _notificationService = notificationService;
+  NotificationState({
+    required NotificationService notificationService,
+    required DomainEventBus eventBus,
+  })  : _notificationService = notificationService,
+        _eventBus = eventBus {
+    listenTo<NotificationsReadEvent>(_eventBus, (_) => chargerNotifications(_currentUserRole));
+    listenTo<NotificationDeletedEvent>(_eventBus, (_) => chargerNotifications(_currentUserRole));
+    listenTo<AppResumedEvent>(_eventBus, (_) => _onRefreshIfStale());
+  }
 
   List<NotificationItem> _notifications = [];
   List<NotificationItem> get notifications => _notifications;
 
-  /// Rôle de l'utilisateur actuellement connecté
   String _currentUserRole = 'encadreur';
   String get currentUserRole => _currentUserRole;
 
@@ -37,7 +46,9 @@ class NotificationState extends ChangeNotifier {
   bool _afficherNonLuesUniquement = false;
   bool get afficherNonLuesUniquement => _afficherNonLuesUniquement;
 
-  /// Notifications filtrees selon les criteres actifs.
+  DateTime? _lastFetchedAt;
+  bool _isFetching = false;
+
   List<NotificationItem> get notificationsFiltrees {
     var liste = List<NotificationItem>.from(_notifications);
     if (_afficherNonLuesUniquement) {
@@ -49,142 +60,132 @@ class NotificationState extends ChangeNotifier {
     return liste;
   }
 
-  /// Notifie les listeners de maniere securisee (apres le build si necessaire).
   void _safeNotifyListeners() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
 
+  void _onRefreshIfStale() {
+    if (_isFetching) return;
+    final last = _lastFetchedAt;
+    if (last == null) return;
+    final age = DateTime.now().difference(last);
+    if (age > const Duration(minutes: 2)) {
+      chargerNotifications(_currentUserRole);
+    }
+  }
+
   /// Charge les notifications pour un role donne.
   Future<void> chargerNotifications(String role) async {
-    _currentUserRole =
-        role; // Stocker le rôle pour le rafraîchissement automatique
+    if (_isFetching) return;
+    _isFetching = true;
     _isLoading = true;
     _errorMessage = null;
-    _safeNotifyListeners();
+    _currentUserRole = role;
+    notifyListeners();
 
     try {
       _notifications = await _notificationService.getNotifications(role);
       _nonLuesCount = await _notificationService.compterNonLues(role);
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des notifications : $e';
     } finally {
+      _isFetching = false;
       _isLoading = false;
-      _safeNotifyListeners();
+      notifyListeners();
     }
   }
 
-  Future<void> syncNotifications({bool nonLuesOnly = false}) async {
+  /// Synchronise les notifications avec le backend.
+  Future<void> syncNotifications() async {
     _isSyncing = true;
-    _safeNotifyListeners();
+    notifyListeners();
 
     try {
-      await _notificationService.syncFromApi(nonLuesOnly: nonLuesOnly);
-    } catch (_) {
-      // ignore
+      await _notificationService.syncFromApi();
+      await chargerNotifications(_currentUserRole);
+    } catch (e) {
+      _errorMessage = 'Erreur de synchronisation : $e';
+      _safeNotifyListeners();
     } finally {
       _isSyncing = false;
-      _safeNotifyListeners();
+      notifyListeners();
     }
   }
 
-  /// Marque une notification comme lue et rafraichit le compteur.
-  Future<void> marquerCommeLue(String id, String role) async {
+  /// Marque une notification comme lue.
+  Future<void> marquerCommeLue(String id) async {
     try {
       await _notificationService.marquerCommeLue(id);
       final index = _notifications.indexWhere((n) => n.id == id);
       if (index != -1) {
         _notifications[index] = _notifications[index].copyWith(estLue: true);
+        _nonLuesCount = (_nonLuesCount - 1).clamp(0, _notifications.length);
+        notifyListeners();
       }
-      _nonLuesCount = await _notificationService.compterNonLues(role);
-      notifyListeners();
     } catch (e) {
       _errorMessage = 'Erreur lors du marquage : $e';
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   /// Marque toutes les notifications comme lues.
-  Future<void> marquerToutesCommeLues(String role) async {
+  Future<void> marquerToutesCommeLues() async {
     try {
-      await _notificationService.marquerToutesCommeLues(role);
-      _notifications = _notifications
-          .map((n) => n.copyWith(estLue: true))
-          .toList();
+      await _notificationService.marquerToutesCommeLues(_currentUserRole);
+      _notifications = _notifications.map((n) => n.copyWith(estLue: true)).toList();
       _nonLuesCount = 0;
       notifyListeners();
     } catch (e) {
-      _errorMessage = 'Erreur lors du marquage : $e';
-      notifyListeners();
+      _errorMessage = 'Erreur lors du marquage global : $e';
+      _safeNotifyListeners();
     }
   }
 
   /// Supprime une notification.
-  Future<void> supprimer(String id, String role) async {
+  Future<void> supprimer(String id) async {
     try {
       await _notificationService.supprimer(id);
+      final removed = _notifications.firstWhere((n) => n.id == id);
       _notifications.removeWhere((n) => n.id == id);
-      _nonLuesCount = await _notificationService.compterNonLues(role);
+      if (!removed.estLue) {
+        _nonLuesCount = (_nonLuesCount - 1).clamp(0, _notifications.length);
+      }
       notifyListeners();
     } catch (e) {
       _errorMessage = 'Erreur lors de la suppression : $e';
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   /// Supprime toutes les notifications lues.
-  Future<void> supprimerLues(String role) async {
+  Future<void> supprimerLues() async {
     try {
-      await _notificationService.supprimerLues(role);
+      await _notificationService.supprimerLues(_currentUserRole);
       _notifications.removeWhere((n) => n.estLue);
       notifyListeners();
     } catch (e) {
-      _errorMessage = 'Erreur lors de la suppression : $e';
-      notifyListeners();
+      _errorMessage = 'Erreur lors de la suppression des lues : $e';
+      _safeNotifyListeners();
     }
   }
 
-  /// Applique un filtre par type de notification.
+  /// Definit le filtre par type.
   void setFiltreType(NotificationType? type) {
     _filtreType = type;
     notifyListeners();
   }
 
-  /// Active/desactive le filtre "non lues uniquement".
+  /// Bascule l'affichage des non-lues uniquement.
   void toggleNonLuesUniquement() {
     _afficherNonLuesUniquement = !_afficherNonLuesUniquement;
     notifyListeners();
   }
 
-  /// Reinitialise tous les filtres.
-  void reinitialiserFiltres() {
-    _filtreType = null;
-    _afficherNonLuesUniquement = false;
-    notifyListeners();
-  }
-
-  /// Efface le message d'erreur.
-  void clearError() {
-    _errorMessage = null;
-    notifyListeners();
-  }
-
-  /// Rafraîchit les notifications depuis le cache local.
-  /// Utilisé quand une notification push est reçue pour mettre à jour l'UI
-  /// sans rechargement manuel.
-  Future<void> rafraichirDepuisCache() async {
-    try {
-      // Recharger depuis le cache local avec le rôle courant
-      _notifications = await _notificationService.getNotifications(
-        _currentUserRole,
-      );
-      _nonLuesCount = await _notificationService.compterNonLues(
-        _currentUserRole,
-      );
-      _safeNotifyListeners();
-    } catch (e) {
-      // Ignorer silencieusement les erreurs
-    }
+  /// Rafraichit la liste depuis le cache local.
+  void rafraichirDepuisCache() {
+    chargerNotifications(_currentUserRole);
   }
 }

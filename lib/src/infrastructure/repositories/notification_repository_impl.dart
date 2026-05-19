@@ -1,4 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/events/notification_events.dart';
 import '../../domain/entities/notification_item.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/notification_repository.dart';
@@ -14,6 +19,10 @@ class NotificationRepositoryImpl implements NotificationRepository {
   final SharedPreferences _prefs;
   final DioClient? _dioClient;
   SyncService? _syncService;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+
+  final _cache = RepositoryCache<List<NotificationItem>>();
 
   NotificationRepositoryImpl(
     this._datasource,
@@ -25,14 +34,38 @@ class NotificationRepositoryImpl implements NotificationRepository {
     _syncService = service;
   }
 
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void _invalidateCache() {
+    _cache.invalidateByTag('notifications');
+  }
+
   @override
   Future<List<NotificationItem>> getAll() async {
-    return _datasource.getAll();
+    const key = 'all';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getAll();
+    _cache.set(key, result, ttl: CacheTtl.notifications, tags: {'notifications'});
+    return result;
   }
 
   @override
   Future<List<NotificationItem>> getByRole(String role) async {
-    return _datasource.getByRole(role);
+    final key = 'role_$role';
+    final cached = _cache.get(key);
+    if (cached != null) return cached;
+
+    final result = _datasource.getByRole(role);
+    _cache.set(key, result, ttl: CacheTtl.notifications, tags: {'notifications', 'role_$role'});
+    return result;
   }
 
   @override
@@ -42,12 +75,15 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
   @override
   Future<NotificationItem> add(NotificationItem notification) async {
-    return _datasource.add(notification);
+    final created = await _datasource.add(notification);
+    _invalidateCache();
+    return created;
   }
 
   @override
   Future<void> marquerCommeLue(String id) async {
     await _datasource.marquerCommeLue(id);
+    _invalidateCache();
 
     final client = _dioClient;
     if (client == null) {
@@ -77,6 +113,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<void> marquerToutesCommeLues(String role) async {
     await _datasource.marquerToutesCommeLues(role);
+    _invalidateCache();
+    _invalidationRegistry?.markInvalidated<NotificationsReadEvent>();
+    _eventBus?.emit(const NotificationsReadEvent());
 
     final client = _dioClient;
     if (client == null) {
@@ -106,6 +145,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<void> delete(String id) async {
     await _datasource.delete(id);
+    _invalidateCache();
+    _invalidationRegistry?.markInvalidated<NotificationDeletedEvent>();
+    _eventBus?.emit(NotificationDeletedEvent(id));
 
     final client = _dioClient;
     if (client == null) {
@@ -135,6 +177,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<void> supprimerLues(String role) async {
     await _datasource.supprimerLues(role);
+    _invalidateCache();
+    _invalidationRegistry?.markInvalidated<NotificationsReadEvent>();
+    _eventBus?.emit(const NotificationsReadEvent());
 
     final client = _dioClient;
     if (client == null) {
@@ -241,13 +286,13 @@ class NotificationRepositoryImpl implements NotificationRepository {
         }
 
         await _datasource.replaceAll(items);
+        _invalidateCache();
         return _datasource.getAll();
       },
     );
   }
 
   /// Envoie les preferences de notifications au backend.
-  /// Retourne true si la synchronisation a reussi.
   Future<bool> syncPreferencesToApi() async {
     final client = _dioClient;
     if (client == null) return false;
@@ -268,20 +313,14 @@ class NotificationRepositoryImpl implements NotificationRepository {
       );
 
       return result.fold((failure) {
-        // ignore: avoid_print
-        print('[NotificationRepo] Erreur sync preferences: ${failure.message}');
         return false;
       }, (_) => true);
     } catch (e) {
-      // ignore: avoid_print
-      print('[NotificationRepo] Exception sync preferences: $e');
       return false;
     }
   }
 
   /// Recupere les preferences de notifications depuis le backend.
-  /// Met a jour les preferences locales.
-  /// Retourne true si la synchronisation a reussi.
   Future<bool> syncPreferencesFromApi() async {
     final client = _dioClient;
     if (client == null) return false;
@@ -293,10 +332,6 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
       return await result.fold(
         (failure) {
-          // ignore: avoid_print
-          print(
-            '[NotificationRepo] Erreur recuperation preferences: ${failure.message}',
-          );
           return false;
         },
         (data) async {
@@ -332,9 +367,11 @@ class NotificationRepositoryImpl implements NotificationRepository {
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[NotificationRepo] Exception recuperation preferences: $e');
       return false;
     }
+  }
+
+  void clearCache() {
+    _cache.clear();
   }
 }

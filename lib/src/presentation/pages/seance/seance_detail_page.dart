@@ -356,6 +356,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   }) {
     final annotationState = AnnotationState(
       DependencyInjection.annotationService,
+      DependencyInjection.domainEventBus,
     );
 
     annotationState.initialiserContexte(

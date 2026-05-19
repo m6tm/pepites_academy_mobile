@@ -1,6 +1,10 @@
 import '../../application/services/sync_service.dart';
 import '../../core/cache/cache_ttl.dart';
 import '../../core/cache/repository_cache.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/evaluation_events.dart';
+import '../../core/events/invalidation_registry.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/evaluation.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/evaluation_repository.dart';
@@ -15,6 +19,9 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
   final EvaluationLocalDatasource _datasource;
   SyncService? _syncService;
   DioClient? _dioClient;
+  DomainEventBus? _eventBus;
+  InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
 
   final _cacheAtelier = RepositoryCache<List<Evaluation>>();
   final _cacheAcademicien = RepositoryCache<List<Evaluation>>();
@@ -30,6 +37,18 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
     _dioClient = client;
   }
 
+  void setEventBus(DomainEventBus bus) {
+    _eventBus = bus;
+  }
+
+  void setInvalidationRegistry(InvalidationRegistry registry) {
+    _invalidationRegistry = registry;
+  }
+
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   void _invalidateCaches() {
     _cacheAtelier.invalidateByTag('evaluations');
     _cacheAcademicien.invalidateByTag('evaluations');
@@ -40,6 +59,13 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
   Future<Evaluation> create(Evaluation evaluation) async {
     final created = await _datasource.add(evaluation);
     _invalidateCaches();
+    _invalidationRegistry?.markInvalidated<EvaluationCreeeEvent>();
+    _eventBus?.emit(EvaluationCreeeEvent(
+      evaluationId: created.id,
+      academicienId: created.academicienId,
+      atelierId: created.atelierId,
+      seanceId: created.seanceId,
+    ));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.evaluation,
       entityId: created.id,
@@ -72,6 +98,20 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
     });
   }
 
+  /// Variante SWR pour l'historique academicien.
+  Stream<List<Evaluation>> getByAcademicienSwr(String academicienId) async* {
+    final key = 'academicien_$academicienId';
+    final stale = _cacheAcademicien.getStale(key) ?? _datasource.getByAcademicien(academicienId);
+    if (stale.isNotEmpty) yield stale;
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return;
+
+    final fresh = await _cacheAcademicien.getOrFetch(key, () async => _datasource.getByAcademicien(academicienId));
+    _cacheAcademicien.set(key, fresh, ttl: CacheTtl.evaluations, tags: {'evaluations', 'academicien_$academicienId'});
+    yield fresh;
+  }
+
   @override
   Future<List<Evaluation>> getByAtelier(String atelierId) async {
     final key = 'atelier_$atelierId';
@@ -88,6 +128,20 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
       );
       return result;
     });
+  }
+
+  /// Variante SWR pour les evaluations d'un atelier.
+  Stream<List<Evaluation>> getByAtelierSwr(String atelierId) async* {
+    final key = 'atelier_$atelierId';
+    final stale = _cacheAtelier.getStale(key) ?? _datasource.getByAtelier(atelierId);
+    if (stale.isNotEmpty) yield stale;
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) return;
+
+    final fresh = await _cacheAtelier.getOrFetch(key, () async => _datasource.getByAtelier(atelierId));
+    _cacheAtelier.set(key, fresh, ttl: CacheTtl.evaluations, tags: {'evaluations', 'atelier_$atelierId'});
+    yield fresh;
   }
 
   @override
@@ -120,6 +174,13 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
   Future<Evaluation> update(Evaluation evaluation) async {
     final updated = await _datasource.update(evaluation);
     _invalidateCaches();
+    _invalidationRegistry?.markInvalidated<EvaluationUpdatedEvent>();
+    _eventBus?.emit(EvaluationUpdatedEvent(
+      evaluationId: updated.id,
+      academicienId: updated.academicienId,
+      atelierId: updated.atelierId,
+      seanceId: updated.seanceId,
+    ));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.evaluation,
       entityId: updated.id,
@@ -133,6 +194,8 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
   Future<void> delete(String id) async {
     await _datasource.delete(id);
     _invalidateCaches();
+    _invalidationRegistry?.markInvalidated<EvaluationDeletedEvent>();
+    _eventBus?.emit(EvaluationDeletedEvent(id));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.evaluation,
       entityId: id,
@@ -150,8 +213,6 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
 
       return result.fold(
         (failure) {
-          // ignore: avoid_print
-          print('[Evaluation] Sync failed: ${failure.message}');
           return false;
         },
         (data) async {
@@ -172,15 +233,17 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
 
           await _datasource.upsertAll(remote);
           _invalidateCaches();
-          // ignore: avoid_print
-          print('[Evaluation] Synced ${remote.length} items from backend');
           return true;
         },
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('[Evaluation] Sync exception: $e');
       return false;
     }
+  }
+
+  void clearCache() {
+    _cacheAtelier.clear();
+    _cacheAcademicien.clear();
+    _cacheSeance.clear();
   }
 }

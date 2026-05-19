@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/application/services/annotation_service.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/annotation.dart';
+import 'package:pepites_academy_mobile/src/core/events/domain_event_bus.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/annotation_state.dart';
 
 class MockAnnotationService extends Mock implements AnnotationService {}
@@ -9,10 +10,12 @@ class MockAnnotationService extends Mock implements AnnotationService {}
 void main() {
   late AnnotationState state;
   late MockAnnotationService mockService;
+  late DomainEventBus eventBus;
 
   setUp(() {
     mockService = MockAnnotationService();
-    state = AnnotationState(mockService);
+    eventBus = DomainEventBus();
+    state = AnnotationState(mockService, eventBus);
   });
 
   final testScore = ScoreAnnotation(
@@ -47,7 +50,7 @@ void main() {
   );
 
   test('initialiserContexte definit exerciceId et charge les annotations', () async {
-    when(() => mockService.getAnnotationsAtelier(any()))
+    when(() => mockService.getAnnotationsAtelier(any(), forceRefresh: any(named: 'forceRefresh')))
         .thenAnswer((_) async => [testAnnotation]);
 
     await state.initialiserContexte(
@@ -60,7 +63,7 @@ void main() {
     expect(state.seanceId, 'se-1');
     expect(state.exerciceId, 'ex-1');
     expect(state.annotationsAtelier.length, 1);
-    verify(() => mockService.getAnnotationsAtelier('at-1')).called(1);
+    verify(() => mockService.getAnnotationsAtelier('at-1', forceRefresh: true)).called(1);
   });
 
   test('selectionnerAcademicien trie l\'historique avec l\'exercice actuel en priorite', () async {

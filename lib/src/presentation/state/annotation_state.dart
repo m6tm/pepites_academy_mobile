@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../application/services/annotation_service.dart';
+import '../../core/events/annotation_events.dart';
+import '../../core/events/app_events.dart';
+import '../../core/events/domain_event_bus.dart';
+import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../domain/entities/annotation.dart';
 
-class AnnotationState extends ChangeNotifier {
+class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
   final AnnotationService _service;
+  final DomainEventBus _eventBus;
   bool _isDisposed = false;
 
-  AnnotationState(this._service);
+  DateTime? _lastFetchedAt;
+  bool _isFetching = false;
+
+  AnnotationState(this._service, this._eventBus) {
+    listenTo<AnnotationCreatedEvent>(_eventBus, (e) => _onAnnotationChanged(e.atelierId));
+    listenTo<AnnotationUpdatedEvent>(_eventBus, (e) => _onAnnotationChanged(e.atelierId));
+    listenTo<AnnotationDeletedEvent>(_eventBus, (e) => _onAnnotationChanged(e.atelierId));
+    listenTo<AppResumedEvent>(_eventBus, (_) => _onRefreshIfStale());
+  }
 
   @override
   void dispose() {
@@ -47,6 +60,22 @@ class AnnotationState extends ChangeNotifier {
   String? _successMessage;
   String? get successMessage => _successMessage;
 
+  void _onAnnotationChanged(String atelierId) {
+    if (_atelierId == atelierId) {
+      chargerAnnotationsAtelier();
+    }
+  }
+
+  void _onRefreshIfStale() {
+    if (_isFetching) return;
+    final last = _lastFetchedAt;
+    if (last == null) return;
+    final age = DateTime.now().difference(last);
+    if (age > const Duration(minutes: 2)) {
+      chargerAnnotationsAtelier();
+    }
+  }
+
   Future<void> initialiserContexte({
     required String atelierId,
     required String seanceId,
@@ -62,7 +91,9 @@ class AnnotationState extends ChangeNotifier {
 
   Future<void> chargerAnnotationsAtelier({bool forceRefresh = false}) async {
     if (_atelierId == null) return;
+    if (_isFetching) return;
 
+    _isFetching = true;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -72,9 +103,11 @@ class AnnotationState extends ChangeNotifier {
         _atelierId!,
         forceRefresh: forceRefresh,
       );
+      _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des annotations : $e';
     } finally {
+      _isFetching = false;
       _isLoading = false;
       notifyListeners();
     }
@@ -136,14 +169,13 @@ class AnnotationState extends ChangeNotifier {
       }
     }
 
-    // Vérification d'unicité : un exercice ne peut être annoté qu'une seule fois par académicien
     if (_exerciceId != null) {
       final dejaAnnote = _historiqueAcademicien.any(
         (a) => a.exerciceId == _exerciceId,
       );
       if (dejaAnnote) {
         _errorMessage =
-            'Cet exercice a déjà été annoté. Vous ne pouvez pas créer deux annotations pour le même exercice.';
+            'Cet exercice a deja ete annote. Vous ne pouvez pas creer deux annotations pour le meme exercice.';
         notifyListeners();
         return false;
       }

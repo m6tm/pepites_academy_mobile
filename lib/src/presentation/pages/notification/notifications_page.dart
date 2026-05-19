@@ -51,9 +51,7 @@ class _NotificationsPageState extends State<NotificationsPage>
       if (!mounted) return;
       setState(() => _isSyncing = true);
 
-      await DependencyInjection.notificationState.syncNotifications(
-        nonLuesOnly: false,
-      );
+      await DependencyInjection.notificationState.syncNotifications();
       await DependencyInjection.notificationState.chargerNotifications(
         widget.userRole,
       );
@@ -198,7 +196,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                 tooltip: l10n.markAllAsRead,
                 colorScheme: colorScheme,
                 onTap: state.nonLuesCount > 0
-                    ? () => state.marquerToutesCommeLues(widget.userRole)
+                    ? () => state.marquerToutesCommeLues()
                     : null,
               ),
               const SizedBox(width: 8),
@@ -400,10 +398,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           ),
         ),
         onDismissed: (_) {
-          DependencyInjection.notificationState.supprimer(
-            notification.id,
-            widget.userRole,
-          );
+          DependencyInjection.notificationState.supprimer(notification.id);
         },
         child: GlassmorphismCard(
           padding: const EdgeInsets.all(16),
@@ -411,10 +406,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           borderOpacity: notification.estLue ? 0.08 : 0.15,
           onTap: () {
             if (!notification.estLue) {
-              DependencyInjection.notificationState.marquerCommeLue(
-                notification.id,
-                widget.userRole,
-              );
+              DependencyInjection.notificationState.marquerCommeLue(notification.id);
             }
             _afficherDetail(notification);
           },
@@ -776,10 +768,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                         child: OutlinedButton.icon(
                           onPressed: () {
                             Navigator.of(context).pop();
-                            DependencyInjection.notificationState.supprimer(
-                              notification.id,
-                              widget.userRole,
-                            );
+                            DependencyInjection.notificationState.supprimer(notification.id);
                           },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.error,
@@ -840,9 +829,7 @@ class _NotificationsPageState extends State<NotificationsPage>
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                DependencyInjection.notificationState.supprimerLues(
-                  widget.userRole,
-                );
+                DependencyInjection.notificationState.supprimerLues();
               },
               style: TextButton.styleFrom(foregroundColor: AppColors.error),
               child: Text(

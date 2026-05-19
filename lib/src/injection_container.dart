@@ -221,6 +221,9 @@ class DependencyInjection {
     // Initialisation du Repository Exercice
     final exerciceDatasource = ExerciceLocalDatasource(sharedPrefs);
     exerciceRepository = ExerciceRepositoryImpl(exerciceDatasource);
+    exerciceRepository.setEventBus(domainEventBus);
+    exerciceRepository.setInvalidationRegistry(invalidationRegistry);
+    exerciceRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du Service Seance
     seanceService = SeanceService(
@@ -245,6 +248,9 @@ class DependencyInjection {
     // Initialisation du Repository Annotation
     final annotationDatasource = AnnotationLocalDatasource(sharedPrefs);
     annotationRepository = AnnotationRepositoryImpl(annotationDatasource);
+    annotationRepository.setEventBus(domainEventBus);
+    annotationRepository.setInvalidationRegistry(invalidationRegistry);
+    annotationRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du Service Annotation
     annotationService = AnnotationService(
@@ -255,6 +261,9 @@ class DependencyInjection {
     // Initialisation du Repository Bulletin
     final bulletinDatasource = BulletinLocalDatasource(sharedPrefs);
     bulletinRepository = BulletinRepositoryImpl(bulletinDatasource);
+    bulletinRepository.setEventBus(domainEventBus);
+    bulletinRepository.setInvalidationRegistry(invalidationRegistry);
+    bulletinRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du Service Bulletin
     bulletinService = BulletinService(
@@ -389,13 +398,11 @@ class DependencyInjection {
       dioClient: _dioClient,
     );
     notificationRepository.setSyncService(syncService);
+    notificationRepository.setEventBus(domainEventBus);
+    notificationRepository.setInvalidationRegistry(invalidationRegistry);
     notificationService = NotificationService(
       notificationRepository: notificationRepository,
     );
-    notificationState = NotificationState(
-      notificationService: notificationService,
-    );
-
     // Initialisation du service de notifications push Firebase
     firebasePushNotificationService = FirebasePushNotificationService(
       notificationDatasource,
@@ -457,6 +464,7 @@ class DependencyInjection {
     // Initialisation du repository Dashboard
     dashboardRepository = DashboardRepositoryImpl(dioClient, sharedPrefs);
     dashboardRepository.setSyncService(syncService);
+    dashboardRepository.setEventBus(domainEventBus);
 
     // Initialisation du service Dashboard
     dashboardService = DashboardService(repository: dashboardRepository);
@@ -475,17 +483,24 @@ class DependencyInjection {
       connectivityState: connectivityState,
     );
 
-    exerciceState = ExerciceState(exerciceService);
+    exerciceState = ExerciceState(exerciceService, domainEventBus);
     atelierState = AtelierState(atelierService, domainEventBus);
-    annotationState = AnnotationState(annotationService);
+    annotationState = AnnotationState(annotationService, domainEventBus);
     evaluationState = EvaluationState(evaluationService, domainEventBus);
-    medecinDashboardState = MedecinDashboardState(medecinRepository);
+    medecinDashboardState = MedecinDashboardState(medecinRepository, domainEventBus);
+    notificationState = NotificationState(
+      notificationService: notificationService,
+      eventBus: domainEventBus,
+    );
 
     // Injection du service de synchronisation dans les repositories
     academicienRepository.setSyncService(syncService);
     academicienRepository.setDioClient(dioClient);
     encadreurRepoImpl.setSyncService(syncService);
     encadreurRepoImpl.setDioClient(dioClient);
+    encadreurRepoImpl.setEventBus(domainEventBus);
+    encadreurRepoImpl.setInvalidationRegistry(invalidationRegistry);
+    encadreurRepoImpl.setConnectivityGuard(connectivityGuard);
     presenceRepository.setSyncService(syncService);
     presenceRepository.setDioClient(dioClient);
     seanceRepository.setSyncService(syncService);
@@ -513,6 +528,12 @@ class DependencyInjection {
       seanceRepository.clearCache();
       presenceRepository.clearCache();
       atelierRepository.clearCache();
+      exerciceRepository.clearCache();
+      annotationRepository.clearCache();
+      evaluationRepository.clearCache();
+      encadreurRepository.clearCache();
+      bulletinRepository.clearCache();
+      notificationRepository.clearCache();
       invalidationRegistry.clear();
     };
   }

@@ -20,6 +20,9 @@ class EvaluationState extends ChangeNotifier
 
   EvaluationState(this._service, this._eventBus) {
     listenTo<AppResumedEvent>(_eventBus, _onAppResumed);
+    listenTo<EvaluationCreeeEvent>(_eventBus, (e) => _onEvaluationChanged(e.atelierId));
+    listenTo<EvaluationUpdatedEvent>(_eventBus, (e) => _onEvaluationChanged(e.atelierId));
+    listenTo<EvaluationDeletedEvent>(_eventBus, (_) => _onEvaluationChanged(null));
   }
 
   @override
@@ -309,6 +312,12 @@ class EvaluationState extends ChangeNotifier
     _errorMessage = null;
     _successMessage = null;
     notifyListeners();
+  }
+
+  void _onEvaluationChanged(String? atelierId) {
+    if (atelierId == null || atelierId == _atelierId) {
+      chargerEvaluationsAtelier();
+    }
   }
 
   /// Rafraichit les evaluations de l'atelier si les donnees ont plus de 2 minutes.

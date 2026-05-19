@@ -34,7 +34,7 @@ class _BulletinPageState extends State<BulletinPage> {
   @override
   void initState() {
     super.initState();
-    _bulletinState = BulletinState(DependencyInjection.bulletinService);
+    _bulletinState = BulletinState(DependencyInjection.bulletinService, DependencyInjection.domainEventBus);
     _bulletinState.addListener(_onStateChanged);
     _bulletinState.chargerBulletins(academicien.id);
   }
