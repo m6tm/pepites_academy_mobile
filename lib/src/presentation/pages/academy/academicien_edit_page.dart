@@ -1738,7 +1738,9 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
             children: [
               _buildChoiceChip(
                 label: l10n.rightFooted,
@@ -1748,7 +1750,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                 ),
                 colorScheme: colorScheme,
               ),
-              const SizedBox(width: 12),
               _buildChoiceChip(
                 label: l10n.leftFooted,
                 isSelected: _selectedPiedFort == l10n.leftFooted,
@@ -1757,7 +1758,6 @@ class _AcademicienEditPageState extends State<AcademicienEditPage> {
                 ),
                 colorScheme: colorScheme,
               ),
-              const SizedBox(width: 12),
               _buildChoiceChip(
                 label: l10n.ambidextrous,
                 isSelected: _selectedPiedFort == l10n.ambidextrous,

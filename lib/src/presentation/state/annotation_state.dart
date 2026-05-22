@@ -208,10 +208,13 @@ class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
   }
 
   Annotation? get annotationPourExerciceActuel {
-    if (_exerciceId == null) return null;
+    if (_academicienSelectionneId == null || _atelierId == null) return null;
     try {
       return _historiqueAcademicien.firstWhere(
-        (a) => a.exerciceId == _exerciceId,
+        (a) =>
+            a.atelierId == _atelierId &&
+            a.academicienId == _academicienSelectionneId &&
+            (_exerciceId == null || a.exerciceId == _exerciceId),
       );
     } catch (_) {
       return null;

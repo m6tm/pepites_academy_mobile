@@ -869,11 +869,14 @@ class _AcademicienRegistrationPageState
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  text,
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                Flexible(
+                  child: Text(
+                    text,
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 4),

@@ -22,7 +22,7 @@ import 'application/services/biometric_service.dart';
 import 'application/services/security_service.dart';
 import 'application/services/dashboard_service.dart';
 import 'application/services/role_service.dart';
-import 'application/services/cache_manager.dart';
+
 import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
@@ -148,9 +148,11 @@ class DependencyInjection {
   static late final EvaluationRepositoryImpl evaluationRepository;
   static late final EvaluationService evaluationService;
   static late EvaluationState evaluationState;
-  static late final CacheManager cacheManager;
+
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
+  static final RouteObserver<ModalRoute> routeObserver =
+      RouteObserver<ModalRoute>();
   static late PreferencesRepositoryImpl _preferencesRepository;
   static late SeanceLocalDatasource _seanceDatasource;
   static late SmsLocalDatasource _smsDatasource;
@@ -257,7 +259,6 @@ class DependencyInjection {
     annotationService = AnnotationService(
       annotationRepository: annotationRepository,
     );
-    annotationService.setEventBus(domainEventBus);
 
     // Initialisation du Repository Bulletin
     final bulletinDatasource = BulletinLocalDatasource(sharedPrefs);
@@ -425,31 +426,6 @@ class DependencyInjection {
       notificationState.rafraichirDepuisCache();
     };
 
-    // Initialisation du CacheManager avec toutes les datasources et services
-    cacheManager = CacheManager(
-      [
-        academicienDatasource,
-        activityDatasource,
-        annotationDatasource,
-        atelierDatasource,
-        bulletinDatasource,
-        encadreurDatasource,
-        evaluationReferentielDatasource,
-        evaluationDatasource,
-        exerciceDatasource,
-        niveauDatasource,
-        notificationDatasource,
-        posteDatasource,
-        presenceDatasource,
-        seanceDatasource,
-        smsDatasource,
-        syncQueueDatasource,
-      ],
-      atelierService,
-      exerciceService,
-      seanceRepository,
-    );
-
     // Initialisation du module Roles et Permissions
     roleRepository = RoleRepositoryImpl(dioClient, sharedPrefs);
     roleRepository.setEventBus(domainEventBus);
@@ -461,7 +437,7 @@ class DependencyInjection {
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);
     authService.setSyncService(syncService);
-    authService.setCacheManager(cacheManager);
+
     authService.setRoleService(roleService);
 
     // Initialisation du module de securite et biometrie
@@ -480,14 +456,14 @@ class DependencyInjection {
     dashboardRepository = DashboardRepositoryImpl(dioClient, sharedPrefs);
     dashboardRepository.setSyncService(syncService);
     dashboardRepository.setEventBus(domainEventBus);
+    dashboardRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du service Dashboard
     dashboardService = DashboardService(repository: dashboardRepository);
 
     // Initialisation du repository Medecin
-    medecinRepository = MedecinRepositoryImpl(dioClient, sharedPrefs);
-
-    // Initialisation du service d'upload
+    medecinRepository = MedecinRepositoryImpl(dioClient);
+    medecinRepository.setConnectivityGuard(connectivityGuard);
     uploadService = UploadService(dioClient);
 
     connectivityState = ConnectivityState(
