@@ -10,17 +10,11 @@ class ExerciceService {
   final AtelierRepository _atelierRepository;
   AppLocalizations? _l10n;
 
-  // Controllers pour la reactivite UI
-  final _exercicesController = StreamController<List<Exercice>>.broadcast();
-
   ExerciceService({
     required ExerciceRepository exerciceRepository,
     required AtelierRepository atelierRepository,
   }) : _exerciceRepository = exerciceRepository,
        _atelierRepository = atelierRepository;
-
-  /// Flux de donnees pour les exercices.
-  Stream<List<Exercice>> get exercicesStream => _exercicesController.stream;
 
   /// Met a jour les traductions.
   void setLocalizations(AppLocalizations l10n) {
@@ -31,7 +25,6 @@ class ExerciceService {
   Future<List<Exercice>> getExercicesParAtelier(String atelierId) async {
     final exercices = await _exerciceRepository.getByAtelierId(atelierId);
     exercices.sort((a, b) => a.ordre.compareTo(b.ordre));
-    _exercicesController.add(exercices);
     return exercices;
   }
 
@@ -154,13 +147,4 @@ class ExerciceService {
     return isAtelierClosed;
   }
 
-  /// Reinitialise le service pour un nouvel utilisateur.
-  void reset() {
-    _exercicesController.add([]);
-  }
-
-  /// Libere les ressources.
-  void dispose() {
-    _exercicesController.close();
-  }
 }

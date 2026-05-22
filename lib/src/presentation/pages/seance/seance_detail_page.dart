@@ -29,7 +29,7 @@ class SeanceDetailPage extends StatefulWidget {
   State<SeanceDetailPage> createState() => _SeanceDetailPageState();
 }
 
-class _SeanceDetailPageState extends State<SeanceDetailPage> {
+class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   List<Atelier> _ateliers = [];
   List<Academicien> _academiciens = [];
   List<Encadreur> _encadreurs = [];
@@ -47,6 +47,26 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   void initState() {
     super.initState();
     _seance = widget.seance;
+    _loadLocalThenRefresh();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      DependencyInjection.routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    DependencyInjection.routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
     _loadLocalThenRefresh();
   }
 
@@ -353,19 +373,24 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
   Future<void> _ouvrirAnnotationAcademicienPourAtelier({
     required Academicien academicien,
     required Atelier atelier,
-  }) {
+  }) async {
     final annotationState = AnnotationState(
       DependencyInjection.annotationService,
       DependencyInjection.domainEventBus,
     );
 
-    annotationState.initialiserContexte(
+    await annotationState.initialiserContexte(
       atelierId: atelier.id,
       seanceId: seance.id,
     );
-    annotationState.selectionnerAcademicien(academicien.id);
+    await annotationState.selectionnerAcademicien(academicien.id);
 
-    return showModalBottomSheet(
+    if (!mounted) {
+      annotationState.dispose();
+      return;
+    }
+
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -376,9 +401,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> {
         annotationState: annotationState,
         encadreurId: seance.encadreurResponsableId,
       ),
-    ).whenComplete(() {
-      annotationState.deselectionnerAcademicien();
-    });
+    );
+
+    annotationState.deselectionnerAcademicien();
+    annotationState.dispose();
   }
 
   Future<void> _naviguerVersComposition() async {

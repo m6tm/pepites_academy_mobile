@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/dashboard_stats.dart';
-import 'package:pepites_academy_mobile/src/domain/entities/global_stats.dart';
 import 'package:pepites_academy_mobile/src/domain/failures/network_failure.dart';
 import 'package:pepites_academy_mobile/src/infrastructure/network/api_endpoints.dart';
 import 'package:pepites_academy_mobile/src/infrastructure/network/dio_client.dart';
@@ -24,24 +23,6 @@ void main() {
   });
 
   group('DashboardRepositoryImpl', () {
-    final testGlobalStats = const GlobalStats(
-      nbAcademiciens: 50,
-      nbEncadreurs: 10,
-      nbSeancesMois: 12,
-      tauxPresenceMoyen: 85.5,
-      objectifsAtteints: 78.0,
-      satisfactionCoachs: 92.0,
-    );
-
-    final testDashboardStats = DashboardStats(
-      globalStats: testGlobalStats,
-      nbSeancesTotal: 100,
-      nbAnnotationsTotal: 500,
-      nbPresencesTotal: 1500,
-      nbSeancesJour: 2,
-      nbPresencesJour: 45,
-    );
-
     final testJsonResponse = {
       'global_stats': {
         'nb_academiciens': 50,
@@ -57,7 +38,7 @@ void main() {
       'nb_seances_jour': 2,
       'nb_presences_jour': 45,
       'current_season': null,
-      'users_by_role': {},
+      'users_by_role': <String, int>{},
       'last_updated_at': '2024-10-15T10:00:00.000Z',
     };
 
@@ -77,7 +58,7 @@ void main() {
 
         // Assert
         expect(stats, isNotNull);
-        expect(stats?.nbAcademiciens, 50);
+        expect(stats?.globalStats.nbAcademiciens, 50);
         expect(stats?.nbSeancesTotal, 100);
         expect(error, isNull);
         expect(isFromCache, false);
@@ -87,19 +68,18 @@ void main() {
       },
     );
 
-    test('getStats doit retourner le cache si disponible', () async {
+    test('getStats doit retourner le cache memoire si disponible', () async {
       // Arrange
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'cached_dashboard_stats',
-        testDashboardStats.toJson().toString(),
-      );
-      await prefs.setInt(
-        'cached_dashboard_stats_timestamp',
-        DateTime.now().millisecondsSinceEpoch,
-      );
-
       repository = DashboardRepositoryImpl(mockDioClient, prefs);
+
+      when(
+        () => mockDioClient.get<dynamic>(ApiEndpoints.dashboardStats),
+      ).thenAnswer((_) async => Right(testJsonResponse));
+
+      // Premier appel pour remplir le cache
+      await repository.getStats();
+      clearInteractions(mockDioClient);
 
       // Act
       final (stats, error, isFromCache) = await repository.getStats();
@@ -114,20 +94,14 @@ void main() {
     test('getStats avec forceRefresh doit ignorer le cache', () async {
       // Arrange
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'cached_dashboard_stats',
-        testDashboardStats.toJson().toString(),
-      );
-      await prefs.setInt(
-        'cached_dashboard_stats_timestamp',
-        DateTime.now().millisecondsSinceEpoch,
-      );
-
       repository = DashboardRepositoryImpl(mockDioClient, prefs);
 
       when(
         () => mockDioClient.get<dynamic>(ApiEndpoints.dashboardStats),
       ).thenAnswer((_) async => Right(testJsonResponse));
+
+      // Premier appel pour remplir le cache
+      await repository.getStats();
 
       // Act
       final (stats, error, isFromCache) = await repository.getStats(
@@ -139,7 +113,7 @@ void main() {
       expect(isFromCache, false);
       verify(
         () => mockDioClient.get<dynamic>(ApiEndpoints.dashboardStats),
-      ).called(1);
+      ).called(2); // 1 initial + 1 forceRefresh
     });
 
     test(
@@ -147,16 +121,14 @@ void main() {
       () async {
         // Arrange
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-          'cached_dashboard_stats',
-          testDashboardStats.toJson().toString(),
-        );
-        await prefs.setInt(
-          'cached_dashboard_stats_timestamp',
-          DateTime.now().millisecondsSinceEpoch,
-        );
-
         repository = DashboardRepositoryImpl(mockDioClient, prefs);
+
+        when(
+          () => mockDioClient.get<dynamic>(ApiEndpoints.dashboardStats),
+        ).thenAnswer((_) async => Right(testJsonResponse));
+
+        // Charger le cache
+        await repository.getStats();
 
         const failure = NetworkFailure(
           type: NetworkFailureType.serverError,
@@ -203,29 +175,7 @@ void main() {
       },
     );
 
-    test('invalidateCache doit effacer le cache', () async {
-      // Arrange
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'cached_dashboard_stats',
-        testDashboardStats.toJson().toString(),
-      );
-      await prefs.setInt(
-        'cached_dashboard_stats_timestamp',
-        DateTime.now().millisecondsSinceEpoch,
-      );
-
-      repository = DashboardRepositoryImpl(mockDioClient, prefs);
-
-      // Act
-      await repository.invalidateCache();
-
-      // Assert
-      expect(prefs.containsKey('cached_dashboard_stats'), false);
-      expect(prefs.containsKey('cached_dashboard_stats_timestamp'), false);
-    });
-
-    test('statsStream doit emettre les nouvelles stats', () async {
+    test('invalidateCache doit effacer le cache memoire', () async {
       // Arrange
       final prefs = await SharedPreferences.getInstance();
       repository = DashboardRepositoryImpl(mockDioClient, prefs);
@@ -234,50 +184,21 @@ void main() {
         () => mockDioClient.get<dynamic>(ApiEndpoints.dashboardStats),
       ).thenAnswer((_) async => Right(testJsonResponse));
 
-      // Act
-      final streamFuture = repository.statsStream.first;
-      await repository.getStats(forceRefresh: true);
-      final emittedStats = await streamFuture.timeout(Duration(seconds: 2));
-
-      // Assert
-      expect(emittedStats, isNotNull);
-      expect(emittedStats.nbAcademiciens, 50);
-    });
-
-    test('getCachedStatsSync doit retourner null si pas de cache', () async {
-      // Arrange
-      final prefs = await SharedPreferences.getInstance();
-      repository = DashboardRepositoryImpl(mockDioClient, prefs);
+      // Charger le cache
+      await repository.getStats();
+      clearInteractions(mockDioClient);
 
       // Act
-      final stats = repository.getCachedStatsSync();
+      await repository.invalidateCache();
+      final (stats, _, isFromCache) = await repository.getStats();
 
-      // Assert
-      expect(stats, isNull);
+      // Assert: apres invalidation, l'API doit etre rappelée
+      expect(stats, isNotNull);
+      expect(isFromCache, false);
+      verify(
+        () => mockDioClient.get<dynamic>(ApiEndpoints.dashboardStats),
+      ).called(1);
     });
-
-    test(
-      'getCachedStatsSync doit retourner le cache memoire si disponible',
-      () async {
-        // Arrange
-        final prefs = await SharedPreferences.getInstance();
-        repository = DashboardRepositoryImpl(mockDioClient, prefs);
-
-        when(
-          () => mockDioClient.get<dynamic>(ApiEndpoints.dashboardStats),
-        ).thenAnswer((_) async => Right(testJsonResponse));
-
-        // Charger les stats en memoire
-        await repository.getStats(forceRefresh: true);
-
-        // Act
-        final stats = repository.getCachedStatsSync();
-
-        // Assert
-        expect(stats, isNotNull);
-        expect(stats?.nbAcademiciens, 50);
-      },
-    );
 
     test('getCurrentSeason doit retourner la saison depuis l\'API', () async {
       // Arrange
@@ -313,7 +234,7 @@ void main() {
 
         when(
           () => mockDioClient.get<dynamic>('${ApiEndpoints.seasons}/current'),
-        ).thenAnswer((_) async => Right({'season': null}));
+        ).thenAnswer((_) async => Right(null));
 
         // Act
         final (season, error) = await repository.getCurrentSeason();

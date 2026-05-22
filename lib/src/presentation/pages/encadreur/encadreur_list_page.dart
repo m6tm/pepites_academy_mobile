@@ -22,7 +22,7 @@ class EncadreurListPage extends StatefulWidget {
 }
 
 class _EncadreurListPageState extends State<EncadreurListPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, RouteAware {
   List<Encadreur> _encadreurs = [];
   List<Encadreur> _filteredEncadreurs = [];
   bool _isLoading = true;
@@ -103,13 +103,23 @@ class _EncadreurListPageState extends State<EncadreurListPage>
       l10n.specialityFormationJeunes,
       l10n.specialityPreparationMentale,
     ];
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      DependencyInjection.routeObserver.subscribe(this, route);
+    }
   }
 
   @override
   void dispose() {
+    DependencyInjection.routeObserver.unsubscribe(this);
     _searchController.dispose();
     _fadeController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _loadEncadreurs();
   }
 
   Future<void> _loadEncadreurs() async {

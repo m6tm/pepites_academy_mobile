@@ -70,14 +70,6 @@ class SupAdminHomeScreenState extends State<SupAdminHomeScreen> {
   }
 
   Future<void> _loadInitialData() async {
-    final cachedStats = DependencyInjection.dashboardService
-        .getCachedStatsSync();
-    if (cachedStats != null && mounted) {
-      setState(() {
-        _dashboardStats = cachedStats;
-        _isFromCache = true;
-      });
-    }
     await _fetchStats();
     await _fetchChartStats();
   }

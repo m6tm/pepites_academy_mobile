@@ -29,6 +29,7 @@ class _AdminSeancesScreenState extends State<AdminSeancesScreen> {
     super.initState();
     _seanceState = SeanceState(
         DependencyInjection.seanceService,
+        DependencyInjection.seanceRepository,
         DependencyInjection.domainEventBus,
       );
     _seanceState.addListener(_onStateChanged);

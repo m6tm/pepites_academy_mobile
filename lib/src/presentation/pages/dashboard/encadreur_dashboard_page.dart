@@ -53,6 +53,7 @@ class _EncadreurDashboardPageState extends State<EncadreurDashboardPage>
     WidgetsBinding.instance.addObserver(this);
     _seanceState = SeanceState(
       DependencyInjection.seanceService,
+      DependencyInjection.seanceRepository,
       DependencyInjection.domainEventBus,
     );
     _seanceState.chargerSeances();

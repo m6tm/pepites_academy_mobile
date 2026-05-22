@@ -29,19 +29,3 @@ class PresenceRecordedEvent extends DomainEvent {
   final String seanceId;
   const PresenceRecordedEvent(this.seanceId);
 }
-
-class AtelierCreatedEvent extends DomainEvent {
-  final String seanceId;
-  final String atelierId;
-  const AtelierCreatedEvent(this.seanceId, this.atelierId);
-}
-
-class AtelierDeletedEvent extends DomainEvent {
-  final String seanceId;
-  const AtelierDeletedEvent(this.seanceId);
-}
-
-class AnnotationCreatedEvent extends DomainEvent {
-  final String seanceId;
-  const AnnotationCreatedEvent(this.seanceId);
-}

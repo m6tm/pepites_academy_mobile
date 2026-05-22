@@ -1,101 +1,95 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../domain/entities/dashboard_stats.dart';
-import '../../domain/entities/chart_stats.dart';
-import '../../domain/entities/sync_operation.dart';
-import '../../domain/failures/network_failure.dart';
-import '../../domain/repositories/dashboard_repository.dart';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
 import '../../application/services/sync_service.dart';
+import '../../domain/entities/sync_operation.dart';
 import '../../core/events/dashboard_events.dart';
 import '../../core/events/domain_event_bus.dart';
+import '../../domain/entities/chart_stats.dart';
+import '../../domain/entities/dashboard_stats.dart';
+import '../../domain/failures/network_failure.dart';
+import '../../domain/repositories/dashboard_repository.dart';
+import '../../core/network/connectivity_guard.dart';
+import '../../domain/exceptions/network_exception.dart';
 import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
 
 /// Implementation du depot Dashboard avec gestion du cache et synchronisation.
 ///
-/// Utilise une strategie cache-first pour optimiser les performances
-/// et permettre le fonctionnement hors-ligne.
+/// Utilise RepositoryCache pour la fraicheur des donnees et SharedPreferences
+/// uniquement pour la persistance de la saison courante.
 class DashboardRepositoryImpl implements DashboardRepository {
   final DioClient _dioClient;
   final SharedPreferences _sharedPrefs;
 
-  // Cles de cache
-  static const String _keyCachedStats = 'cached_dashboard_stats';
-  static const String _keyCachedStatsTimestamp =
-      'cached_dashboard_stats_timestamp';
+  // Cache memoire fraicheur (nouveau systeme)
+  final RepositoryCache<DashboardStats> _statsCache = RepositoryCache<DashboardStats>();
+  final RepositoryCache<ChartStats> _chartCache = RepositoryCache<ChartStats>();
+
+  // Persistance saison (donnee de configuration, pas de cache de fraicheur)
   static const String _keyCurrentSeason = 'current_season';
-  static const String _keyCachedChartStats = 'cached_chart_stats';
-  static const String _keyCachedChartStatsTimestamp =
-      'cached_chart_stats_timestamp';
-  static const String _keyCachedChartStatsPeriod = 'cached_chart_stats_period';
-  static const Duration _cacheValidityDuration = Duration(minutes: 5);
-  static const Duration _chartCacheValidityDuration = Duration(minutes: 10);
-
-  // Cache memoire
-  DashboardStats? _cachedStats;
   Season? _cachedSeason;
-  ChartStats? _cachedChartStats;
-  ChartPeriod? _cachedChartPeriod;
 
-  // Stream controller pour la reactivite UI
-  final StreamController<DashboardStats> _statsController =
-      StreamController<DashboardStats>.broadcast();
-
-  // Service de synchronisation (injection optionnelle pour mode hors-ligne)
-  SyncService? _syncService;
   DomainEventBus? _eventBus;
+  ConnectivityGuard? _connectivityGuard;
+  SyncService? _syncService;
 
   DashboardRepositoryImpl(this._dioClient, this._sharedPrefs);
 
-  /// Injecte le service de synchronisation pour le mode hors-ligne.
   void setSyncService(SyncService service) {
     _syncService = service;
   }
 
-  /// Injecte le bus d'evenements.
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
   void setEventBus(DomainEventBus bus) {
     _eventBus = bus;
   }
 
   @override
-  Stream<DashboardStats> get statsStream => _statsController.stream;
-
-  @override
   Future<(DashboardStats?, NetworkFailure?, bool isFromCache)> getStats({
     bool forceRefresh = false,
   }) async {
-    // Verifier si on peut utiliser le cache
+    const key = 'dashboard_stats';
+
     if (!forceRefresh) {
-      final cachedStats = await _getCachedStats();
-      if (cachedStats != null) {
-        // Retourner le cache avec l'indicateur isFromCache = true
-        return (cachedStats, null, true);
+      final cached = _statsCache.get(key);
+      if (cached != null) {
+        return (cached, null, true);
       }
     }
 
-    // Si pas de cache ou forceRefresh, charger depuis l'API
+    if (_connectivityGuard != null && !await _connectivityGuard!.isOnline) {
+      final stale = _statsCache.getStale(key);
+      if (stale != null) return (stale, null, true);
+      throw const OfflineException();
+    }
+
     try {
       final result = await _dioClient.get<dynamic>(ApiEndpoints.dashboardStats);
 
       return result.fold(
         (failure) {
-          // En cas d'erreur, tenter de retourner le cache meme expire
-          final fallbackCache = _cachedStats ?? _loadStatsFromPrefsSync();
-          if (fallbackCache != null) {
-            return (fallbackCache, failure, true);
+          final stale = _statsCache.getStale(key);
+          if (stale != null) {
+            return (stale, failure, true);
           }
           return (null, failure, false);
         },
         (data) {
           if (data is Map<String, dynamic>) {
             final stats = DashboardStats.fromJson(data);
-            // Sauvegarder en cache
-            _saveStatsToCacheSync(stats);
-            _cachedStats = stats;
-            _statsController.add(stats);
+            _statsCache.set(
+              key,
+              stats,
+              ttl: CacheTtl.dashboardStats,
+              tags: {'dashboard', 'stats'},
+            );
             return (stats, null, false);
           }
           return (
@@ -109,15 +103,11 @@ class DashboardRepositoryImpl implements DashboardRepository {
         },
       );
     } catch (e) {
-      // En cas d'exception, tenter de retourner le cache
-      final fallbackCache = _cachedStats ?? _loadStatsFromPrefsSync();
-      if (fallbackCache != null) {
+      final stale = _statsCache.getStale(key);
+      if (stale != null) {
         return (
-          fallbackCache,
-          NetworkFailure(
-            type: NetworkFailureType.unknown,
-            message: e.toString(),
-          ),
+          stale,
+          NetworkFailure(type: NetworkFailureType.unknown, message: e.toString()),
           true,
         );
       }
@@ -131,12 +121,10 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   @override
   Future<(Season?, NetworkFailure?)> getCurrentSeason() async {
-    // Retourner le cache si disponible
     if (_cachedSeason != null) {
       return (_cachedSeason, null);
     }
 
-    // Charger depuis les preferences
     final seasonJson = _sharedPrefs.getString(_keyCurrentSeason);
     if (seasonJson != null && seasonJson.isNotEmpty) {
       try {
@@ -148,7 +136,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
       }
     }
 
-    // Charger depuis l'API
     try {
       final result = await _dioClient.get<dynamic>(
         '${ApiEndpoints.seasons}/current',
@@ -158,7 +145,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
         if (data is Map<String, dynamic>) {
           final season = Season.fromJson(data);
           _cachedSeason = season;
-          // Sauvegarder en cache
           _sharedPrefs.setString(
             _keyCurrentSeason,
             jsonEncode(season.toJson()),
@@ -180,7 +166,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
     required String name,
     required DateTime startDate,
   }) async {
-    // Creer la saison localement d'abord
     final seasonId = 'season_${DateTime.now().millisecondsSinceEpoch}';
     final season = Season(
       id: seasonId,
@@ -191,12 +176,9 @@ class DashboardRepositoryImpl implements DashboardRepository {
     _cachedSeason = season;
     _sharedPrefs.setString(_keyCurrentSeason, jsonEncode(season.toJson()));
 
-    // Invalider le cache des stats
     invalidateCache();
     _eventBus?.emit(const DashboardStatsUpdatedEvent());
-    _eventBus?.emit(const DashboardStatsUpdatedEvent());
 
-    // Enqueuer l'operation de synchronisation
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.season,
       entityId: seasonId,
@@ -210,7 +192,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
       },
     );
 
-    // Tenter l'appel API si connecte
     try {
       final result = await _dioClient.post<dynamic>(
         ApiEndpoints.seasons,
@@ -223,13 +204,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
       );
 
       return result.fold(
-        (failure) {
-          // En cas d'erreur, l'operation reste dans la file d'attente
-          // pour une synchronisation ulterieure
-          return failure;
-        },
+        (failure) => failure,
         (data) {
-          // Mettre a jour le cache avec la reponse du serveur
           if (data is Map<String, dynamic>) {
             final serverSeason = Season.fromJson(data);
             _cachedSeason = serverSeason;
@@ -242,7 +218,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
         },
       );
     } catch (e) {
-      // L'operation reste dans la file d'attente pour synchronisation ulterieure
       return NetworkFailure(
         type: NetworkFailureType.unknown,
         message: e.toString(),
@@ -255,7 +230,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
     required String seasonId,
     required DateTime endDate,
   }) async {
-    // Mettre a jour le cache local d'abord
     if (_cachedSeason != null && _cachedSeason!.id == seasonId) {
       _cachedSeason = Season(
         id: _cachedSeason!.id,
@@ -270,12 +244,9 @@ class DashboardRepositoryImpl implements DashboardRepository {
       );
     }
 
-    // Invalider le cache des stats
     invalidateCache();
     _eventBus?.emit(const DashboardStatsUpdatedEvent());
-    _eventBus?.emit(const DashboardStatsUpdatedEvent());
 
-    // Enqueuer l'operation de synchronisation
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.season,
       entityId: seasonId,
@@ -288,7 +259,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
       },
     );
 
-    // Tenter l'appel API si connecte
     try {
       final result = await _dioClient.put<dynamic>(
         '${ApiEndpoints.seasons}/$seasonId/close',
@@ -298,17 +268,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
         },
       );
 
-      return result.fold(
-        (failure) {
-          // En cas d'erreur, l'operation reste dans la file d'attente
-          return failure;
-        },
-        (_) {
-          return null;
-        },
-      );
+      return result.fold((failure) => failure, (_) => null);
     } catch (e) {
-      // L'operation reste dans la file d'attente pour synchronisation ulterieure
       return NetworkFailure(
         type: NetworkFailureType.unknown,
         message: e.toString(),
@@ -318,18 +279,12 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   @override
   Future<void> invalidateCache() async {
-    _cachedStats = null;
-    await _sharedPrefs.remove(_keyCachedStats);
-    await _sharedPrefs.remove(_keyCachedStatsTimestamp);
+    _statsCache.invalidateByTag('dashboard');
   }
 
   @override
   Future<void> invalidateChartStatsCache() async {
-    _cachedChartStats = null;
-    _cachedChartPeriod = null;
-    await _sharedPrefs.remove(_keyCachedChartStats);
-    await _sharedPrefs.remove(_keyCachedChartStatsTimestamp);
-    await _sharedPrefs.remove(_keyCachedChartStatsPeriod);
+    _chartCache.invalidateByTag('dashboard_charts');
   }
 
   @override
@@ -337,17 +292,21 @@ class DashboardRepositoryImpl implements DashboardRepository {
     ChartPeriod period = ChartPeriod.month,
     bool forceRefresh = false,
   }) async {
-    // Verifier si on peut utiliser le cache (meme periode)
-    if (!forceRefresh &&
-        _cachedChartStats != null &&
-        _cachedChartPeriod == period) {
-      final cachedStats = await _getCachedChartStats();
-      if (cachedStats != null) {
-        return (cachedStats, null, true);
+    final key = 'chart_${period.toApiValue()}';
+
+    if (!forceRefresh) {
+      final cached = _chartCache.get(key);
+      if (cached != null) {
+        return (cached, null, true);
       }
     }
 
-    // Si pas de cache ou forceRefresh, charger depuis l'API
+    if (_connectivityGuard != null && !await _connectivityGuard!.isOnline) {
+      final stale = _chartCache.getStale(key);
+      if (stale != null) return (stale, null, true);
+      throw const OfflineException();
+    }
+
     try {
       final result = await _dioClient.get<dynamic>(
         '${ApiEndpoints.dashboardStatsCharts}?period=${period.toApiValue()}',
@@ -355,19 +314,21 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
       return result.fold(
         (failure) {
-          // En cas d'erreur, tenter de retourner le cache meme expire
-          if (_cachedChartStats != null) {
-            return (_cachedChartStats, failure, true);
+          final stale = _chartCache.getStale(key);
+          if (stale != null) {
+            return (stale, failure, true);
           }
           return (null, failure, false);
         },
         (data) {
           if (data is Map<String, dynamic>) {
             final stats = ChartStats.fromJson(data);
-            // Sauvegarder en cache
-            _saveChartStatsToCache(stats, period);
-            _cachedChartStats = stats;
-            _cachedChartPeriod = period;
+            _chartCache.set(
+              key,
+              stats,
+              ttl: CacheTtl.dashboardStats,
+              tags: {'dashboard_charts', 'dashboard'},
+            );
             return (stats, null, false);
           }
           return (
@@ -381,14 +342,11 @@ class DashboardRepositoryImpl implements DashboardRepository {
         },
       );
     } catch (e) {
-      // En cas d'exception, tenter de retourner le cache
-      if (_cachedChartStats != null) {
+      final stale = _chartCache.getStale(key);
+      if (stale != null) {
         return (
-          _cachedChartStats,
-          NetworkFailure(
-            type: NetworkFailureType.unknown,
-            message: e.toString(),
-          ),
+          stale,
+          NetworkFailure(type: NetworkFailureType.unknown, message: e.toString()),
           true,
         );
       }
@@ -398,130 +356,5 @@ class DashboardRepositoryImpl implements DashboardRepository {
         false,
       );
     }
-  }
-
-  /// Recupere les statistiques graphiques en cache si disponibles et valides.
-  Future<ChartStats?> _getCachedChartStats() async {
-    // Verifier d'abord le cache memoire
-    if (_cachedChartStats != null) {
-      return _cachedChartStats;
-    }
-
-    // Verifier le cache persistant
-    final cachedJson = _sharedPrefs.getString(_keyCachedChartStats);
-    if (cachedJson == null || cachedJson.isEmpty) {
-      return null;
-    }
-
-    // Verifier si le cache est expire (10 minutes)
-    final timestampStr = _sharedPrefs.getString(_keyCachedChartStatsTimestamp);
-    if (timestampStr != null) {
-      final timestamp = DateTime.tryParse(timestampStr);
-      if (timestamp != null) {
-        final now = DateTime.now();
-        if (now.difference(timestamp) > _chartCacheValidityDuration) {
-          return null; // Cache expire
-        }
-      }
-    }
-
-    try {
-      final decoded = jsonDecode(cachedJson) as Map<String, dynamic>;
-      _cachedChartStats = ChartStats.fromJson(decoded);
-      return _cachedChartStats;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Sauvegarde les statistiques graphiques en cache.
-  void _saveChartStatsToCache(ChartStats stats, ChartPeriod period) {
-    _sharedPrefs.setString(_keyCachedChartStats, jsonEncode(stats.toJson()));
-    _sharedPrefs.setString(
-      _keyCachedChartStatsTimestamp,
-      DateTime.now().toIso8601String(),
-    );
-    _sharedPrefs.setString(_keyCachedChartStatsPeriod, period.toApiValue());
-  }
-
-  @override
-  DashboardStats? getCachedStatsSync() {
-    // Retourner le cache memoire si disponible
-    if (_cachedStats != null) {
-      return _cachedStats;
-    }
-
-    // Charger depuis les preferences
-    return _loadStatsFromPrefsSync();
-  }
-
-  @override
-  Future<void> saveStatsToCache(DashboardStats stats) async {
-    _cachedStats = stats;
-    _saveStatsToCacheSync(stats);
-    _statsController.add(stats);
-  }
-
-  /// Recupere les statistiques en cache si disponibles et valides.
-  Future<DashboardStats?> _getCachedStats() async {
-    // Verifier d'abord le cache memoire
-    if (_cachedStats != null) {
-      return _cachedStats;
-    }
-
-    // Verifier le cache persistant
-    final cachedJson = _sharedPrefs.getString(_keyCachedStats);
-    if (cachedJson == null || cachedJson.isEmpty) {
-      return null;
-    }
-
-    // Verifier si le cache est expire
-    final timestampStr = _sharedPrefs.getString(_keyCachedStatsTimestamp);
-    if (timestampStr != null) {
-      final timestamp = DateTime.tryParse(timestampStr);
-      if (timestamp != null) {
-        final now = DateTime.now();
-        if (now.difference(timestamp) > _cacheValidityDuration) {
-          return null; // Cache expire
-        }
-      }
-    }
-
-    try {
-      final decoded = jsonDecode(cachedJson) as Map<String, dynamic>;
-      _cachedStats = DashboardStats.fromJson(decoded);
-      return _cachedStats;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Sauvegarde les statistiques en cache de maniere synchrone.
-  void _saveStatsToCacheSync(DashboardStats stats) {
-    _sharedPrefs.setString(_keyCachedStats, jsonEncode(stats.toJson()));
-    _sharedPrefs.setString(
-      _keyCachedStatsTimestamp,
-      DateTime.now().toIso8601String(),
-    );
-  }
-
-  /// Charge les statistiques depuis les preferences de maniere synchrone.
-  DashboardStats? _loadStatsFromPrefsSync() {
-    final cachedJson = _sharedPrefs.getString(_keyCachedStats);
-    if (cachedJson == null || cachedJson.isEmpty) {
-      return null;
-    }
-
-    try {
-      final decoded = jsonDecode(cachedJson) as Map<String, dynamic>;
-      return DashboardStats.fromJson(decoded);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Libere les ressources.
-  void dispose() {
-    _statsController.close();
   }
 }

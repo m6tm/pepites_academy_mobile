@@ -35,3 +35,19 @@ class ConfigurationAtelierModifieeEvent extends DomainEvent {
     required this.seanceId,
   });
 }
+
+/// Emis apres la fermeture reussie d'un atelier.
+class AtelierClosedEvent extends DomainEvent {
+  final String atelierId;
+  final String seanceId;
+
+  const AtelierClosedEvent({required this.atelierId, required this.seanceId});
+}
+
+/// Emis apres l'application reussie d'un atelier.
+class AtelierAppliedEvent extends DomainEvent {
+  final String atelierId;
+  final String seanceId;
+
+  const AtelierAppliedEvent({required this.atelierId, required this.seanceId});
+}

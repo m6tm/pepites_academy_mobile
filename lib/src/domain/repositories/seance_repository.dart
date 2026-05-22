@@ -28,4 +28,8 @@ abstract class SeanceRepository {
   Future<Seance> ouvrir(String id);
   Future<Seance> fermer(String id);
   Future<void> delete(String id);
+
+  /// Invalide le cache de la seance en cours.
+  /// A appeler apres toute mutation (presence, atelier, annotation).
+  void invalidateSeanceEncoursCache();
 }

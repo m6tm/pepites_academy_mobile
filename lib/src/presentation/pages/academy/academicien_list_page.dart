@@ -24,7 +24,7 @@ class AcademicienListPage extends StatefulWidget {
   State<AcademicienListPage> createState() => AcademicienListPageState();
 }
 
-class AcademicienListPageState extends State<AcademicienListPage> {
+class AcademicienListPageState extends State<AcademicienListPage> with RouteAware {
   List<Academicien> _academiciens = [];
   List<Academicien> _filteredAcademiciens = [];
   bool _isLoading = true;
@@ -43,6 +43,20 @@ class AcademicienListPageState extends State<AcademicienListPage> {
   @override
   void initState() {
     super.initState();
+    _loadReferentielsAndAcademiciens();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      DependencyInjection.routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPopNext() {
     _loadReferentielsAndAcademiciens();
   }
 
@@ -206,6 +220,7 @@ class AcademicienListPageState extends State<AcademicienListPage> {
 
   @override
   void dispose() {
+    DependencyInjection.routeObserver.unsubscribe(this);
     _searchController.dispose();
     super.dispose();
   }

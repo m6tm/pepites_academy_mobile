@@ -1,8 +1,10 @@
-import 'dart:convert';
+import '../../core/cache/cache_ttl.dart';
+import '../../core/cache/repository_cache.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/events/role_events.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../domain/exceptions/network_exception.dart';
 import '../../domain/entities/permission.dart';
 import '../../domain/entities/role.dart';
 import '../../domain/entities/user.dart';
@@ -12,13 +14,15 @@ import '../network/api_endpoints.dart';
 import '../network/dio_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Implémentation du dépôt des rôles et permissions.
+/// Implementation du depot des roles et permissions.
 ///
-/// Gère le stockage local du rôle pour le mode hors-ligne et
-/// les vérifications de permissions côté client.
+/// Gere le stockage local du role pour le mode hors-ligne et
+/// les verifications de permissions cote client.
 class RoleRepositoryImpl implements RoleRepository {
   final DioClient _dioClient;
   final SharedPreferences _sharedPrefs;
+
+  final RepositoryCache<List<User>> _usersCache = RepositoryCache<List<User>>();
 
   static const String _keyUserRole = 'user_role';
   static const String _keyUserId = 'user_id';
@@ -27,15 +31,8 @@ class RoleRepositoryImpl implements RoleRepository {
   static const String _keyUserEmail = 'user_email';
   static const String _keyUserPhoto = 'user_photo';
 
-  // Clés pour le cache des utilisateurs avec rôles
-  static const String _keyCachedUsers = 'cached_users_with_roles';
-  static const String _keyCachedUsersTimestamp = 'cached_users_timestamp';
-  static const String _keyCachedUsersFilter = 'cached_users_filter';
-  static const Duration _cacheValidityDuration = Duration(minutes: 5);
-
   Role? _cachedRole;
   User? _cachedUser;
-  List<User>? _cachedUsersList;
 
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
@@ -55,20 +52,15 @@ class RoleRepositoryImpl implements RoleRepository {
     _connectivityGuard = guard;
   }
 
-  /// Retourne le rôle en cache de manière synchrone.
-  ///
-  /// Utile pour les vérifications de permissions sans appel asynchrone.
-  /// Retourne null si le rôle n'est pas encore chargé.
+  /// Retourne le role en cache de maniere synchrone.
   Role? get cachedRole => _cachedRole;
 
   @override
   Future<Role> getCurrentUserRole() async {
-    // Retourner le rôle en cache si disponible
     if (_cachedRole != null) {
       return _cachedRole!;
     }
 
-    // Sinon, charger depuis le stockage local
     final roleId = _sharedPrefs.getString(_keyUserRole);
     if (roleId != null && roleId.isNotEmpty) {
       _cachedRole = Role.fromId(roleId);
@@ -88,7 +80,7 @@ class RoleRepositoryImpl implements RoleRepository {
           await persistRoleLocally(newRole);
           _cachedRole = newRole;
           _cachedUser = null;
-          _cachedUsersList = null;
+          _usersCache.invalidateByTag('users');
           _invalidationRegistry?.markInvalidated<RoleAssignedEvent>();
           _eventBus?.emit(const RoleAssignedEvent(userId: '', roleId: ''));
         }
@@ -97,7 +89,7 @@ class RoleRepositoryImpl implements RoleRepository {
     } catch (e) {
       return const NetworkFailure(
         type: NetworkFailureType.serverError,
-        message: 'Erreur lors de la mise à jour du rôle',
+        message: 'Erreur lors de la mise a jour du role',
       );
     }
   }
@@ -131,7 +123,7 @@ class RoleRepositoryImpl implements RoleRepository {
       );
 
       return result.fold((failure) => failure, (_) {
-        _cachedUsersList = null;
+        _usersCache.invalidateByTag('users');
         _invalidationRegistry?.markInvalidated<RoleAssignedEvent>();
         _eventBus?.emit(RoleAssignedEvent(userId: userId, roleId: newRole.id));
         return null;
@@ -139,7 +131,7 @@ class RoleRepositoryImpl implements RoleRepository {
     } catch (e) {
       return const NetworkFailure(
         type: NetworkFailureType.serverError,
-        message: 'Erreur lors de l\'attribution du rôle',
+        message: 'Erreur lors de l\'attribution du role',
       );
     }
   }
@@ -169,7 +161,7 @@ class RoleRepositoryImpl implements RoleRepository {
           null,
           const NetworkFailure(
             type: NetworkFailureType.serverError,
-            message: 'Format de réponse invalide',
+            message: 'Format de reponse invalide',
           ),
         );
       });
@@ -178,7 +170,7 @@ class RoleRepositoryImpl implements RoleRepository {
         null,
         const NetworkFailure(
           type: NetworkFailureType.serverError,
-          message: 'Erreur lors de la récupération des utilisateurs',
+          message: 'Erreur lors de la recuperation des utilisateurs',
         ),
       );
     }
@@ -192,16 +184,21 @@ class RoleRepositoryImpl implements RoleRepository {
     Role? filterByRole,
     bool forceRefresh = false,
   }) async {
-    // Vérifier si on peut utiliser le cache (première page uniquement)
+    final key = 'users_${filterByRole?.id ?? 'all'}';
+
     if (!forceRefresh && page == 1) {
-      final cachedUsers = await _getCachedUsers(filterByRole);
-      if (cachedUsers != null) {
-        // Retourner le cache avec l'indicateur isFromCache = true
-        return (cachedUsers, null, true);
+      final cached = _usersCache.get(key);
+      if (cached != null) {
+        return (cached, null, true);
       }
     }
 
-    // Si pas de cache ou forceRefresh, charger depuis l'API
+    if (_connectivityGuard != null && !await _connectivityGuard!.isOnline) {
+      final stale = _usersCache.getStale(key);
+      if (stale != null) return (stale, null, true);
+      throw const OfflineException();
+    }
+
     try {
       final params = <String, dynamic>{'page': page, 'limit': limit};
       if (filterByRole != null) {
@@ -218,9 +215,13 @@ class RoleRepositoryImpl implements RoleRepository {
           final users = (data['items'] as List)
               .map((json) => User.fromJson(json as Map<String, dynamic>))
               .toList();
-          // Sauvegarder en cache si c'est la première page
           if (page == 1) {
-            _saveCachedUsers(users, filterByRole);
+            _usersCache.set(
+              key,
+              users,
+              ttl: CacheTtl.roles,
+              tags: {'users', key},
+            );
           }
           return (users, null, false);
         }
@@ -229,7 +230,12 @@ class RoleRepositoryImpl implements RoleRepository {
               .map((json) => User.fromJson(json as Map<String, dynamic>))
               .toList();
           if (page == 1) {
-            _saveCachedUsers(users, filterByRole);
+            _usersCache.set(
+              key,
+              users,
+              ttl: CacheTtl.roles,
+              tags: {'users', key},
+            );
           }
           return (users, null, false);
         }
@@ -237,7 +243,7 @@ class RoleRepositoryImpl implements RoleRepository {
           null,
           const NetworkFailure(
             type: NetworkFailureType.serverError,
-            message: 'Format de réponse invalide',
+            message: 'Format de reponse invalide',
           ),
           false,
         );
@@ -247,7 +253,7 @@ class RoleRepositoryImpl implements RoleRepository {
         null,
         const NetworkFailure(
           type: NetworkFailureType.serverError,
-          message: 'Erreur lors de la récupération des utilisateurs',
+          message: 'Erreur lors de la recuperation des utilisateurs',
         ),
         false,
       );
@@ -256,13 +262,11 @@ class RoleRepositoryImpl implements RoleRepository {
 
   @override
   bool hasPermission(Permission permission) {
-    // Utiliser le rôle en cache ou charger synchrone
     final role = _cachedRole;
     if (role != null) {
       return role.hasPermission(permission);
     }
 
-    // Chargement synchrone depuis SharedPreferences
     final roleId = _sharedPrefs.getString(_keyUserRole);
     if (roleId != null && roleId.isNotEmpty) {
       final currentRole = Role.fromId(roleId);
@@ -309,12 +313,10 @@ class RoleRepositoryImpl implements RoleRepository {
 
   @override
   Future<User?> getCurrentUser() async {
-    // Retourner l'utilisateur en cache si disponible
     if (_cachedUser != null) {
       return _cachedUser;
     }
 
-    // Charger depuis le stockage local
     final roleId = _sharedPrefs.getString(_keyUserRole);
     final userId = _sharedPrefs.getString(_keyUserId);
     final firstName = _sharedPrefs.getString(_keyUserFirstName) ?? '';
@@ -353,16 +355,12 @@ class RoleRepositoryImpl implements RoleRepository {
     await _sharedPrefs.remove(_keyUserEmail);
     await _sharedPrefs.remove(_keyUserPhoto);
 
-    // Invalidation complete des caches memoire pour eviter la persistance
-    // du role d'un utilisateur lors de la connexion d'un autre
     _cachedRole = null;
     _cachedUser = null;
-    _cachedUsersList = null;
+    _usersCache.clear();
   }
 
-  /// Persiste les informations complètes de l'utilisateur localement.
-  ///
-  /// Appelé lors de la connexion pour permettre le fonctionnement hors-ligne.
+  /// Persiste les informations completes de l'utilisateur localement.
   Future<void> persistUserLocally({
     required String userId,
     required String role,
@@ -380,7 +378,6 @@ class RoleRepositoryImpl implements RoleRepository {
       await _sharedPrefs.setString(_keyUserPhoto, photoUrl);
     }
 
-    // Mettre à jour le cache
     _cachedRole = Role.fromId(role);
     _cachedUser = User(
       id: userId,
@@ -392,9 +389,7 @@ class RoleRepositoryImpl implements RoleRepository {
     );
   }
 
-  /// Rafraîchit le rôle depuis l'API.
-  ///
-  /// Utile pour vérifier si le rôle a changé côté serveur.
+  /// Rafraichit le role depuis l'API.
   Future<Role?> refreshRoleFromApi() async {
     try {
       final result = await _dioClient.get(ApiEndpoints.encadreurs);
@@ -417,127 +412,19 @@ class RoleRepositoryImpl implements RoleRepository {
     }
   }
 
-  // ===== Méthodes de cache pour les utilisateurs avec rôles =====
-
-  /// Récupère les utilisateurs en cache si disponibles et valides.
-  ///
-  /// Retourne null si le cache n'existe pas ou est expiré.
-  Future<List<User>?> _getCachedUsers(Role? filterByRole) async {
-    // Vérifier d'abord le cache mémoire
-    if (_cachedUsersList != null) {
-      final cachedFilter = _sharedPrefs.getString(_keyCachedUsersFilter);
-      if ((filterByRole == null && cachedFilter == null) ||
-          (filterByRole != null && cachedFilter == filterByRole.id)) {
-        return _cachedUsersList;
-      }
-    }
-
-    // Vérifier le cache persistant
-    final cachedJson = _sharedPrefs.getString(_keyCachedUsers);
-    if (cachedJson == null || cachedJson.isEmpty) {
-      return null;
-    }
-
-    // Vérifier si le cache est expiré
-    final timestampStr = _sharedPrefs.getString(_keyCachedUsersTimestamp);
-    if (timestampStr != null) {
-      final timestamp = DateTime.tryParse(timestampStr);
-      if (timestamp != null) {
-        final now = DateTime.now();
-        if (now.difference(timestamp) > _cacheValidityDuration) {
-          return null; // Cache expiré
-        }
-      }
-    }
-
-    // Vérifier le filtre
-    final cachedFilter = _sharedPrefs.getString(_keyCachedUsersFilter);
-    if ((filterByRole == null && cachedFilter != null) ||
-        (filterByRole != null && cachedFilter != filterByRole.id)) {
-      return null; // Filtre différent
-    }
-
-    try {
-      final List<dynamic> jsonList = jsonDecode(cachedJson) as List<dynamic>;
-      final users = jsonList
-          .map((json) => User.fromJson(json as Map<String, dynamic>))
-          .toList();
-      _cachedUsersList = users;
-      return users;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Sauvegarde les utilisateurs en cache.
-  Future<void> _saveCachedUsers(List<User> users, Role? filterByRole) async {
-    _cachedUsersList = users;
-
-    final jsonList = users.map((u) => u.toJson()).toList();
-    await _sharedPrefs.setString(_keyCachedUsers, jsonEncode(jsonList));
-    await _sharedPrefs.setString(
-      _keyCachedUsersTimestamp,
-      DateTime.now().toIso8601String(),
-    );
-    if (filterByRole != null) {
-      await _sharedPrefs.setString(_keyCachedUsersFilter, filterByRole.id);
-    } else {
-      await _sharedPrefs.remove(_keyCachedUsersFilter);
-    }
-  }
-
   /// Invalide le cache des utilisateurs.
   Future<void> invalidateUsersCache() async {
-    _cachedUsersList = null;
-    await _sharedPrefs.remove(_keyCachedUsers);
-    await _sharedPrefs.remove(_keyCachedUsersTimestamp);
-    await _sharedPrefs.remove(_keyCachedUsersFilter);
+    _usersCache.invalidateByTag('users');
   }
 
-  /// Vérifie si le cache des utilisateurs existe et est valide.
+  /// Verifie si le cache des utilisateurs existe et est valide.
   bool hasValidUsersCache() {
-    return _cachedUsersList != null && _cachedUsersList!.isNotEmpty;
+    return _usersCache.get('users_all') != null;
   }
 
-  /// Récupère les utilisateurs en cache de manière synchrone.
-  ///
-  /// Retourne le cache mémoire si disponible, null sinon.
-  /// Ne vérifie pas le filtre - le filtrage se fait côté UI.
-  /// Utile pour un affichage immédiat avant le rafraîchissement.
+  /// Recupere les utilisateurs en cache de maniere synchrone.
   List<User>? getCachedUsersSync() {
-    // Vérifier d'abord le cache mémoire
-    if (_cachedUsersList != null && _cachedUsersList!.isNotEmpty) {
-      return _cachedUsersList;
-    }
-
-    // Essayer de charger depuis SharedPreferences
-    final cachedJson = _sharedPrefs.getString(_keyCachedUsers);
-    if (cachedJson == null || cachedJson.isEmpty) {
-      return null;
-    }
-
-    // Vérifier si le cache est expiré
-    final timestampStr = _sharedPrefs.getString(_keyCachedUsersTimestamp);
-    if (timestampStr != null) {
-      final timestamp = DateTime.tryParse(timestampStr);
-      if (timestamp != null) {
-        final now = DateTime.now();
-        if (now.difference(timestamp) > _cacheValidityDuration) {
-          return null; // Cache expiré
-        }
-      }
-    }
-
-    try {
-      final List<dynamic> jsonList = jsonDecode(cachedJson) as List<dynamic>;
-      final users = jsonList
-          .map((json) => User.fromJson(json as Map<String, dynamic>))
-          .toList();
-      _cachedUsersList = users; // Mettre en cache mémoire
-      return users;
-    } catch (e) {
-      return null;
-    }
+    return _usersCache.getStale('users_all');
   }
 
   @override
@@ -566,7 +453,7 @@ class RoleRepositoryImpl implements RoleRepository {
           null,
           const NetworkFailure(
             type: NetworkFailureType.serverError,
-            message: 'Format de réponse invalide',
+            message: 'Format de reponse invalide',
           ),
         );
       });
@@ -575,7 +462,7 @@ class RoleRepositoryImpl implements RoleRepository {
         null,
         const NetworkFailure(
           type: NetworkFailureType.serverError,
-          message: 'Erreur lors de la récupération de l\'historique',
+          message: 'Erreur lors de la recuperation de l\'historique',
         ),
       );
     }

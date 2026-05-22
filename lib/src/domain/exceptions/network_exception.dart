@@ -11,6 +11,15 @@ class NetworkException extends DomainException {
        );
 }
 
+/// Exception levee lorsque l'appareil est hors ligne
+/// et qu'aucune donnee stale n'est disponible en cache.
+class OfflineException extends NetworkException {
+  const OfflineException([
+    String message = "Appareil hors ligne et aucune donnee en cache",
+    String? messageKey,
+  ]) : super(message, messageKey ?? 'exceptionOfflineDefault');
+}
+
 /// Exception levee lors d'un timeout.
 class TimeoutException extends NetworkException {
   const TimeoutException([

@@ -387,6 +387,7 @@ class SeanceRepositoryImpl implements SeanceRepository {
 
   /// Invalide le cache des stats de seance en cours.
   /// A appeler apres toute mutation (presence, atelier, annotation).
+  @override
   void invalidateSeanceEncoursCache() {
     _cache.invalidateKey('encours');
   }

@@ -310,11 +310,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
             final atelier = Atelier.fromJson(map);
             await _datasource.update(atelier);
             _invalidateCache();
-            _eventBus?.emit(AtelierCreeEvent(
+            _eventBus?.emit(AtelierAppliedEvent(
               atelierId: atelier.id,
               seanceId: atelier.seanceId,
             ));
-            _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
+            _invalidationRegistry?.markInvalidated<AtelierAppliedEvent>();
             return atelier;
           }
           return _applyLocally(id);
@@ -348,6 +348,11 @@ class AtelierRepositoryImpl implements AtelierRepository {
             final atelier = Atelier.fromJson(map);
             await _datasource.update(atelier);
             _invalidateCache();
+            _eventBus?.emit(AtelierClosedEvent(
+              atelierId: atelier.id,
+              seanceId: atelier.seanceId,
+            ));
+            _invalidationRegistry?.markInvalidated<AtelierClosedEvent>();
             return atelier;
           }
           return _closeLocally(id);

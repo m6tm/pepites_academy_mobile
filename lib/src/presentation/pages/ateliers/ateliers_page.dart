@@ -51,7 +51,7 @@ class AteliersPage extends StatefulWidget {
   State<AteliersPage> createState() => _AteliersPageState();
 }
 
-class _AteliersPageState extends State<AteliersPage> {
+class _AteliersPageState extends State<AteliersPage> with RouteAware {
   late final AtelierState _atelierState;
   late final ExerciceState _exerciceState;
   late final AnnotationState _annotationState;
@@ -145,10 +145,26 @@ class _AteliersPageState extends State<AteliersPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      DependencyInjection.routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
   void dispose() {
+    DependencyInjection.routeObserver.unsubscribe(this);
     _atelierState.removeListener(_onAtelierStateChanged);
     _exerciceState.removeListener(_onExerciceStateChanged);
+    // Ne pas disposer les états globaux (singletons DI)
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _loadData();
   }
 
   @override

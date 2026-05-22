@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import '../../../l10n/app_localizations.dart';
 import '../../core/events/domain_event_bus.dart';
-import '../../core/events/seance_events.dart';
+import '../../core/events/atelier_events.dart';
 import '../../domain/entities/atelier.dart';
 import '../../domain/entities/exercice.dart';
 import '../../domain/repositories/atelier_repository.dart';
@@ -19,8 +19,6 @@ class AtelierService {
   DomainEventBus? _eventBus;
   AppLocalizations? _l10n;
 
-  final _ateliersController = StreamController<List<Atelier>>.broadcast();
-
   AtelierService({
     required AtelierRepository atelierRepository,
     required SeanceRepository seanceRepository,
@@ -33,9 +31,6 @@ class AtelierService {
     _eventBus = bus;
   }
 
-  /// Flux de donnees pour les ateliers.
-  Stream<List<Atelier>> get ateliersStream => _ateliersController.stream;
-
   /// Met a jour les traductions.
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
@@ -45,7 +40,6 @@ class AtelierService {
   Future<List<Atelier>> getAteliersParSeance(String seanceId, {bool forceRefresh = false}) async {
     final ateliers = await _atelierRepository.getBySeanceId(seanceId, forceRefresh: forceRefresh);
     ateliers.sort((a, b) => a.ordre.compareTo(b.ordre));
-    _ateliersController.add(ateliers);
     return ateliers;
   }
 
@@ -103,7 +97,7 @@ class AtelierService {
       seance.copyWith(atelierIds: updatedIds, nbAteliers: updatedIds.length),
     );
 
-    _eventBus?.emit(AtelierCreatedEvent(seanceId, created.id));
+    _eventBus?.emit(AtelierCreeEvent(atelierId: created.id, seanceId: seanceId));
     await refreshAteliers(seanceId);
     return created;
   }
@@ -235,15 +229,4 @@ class AtelierService {
         '${hex(bytes.sublist(10, 16))}';
   }
 
-  /// Reinitialise le service pour un nouvel utilisateur.
-  /// Utilise par CacheManager lors de la deconnexion pour clearer l'etat
-  /// sans fermer definitivement le stream.
-  void reset() {
-    _ateliersController.add([]);
-  }
-
-  /// Libere les ressources.
-  void dispose() {
-    _ateliersController.close();
-  }
 }

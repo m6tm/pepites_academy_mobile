@@ -1,5 +1,5 @@
-import '../entities/dashboard_stats.dart';
 import '../entities/chart_stats.dart';
+import '../entities/dashboard_stats.dart';
 import '../failures/network_failure.dart';
 
 /// Interface du depot pour les operations liees au dashboard.
@@ -55,19 +55,4 @@ abstract class DashboardRepository {
   ///
   /// Appele automatiquement lors des mutations (nouvelle seance, presence, etc.).
   Future<void> invalidateCache();
-
-  /// Recupere les statistiques en cache de maniere synchrone.
-  ///
-  /// Retourne null si le cache n'existe pas ou est expire.
-  DashboardStats? getCachedStatsSync();
-
-  /// Sauvegarde les statistiques en cache local.
-  ///
-  /// Utilise pour le mode hors-ligne.
-  Future<void> saveStatsToCache(DashboardStats stats);
-
-  /// Stream des statistiques pour la reactivite UI.
-  ///
-  /// Emet de nouvelles valeurs lors des mises a jour.
-  Stream<DashboardStats> get statsStream;
 }

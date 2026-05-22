@@ -150,9 +150,16 @@ class DashboardStats {
 
   /// Cree une instance depuis un JSON (reponse API).
   factory DashboardStats.fromJson(Map<String, dynamic> json) {
-    final globalStatsJson = json['global_stats'] as Map<String, dynamic>?;
-    final seasonJson = json['current_season'] as Map<String, dynamic>?;
-    final usersByRoleJson = json['users_by_role'] as Map<String, dynamic>?;
+    Map<String, dynamic>? castMap(dynamic value) {
+      if (value == null) return null;
+      if (value is Map<String, dynamic>) return value;
+      if (value is Map) return Map<String, dynamic>.from(value);
+      return null;
+    }
+
+    final globalStatsJson = castMap(json['global_stats']);
+    final seasonJson = castMap(json['current_season']);
+    final usersByRoleJson = castMap(json['users_by_role']);
 
     return DashboardStats(
       globalStats: globalStatsJson != null

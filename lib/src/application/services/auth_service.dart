@@ -2,14 +2,12 @@ import 'package:flutter/foundation.dart';
 import '../../domain/failures/network_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'sync_service.dart';
-import 'cache_manager.dart';
 import 'role_service.dart';
 
 /// Service gerant la logique metier liee a l'authentification.
 class AuthService {
   final AuthRepository _authRepository;
   SyncService? _syncService;
-  CacheManager? _cacheManager;
   RoleService? _roleService;
   VoidCallback? onLogout;
 
@@ -18,11 +16,6 @@ class AuthService {
   /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
     _syncService = service;
-  }
-
-  /// Injecte le gestionnaire de cache.
-  void setCacheManager(CacheManager manager) {
-    _cacheManager = manager;
   }
 
   /// Injecte le service de gestion des roles.
@@ -77,10 +70,7 @@ class AuthService {
     // la persistance du role d'un utilisateur lors de la connexion d'un autre
     await _roleService?.clearLocalRole();
 
-    // 1. Vider tous les caches de donnees metier
-    await _cacheManager?.clearAll();
-
-    // 2. Vider la queue de synchronisation
+    // 1. Vider la queue de synchronisation
     await _syncService?.clearAll();
 
     // 3. Callback post-nettoyage (invalidation des caches memoire)

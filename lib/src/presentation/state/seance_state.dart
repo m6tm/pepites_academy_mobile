@@ -1,43 +1,55 @@
 import 'package:flutter/material.dart';
+import '../../core/events/annotation_events.dart';
 import '../../core/events/app_events.dart';
+import '../../core/events/atelier_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../core/events/seance_events.dart';
 import '../../application/services/seance_service.dart';
+import '../../domain/repositories/seance_repository.dart';
 import '../../domain/entities/seance.dart';
-import '../../injection_container.dart';
+
 
 enum SeanceFilter { toutes, enCours, terminees, aVenir }
 
 class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
   final SeanceService _service;
+  final SeanceRepository _repository;
 
-  SeanceState(this._service, DomainEventBus eventBus) {
+  SeanceState(this._service, this._repository, DomainEventBus eventBus) {
     _listenToConflict(eventBus);
     listenTo<SeanceCreatedEvent>(eventBus, (_) => chargerSeances());
     listenTo<SeanceUpdatedEvent>(eventBus, (_) => chargerSeances());
+    listenTo<AtelierAppliedEvent>(eventBus, (_) {
+      _repository.invalidateSeanceEncoursCache();
+      _refreshStatsSilently();
+    });
+    listenTo<AtelierClosedEvent>(eventBus, (_) {
+      _repository.invalidateSeanceEncoursCache();
+      _refreshStatsSilently();
+    });
     listenTo<SeanceStatsChangedEvent>(eventBus, (e) {
-      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _repository.invalidateSeanceEncoursCache();
       _refreshStatsSilently();
     });
     listenTo<SeanceClosedEvent>(eventBus, (e) {
-      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _repository.invalidateSeanceEncoursCache();
       chargerSeances();
     });
     listenTo<PresenceRecordedEvent>(eventBus, (e) {
-      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _repository.invalidateSeanceEncoursCache();
       _refreshStatsSilently();
     });
-    listenTo<AtelierCreatedEvent>(eventBus, (e) {
-      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+    listenTo<AtelierCreeEvent>(eventBus, (e) {
+      _repository.invalidateSeanceEncoursCache();
       _refreshStatsSilently();
     });
     listenTo<AtelierDeletedEvent>(eventBus, (e) {
-      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _repository.invalidateSeanceEncoursCache();
       _refreshStatsSilently();
     });
     listenTo<AnnotationCreatedEvent>(eventBus, (e) {
-      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _repository.invalidateSeanceEncoursCache();
       _refreshStatsSilently();
     });
     listenTo<AppResumedEvent>(eventBus, (_) => _onAppResumed());
@@ -105,7 +117,7 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     try {
       _seances = await _service.getAllSeances();
       _seanceOuverte = await _service.getSeanceOuverte();
-      DependencyInjection.seanceRepository.invalidateSeanceEncoursCache();
+      _repository.invalidateSeanceEncoursCache();
       _lastFetchedAt = DateTime.now();
     } catch (e) {
       _errorMessage = 'Erreur lors du chargement des seances : $e';
@@ -122,7 +134,7 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     if (_isRefreshingStats) return;
     _isRefreshingStats = true;
     try {
-      await DependencyInjection.seanceRepository.getSeanceEncoursWithStats();
+      await _repository.getSeanceEncoursWithStats();
     } finally {
       _isRefreshingStats = false;
     }

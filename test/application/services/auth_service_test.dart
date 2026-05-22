@@ -3,7 +3,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/application/services/auth_service.dart';
 import 'package:pepites_academy_mobile/src/application/services/role_service.dart';
 import 'package:pepites_academy_mobile/src/application/services/sync_service.dart';
-import 'package:pepites_academy_mobile/src/application/services/cache_manager.dart';
 import 'package:pepites_academy_mobile/src/domain/repositories/auth_repository.dart';
 import 'package:pepites_academy_mobile/src/domain/failures/network_failure.dart';
 
@@ -14,32 +13,23 @@ class MockRoleService extends Mock implements RoleService {}
 
 class MockSyncService extends Mock implements SyncService {}
 
-class MockCacheManager extends Mock implements CacheManager {}
-
 void main() {
   late AuthService authService;
   late MockAuthRepository mockAuthRepository;
   late MockRoleService mockRoleService;
   late MockSyncService mockSyncService;
-  late MockCacheManager mockCacheManager;
-
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     mockRoleService = MockRoleService();
     mockSyncService = MockSyncService();
-    mockCacheManager = MockCacheManager();
 
     authService = AuthService(mockAuthRepository);
     authService.setRoleService(mockRoleService);
     authService.setSyncService(mockSyncService);
-    authService.setCacheManager(mockCacheManager);
 
     // Configuration des mocks pour retourner Future<void>
     when(
       () => mockRoleService.clearLocalRole(),
-    ).thenAnswer((_) async => Future.value());
-    when(
-      () => mockCacheManager.clearAll(),
     ).thenAnswer((_) async => Future.value());
     when(
       () => mockSyncService.clearAll(),
@@ -59,9 +49,6 @@ void main() {
         when(() => mockRoleService.clearLocalRole()).thenAnswer((_) async {
           callOrder.add('clearLocalRole');
         });
-        when(() => mockCacheManager.clearAll()).thenAnswer((_) async {
-          callOrder.add('clearAll');
-        });
         when(() => mockSyncService.clearAll()).thenAnswer((_) async {
           callOrder.add('syncClearAll');
         });
@@ -80,10 +67,9 @@ void main() {
               'clearLocalRole() doit etre appele en premier pour eviter '
               'la persistance du role entre utilisateurs',
         );
-        expect(callOrder.length, 4);
+        expect(callOrder.length, 3);
 
         verify(() => mockRoleService.clearLocalRole()).called(1);
-        verify(() => mockCacheManager.clearAll()).called(1);
         verify(() => mockSyncService.clearAll()).called(1);
         verify(() => mockAuthRepository.logout()).called(1);
       },
@@ -94,14 +80,12 @@ void main() {
       () async {
         // Arrange
         final authServiceWithoutRole = AuthService(mockAuthRepository);
-        authServiceWithoutRole.setCacheManager(mockCacheManager);
         authServiceWithoutRole.setSyncService(mockSyncService);
 
         // Act - Appeler logout sans role service
         await authServiceWithoutRole.logout();
 
         // Assert - Verifier que les autres services ont ete appeles
-        verify(() => mockCacheManager.clearAll()).called(1);
         verify(() => mockSyncService.clearAll()).called(1);
         verify(() => mockAuthRepository.logout()).called(1);
       },
