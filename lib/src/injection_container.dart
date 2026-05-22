@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import 'application/services/activity_service.dart';
 import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
+import 'application/services/app_settings_service.dart';
 import 'application/services/atelier_service.dart';
 import 'application/services/evaluation_service.dart';
 import 'application/services/exercice_service.dart';
@@ -76,6 +77,7 @@ import 'presentation/state/sms_state.dart';
 import 'presentation/state/notification_state.dart';
 import 'presentation/state/sync_state.dart';
 import 'presentation/state/theme_state.dart';
+import 'presentation/widgets/academy_toast.dart';
 import 'presentation/state/language_state.dart';
 import 'presentation/state/exercice_state.dart';
 import 'presentation/state/atelier_state.dart';
@@ -83,6 +85,7 @@ import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
 import 'core/events/domain_event_bus.dart';
+import 'core/events/encadreur_events.dart';
 import 'core/events/invalidation_registry.dart';
 import 'core/events/seance_events.dart';
 import 'core/lifecycle/app_lifecycle_service.dart';
@@ -139,6 +142,7 @@ class DependencyInjection {
   static late final ApiSyncDatasourceImpl apiSyncDatasource;
   static late final DashboardService dashboardService;
   static late RoleService roleService;
+  static late final AppSettingsService appSettingsService;
   static late final RoleRepositoryImpl roleRepository;
   static late final DashboardRepositoryImpl dashboardRepository;
   static late final MedecinRepository medecinRepository;
@@ -433,6 +437,12 @@ class DependencyInjection {
     roleRepository.setConnectivityGuard(connectivityGuard);
     roleService = RoleService(roleRepository: roleRepository);
 
+    // Initialisation du service de parametres globaux
+    appSettingsService = AppSettingsService(
+      dioClient: dioClient,
+      preferences: preferences,
+    );
+
     // Initialisation de l'authentification
     final authRepository = AuthRepositoryImpl(dioClient, preferences);
     authService = AuthService(authRepository);
@@ -544,7 +554,20 @@ class DependencyInjection {
     try {
       switch (entityType) {
         case SyncEntityType.encadreur:
-          await encadreurRepository.delete(entityId);
+          // Suppression locale UNIQUEMENT — pas d'operation DELETE en file d'attente
+          await encadreurRepository.deleteLocalOnly(entityId);
+          // Notifier l'utilisateur que l'email existe deja
+          final context = navigatorKey.currentContext;
+          if (context != null && context.mounted) {
+            AcademyToast.show(
+              context,
+              title: 'Email déjà utilisé',
+              description:
+                  'Cet email est déjà associé à un encadreur. La création a été annulée.',
+              isError: true,
+            );
+          }
+          domainEventBus.emit(const EncadreurEmailConflictEvent());
           break;
         case SyncEntityType.academicien:
           await academicienRepository.delete(entityId);

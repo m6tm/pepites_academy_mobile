@@ -37,11 +37,14 @@ class AdminSettingsScreen extends StatefulWidget {
 
 class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   String? _userEmail;
+  bool _allowDuplicateEmails = false;
+  bool _isLoadingDuplicateEmails = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserEmail();
+    _loadAllowDuplicateEmails();
   }
 
   Future<void> _loadUserEmail() async {
@@ -49,6 +52,28 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
     if (mounted) {
       setState(() {
         _userEmail = email;
+      });
+    }
+  }
+
+  Future<void> _loadAllowDuplicateEmails() async {
+    final value = await DependencyInjection.appSettingsService.getAllowDuplicateEmails();
+    if (mounted) {
+      setState(() {
+        _allowDuplicateEmails = value;
+      });
+    }
+  }
+
+  Future<void> _toggleAllowDuplicateEmails(bool value) async {
+    setState(() {
+      _isLoadingDuplicateEmails = true;
+    });
+    await DependencyInjection.appSettingsService.setAllowDuplicateEmails(value);
+    if (mounted) {
+      setState(() {
+        _allowDuplicateEmails = value;
+        _isLoadingDuplicateEmails = false;
       });
     }
   }
@@ -201,6 +226,13 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: _buildDuplicateEmailToggle(context, colorScheme),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: OutlinedButton.icon(
               onPressed: widget.onLogout,
               icon: const Icon(Icons.logout_rounded),
@@ -221,6 +253,52 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],
+    );
+  }
+
+  Widget _buildDuplicateEmailToggle(BuildContext context, ColorScheme colorScheme) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? colorScheme.surface : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.onSurface.withValues(alpha: 0.06),
+        ),
+      ),
+      child: SwitchListTile(
+        title: Text(
+          'Emails dupliqués',
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        subtitle: Text(
+          'Autoriser plusieurs encadreurs avec la même adresse email',
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            color: colorScheme.onSurface.withValues(alpha: 0.4),
+          ),
+        ),
+        secondary: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(
+            Icons.email_outlined,
+            color: Color(0xFF3B82F6),
+            size: 20,
+          ),
+        ),
+        value: _allowDuplicateEmails,
+        onChanged: _isLoadingDuplicateEmails ? null : _toggleAllowDuplicateEmails,
+        activeThumbColor: const Color(0xFF3B82F6),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      ),
     );
   }
 

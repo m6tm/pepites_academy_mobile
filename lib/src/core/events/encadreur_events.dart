@@ -6,3 +6,10 @@ import 'domain_event.dart';
 class EncadreurListChangedEvent extends DomainEvent {
   const EncadreurListChangedEvent();
 }
+
+/// Emis lorsqu'un encadreur cree offline est en conflit d'email (409)
+/// avec une entite existante sur le serveur.
+class EncadreurEmailConflictEvent extends DomainEvent {
+  final String? email;
+  const EncadreurEmailConflictEvent({this.email});
+}

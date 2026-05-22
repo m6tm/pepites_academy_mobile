@@ -21,6 +21,7 @@ class AppPreferences {
   static const String _keyRefreshToken = 'refresh_token';
   static const String _keyBiometricEnabled = 'biometric_enabled';
   static const String _keyAutoLockMinutes = 'auto_lock_minutes';
+  static const String _keyAllowDuplicateEmails = 'allow_duplicate_emails';
 
   AppPreferences(this._repository);
 
@@ -186,5 +187,18 @@ class AppPreferences {
   /// Définit le délai de verrouillage automatique en minutes.
   Future<void> setAutoLockMinutes(int minutes) async {
     await _repository.setInt(_keyAutoLockMinutes, minutes);
+  }
+
+  // --- Parametres admin globaux ---
+
+  /// Verifie si les emails dupliques sont autorises pour les encadreurs.
+  Future<bool> getAllowDuplicateEmails() async {
+    final result = await _repository.getBool(_keyAllowDuplicateEmails);
+    return result ?? false;
+  }
+
+  /// Active ou desactive l'autorisation des emails dupliques.
+  Future<void> setAllowDuplicateEmails(bool enabled) async {
+    await _repository.setBool(_keyAllowDuplicateEmails, enabled);
   }
 }

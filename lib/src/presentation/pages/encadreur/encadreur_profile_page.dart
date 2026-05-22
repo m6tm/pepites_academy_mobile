@@ -11,6 +11,7 @@ import '../../theme/app_colors.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../widgets/academy_toast.dart';
 import '../../utils/screenshot_helper.dart';
+import 'encadreur_edit_page.dart';
 
 /// Page de consultation du profil d'un encadreur.
 /// Affiche les informations completes, le badge QR, l'historique et les statistiques.
@@ -139,6 +140,29 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
       backgroundColor: Colors.transparent,
       builder: (context) => _QrFullScreenSheet(encadreur: _encadreur),
     );
+  }
+
+  void _navigateToEdit() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EncadreurEditPage(
+          encadreur: _encadreur,
+          repository: widget.repository,
+        ),
+      ),
+    ).then((result) {
+      if (result == true) {
+        _reloadEncadreur();
+      }
+    });
+  }
+
+  Future<void> _reloadEncadreur() async {
+    final refreshed = await widget.repository.getById(_encadreur.id);
+    if (refreshed != null && mounted) {
+      setState(() => _encadreur = refreshed);
+    }
   }
 
   /// Partage les informations de profil de l'encadreur sous forme de texte.
@@ -951,6 +975,15 @@ class _EncadreurProfilePageState extends State<EncadreurProfilePage>
             ),
           ),
           const SizedBox(height: 24),
+          _OptionItem(
+            icon: Icons.edit_rounded,
+            label: l10n.editProfile,
+            color: const Color(0xFF3B82F6),
+            onTap: () {
+              Navigator.pop(context);
+              _navigateToEdit();
+            },
+          ),
           _OptionItem(
             icon: Icons.qr_code_rounded,
             label: l10n.viewQrBadgeOption,

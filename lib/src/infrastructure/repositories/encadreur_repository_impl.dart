@@ -9,6 +9,7 @@ import '../../domain/entities/encadreur.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/entities/user_role.dart';
 import '../../domain/repositories/encadreur_repository.dart';
+import '../../injection_container.dart';
 import '../datasources/encadreur_local_datasource.dart';
 import '../network/dio_client.dart';
 import '../network/api_endpoints.dart';
@@ -86,12 +87,41 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
   /// Conserve uniquement les entrees locales avec un ID temporaire (timestamp)
   /// qui ont une operation de sync en attente, pour ne pas perdre les creations
   /// offline non encore envoyees au serveur.
+  ///
+  /// Un encadreur local avec ID temporaire qui a le meme email ou le meme
+  /// code QR qu'un encadreur distant est considere comme deja synchronise
+  /// (le serveur lui a attribue un UUID) et n'est pas conserve pour eviter
+  /// les doublons pendant la fenetre de migration d'ID.
   Future<void> replaceAllFromRemote(List<Encadreur> remoteList) async {
     final local = _datasource.getAll();
     final remoteIds = {for (final e in remoteList) e.id};
-    final pendingLocal = local.where(
-      (e) => !remoteIds.contains(e.id) && RegExp(r'^\d+$').hasMatch(e.id),
-    ).toList();
+    final remoteEmails = {
+      for (final e in remoteList)
+        if (e.email != null && e.email!.isNotEmpty) e.email!,
+    };
+    final remoteQrCodes = {
+      for (final e in remoteList)
+        if (e.codeQrUnique.isNotEmpty) e.codeQrUnique,
+    };
+
+    final pendingLocal = local.where((e) {
+      if (remoteIds.contains(e.id)) return false;
+      if (!RegExp(r'^\d+$').hasMatch(e.id)) return false;
+      // Si le meme email ou le meme QR existe deja cote serveur, ce n'est
+      // pas une vraie creation offline en attente — c'est la version locale
+      // d'un encadreur qui vient d'etre synchronise mais dont l'ID n'a pas
+      // encore ete migre. On la supprime pour eviter le doublon.
+      if (e.email != null &&
+          e.email!.isNotEmpty &&
+          remoteEmails.contains(e.email!)) {
+        return false;
+      }
+      if (e.codeQrUnique.isNotEmpty && remoteQrCodes.contains(e.codeQrUnique)) {
+        return false;
+      }
+      return true;
+    }).toList();
+
     await _datasource.saveAll([...remoteList, ...pendingLocal]);
   }
 
@@ -101,11 +131,18 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     _cache.invalidateByTag('encadreurs');
     _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
     _eventBus?.emit(const EncadreurListChangedEvent());
+
+    final payload = created.toJson();
+    final allowDuplicate = await DependencyInjection.appSettingsService.getAllowDuplicateEmails();
+    if (allowDuplicate) {
+      payload['forceCreate'] = true;
+    }
+
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.encadreur,
       entityId: created.id,
       operationType: SyncOperationType.create,
-      data: created.toJson(),
+      data: payload,
     );
     return created;
   }
@@ -139,6 +176,17 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  /// Supprime un encadreur localement SANS declencher de synchronisation.
+  /// Utilise pour nettoyer les entites en conflit (409) sans creer
+  /// d'operation DELETE supplementaire dans la file d'attente.
+  Future<void> deleteLocalOnly(String id) async {
+    await _datasource.delete(id);
+    _cache.invalidateByTag('encadreurs');
+    _detailCache.invalidateKey(id);
+    _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
+    _eventBus?.emit(const EncadreurListChangedEvent());
   }
 
   /// Migre l'ID temporaire local (timestamp) vers l'UUID attribue par le serveur.
