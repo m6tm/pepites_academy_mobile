@@ -63,7 +63,7 @@ class AnnotationHistoriqueItem extends StatelessWidget {
               const Spacer(),
               RatingBar(
                 note: scoreTotal,
-                maxNote: 50,
+                maxNote: 5,
                 width: 60,
                 height: 6,
               ),

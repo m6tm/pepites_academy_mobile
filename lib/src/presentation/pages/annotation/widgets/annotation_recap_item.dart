@@ -24,18 +24,22 @@ class AnnotationRecapItem extends StatelessWidget {
         .firstOrNull;
     if (critere == null) return const SizedBox.shrink();
 
-    final element1 = critere.elements
-        .where((e) => e.id == config.element1Id)
-        .firstOrNull;
-    final element2 = critere.elements
-        .where((e) => e.id == config.element2Id)
-        .firstOrNull;
+    final resolvedElements = <({String id, String libelle})>[];
+    for (final elementId in config.elementIds) {
+      final element = critere.elements.where((e) => e.id == elementId).firstOrNull;
+      if (element != null) {
+        resolvedElements.add((id: element.id, libelle: element.libelle));
+      }
+    }
 
-    if (element1 == null || element2 == null) return const SizedBox.shrink();
+    if (resolvedElements.isEmpty) return const SizedBox.shrink();
 
-    final note1 = getNote(config.critereId, config.element1Id);
-    final note2 = getNote(config.critereId, config.element2Id);
-    final sousTotal = note1 + note2;
+    final notes = resolvedElements
+        .map((e) => getNote(config.critereId, e.id))
+        .toList();
+    final moyenne = notes.isEmpty
+        ? 0.0
+        : notes.fold(0.0, (sum, n) => sum + n) / notes.length;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -66,19 +70,19 @@ class AnnotationRecapItem extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Row(
-                  children: [
-                    _buildNoteLine(element1.libelle, note1),
-                    const SizedBox(width: 12),
-                    _buildNoteLine(element2.libelle, note2),
-                  ],
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: resolvedElements
+                      .map((e) => _buildNoteLine(e.libelle, getNote(config.critereId, e.id)))
+                      .toList(),
                 ),
               ],
             ),
           ),
           RatingBar(
-            note: sousTotal,
-            maxNote: 10,
+            note: moyenne,
+            maxNote: 5,
             width: 50,
             height: 6,
           ),

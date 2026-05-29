@@ -55,8 +55,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
 
   void _initNotes() {
     for (final config in _configuration) {
-      _notesEnCours['${config.critereId}_${config.element1Id}'] = 0.0;
-      _notesEnCours['${config.critereId}_${config.element2Id}'] = 0.0;
+      for (final elementId in config.elementIds) {
+        _notesEnCours['${config.critereId}_$elementId'] = -1.0;
+      }
     }
 
     final existante = widget.annotationState.annotationPourExerciceActuel;
@@ -64,10 +65,9 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
       _modeEdition = true;
       _annotationExistanteId = existante.id;
       for (final score in existante.scores) {
-        _notesEnCours['${score.critereId}_${score.element1Id}'] =
-            score.noteElement1;
-        _notesEnCours['${score.critereId}_${score.element2Id}'] =
-            score.noteElement2;
+        for (final element in score.elements) {
+          _notesEnCours['${score.critereId}_${element.elementId}'] = element.note;
+        }
       }
       if (existante.commentaire != null && existante.commentaire!.isNotEmpty) {
         _commentaireController.text = existante.commentaire!;
@@ -87,7 +87,8 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
   }
 
   double _getNote(String critereId, String elementId) {
-    return _notesEnCours['${critereId}_$elementId'] ?? 0.0;
+    final value = _notesEnCours['${critereId}_$elementId'] ?? -1.0;
+    return value < 0 ? 0.0 : value;
   }
 
   void _setNote(String critereId, String elementId, double note) {
@@ -97,19 +98,23 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
   }
 
   double _getScoreTotal() {
-    double total = 0;
+    if (_configuration.isEmpty) return 0.0;
+    double sommeMoyennes = 0;
     for (final config in _configuration) {
-      final note1 = _getNote(config.critereId, config.element1Id);
-      final note2 = _getNote(config.critereId, config.element2Id);
-      total += note1 + note2;
+      final notes = config.elementIds.map((eid) => _getNote(config.critereId, eid)).toList();
+      if (notes.isNotEmpty) {
+        sommeMoyennes += notes.fold(0.0, (s, n) => s + n) / notes.length;
+      }
     }
-    return total;
+    return sommeMoyennes / _configuration.length;
   }
 
   bool _tousLesElementsNotes() {
     for (final config in _configuration) {
-      if (_getNote(config.critereId, config.element1Id) == 0) return false;
-      if (_getNote(config.critereId, config.element2Id) == 0) return false;
+      for (final elementId in config.elementIds) {
+        final value = _notesEnCours['${config.critereId}_$elementId'] ?? -1.0;
+        if (value < 0) return false;
+      }
     }
     return true;
   }
@@ -120,10 +125,10 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
     final scores = _configuration.map((config) {
       return ScoreAnnotation(
         critereId: config.critereId,
-        element1Id: config.element1Id,
-        noteElement1: _getNote(config.critereId, config.element1Id),
-        element2Id: config.element2Id,
-        noteElement2: _getNote(config.critereId, config.element2Id),
+        elements: config.elementIds.map((eid) => ScoreElementNote(
+          elementId: eid,
+          note: _notesEnCours['${config.critereId}_$eid'] ?? 0.0,
+        )).toList(),
       );
     }).toList();
 
@@ -354,7 +359,7 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
               const SizedBox(height: 12),
               RatingBar(
                 note: scoreTotal,
-                maxNote: 50,
+                maxNote: 5,
                 width: 140,
                 height: 10,
               ),

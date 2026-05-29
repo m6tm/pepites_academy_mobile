@@ -1,54 +1,86 @@
+/// Represente la note d'un element dans une annotation.
+class ScoreElementNote {
+  final String elementId;
+  final double note;
+
+  const ScoreElementNote({
+    required this.elementId,
+    required this.note,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'element_id': elementId,
+      'note': note,
+    };
+  }
+
+  factory ScoreElementNote.fromJson(Map<String, dynamic> json) {
+    return ScoreElementNote(
+      elementId: (json['element_id'] ?? json['elementId']) as String,
+      note: (json['note'] as num).toDouble(),
+    );
+  }
+}
+
 /// Represente le score d'un critere dans une annotation multicritere.
 class ScoreAnnotation {
   final String critereId;
-  final String element1Id;
-  final double noteElement1;
-  final String element2Id;
-  final double noteElement2;
+  final List<ScoreElementNote> elements;
 
   const ScoreAnnotation({
     required this.critereId,
-    required this.element1Id,
-    required this.noteElement1,
-    required this.element2Id,
-    required this.noteElement2,
+    required this.elements,
   });
 
-  double get totalCritere => noteElement1 + noteElement2;
+  /// Moyenne des notes des elements du critere (sur 5).
+  double get totalCritere {
+    if (elements.isEmpty) return 0.0;
+    return elements.fold(0.0, (sum, e) => sum + e.note) / elements.length;
+  }
 
   ScoreAnnotation copyWith({
     String? critereId,
-    String? element1Id,
-    double? noteElement1,
-    String? element2Id,
-    double? noteElement2,
+    List<ScoreElementNote>? elements,
   }) {
     return ScoreAnnotation(
       critereId: critereId ?? this.critereId,
-      element1Id: element1Id ?? this.element1Id,
-      noteElement1: noteElement1 ?? this.noteElement1,
-      element2Id: element2Id ?? this.element2Id,
-      noteElement2: noteElement2 ?? this.noteElement2,
+      elements: elements ?? this.elements,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'critere_id': critereId,
-      'element_1_id': element1Id,
-      'note_element_1': noteElement1,
-      'element_2_id': element2Id,
-      'note_element_2': noteElement2,
+      'elements': elements.map((e) => e.toJson()).toList(),
     };
   }
 
   factory ScoreAnnotation.fromJson(Map<String, dynamic> json) {
+    final rawElements = json['elements'];
+    if (rawElements is List) {
+      return ScoreAnnotation(
+        critereId: json['critere_id'] as String,
+        elements: rawElements
+            .map((e) => ScoreElementNote.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+    }
+    // Fallback compatibilite ancien format
+    final notes = <ScoreElementNote>[];
+    final e1 = json['element_1_id'] ?? json['element1Id'];
+    final n1 = json['note_element_1'] ?? json['noteElement1'];
+    if (e1 != null && n1 != null) {
+      notes.add(ScoreElementNote(elementId: e1 as String, note: (n1 as num).toDouble()));
+    }
+    final e2 = json['element_2_id'] ?? json['element2Id'];
+    final n2 = json['note_element_2'] ?? json['noteElement2'];
+    if (e2 != null && n2 != null) {
+      notes.add(ScoreElementNote(elementId: e2 as String, note: (n2 as num).toDouble()));
+    }
     return ScoreAnnotation(
       critereId: json['critere_id'] as String,
-      element1Id: (json['element_1_id'] ?? json['element1Id']) as String,
-      noteElement1: (json['note_element_1'] ?? json['noteElement1'] ?? 0).toDouble(),
-      element2Id: (json['element_2_id'] ?? json['element2Id']) as String,
-      noteElement2: (json['note_element_2'] ?? json['noteElement2'] ?? 0).toDouble(),
+      elements: notes,
     );
   }
 }

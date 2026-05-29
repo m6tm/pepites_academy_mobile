@@ -27,8 +27,10 @@ class Annotation {
     this.commentaire,
   });
 
-  double get scoreTotal =>
-      scores.fold(0.0, (sum, s) => sum + s.totalCritere);
+  double get scoreTotal {
+    if (scores.isEmpty) return 0.0;
+    return scores.fold(0.0, (sum, s) => sum + s.totalCritere) / scores.length;
+  }
 
   String get contenu => commentaire ?? '';
 

@@ -247,7 +247,7 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
           ),
           RatingBar(
             note: scoreTotal,
-            maxNote: 50,
+            maxNote: 5,
             width: 100,
             height: 8,
           ),
@@ -265,19 +265,19 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
         .firstOrNull;
     if (critere == null) return const SizedBox.shrink();
 
-    final element1 = critere.elements
-        .where((e) => e.id == config.element1Id)
-        .firstOrNull;
-    final element2 = critere.elements
-        .where((e) => e.id == config.element2Id)
-        .firstOrNull;
+    final resolvedElements = <({String id, String libelle})>[];
+    for (final elementId in config.elementIds) {
+      final element = critere.elements.where((e) => e.id == elementId).firstOrNull;
+      if (element != null) {
+        resolvedElements.add((id: element.id, libelle: element.libelle));
+      }
+    }
 
-    if (element1 == null || element2 == null) return const SizedBox.shrink();
+    if (resolvedElements.isEmpty) return const SizedBox.shrink();
 
     final sousTotal = widget.evaluationState.getSousTotalCritere(
       config.critereId,
-      config.element1Id,
-      config.element2Id,
+      config.elementIds,
     );
 
     return Container(
@@ -313,26 +313,22 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
               ),
               RatingBar(
                 note: sousTotal,
-                maxNote: 10,
+                maxNote: 5,
                 width: 60,
                 height: 6,
               ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildElementSlider(
-            config.critereId,
-            element1.id,
-            element1.libelle,
-            isDark,
-          ),
-          const SizedBox(height: 8),
-          _buildElementSlider(
-            config.critereId,
-            element2.id,
-            element2.libelle,
-            isDark,
-          ),
+          ...resolvedElements.expand((e) => [
+            _buildElementSlider(
+              config.critereId,
+              e.id,
+              e.libelle,
+              isDark,
+            ),
+            const SizedBox(height: 8),
+          ]).toList()..removeLast(),
         ],
       ),
     );
@@ -533,7 +529,7 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
           ),
           RatingBar(
             note: evaluation.scoreTotal.toDouble(),
-            maxNote: 50,
+            maxNote: 5,
             width: 60,
             height: 6,
           ),
@@ -701,7 +697,7 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
               const SizedBox(height: 8),
               RatingBar(
                 note: scoreTotal,
-                maxNote: 50,
+                maxNote: 5,
                 width: 140,
                 height: 10,
               ),
@@ -760,20 +756,22 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
         .firstOrNull;
     if (critere == null) return const SizedBox.shrink();
 
-    final element1 = critere.elements
-        .where((e) => e.id == config.element1Id)
-        .firstOrNull;
-    final element2 = critere.elements
-        .where((e) => e.id == config.element2Id)
-        .firstOrNull;
+    final resolvedElements = <({String id, String libelle})>[];
+    for (final elementId in config.elementIds) {
+      final element = critere.elements.where((e) => e.id == elementId).firstOrNull;
+      if (element != null) {
+        resolvedElements.add((id: element.id, libelle: element.libelle));
+      }
+    }
 
-    if (element1 == null || element2 == null) return const SizedBox.shrink();
+    if (resolvedElements.isEmpty) return const SizedBox.shrink();
 
-    final note1 = widget.evaluationState
-        .getNoteEnCours(config.critereId, config.element1Id);
-    final note2 = widget.evaluationState
-        .getNoteEnCours(config.critereId, config.element2Id);
-    final sousTotal = note1 + note2;
+    final notes = resolvedElements
+        .map((e) => widget.evaluationState.getNoteEnCours(config.critereId, e.id))
+        .toList();
+    final sousTotal = notes.isEmpty
+        ? 0.0
+        : notes.fold(0.0, (sum, n) => sum + n) / notes.length;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -804,19 +802,19 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Row(
-                  children: [
-                    _buildNoteLine(element1.libelle, note1),
-                    const SizedBox(width: 12),
-                    _buildNoteLine(element2.libelle, note2),
-                  ],
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: resolvedElements
+                      .map((e) => _buildNoteLine(e.libelle, widget.evaluationState.getNoteEnCours(config.critereId, e.id)))
+                      .toList(),
                 ),
               ],
             ),
           ),
           RatingBar(
             note: sousTotal,
-            maxNote: 10,
+            maxNote: 5,
             width: 50,
             height: 6,
           ),

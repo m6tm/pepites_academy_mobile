@@ -82,7 +82,9 @@ class AtelierService {
       typeCustom: typeCustom,
       icone: icone,
       ordre: ordre,
-      statut: configurationEvaluation != null && configurationEvaluation.length == 5
+      statut: configurationEvaluation != null &&
+              configurationEvaluation.length == 5 &&
+              configurationEvaluation.every((c) => c.elementIds.isNotEmpty)
           ? AtelierStatut.valide
           : AtelierStatut.cree,
       seanceId: seanceId,

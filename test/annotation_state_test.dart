@@ -20,10 +20,10 @@ void main() {
 
   final testScore = ScoreAnnotation(
     critereId: 'crite-1',
-    element1Id: 'elem-1',
-    noteElement1: 3.0,
-    element2Id: 'elem-2',
-    noteElement2: 4.0,
+    elements: [
+      ScoreElementNote(elementId: 'elem-1', note: 3.0),
+      ScoreElementNote(elementId: 'elem-2', note: 4.0),
+    ],
   );
 
   final testAnnotation = Annotation(

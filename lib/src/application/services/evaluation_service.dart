@@ -101,13 +101,13 @@ class EvaluationService {
     List<ScoreCritere> scores,
     List<ConfigurationElementEvaluation> configuration,
   ) {
-    if (scores.length != 5) {
-      throw Exception('Exactement 5 scores requis (un par critere).');
-    }
-
     final configMap = <String, ConfigurationElementEvaluation>{
       for (final c in configuration) c.critereId: c
     };
+
+    if (scores.length != configMap.length) {
+      throw Exception('${configMap.length} scores requis (un par critere).');
+    }
 
     for (final score in scores) {
       final config = configMap[score.critereId];
@@ -115,8 +115,8 @@ class EvaluationService {
         throw Exception('Critere non configure : ${score.critereId}');
       }
 
-      final elementsConfigures = {config.element1Id, config.element2Id};
-      final elementsNotes = {score.element1Id, score.element2Id};
+      final elementsConfigures = config.elementIds.toSet();
+      final elementsNotes = score.elements.map((e) => e.elementId).toSet();
       if (!elementsConfigures.containsAll(elementsNotes)) {
         throw Exception(
           'Les elements notes ne correspondent pas a la configuration '
@@ -124,11 +124,10 @@ class EvaluationService {
         );
       }
 
-      if (score.noteElement1 < 0 || score.noteElement1 > 5) {
-        throw Exception('La note doit etre entre 0 et 5.');
-      }
-      if (score.noteElement2 < 0 || score.noteElement2 > 5) {
-        throw Exception('La note doit etre entre 0 et 5.');
+      for (final element in score.elements) {
+        if (element.note < 0 || element.note > 5) {
+          throw Exception('La note doit etre entre 0 et 5.');
+        }
       }
     }
   }

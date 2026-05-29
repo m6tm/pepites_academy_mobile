@@ -162,10 +162,12 @@ class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
     }
 
     for (final score in scores) {
-      if (score.noteElement1 == 0 || score.noteElement2 == 0) {
-        _errorMessage = 'Tous les elements doivent etre notes (pas de 0).';
-        notifyListeners();
-        return false;
+      for (final element in score.elements) {
+        if (element.note < 0) {
+          _errorMessage = 'Tous les elements doivent etre notes.';
+          notifyListeners();
+          return false;
+        }
       }
     }
 
@@ -227,10 +229,12 @@ class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
     String? commentaire,
   }) async {
     for (final score in scores) {
-      if (score.noteElement1 == 0 || score.noteElement2 == 0) {
-        _errorMessage = 'Tous les elements doivent etre notes (pas de 0).';
-        notifyListeners();
-        return false;
+      for (final element in score.elements) {
+        if (element.note < 0) {
+          _errorMessage = 'Tous les elements doivent etre notes.';
+          notifyListeners();
+          return false;
+        }
       }
     }
 

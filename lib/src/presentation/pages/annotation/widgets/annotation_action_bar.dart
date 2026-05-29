@@ -186,7 +186,7 @@ class AnnotationScoreHeader extends StatelessWidget {
   const AnnotationScoreHeader({
     super.key,
     required this.scoreTotal,
-    this.scoreMax = 50,
+    this.scoreMax = 5,
     required this.isDark,
   });
 

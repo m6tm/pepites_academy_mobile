@@ -106,7 +106,7 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     if (_criteres.isNotEmpty && _configurationEvaluation.length != 5) {
       AcademyToast.show(
         context,
-        title: 'Veuillez selectionner 2 elements par critere d\'evaluation',
+        title: 'Veuillez selectionner au moins 1 element par critere d\'evaluation',
         isError: true,
       );
       return;

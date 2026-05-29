@@ -4,7 +4,7 @@ import '../../domain/entities/atelier.dart';
 import '../../domain/entities/critere_evaluation.dart';
 import '../theme/app_colors.dart';
 
-/// Widget permettant a l'encadreur de selectionner exactement 2 elements
+/// Widget permettant a l'encadreur de selectionner N elements (min 1)
 /// par critere d'evaluation lors de la configuration d'un atelier.
 class EvaluationConfigurationSelector extends StatefulWidget {
   final List<CritereEvaluation> criteres;
@@ -38,8 +38,9 @@ class _EvaluationConfigurationSelectorState
     if (widget.configurationInitiale != null) {
       for (final config in widget.configurationInitiale!) {
         _selections.putIfAbsent(config.critereId, () => {});
-        _selections[config.critereId]!.add(config.element1Id);
-        _selections[config.critereId]!.add(config.element2Id);
+        for (final elementId in config.elementIds) {
+          _selections[config.critereId]!.add(elementId);
+        }
       }
     }
   }
@@ -51,7 +52,7 @@ class _EvaluationConfigurationSelectorState
 
       if (set.contains(elementId)) {
         set.remove(elementId);
-      } else if (set.length < 2) {
+      } else {
         set.add(elementId);
       }
     });
@@ -62,12 +63,10 @@ class _EvaluationConfigurationSelectorState
     final config = <ConfigurationElementEvaluation>[];
     for (final critere in widget.criteres) {
       final selected = _selections[critere.id];
-      if (selected != null && selected.length == 2) {
-        final elements = selected.toList();
+      if (selected != null && selected.isNotEmpty) {
         config.add(ConfigurationElementEvaluation(
           critereId: critere.id,
-          element1Id: elements[0],
-          element2Id: elements[1],
+          elementIds: selected.toList(),
         ));
       }
     }
@@ -77,7 +76,7 @@ class _EvaluationConfigurationSelectorState
   bool get isComplete {
     for (final critere in widget.criteres) {
       final selected = _selections[critere.id];
-      if (selected == null || selected.length != 2) return false;
+      if (selected == null || selected.isEmpty) return false;
     }
     return true;
   }
@@ -111,7 +110,7 @@ class _EvaluationConfigurationSelectorState
         ),
         const SizedBox(height: 4),
         Text(
-          'Selectionnez exactement 2 elements par critere',
+          'Selectionnez au moins 1 element par critere',
           style: GoogleFonts.montserrat(
             color: subtitleColor,
             fontSize: 12,
@@ -127,7 +126,7 @@ class _EvaluationConfigurationSelectorState
   Widget _buildCompletionBadge(Color textColor) {
     final completedCount = widget.criteres.where((c) {
       final s = _selections[c.id];
-      return s != null && s.length == 2;
+      return s != null && s.isNotEmpty;
     }).length;
 
     final color = completedCount == widget.criteres.length
@@ -169,7 +168,7 @@ class _EvaluationConfigurationSelectorState
             : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: nbSelected == 2
+          color: nbSelected >= 1
               ? Colors.green.withValues(alpha: 0.5)
               : isDark
                   ? Colors.white.withValues(alpha: 0.1)
@@ -194,15 +193,15 @@ class _EvaluationConfigurationSelectorState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: nbSelected == 2
+                  color: nbSelected >= 1
                       ? Colors.green.withValues(alpha: 0.15)
                       : Colors.orange.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  '$nbSelected/2',
+                  '$nbSelected',
                   style: GoogleFonts.montserrat(
-                    color: nbSelected == 2 ? Colors.green : Colors.orange,
+                    color: nbSelected >= 1 ? Colors.green : Colors.orange,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -216,12 +215,10 @@ class _EvaluationConfigurationSelectorState
             runSpacing: 8,
             children: critere.elements.map((element) {
               final isSelected = selected.contains(element.id);
-              final isDisabled = !isSelected && nbSelected >= 2;
 
               return _buildElementChip(
                 element: element,
                 isSelected: isSelected,
-                isDisabled: isDisabled,
                 critereId: critere.id,
                 isDark: isDark,
               );
@@ -235,34 +232,27 @@ class _EvaluationConfigurationSelectorState
   Widget _buildElementChip({
     required ElementEvaluation element,
     required bool isSelected,
-    required bool isDisabled,
     required String critereId,
     required bool isDark,
   }) {
     return GestureDetector(
-      onTap: isDisabled ? null : () => _toggleElement(critereId, element.id),
+      onTap: () => _toggleElement(critereId, element.id),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.15)
-              : isDisabled
-                  ? (isDark
-                      ? Colors.white.withValues(alpha: 0.02)
-                      : Colors.grey.withValues(alpha: 0.1))
-                  : (isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.white),
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.white),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? AppColors.primary
-                : isDisabled
-                    ? Colors.transparent
-                    : (isDark
-                        ? Colors.white.withValues(alpha: 0.15)
-                        : Colors.black.withValues(alpha: 0.1)),
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.1)),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -283,9 +273,7 @@ class _EvaluationConfigurationSelectorState
               style: GoogleFonts.montserrat(
                 color: isSelected
                     ? AppColors.primary
-                    : isDisabled
-                        ? (isDark ? Colors.white38 : Colors.black38)
-                        : (isDark ? Colors.white70 : Colors.black87),
+                    : (isDark ? Colors.white70 : Colors.black87),
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),

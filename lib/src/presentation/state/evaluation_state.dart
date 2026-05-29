@@ -139,27 +139,23 @@ class EvaluationState extends ChangeNotifier
   /// Calcule le sous-total d'un critere en cours de saisie.
   double getSousTotalCritere(
     String critereId,
-    String element1Id,
-    String element2Id,
+    List<String> elementIds,
   ) {
-    final note1 = getNoteEnCours(critereId, element1Id);
-    final note2 = getNoteEnCours(critereId, element2Id);
-    return note1 + note2;
+    final notes = elementIds.map((eid) => getNoteEnCours(critereId, eid)).toList();
+    if (notes.isEmpty) return 0.0;
+    return notes.fold(0.0, (sum, n) => sum + n) / notes.length;
   }
 
-  /// Calcule le score total en cours (sur 50).
+  /// Calcule le score total en cours (moyenne des criteres, sur 5).
   double getScoreTotalEnCours(
     List<ConfigurationElementEvaluation> configuration,
   ) {
-    double total = 0;
+    if (configuration.isEmpty) return 0.0;
+    double sommeMoyennes = 0;
     for (final config in configuration) {
-      total += getSousTotalCritere(
-        config.critereId,
-        config.element1Id,
-        config.element2Id,
-      );
+      sommeMoyennes += getSousTotalCritere(config.critereId, config.elementIds);
     }
-    return total;
+    return sommeMoyennes / configuration.length;
   }
 
   /// Verifie si tous les elements ont ete notes.
@@ -167,15 +163,10 @@ class EvaluationState extends ChangeNotifier
     List<ConfigurationElementEvaluation> configuration,
   ) {
     for (final config in configuration) {
-      if (!_notesEnCours.containsKey(
-        '${config.critereId}_${config.element1Id}',
-      )) {
-        return false;
-      }
-      if (!_notesEnCours.containsKey(
-        '${config.critereId}_${config.element2Id}',
-      )) {
-        return false;
+      for (final elementId in config.elementIds) {
+        if (!_notesEnCours.containsKey('${config.critereId}_$elementId')) {
+          return false;
+        }
       }
     }
     return true;
@@ -208,10 +199,10 @@ class EvaluationState extends ChangeNotifier
       final scores = configuration.map((config) {
         return ScoreCritere(
           critereId: config.critereId,
-          element1Id: config.element1Id,
-          noteElement1: getNoteEnCours(config.critereId, config.element1Id),
-          element2Id: config.element2Id,
-          noteElement2: getNoteEnCours(config.critereId, config.element2Id),
+          elements: config.elementIds.map((eid) => ScoreElement(
+            elementId: eid,
+            note: getNoteEnCours(config.critereId, eid),
+          )).toList(),
         );
       }).toList();
 

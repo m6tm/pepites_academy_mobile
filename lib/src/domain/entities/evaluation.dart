@@ -24,9 +24,11 @@ class Evaluation {
     this.commentaire,
   });
 
-  /// Score total de l'evaluation (somme des 5 criteres, sur 50).
-  double get scoreTotal =>
-      scores.fold(0.0, (sum, s) => sum + s.totalCritere);
+  /// Score total de l'evaluation (moyenne des criteres, sur 5).
+  double get scoreTotal {
+    if (scores.isEmpty) return 0.0;
+    return scores.fold(0.0, (sum, s) => sum + s.totalCritere) / scores.length;
+  }
 
   Evaluation copyWith({
     String? id,

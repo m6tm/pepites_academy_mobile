@@ -27,17 +27,22 @@ class AnnotationElementRating extends StatelessWidget {
         .firstOrNull;
     if (critere == null) return const SizedBox.shrink();
 
-    final element1 = critere.elements
-        .where((e) => e.id == config.element1Id)
-        .firstOrNull;
-    final element2 = critere.elements
-        .where((e) => e.id == config.element2Id)
-        .firstOrNull;
+    final resolvedElements = <({String id, String libelle})>[];
+    for (final elementId in config.elementIds) {
+      final element = critere.elements.where((e) => e.id == elementId).firstOrNull;
+      if (element != null) {
+        resolvedElements.add((id: element.id, libelle: element.libelle));
+      }
+    }
 
-    if (element1 == null || element2 == null) return const SizedBox.shrink();
+    if (resolvedElements.isEmpty) return const SizedBox.shrink();
 
-    final sousTotal = getNote(config.critereId, config.element1Id) +
-                      getNote(config.critereId, config.element2Id);
+    final notes = resolvedElements
+        .map((e) => getNote(config.critereId, e.id))
+        .toList();
+    final moyenne = notes.isEmpty
+        ? 0.0
+        : notes.fold(0.0, (sum, n) => sum + n) / notes.length;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -71,31 +76,25 @@ class AnnotationElementRating extends StatelessWidget {
                 ),
               ),
               RatingBar(
-                note: sousTotal,
-                maxNote: 10,
+                note: moyenne,
+                maxNote: 5,
                 width: 60,
                 height: 6,
               ),
             ],
           ),
           const SizedBox(height: 12),
-          AnnotationSlider(
-            critereId: config.critereId,
-            elementId: element1.id,
-            libelle: element1.libelle,
-            value: getNote(config.critereId, element1.id),
-            onChanged: (v) => setNote(config.critereId, element1.id, v),
-            isDark: isDark,
-          ),
-          const SizedBox(height: 8),
-          AnnotationSlider(
-            critereId: config.critereId,
-            elementId: element2.id,
-            libelle: element2.libelle,
-            value: getNote(config.critereId, element2.id),
-            onChanged: (v) => setNote(config.critereId, element2.id, v),
-            isDark: isDark,
-          ),
+          ...resolvedElements.expand((e) => [
+            AnnotationSlider(
+              critereId: config.critereId,
+              elementId: e.id,
+              libelle: e.libelle,
+              value: getNote(config.critereId, e.id),
+              onChanged: (v) => setNote(config.critereId, e.id, v),
+              isDark: isDark,
+            ),
+            const SizedBox(height: 8),
+          ]).toList()..removeLast(),
         ],
       ),
     );
