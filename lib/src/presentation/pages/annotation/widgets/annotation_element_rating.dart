@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/atelier.dart';
 import '../../../../domain/entities/referentiel_evaluation_data.dart';
 import '../../../theme/app_colors.dart';
+import 'annotation_rating_colors.dart';
 import 'annotation_slider.dart';
 
 class AnnotationElementRating extends StatelessWidget {
@@ -69,20 +70,11 @@ class AnnotationElementRating extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${sousTotal.toStringAsFixed(1)} / 10',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                    color: AppColors.primary,
-                  ),
-                ),
+              RatingBar(
+                note: sousTotal,
+                maxNote: 10,
+                width: 60,
+                height: 6,
               ),
             ],
           ),

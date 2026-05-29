@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
+import 'annotation_rating_colors.dart';
 
 class AnnotationSlider extends StatelessWidget {
   final String critereId;
@@ -28,6 +29,8 @@ class AnnotationSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sliderColor = getRatingColor(value);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -45,23 +48,16 @@ class AnnotationSlider extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              value.toStringAsFixed(1),
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: AppColors.primary,
-              ),
-            ),
+            RatingIndicator(note: value, size: 22),
           ],
         ),
         const SizedBox(height: 4),
         SliderTheme(
           data: SliderThemeData(
-            activeTrackColor: AppColors.primary,
-            inactiveTrackColor: AppColors.primary.withValues(alpha: 0.15),
-            thumbColor: AppColors.primary,
-            overlayColor: AppColors.primary.withValues(alpha: 0.1),
+            activeTrackColor: sliderColor,
+            inactiveTrackColor: sliderColor.withValues(alpha: 0.15),
+            thumbColor: sliderColor,
+            overlayColor: sliderColor.withValues(alpha: 0.1),
             trackHeight: 3,
           ),
           child: Slider(

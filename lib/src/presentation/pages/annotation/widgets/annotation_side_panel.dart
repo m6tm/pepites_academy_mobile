@@ -10,6 +10,7 @@ import '../../../theme/app_colors.dart';
 import 'annotation_action_bar.dart';
 import 'annotation_comment_field.dart';
 import 'annotation_element_rating.dart';
+import 'annotation_rating_colors.dart';
 import 'annotation_recap_item.dart';
 
 class AnnotationSidePanel extends StatefulWidget {
@@ -350,14 +351,12 @@ class _AnnotationSidePanelState extends State<AnnotationSidePanel> {
                       : AppColors.textMainLight,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                '${scoreTotal.toStringAsFixed(1)} / 50',
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 36,
-                  color: AppColors.primary,
-                ),
+              const SizedBox(height: 12),
+              RatingBar(
+                note: scoreTotal,
+                maxNote: 50,
+                width: 140,
+                height: 10,
               ),
             ],
           ),

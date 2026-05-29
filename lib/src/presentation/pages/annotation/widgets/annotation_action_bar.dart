@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
+import 'annotation_rating_colors.dart';
 
 class AnnotationActionBar extends StatelessWidget {
   final bool tousNotes;
@@ -179,13 +180,13 @@ class AnnotationActionBar extends StatelessWidget {
 
 class AnnotationScoreHeader extends StatelessWidget {
   final double scoreTotal;
-  final String scoreMax;
+  final double scoreMax;
   final bool isDark;
 
   const AnnotationScoreHeader({
     super.key,
     required this.scoreTotal,
-    this.scoreMax = '50',
+    this.scoreMax = 50,
     required this.isDark,
   });
 
@@ -208,13 +209,11 @@ class AnnotationScoreHeader extends StatelessWidget {
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
-          Text(
-            '${scoreTotal.toStringAsFixed(1)} / $scoreMax',
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
-              color: AppColors.primary,
-            ),
+          RatingBar(
+            note: scoreTotal,
+            maxNote: scoreMax,
+            width: 100,
+            height: 8,
           ),
         ],
       ),

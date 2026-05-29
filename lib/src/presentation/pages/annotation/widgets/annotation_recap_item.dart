@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../domain/entities/atelier.dart';
 import '../../../../domain/entities/referentiel_evaluation_data.dart';
 import '../../../theme/app_colors.dart';
+import 'annotation_rating_colors.dart';
 
 class AnnotationRecapItem extends StatelessWidget {
   final ConfigurationElementEvaluation config;
@@ -64,30 +65,42 @@ class AnnotationRecapItem extends StatelessWidget {
                         : AppColors.textMainLight,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${element1.libelle}: ${note1.toStringAsFixed(1)}  -  '
-                  '${element2.libelle}: ${note2.toStringAsFixed(1)}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    color: isDark
-                        ? AppColors.textMutedDark
-                        : AppColors.textMutedLight,
-                  ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    _buildNoteLine(element1.libelle, note1),
+                    const SizedBox(width: 12),
+                    _buildNoteLine(element2.libelle, note2),
+                  ],
                 ),
               ],
             ),
           ),
-          Text(
-            '${sousTotal.toStringAsFixed(1)}/10',
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-              color: AppColors.primary,
-            ),
+          RatingBar(
+            note: sousTotal,
+            maxNote: 10,
+            width: 50,
+            height: 6,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildNoteLine(String libelle, double note) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          libelle,
+          style: GoogleFonts.montserrat(
+            fontSize: 11,
+            color: Colors.grey,
+          ),
+        ),
+        const SizedBox(width: 4),
+        RatingIndicator(note: note, size: 16),
+      ],
     );
   }
 }

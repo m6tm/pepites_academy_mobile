@@ -8,6 +8,7 @@ import '../../../../domain/entities/referentiel_evaluation_data.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../state/evaluation_state.dart';
 import '../../../theme/app_colors.dart';
+import '../../annotation/widgets/annotation_rating_colors.dart';
 
 /// Bottom sheet d'evaluation multicritere pour un academicien.
 /// Presente les 5 criteres avec les 2 elements selectionnes dans la configuration
@@ -244,13 +245,11 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
               color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
             ),
           ),
-          Text(
-            '${scoreTotal.toStringAsFixed(1)} / 50',
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
-              color: AppColors.primary,
-            ),
+          RatingBar(
+            note: scoreTotal,
+            maxNote: 50,
+            width: 100,
+            height: 8,
           ),
         ],
       ),
@@ -312,21 +311,11 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
                   ),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${sousTotal.toStringAsFixed(1)} / 10',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                    color: AppColors.primary,
-                  ),
-                ),
+              RatingBar(
+                note: sousTotal,
+                maxNote: 10,
+                width: 60,
+                height: 6,
               ),
             ],
           ),
@@ -356,6 +345,7 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
     bool isDark,
   ) {
     final note = widget.evaluationState.getNoteEnCours(critereId, elementId);
+    final sliderColor = getRatingColor(note);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,22 +364,15 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
                 ),
               ),
             ),
-            Text(
-              note.toStringAsFixed(1),
-              style: GoogleFonts.montserrat(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: AppColors.primary,
-              ),
-            ),
+            RatingIndicator(note: note, size: 22),
           ],
         ),
         SliderTheme(
           data: SliderThemeData(
-            activeTrackColor: AppColors.primary,
-            inactiveTrackColor: AppColors.primary.withValues(alpha: 0.15),
-            thumbColor: AppColors.primary,
-            overlayColor: AppColors.primary.withValues(alpha: 0.1),
+            activeTrackColor: sliderColor,
+            inactiveTrackColor: sliderColor.withValues(alpha: 0.15),
+            thumbColor: sliderColor,
+            overlayColor: sliderColor.withValues(alpha: 0.1),
             trackHeight: 3,
           ),
           child: Slider(
@@ -548,21 +531,11 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
               ),
             ),
           ),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '${evaluation.scoreTotal.toStringAsFixed(1)} / 50',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
-            ),
+          RatingBar(
+            note: evaluation.scoreTotal.toDouble(),
+            maxNote: 50,
+            width: 60,
+            height: 6,
           ),
         ],
       ),
@@ -726,13 +699,11 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                '${scoreTotal.toStringAsFixed(1)} / 50',
-                style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 36,
-                  color: AppColors.primary,
-                ),
+              RatingBar(
+                note: scoreTotal,
+                maxNote: 50,
+                width: 140,
+                height: 10,
               ),
             ],
           ),
@@ -833,29 +804,41 @@ class _EvaluationBottomSheetState extends State<EvaluationBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  '${element1.libelle}: ${note1.toStringAsFixed(1)}  •  '
-                  '${element2.libelle}: ${note2.toStringAsFixed(1)}',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    color: isDark
-                        ? AppColors.textMutedDark
-                        : AppColors.textMutedLight,
-                  ),
+                Row(
+                  children: [
+                    _buildNoteLine(element1.libelle, note1),
+                    const SizedBox(width: 12),
+                    _buildNoteLine(element2.libelle, note2),
+                  ],
                 ),
               ],
             ),
           ),
-          Text(
-            '${sousTotal.toStringAsFixed(1)}/10',
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-              color: AppColors.primary,
-            ),
+          RatingBar(
+            note: sousTotal,
+            maxNote: 10,
+            width: 50,
+            height: 6,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildNoteLine(String libelle, double note) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          libelle,
+          style: GoogleFonts.montserrat(
+            fontSize: 11,
+            color: Colors.grey,
+          ),
+        ),
+        const SizedBox(width: 4),
+        RatingIndicator(note: note, size: 16),
+      ],
     );
   }
 

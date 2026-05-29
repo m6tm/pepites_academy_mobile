@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' as intl;
 import '../../../../domain/entities/annotation.dart';
 import '../../../theme/app_colors.dart';
+import 'annotation_rating_colors.dart';
 
 class AnnotationHistoriqueItem extends StatelessWidget {
   final Annotation annotation;
@@ -60,20 +61,11 @@ class AnnotationHistoriqueItem extends StatelessWidget {
                 ),
               ],
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${scoreTotal.toStringAsFixed(1)} / 50',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
-                ),
+              RatingBar(
+                note: scoreTotal,
+                maxNote: 50,
+                width: 60,
+                height: 6,
               ),
             ],
           ),
