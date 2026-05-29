@@ -23,6 +23,7 @@ class AtelierCard extends StatefulWidget {
   final int index;
   final Function(int, int)? onReorderExercice;
   final bool isLoadingExercices;
+  final bool isApplying;
 
   const AtelierCard({
     super.key,
@@ -42,6 +43,7 @@ class AtelierCard extends StatefulWidget {
     required this.index,
     this.onReorderExercice,
     this.isLoadingExercices = false,
+    this.isApplying = false,
   });
 
   @override
@@ -150,7 +152,13 @@ class _AtelierCardState extends State<AtelierCard> {
                         spacing: 2,
                         runSpacing: -8,
                         children: [
-                          if (widget.onApply != null &&
+                          if (widget.isApplying)
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          else if (widget.onApply != null &&
                               widget.atelier.statut != AtelierStatut.applique &&
                               widget.atelier.statut != AtelierStatut.ferme)
                             IconButton(

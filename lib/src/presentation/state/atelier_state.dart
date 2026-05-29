@@ -61,6 +61,9 @@ class AtelierState extends ChangeNotifier
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  final Set<String> _processingAtelierIds = {};
+  bool isProcessingAtelier(String atelierId) => _processingAtelierIds.contains(atelierId);
+
   String? _errorMessage;
   @override
   String? get errorMessage => _errorMessage;
@@ -200,6 +203,7 @@ class AtelierState extends ChangeNotifier
 
   /// Applique un atelier en seance.
   Future<bool> appliquerAtelier(String atelierId) async {
+    _processingAtelierIds.add(atelierId);
     _isLoading = true;
     _errorMessage = null;
     _successMessage = null;
@@ -211,12 +215,17 @@ class AtelierState extends ChangeNotifier
       if (_seanceId != null) {
         await chargerAteliers(_seanceId!);
       }
+      _isLoading = false;
+      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = 'Erreur lors de l\'application : $e';
       _isLoading = false;
       notifyListeners();
       return false;
+    } finally {
+      _processingAtelierIds.remove(atelierId);
+      notifyListeners();
     }
   }
 

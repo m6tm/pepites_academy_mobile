@@ -388,6 +388,7 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
             atelier: atelier,
             exercices: exercices,
             isLoadingExercices: _exerciceState.isLoading(atelier.id),
+            isApplying: _atelierState.isProcessingAtelier(atelier.id),
             isEditable: _hasUpdatePermission && widget.seance.estOuverte,
             isExercicesEditable: _hasUpdateExercicePermission && widget.seance.estOuverte,
             onAnnotateExercice: (ex) => _naviguerVersAnnotation(atelier, exercice: ex),
@@ -501,43 +502,71 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
     if (!_hasApplyAtelierPermission || !widget.seance.estOuverte) return;
 
     final l10n = AppLocalizations.of(context)!;
+    bool isApplying = false;
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          l10n.applyWorkshopTitle,
-          style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
-        ),
-        content: Text(
-          l10n.applyWorkshopConfirmation(atelier.nom),
-          style: GoogleFonts.montserrat(fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              l10n.cancelAction,
-              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-            ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            l10n.applyWorkshopTitle,
+            style: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
           ),
-          ElevatedButton(
-            onPressed: () {
-              _atelierState.appliquerAtelier(atelier.id);
-              Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: Text(
-              l10n.confirmButton,
-              style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-            ),
+          content: Text(
+            l10n.applyWorkshopConfirmation(atelier.nom),
+            style: GoogleFonts.montserrat(fontSize: 14),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: isApplying ? null : () => Navigator.pop(ctx),
+              child: Text(
+                l10n.cancelAction,
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: isApplying
+                  ? null
+                  : () async {
+                      setState(() => isApplying = true);
+                      final success = await _atelierState.appliquerAtelier(atelier.id);
+                      if (success) {
+                        await _exerciceState.chargerExercices(atelier.id);
+                      }
+                      if (ctx.mounted) {
+                        Navigator.pop(ctx);
+                      }
+                      if (!success && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(_atelierState.errorMessage ?? 'Erreur lors de l\'application'),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: isApplying
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      l10n.confirmButton,
+                      style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

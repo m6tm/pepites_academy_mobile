@@ -80,8 +80,7 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     }
 
     return _cache.getOrFetch(key, () async {
-      final local = _datasource.getByAtelier(atelierId);
-      if (local.isEmpty && _dioClient != null) {
+      if (_dioClient != null && (forceRefresh || _datasource.getByAtelier(atelierId).isEmpty)) {
         await syncFromApi();
       }
       final result = _datasource.getByAtelier(atelierId);
