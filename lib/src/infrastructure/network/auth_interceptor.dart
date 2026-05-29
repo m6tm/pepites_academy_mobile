@@ -34,6 +34,16 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final response = err.response;
     if (response != null && response.statusCode == 401) {
+      // ── Déconnexion immédiate si l'utilisateur n'existe plus côté serveur ──
+      if (_isUserNotFound(response)) {
+        _isRefreshing = false;
+        _requestsQueue.clear();
+        await preferences.forceLogout(
+          "Votre compte n'est plus actif. Veuillez vous reconnecter.",
+        );
+        return handler.next(err);
+      }
+
       final isRefreshEndpoint = err.requestOptions.path.contains(
         '/auth/refresh',
       );
@@ -148,5 +158,15 @@ class AuthInterceptor extends Interceptor {
 
     _isRefreshing = false;
     return handler.next(err);
+  }
+
+  /// Détecte une réponse 401 indiquant que l'utilisateur n'existe plus en base.
+  /// Dans ce cas, le refresh token est inutile → déconnexion forcée immédiate.
+  bool _isUserNotFound(Response<dynamic> response) {
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data['code'] == 'USER_NOT_FOUND';
+    }
+    return false;
   }
 }
