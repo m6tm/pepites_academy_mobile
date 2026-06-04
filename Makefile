@@ -3,10 +3,17 @@ FLUTTER = flutter
 DART = dart
 BUILD_RUNNER = $(DART) run build_runner
 
+# Environnement cible (local | staging | production). Utilisation : make run ENV=staging
+ENV ?= local
+DART_DEFINE_ENV = --dart-define=ENV=$(ENV)
+
 .PHONY: help install clean get upgrade outdated analyze format format-check test test-coverage \
         build-runner build-runner-watch build-runner-clean \
         run run-debug run-release run-profile \
+        run-local run-staging run-prod run-prod-release \
         build-apk build-apk-release build-appbundle build-ios build-ipa \
+        build-apk-local build-apk-staging build-apk-prod \
+        build-appbundle-prod build-ios-prod build-ipa-prod \
         icons splash l10n \
         devices doctor reset pods
 
@@ -34,10 +41,23 @@ help:
 	@echo "  make build-runner-clean  - Nettoie et regenere le code"
 	@echo ""
 	@echo "Execution :"
-	@echo "  make run                 - Lance l'application (debug)"
+	@echo "  make run                 - Lance l'application (debug, local par defaut)"
+	@echo "  make run ENV=staging     - Lance l'application en mode debug sur staging"
 	@echo "  make run-debug           - Lance l'application en mode debug"
 	@echo "  make run-profile         - Lance l'application en mode profile"
 	@echo "  make run-release         - Lance l'application en mode release"
+	@echo "  make run-local           - Lance l'application en local (debug)"
+	@echo "  make run-staging         - Lance l'application en staging (debug)"
+	@echo "  make run-prod            - Lance l'application en production (debug)"
+	@echo "  make run-prod-release    - Lance l'application en production (release)"
+	@echo ""
+	@echo "Build avec environnement :"
+	@echo "  make build-apk-local     - APK debug (local)"
+	@echo "  make build-apk-staging   - APK debug (staging)"
+	@echo "  make build-apk-prod      - APK release (production)"
+	@echo "  make build-appbundle-prod- App Bundle production"
+	@echo "  make build-ios-prod      - Build iOS production (no codesign)"
+	@echo "  make build-ipa-prod      - IPA production (App Store)"
 	@echo ""
 	@echo "Build :"
 	@echo "  make build-apk           - Construit un APK debug"
@@ -100,32 +120,62 @@ build-runner-clean:
 
 # Execution
 run:
-	$(FLUTTER) run
+	$(FLUTTER) run $(DART_DEFINE_ENV)
 
 run-debug:
-	$(FLUTTER) run --debug
+	$(FLUTTER) run --debug $(DART_DEFINE_ENV)
 
 run-profile:
-	$(FLUTTER) run --profile
+	$(FLUTTER) run --profile $(DART_DEFINE_ENV)
 
 run-release:
-	$(FLUTTER) run --release
+	$(FLUTTER) run --release $(DART_DEFINE_ENV)
+
+run-local:
+	$(FLUTTER) run --debug --dart-define=ENV=local
+
+run-staging:
+	$(FLUTTER) run --debug --dart-define=ENV=staging
+
+run-prod:
+	$(FLUTTER) run --debug --dart-define=ENV=production
+
+run-prod-release:
+	$(FLUTTER) run --release --dart-define=ENV=production
 
 # Build
 build-apk:
-	$(FLUTTER) build apk --debug
+	$(FLUTTER) build apk --debug $(DART_DEFINE_ENV)
 
 build-apk-release:
-	$(FLUTTER) build apk --release
+	$(FLUTTER) build apk --release $(DART_DEFINE_ENV)
 
 build-appbundle:
-	$(FLUTTER) build appbundle --release
+	$(FLUTTER) build appbundle --release $(DART_DEFINE_ENV)
 
 build-ios:
-	$(FLUTTER) build ios --no-codesign
+	$(FLUTTER) build ios --no-codesign $(DART_DEFINE_ENV)
 
 build-ipa:
-	$(FLUTTER) build ipa --release
+	$(FLUTTER) build ipa --release $(DART_DEFINE_ENV)
+
+build-apk-local:
+	$(FLUTTER) build apk --debug --dart-define=ENV=local
+
+build-apk-staging:
+	$(FLUTTER) build apk --debug --dart-define=ENV=staging
+
+build-apk-prod:
+	$(FLUTTER) build apk --release --dart-define=ENV=production
+
+build-appbundle-prod:
+	$(FLUTTER) build appbundle --release --dart-define=ENV=production
+
+build-ios-prod:
+	$(FLUTTER) build ios --no-codesign --dart-define=ENV=production
+
+build-ipa-prod:
+	$(FLUTTER) build ipa --release --dart-define=ENV=production
 
 # Assets
 icons:
