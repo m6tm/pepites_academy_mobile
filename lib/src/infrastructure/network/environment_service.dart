@@ -36,7 +36,7 @@ class EnvironmentService {
       baseUrl: 'http://192.168.1.198:5500/v1',
     ),
     AppEnvironment.staging: _NetworkConfig(
-      baseUrl: 'https://api-stage.pepitesacademy.com/v1',
+      baseUrl: 'https://api-staging.pepitesacademy.com/v1',
     ),
     AppEnvironment.production: _NetworkConfig(
       baseUrl: 'https://api.pepitesacademy.com/v1',
