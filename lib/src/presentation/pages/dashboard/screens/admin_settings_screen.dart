@@ -57,7 +57,8 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   }
 
   Future<void> _loadAllowDuplicateEmails() async {
-    final value = await DependencyInjection.appSettingsService.getAllowDuplicateEmails();
+    final value = await DependencyInjection.appSettingsService
+        .getAllowDuplicateEmails();
     if (mounted) {
       setState(() {
         _allowDuplicateEmails = value;
@@ -210,7 +211,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               SettingsItemData(
                 Icons.info_outline_rounded,
                 l10n.about,
-                l10n.version('1.18.0'),
+                l10n.version('1.18.1'),
                 colorScheme.onSurface.withValues(alpha: 0.5),
                 onTap: () => Navigator.push(
                   context,
@@ -256,7 +257,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
     );
   }
 
-  Widget _buildDuplicateEmailToggle(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildDuplicateEmailToggle(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
@@ -295,7 +299,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
           ),
         ),
         value: _allowDuplicateEmails,
-        onChanged: _isLoadingDuplicateEmails ? null : _toggleAllowDuplicateEmails,
+        onChanged: _isLoadingDuplicateEmails
+            ? null
+            : _toggleAllowDuplicateEmails,
         activeThumbColor: const Color(0xFF3B82F6),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       ),
