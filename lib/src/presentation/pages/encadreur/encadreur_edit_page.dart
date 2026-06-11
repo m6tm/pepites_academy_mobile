@@ -69,9 +69,9 @@ class _EncadreurEditPageState extends State<EncadreurEditPage> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
+    if (!mounted) return;
 
     final pickedFile = File(picked.path);
-    // ignore: use_build_context_synchronously
     final cropped = await ImageCropperHelper.cropImage(
       imageFile: pickedFile, context: context);
     if (cropped == null) return;

@@ -605,10 +605,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: isSubmitting
-                            ? null
-                            : () async {
-                                if (titreController.text.trim().isEmpty) {
+                        onPressed: () async {
+                          if (isSubmitting) return;
+
+                          if (titreController.text.trim().isEmpty) {
                                   AcademyToast.show(
                                     context,
                                     title: AppLocalizations.of(
@@ -631,6 +631,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
 
                                 setModalState(() => isSubmitting = true);
 
+                                final navigator = Navigator.of(context);
                                 final now = DateTime.now();
                                 final result = await _seanceState.ouvrirSeance(
                                   titre: titreController.text.trim(),
@@ -661,7 +662,8 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                                 if (!mounted) return;
 
                                 if (result.success) {
-                                  Navigator.of(context).pop();
+                                  if (!mounted) return;
+                                  navigator.pop();
                                   AcademyToast.show(
                                     this.context,
                                     title: result.message,
@@ -674,16 +676,8 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                                   );
                                 }
                               },
-                        icon: isSubmitting
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.play_arrow_rounded, size: 20),
+                        // ignore: dead_code
+                        icon: isSubmitting ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.play_arrow_rounded, size: 20),
                         label: Text(
                           AppLocalizations.of(context)!.startSession,
                           style: GoogleFonts.montserrat(
