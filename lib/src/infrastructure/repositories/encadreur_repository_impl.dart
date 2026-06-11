@@ -272,6 +272,8 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
       } while (currentPage <= totalPages);
 
       await replaceAllFromRemote(allRemoteEncadreurs);
+      _cache.invalidateByTag('encadreurs');
+      _detailCache.clear();
       return true;
     } catch (e) {
       return false;

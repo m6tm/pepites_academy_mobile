@@ -458,6 +458,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
           builder: (context, setModalState) {
             final colorScheme = Theme.of(context).colorScheme;
             final isDark = Theme.of(context).brightness == Brightness.dark;
+            bool isSubmitting = false;
 
             return Container(
               padding: EdgeInsets.only(
@@ -598,69 +599,85 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () async {
-                          if (titreController.text.trim().isEmpty) {
-                            AcademyToast.show(
-                              context,
-                              title: AppLocalizations.of(
-                                context,
-                              )!.pleaseEnterTitle,
-                              isError: true,
-                            );
-                            return;
-                          }
+                        onPressed: isSubmitting
+                            ? null
+                            : () async {
+                                if (titreController.text.trim().isEmpty) {
+                                  AcademyToast.show(
+                                    context,
+                                    title: AppLocalizations.of(
+                                      context,
+                                    )!.pleaseEnterTitle,
+                                    isError: true,
+                                  );
+                                  return;
+                                }
 
-                          if (currentEncadreurId == null ||
-                              currentEncadreurId.isEmpty) {
-                            AcademyToast.show(
-                              context,
-                              title: 'Erreur d\'authentification',
-                              isError: true,
-                            );
-                            return;
-                          }
+                                if (currentEncadreurId == null ||
+                                    currentEncadreurId.isEmpty) {
+                                  AcademyToast.show(
+                                    context,
+                                    title: 'Erreur d\'authentification',
+                                    isError: true,
+                                  );
+                                  return;
+                                }
 
-                          Navigator.of(context).pop();
+                                setModalState(() => isSubmitting = true);
 
-                          final now = DateTime.now();
-                          final result = await _seanceState.ouvrirSeance(
-                            titre: titreController.text.trim(),
-                            date: now,
-                            heureDebut: DateTime(
-                              now.year,
-                              now.month,
-                              now.day,
-                              heureDebut.hour,
-                              heureDebut.minute,
-                            ),
-                            heureFin: DateTime(
-                              now.year,
-                              now.month,
-                              now.day,
-                              heureFin.hour,
-                              heureFin.minute,
-                            ),
-                            encadreurResponsableId: currentEncadreurId,
-                            encadreurInvitesIds:
-                                selectedEncadreurIds.toList(),
-                          );
+                                final now = DateTime.now();
+                                final result = await _seanceState.ouvrirSeance(
+                                  titre: titreController.text.trim(),
+                                  date: now,
+                                  heureDebut: DateTime(
+                                    now.year,
+                                    now.month,
+                                    now.day,
+                                    heureDebut.hour,
+                                    heureDebut.minute,
+                                  ),
+                                  heureFin: DateTime(
+                                    now.year,
+                                    now.month,
+                                    now.day,
+                                    heureFin.hour,
+                                    heureFin.minute,
+                                  ),
+                                  encadreurResponsableId: currentEncadreurId,
+                                  encadreurInvitesIds:
+                                      selectedEncadreurIds.toList(),
+                                );
 
-                          if (!mounted) return;
+                                if (mounted) {
+                                  setModalState(() => isSubmitting = false);
+                                }
 
-                          if (result.success) {
-                            AcademyToast.show(
-                              this.context,
-                              title: result.message,
-                              isSuccess: true,
-                            );
-                          } else {
-                            _showAvertissementSeanceOuverte(
-                              result.message,
-                              result.seanceBloqueante,
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                                if (!mounted) return;
+
+                                if (result.success) {
+                                  Navigator.of(context).pop();
+                                  AcademyToast.show(
+                                    this.context,
+                                    title: result.message,
+                                    isSuccess: true,
+                                  );
+                                } else {
+                                  _showAvertissementSeanceOuverte(
+                                    result.message,
+                                    result.seanceBloqueante,
+                                  );
+                                }
+                              },
+                        icon: isSubmitting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.play_arrow_rounded, size: 20),
                         label: Text(
                           AppLocalizations.of(context)!.startSession,
                           style: GoogleFonts.montserrat(
