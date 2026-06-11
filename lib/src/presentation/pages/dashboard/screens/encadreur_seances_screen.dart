@@ -190,7 +190,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
               ],
             ),
             child: IconButton(
-              onPressed: _showOuvrirSeanceDialog,
+              onPressed: (_seanceState.seanceOuverte != null ||
+                      _seanceState.isLoading)
+                  ? null
+                  : _showOuvrirSeanceDialog,
               icon: const Icon(Icons.play_arrow_rounded, color: Colors.white),
               tooltip: AppLocalizations.of(context)!.openSessionTooltip,
             ),
@@ -413,7 +416,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: _showOuvrirSeanceDialog,
+            onPressed: (_seanceState.seanceOuverte != null ||
+                    _seanceState.isLoading)
+                ? null
+                : _showOuvrirSeanceDialog,
             icon: const Icon(Icons.play_arrow_rounded, size: 20),
             label: Text(
               AppLocalizations.of(context)!.openSession,
