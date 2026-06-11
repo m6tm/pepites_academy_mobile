@@ -226,5 +226,61 @@ void main() {
       expect(result, isFalse);
       verifyNever(() => mockDatasource.upsertAll(any()));
     });
+
+    test('apply online doit préserver configurationEvaluation si le serveur ne la renvoie pas', () async {
+      // Arrange
+      final config = [const ConfigurationElementEvaluation(critereId: 'c1', elementIds: ['e1'])];
+      final existing = testAtelier.copyWith(configurationEvaluation: config);
+      final serverResponse = {
+        'id': '1',
+        'seance_id': 'seance-1',
+        'nom': 'Test Atelier',
+        'description': 'Desc',
+        'type': 'tactique',
+        'ordre': 1,
+        'statut': 'applique',
+      };
+
+      when(() => mockDatasource.getById('1')).thenReturn(existing);
+      when(() => mockDioClient.put<dynamic>('${ApiEndpoints.ateliers}/1/apply', data: {}))
+          .thenAnswer((_) async => Right(serverResponse));
+      when(() => mockDatasource.update(any())).thenAnswer((_) async => existing);
+
+      // Act
+      final result = await repository.apply('1');
+
+      // Assert
+      expect(result.configurationEvaluation, config);
+      final captured = verify(() => mockDatasource.update(captureAny())).captured.single as Atelier;
+      expect(captured.configurationEvaluation, config);
+    });
+
+    test('close online doit préserver configurationEvaluation si le serveur ne la renvoie pas', () async {
+      // Arrange
+      final config = [const ConfigurationElementEvaluation(critereId: 'c1', elementIds: ['e1'])];
+      final existing = testAtelier.copyWith(statut: AtelierStatut.applique, configurationEvaluation: config);
+      final serverResponse = {
+        'id': '1',
+        'seance_id': 'seance-1',
+        'nom': 'Test Atelier',
+        'description': 'Desc',
+        'type': 'tactique',
+        'ordre': 1,
+        'statut': 'ferme',
+      };
+
+      when(() => mockDatasource.getById('1')).thenReturn(existing);
+      when(() => mockDioClient.put<dynamic>('${ApiEndpoints.ateliers}/1/close', data: {}))
+          .thenAnswer((_) async => Right(serverResponse));
+      when(() => mockDatasource.update(any())).thenAnswer((_) async => existing);
+
+      // Act
+      final result = await repository.close('1');
+
+      // Assert
+      expect(result.configurationEvaluation, config);
+      final captured = verify(() => mockDatasource.update(captureAny())).captured.single as Atelier;
+      expect(captured.configurationEvaluation, config);
+    });
   });
 }

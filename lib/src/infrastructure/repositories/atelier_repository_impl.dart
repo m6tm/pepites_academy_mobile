@@ -244,14 +244,18 @@ class AtelierRepositoryImpl implements AtelierRepository {
           final atelierMap = (map?['atelier'] as Map<String, dynamic>?) ?? map;
           if (atelierMap != null && (atelierMap['id'] as String?)?.isNotEmpty == true) {
             final serverAtelier = Atelier.fromJson({...atelierMap, 'seance_id': atelier.seanceId});
-            await _datasource.update(serverAtelier);
+            final existing = _datasource.getById(atelier.id);
+            final merged = existing != null && serverAtelier.configurationEvaluation == null
+                ? serverAtelier.copyWith(configurationEvaluation: existing.configurationEvaluation)
+                : serverAtelier;
+            await _datasource.update(merged);
             _invalidateCache();
             _eventBus?.emit(AtelierCreeEvent(
-              atelierId: serverAtelier.id,
-              seanceId: serverAtelier.seanceId,
+              atelierId: merged.id,
+              seanceId: merged.seanceId,
             ));
             _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
-            return serverAtelier;
+            return merged;
           }
           return _updateOffline(atelier);
         },
@@ -307,15 +311,19 @@ class AtelierRepositoryImpl implements AtelierRepository {
         (data) async {
           final map = data is Map<String, dynamic> ? (data['atelier'] as Map<String, dynamic>? ?? data) : null;
           if (map != null) {
-            final atelier = Atelier.fromJson(map);
-            await _datasource.update(atelier);
+            final serverAtelier = Atelier.fromJson(map);
+            final existing = _datasource.getById(id);
+            final merged = existing != null && serverAtelier.configurationEvaluation == null
+                ? serverAtelier.copyWith(configurationEvaluation: existing.configurationEvaluation)
+                : serverAtelier;
+            await _datasource.update(merged);
             _invalidateCache();
             _eventBus?.emit(AtelierAppliedEvent(
-              atelierId: atelier.id,
-              seanceId: atelier.seanceId,
+              atelierId: merged.id,
+              seanceId: merged.seanceId,
             ));
             _invalidationRegistry?.markInvalidated<AtelierAppliedEvent>();
-            return atelier;
+            return merged;
           }
           return _applyLocally(id);
         },
@@ -345,15 +353,19 @@ class AtelierRepositoryImpl implements AtelierRepository {
         (data) async {
           final map = data is Map<String, dynamic> ? (data['atelier'] as Map<String, dynamic>? ?? data) : null;
           if (map != null) {
-            final atelier = Atelier.fromJson(map);
-            await _datasource.update(atelier);
+            final serverAtelier = Atelier.fromJson(map);
+            final existing = _datasource.getById(id);
+            final merged = existing != null && serverAtelier.configurationEvaluation == null
+                ? serverAtelier.copyWith(configurationEvaluation: existing.configurationEvaluation)
+                : serverAtelier;
+            await _datasource.update(merged);
             _invalidateCache();
             _eventBus?.emit(AtelierClosedEvent(
-              atelierId: atelier.id,
-              seanceId: atelier.seanceId,
+              atelierId: merged.id,
+              seanceId: merged.seanceId,
             ));
             _invalidationRegistry?.markInvalidated<AtelierClosedEvent>();
-            return atelier;
+            return merged;
           }
           return _closeLocally(id);
         },
