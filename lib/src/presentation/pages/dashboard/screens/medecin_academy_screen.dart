@@ -213,7 +213,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -221,7 +221,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
               children: [
                 const Icon(
                   Icons.folder_shared_rounded,
-                  color: Color(0xFF3B82F6),
+                  color: AppColors.primary,
                   size: 18,
                 ),
                 const SizedBox(width: 6),
@@ -229,7 +229,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                   '${_academicians.length}',
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF3B82F6),
+                    color: AppColors.primary,
                     fontSize: 15,
                   ),
                 ),
@@ -320,7 +320,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
               label: 'Total',
               value: '${_academicians.length}',
               icon: Icons.people_rounded,
-              color: const Color(0xFF3B82F6),
+              color: AppColors.primary,
               isDark: isDark,
               colorScheme: colorScheme,
             ),
@@ -331,7 +331,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
               label: 'Allergies',
               value: '$allergies',
               icon: Icons.warning_amber_rounded,
-              color: const Color(0xFFF59E0B),
+              color: AppColors.warning,
               isDark: isDark,
               colorScheme: colorScheme,
             ),
@@ -342,7 +342,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
               label: 'Peau',
               value: '$peau',
               icon: Icons.healing_rounded,
-              color: const Color(0xFFDC2626),
+              color: AppColors.error,
               isDark: isDark,
               colorScheme: colorScheme,
             ),
@@ -353,7 +353,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
               label: 'Contacts',
               value: '$contacts',
               icon: Icons.contact_phone_rounded,
-              color: const Color(0xFF10B981),
+              color: AppColors.success,
               isDark: isDark,
               colorScheme: colorScheme,
             ),
@@ -419,7 +419,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFF3B82F6).withValues(alpha: 0.2),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                     width: 2,
                   ),
                 ),
@@ -455,9 +455,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF3B82F6,
-                            ).withValues(alpha: 0.1),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -465,7 +463,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                             style: GoogleFonts.montserrat(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF3B82F6),
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -475,9 +473,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF10B981,
-                            ).withValues(alpha: 0.1),
+                            color: AppColors.success.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -485,7 +481,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                             style: GoogleFonts.montserrat(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF10B981),
+                              color: AppColors.success,
                             ),
                           ),
                         ),
@@ -503,9 +499,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFFDC2626,
-                              ).withValues(alpha: 0.1),
+                              color: AppColors.error.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
@@ -514,7 +508,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                                 const Icon(
                                   Icons.warning_amber_rounded,
                                   size: 10,
-                                  color: Color(0xFFDC2626),
+                                  color: AppColors.error,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
@@ -522,7 +516,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                                   style: GoogleFonts.montserrat(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
-                                    color: const Color(0xFFDC2626),
+                                    color: AppColors.error,
                                   ),
                                 ),
                               ],
@@ -548,13 +542,13 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
     final initials =
         '${acad.prenom.isNotEmpty ? acad.prenom[0] : ''}${acad.nom.isNotEmpty ? acad.nom[0] : ''}';
     final fallback = Container(
-      color: const Color(0xFF3B82F6).withValues(alpha: 0.08),
+      color: AppColors.primary.withValues(alpha: 0.08),
       child: Center(
         child: Text(
           initials,
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF3B82F6),
+            color: AppColors.primary,
             fontSize: 18,
           ),
         ),
@@ -590,13 +584,13 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withValues(alpha: 0.08),
+                color: AppColors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.folder_open_rounded,
                 size: 48,
-                color: Color(0xFF3B82F6),
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 24),

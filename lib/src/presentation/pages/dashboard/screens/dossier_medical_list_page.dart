@@ -5,6 +5,7 @@ import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/dossier_medical.dart';
 import '../../../../injection_container.dart';
 import '../../../state/dossier_medical_state.dart';
+import '../../../theme/app_colors.dart';
 import '../../../widgets/sync_notification_banner.dart';
 
 /// Page affichant la liste des dossiers medicaux d'un academicien.
@@ -71,7 +72,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                 builder: (context, _) {
                   return RefreshIndicator(
                     onRefresh: _onRefresh,
-                    color: const Color(0xFF3B82F6),
+                    color: AppColors.primary,
                     child: CustomScrollView(
                       physics: const AlwaysScrollableScrollPhysics(
                         parent: BouncingScrollPhysics(),
@@ -192,12 +193,12 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+          colors: [Color(0xFF8B0A1E), AppColors.primary],
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E3A8A).withValues(alpha: 0.3),
+            color: const Color(0xFF8B0A1E).withValues(alpha: 0.3),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -383,13 +384,13 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withValues(alpha: 0.08),
+                color: AppColors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.folder_open_rounded,
                 size: 48,
-                color: Color(0xFF3B82F6),
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 24),
@@ -420,7 +421,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3B82F6),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -442,7 +443,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
 
     return FloatingActionButton.extended(
       onPressed: _onCreateDossier,
-      backgroundColor: const Color(0xFF3B82F6),
+      backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
       icon: const Icon(Icons.add_rounded),
       label: Text(
@@ -476,11 +477,11 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
   Color _statutColor(String statut) {
     switch (statut) {
       case 'en_cours':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'apte_entrainement':
-        return const Color(0xFF3B82F6);
+        return AppColors.primary;
       case 'apte_competition':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'fini':
         return const Color(0xFF6B7280);
       default:
@@ -491,11 +492,11 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
   Color _graviteColor(String gravite) {
     switch (gravite.toLowerCase()) {
       case 'legere':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'moyenne':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'grave':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       default:
         return const Color(0xFF6B7280);
     }

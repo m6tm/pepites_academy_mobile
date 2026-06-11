@@ -4,6 +4,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../injection_container.dart';
 import '../../../../domain/entities/medecin_dashboard_stats.dart';
+import '../../../theme/app_colors.dart';
 import '../../notification/notifications_page.dart';
 import '../widgets/dashboard_header.dart';
 import '../widgets/medecin_internal_widgets.dart';
@@ -119,7 +120,7 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                             label: l10n.academicians,
                             value: stats.nbAcademiciens.toString(),
                             icon: Icons.people_outline_rounded,
-                            color: const Color(0xFF3B82F6),
+                            color: AppColors.primary,
                             isDark: isDark,
                           ),
                         ),
@@ -129,7 +130,7 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                             label: l10n.consultations,
                             value: stats.nbConsultations.toString(),
                             icon: Icons.assignment_outlined,
-                            color: const Color(0xFF10B981),
+                            color: AppColors.success,
                             isDark: isDark,
                           ),
                         ),
@@ -147,7 +148,7 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                             label: l10n.activeAlerts,
                             value: stats.nbAlertesActives.toString(),
                             icon: Icons.warning_amber_rounded,
-                            color: const Color(0xFFEF4444),
+                            color: AppColors.error,
                             isDark: isDark,
                           ),
                         ),
@@ -157,7 +158,7 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                             label: l10n.unfitPlayers,
                             value: stats.nbJoueursInaptes.toString(),
                             icon: Icons.health_and_safety_outlined,
-                            color: const Color(0xFFF59E0B),
+                            color: AppColors.warning,
                             isDark: isDark,
                           ),
                         ),
@@ -217,12 +218,12 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+          colors: [Color(0xFF8B0A1E), AppColors.primary],
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E3A8A).withValues(alpha: 0.3),
+            color: const Color(0xFF8B0A1E).withValues(alpha: 0.3),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
