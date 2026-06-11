@@ -184,6 +184,8 @@ class SyncQueueLocalDatasource implements ClearableDatasource {
         return 1; // Saison en haute priorite (impact global)
       case SyncEntityType.evaluation:
         return 6;
+      case SyncEntityType.dossierMedical:
+        return 6; // Dossier medical en priorite moyenne
     }
   }
 

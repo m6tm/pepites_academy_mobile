@@ -43,10 +43,12 @@ import 'infrastructure/datasources/sync_queue_local_datasource.dart';
 import 'infrastructure/datasources/api_sync_datasource_impl.dart';
 import 'infrastructure/network/dio_client.dart';
 import 'infrastructure/network/auth_interceptor.dart';
+import 'infrastructure/datasources/dossier_medical_local_datasource.dart';
 import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
+import 'infrastructure/repositories/dossier_medical_repository_impl.dart';
 import 'infrastructure/repositories/evaluation_repository_impl.dart';
 import 'infrastructure/repositories/exercice_repository_impl.dart';
 import 'infrastructure/repositories/bulletin_repository_impl.dart';
@@ -84,6 +86,7 @@ import 'presentation/state/atelier_state.dart';
 import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
+import 'presentation/state/dossier_medical_state.dart';
 import 'core/events/domain_event_bus.dart';
 import 'core/events/encadreur_events.dart';
 import 'core/events/invalidation_registry.dart';
@@ -152,6 +155,9 @@ class DependencyInjection {
   static late final EvaluationRepositoryImpl evaluationRepository;
   static late final EvaluationService evaluationService;
   static late EvaluationState evaluationState;
+  static late final DossierMedicalLocalDatasource dossierMedicalLocalDatasource;
+  static late final DossierMedicalRepositoryImpl dossierMedicalRepository;
+  static late final DossierMedicalState dossierMedicalState;
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -476,6 +482,16 @@ class DependencyInjection {
     medecinRepository.setConnectivityGuard(connectivityGuard);
     uploadService = UploadService(dioClient);
 
+    // Initialisation du module Dossiers Medicaux
+    final dossierMedicalDatasource = DossierMedicalLocalDatasource(sharedPrefs);
+    dossierMedicalLocalDatasource = dossierMedicalDatasource;
+    dossierMedicalRepository = DossierMedicalRepositoryImpl(dossierMedicalDatasource);
+    dossierMedicalRepository.setEventBus(domainEventBus);
+    dossierMedicalRepository.setInvalidationRegistry(invalidationRegistry);
+    dossierMedicalRepository.setConnectivityGuard(connectivityGuard);
+    dossierMedicalRepository.setDioClient(dioClient);
+    dossierMedicalRepository.setSyncService(syncService);
+
     connectivityState = ConnectivityState(
       connectivityService: connectivityService,
     );
@@ -489,6 +505,11 @@ class DependencyInjection {
     annotationState = AnnotationState(annotationService, domainEventBus);
     evaluationState = EvaluationState(evaluationService, domainEventBus);
     medecinDashboardState = MedecinDashboardState(medecinRepository, domainEventBus);
+    dossierMedicalState = DossierMedicalState(
+      dossierMedicalRepository,
+      domainEventBus,
+      invalidationRegistry,
+    );
     notificationState = NotificationState(
       notificationService: notificationService,
       eventBus: domainEventBus,
@@ -516,6 +537,8 @@ class DependencyInjection {
     evaluationRepository.setDioClient(dioClient);
     bulletinRepository.setSyncService(syncService);
     bulletinRepository.setDioClient(dioClient);
+    dossierMedicalRepository.setSyncService(syncService);
+    dossierMedicalRepository.setDioClient(dioClient);
     smsRepository.setSyncService(syncService);
     smsRepository.setDioClient(dioClient);
     niveauRepository.setSyncService(syncService);
@@ -540,6 +563,7 @@ class DependencyInjection {
       evaluationReferentielRepository.clearCache();
       smsRepository.clearCache();
       activityRepository.clearCache();
+      dossierMedicalRepository.clearCache();
       invalidationRegistry.clear();
     };
   }

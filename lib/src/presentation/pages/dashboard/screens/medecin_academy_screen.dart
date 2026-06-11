@@ -8,6 +8,7 @@ import '../../../../domain/entities/niveau_scolaire.dart';
 import '../../../../domain/entities/poste_football.dart';
 import '../../../../injection_container.dart';
 import '../../../theme/app_colors.dart';
+import 'dossier_medical_list_page.dart';
 
 /// Ecran presentant la liste des academiciens pour le suivi medical.
 /// Design aligne sur le design system de l'application (cartes, ombres, animations,
@@ -387,7 +388,11 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
       },
       child: GestureDetector(
         onTap: () {
-          // TODO: Naviguer vers le detail medical de l'academicien (ST-03)
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => DossierMedicalListPage(academicien: acad),
+            ),
+          );
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),

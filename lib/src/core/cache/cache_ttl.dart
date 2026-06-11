@@ -16,4 +16,5 @@ abstract class CacheTtl {
   static const encadreurs = Duration(minutes: 15);
   static const activities = Duration(minutes: 5);
   static const roles = Duration(hours: 1);
+  static const dossiersMedicaux = Duration(minutes: 5);
 }

@@ -1,11 +1,12 @@
 export 'academicien.dart';
 export 'annotation.dart';
 export 'atelier.dart';
-export 'evaluation.dart';
 export 'biometric_preferences.dart';
 export 'bulletin.dart';
 export 'dashboard_stats.dart';
+export 'dossier_medical.dart';
 export 'encadreur.dart';
+export 'evaluation.dart';
 export 'global_stats.dart';
 export 'niveau_scolaire.dart';
 export 'password_history.dart';

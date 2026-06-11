@@ -95,6 +95,13 @@ class ApiEndpoints {
   static String roleUserHistory(String userId) =>
       '/roles/users/$userId/history';
 
+  /// Retourne l'URL pour les dossiers medicaux d'un academicien.
+  static String dossiersMedicaux(String academicienId) =>
+      '/academiciens/$academicienId/dossiers-medicaux';
+
+  /// URL de base pour les dossiers medicaux (update / delete).
+  static const String dossiersMedicauxBase = '/dossiers-medicaux';
+
   /// Délais d'expiration des requêtes (en millisecondes).
   static const int receiveTimeout = 60000; // 1 minute
   static const int connectionTimeout = 60000; // 1 minute

@@ -26,6 +26,10 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
       return _handleFcmTokenOperation(operation, endpoint, payload);
     }
 
+    if (operation.entityType == SyncEntityType.dossierMedical) {
+      return _handleDossierMedicalOperation(operation, payload);
+    }
+
     switch (operation.operationType) {
       case SyncOperationType.create:
         return _handleCreate(endpoint, payload);
@@ -177,6 +181,82 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     }
   }
 
+  /// Gère les operations de synchronisation des dossiers medicaux.
+  /// Les dossiers medicaux ont des endpoints imbriques (/academiciens/{id}/dossiers-medicaux
+  /// pour la creation, /dossiers-medicaux/{id} pour la mise a jour et la suppression).
+  Future<SyncResult> _handleDossierMedicalOperation(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final data = _transformPayloadForApi(payload, isCreate: operation.operationType == SyncOperationType.create);
+
+      switch (operation.operationType) {
+        case SyncOperationType.create:
+          final academicienId = data['academicien_id']?.toString() ?? payload['academicienId']?.toString();
+          if (academicienId == null || academicienId.isEmpty) {
+            return SyncResult(
+              success: false,
+              errorMessage: 'academicien_id manquant pour la creation du dossier medical',
+            );
+          }
+          final result = await _dioClient.post(
+            ApiEndpoints.dossiersMedicaux(academicienId),
+            data: data,
+          );
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage: failure.message ?? 'Erreur lors de la creation du dossier medical',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        case SyncOperationType.update:
+          final result = await _dioClient.put(
+            '${ApiEndpoints.dossiersMedicauxBase}/${operation.entityId}',
+            data: data,
+          );
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage: failure.message ?? 'Erreur lors de la mise a jour du dossier medical',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        case SyncOperationType.delete:
+          final result = await _dioClient.delete(
+            '${ApiEndpoints.dossiersMedicauxBase}/${operation.entityId}',
+          );
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage: failure.message ?? 'Erreur lors de la suppression du dossier medical',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        case SyncOperationType.reorder:
+          return SyncResult(
+            success: false,
+            errorMessage: 'Reordonnancement non supporte pour les dossiers medicaux',
+          );
+      }
+    } catch (e) {
+      return SyncResult(success: false, errorMessage: 'Exception: $e');
+    }
+  }
+
   /// Gère la création d'une entité via POST.
   Future<SyncResult> _handleCreate(
     String endpoint,
@@ -277,7 +357,7 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
       case SyncEntityType.niveauScolaire:
         return ApiEndpoints.niveauxScolaires;
       case SyncEntityType.smsMessage:
-        return '/sms';
+        return ApiEndpoints.sms;
       case SyncEntityType.notification:
         return ApiEndpoints.notifications;
       case SyncEntityType.fcmToken:
@@ -288,6 +368,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.seasons;
       case SyncEntityType.evaluation:
         return ApiEndpoints.evaluations;
+      case SyncEntityType.dossierMedical:
+        return ApiEndpoints.dossiersMedicauxBase;
     }
   }
 

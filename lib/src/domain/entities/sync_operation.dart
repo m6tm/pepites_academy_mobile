@@ -19,6 +19,7 @@ enum SyncEntityType {
   dashboard,
   season,
   evaluation,
+  dossierMedical,
 }
 
 /// Statuts possibles d'une operation de synchronisation.
