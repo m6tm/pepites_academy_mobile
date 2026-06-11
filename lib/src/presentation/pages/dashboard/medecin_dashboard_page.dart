@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../injection_container.dart';
 import '../../widgets/sync_notification_banner.dart';
@@ -83,7 +84,7 @@ class _MedecinDashboardPageState extends State<MedecinDashboardPage>
       _lastPressedAt = now;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.logoutConfirmation),
+          content: Text(l10n.pressAgainToExit),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
@@ -201,31 +202,91 @@ class _MedecinDashboardPageState extends State<MedecinDashboardPage>
     );
   }
 
+  /// Gestion de la deconnexion avec confirmation, identique aux autres profils.
   void _handleLogout() {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.logoutTitle),
-        content: Text(l10n.logoutConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              await DependencyInjection.authService.logout();
-              navigator.pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
-              );
-            },
-            child: Text(l10n.logoutButton, style: const TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (context) {
+        bool isLoggingOut = false;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                l10n.logoutTitle,
+                style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+              ),
+              content: isLoggingOut
+                  ? SizedBox(
+                      height: 100,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.loading,
+                            style: GoogleFonts.montserrat(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Text(
+                      l10n.logoutConfirmation,
+                      style: GoogleFonts.montserrat(),
+                    ),
+              actions: isLoggingOut
+                  ? null
+                  : [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          l10n.cancel,
+                          style: GoogleFonts.montserrat(),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          setState(() => isLoggingOut = true);
+                          try {
+                            final navigator = Navigator.of(context);
+                            await DependencyInjection.biometricService
+                                .disableBiometric();
+                            await DependencyInjection.authService.logout();
+                            if (navigator.context.mounted) {
+                              navigator.pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                                (route) => false,
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              setState(() => isLoggingOut = false);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.toString())),
+                              );
+                            }
+                          }
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        child: Text(
+                          l10n.logoutButton,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+            );
+          },
+        );
+      },
     );
   }
 }
