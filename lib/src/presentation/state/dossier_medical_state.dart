@@ -45,6 +45,7 @@ class DossierMedicalState extends ChangeNotifier
 
   List<DossierMedical> get dossiers => List.unmodifiable(_dossiers);
   bool get isLoading => _isLoading;
+  bool get isFetching => _isFetching;
   String? get error => _error;
   bool get hasError => _error != null;
   bool get isEmpty => !_isLoading && _dossiers.isEmpty;

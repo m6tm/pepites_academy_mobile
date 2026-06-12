@@ -502,6 +502,21 @@ class DossierMedicalFormState extends ChangeNotifier {
     return true;
   }
 
+  /// Deduit le statut de reprise en fonction des validations saisies.
+  /// - Validation finale complete => 'fini'
+  /// - Apte competition => 'apte_competition'
+  /// - Apte entrainement => 'apte_entrainement'
+  /// - Sinon => 'en_cours'
+  String _deduceStatutReprise() {
+    final validationFinaleComplete = _validationFinaleDate != null &&
+        _responsableMedical.trim().isNotEmpty &&
+        _signatureUrl.isNotEmpty;
+    if (validationFinaleComplete) return 'fini';
+    if (_validationRepriseCompetition) return 'apte_competition';
+    if (_validationRepriseEntrainement) return 'apte_entrainement';
+    return 'en_cours';
+  }
+
   // ------------------------------------------------------------------
   // Sauvegarde
   // ------------------------------------------------------------------
@@ -543,6 +558,8 @@ class DossierMedicalFormState extends ChangeNotifier {
         validationReprise['recommandation'] = _validationRepriseRecommandation;
       }
 
+      final statutReprise = _deduceStatutReprise();
+
       final dossier = DossierMedical(
         id: existing?.id ?? 'dm_${DateTime.now().millisecondsSinceEpoch}',
         academicienId: academicienId,
@@ -567,7 +584,7 @@ class DossierMedicalFormState extends ChangeNotifier {
         responsableMedical:
             _responsableMedical.isNotEmpty ? _responsableMedical : null,
         signatureUrl: _signatureUrl,
-        statutReprise: _statutReprise,
+        statutReprise: statutReprise,
         createdAt: existing?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );

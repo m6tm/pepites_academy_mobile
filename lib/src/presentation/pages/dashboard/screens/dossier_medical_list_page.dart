@@ -86,6 +86,14 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                         SliverToBoxAdapter(
                           child: _buildAcademicienCard(colorScheme, isDark, l10n),
                         ),
+                        if (_state.isFetching && _state.dossiers.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: LinearProgressIndicator(
+                              minHeight: 2,
+                              color: AppColors.primary,
+                              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                            ),
+                          ),
                         if (_state.isLoading && _state.dossiers.isEmpty)
                           const SliverFillRemaining(
                             child: Center(child: CircularProgressIndicator()),

@@ -1,16 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../core/events/dossier_medical_events.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/dossier_medical.dart';
+import '../../../../injection_container.dart';
 import '../../../theme/app_colors.dart';
 import 'dossier_medical_form_page.dart';
 
 /// Page de detail d'un dossier medical en mode lecture seule.
 ///
 /// Offre un bouton "Modifier" pour basculer vers le formulaire d'edition.
-class DossierMedicalDetailPage extends StatelessWidget {
+/// Ecoute le bus d'evenements pour se rafraichir apres une modification.
+class DossierMedicalDetailPage extends StatefulWidget {
   final Academicien academicien;
   final DossierMedical dossier;
 
@@ -21,10 +26,56 @@ class DossierMedicalDetailPage extends StatelessWidget {
   });
 
   @override
+  State<DossierMedicalDetailPage> createState() => _DossierMedicalDetailPageState();
+}
+
+class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
+  late DossierMedical _currentDossier;
+  StreamSubscription<DossierMedicalUpdatedEvent>? _updateSubscription;
+  StreamSubscription<DossierMedicalDeletedEvent>? _deleteSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentDossier = widget.dossier;
+    _listenToEvents();
+  }
+
+  void _listenToEvents() {
+    _updateSubscription = DependencyInjection.domainEventBus
+        .on<DossierMedicalUpdatedEvent>()
+        .listen((event) async {
+      if (event.dossierId == _currentDossier.id && mounted) {
+        final refreshed = await DependencyInjection.dossierMedicalRepository
+            .getById(_currentDossier.id);
+        if (refreshed != null && mounted) {
+          setState(() => _currentDossier = refreshed);
+        }
+      }
+    });
+
+    _deleteSubscription = DependencyInjection.domainEventBus
+        .on<DossierMedicalDeletedEvent>()
+        .listen((event) {
+      if (event.dossierId == _currentDossier.id && mounted) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _updateSubscription?.cancel();
+    _deleteSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dossier = _currentDossier;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -215,8 +266,8 @@ class DossierMedicalDetailPage extends StatelessWidget {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => DossierMedicalFormPage(
-                academicien: academicien,
-                dossier: dossier,
+                academicien: widget.academicien,
+                dossier: _currentDossier,
               ),
             ),
           );
@@ -269,7 +320,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    dossier.natureBlessure,
+                    _currentDossier.natureBlessure,
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
                       color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -285,7 +336,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
   }
 
   Widget _buildAcademicienInfo(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
-    final acad = academicien;
+    final acad = widget.academicien;
     final age = _calculateAge(acad.dateNaissance);
 
     return SliverToBoxAdapter(
