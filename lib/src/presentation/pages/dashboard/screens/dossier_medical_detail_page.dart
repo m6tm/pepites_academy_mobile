@@ -517,8 +517,6 @@ class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
 
   Widget _buildReeducationCard(Map<String, dynamic> item, AppLocalizations l10n, ColorScheme colorScheme) {
     final date = DateTime.tryParse(item['date']?.toString() ?? '');
-    final douleurValue = item['douleur'];
-    final douleur = douleurValue is num ? douleurValue.toInt() : null;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -540,23 +538,6 @@ class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const Spacer(),
-              if (douleur != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: _douleurColor(douleur).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    l10n.medicalRecordPainLevel(douleur),
-                    style: GoogleFonts.montserrat(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: _douleurColor(douleur),
-                    ),
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: 6),
@@ -617,12 +598,6 @@ class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
         ],
       ),
     );
-  }
-
-  Color _douleurColor(int douleur) {
-    if (douleur <= 3) return AppColors.success;
-    if (douleur <= 6) return AppColors.warning;
-    return AppColors.error;
   }
 
   Color _graviteColor(String gravite) {
