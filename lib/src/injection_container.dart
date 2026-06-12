@@ -86,6 +86,7 @@ import 'presentation/state/atelier_state.dart';
 import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
+import 'presentation/state/dossier_medical_form_state.dart';
 import 'presentation/state/dossier_medical_state.dart';
 import 'core/events/domain_event_bus.dart';
 import 'core/events/encadreur_events.dart';
@@ -158,6 +159,7 @@ class DependencyInjection {
   static late final DossierMedicalLocalDatasource dossierMedicalLocalDatasource;
   static late final DossierMedicalRepositoryImpl dossierMedicalRepository;
   static late final DossierMedicalState dossierMedicalState;
+  static late final DossierMedicalFormState dossierMedicalFormState;
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -509,6 +511,11 @@ class DependencyInjection {
       dossierMedicalRepository,
       domainEventBus,
       invalidationRegistry,
+    );
+    dossierMedicalFormState = DossierMedicalFormState(
+      dossierMedicalRepository,
+      uploadService,
+      syncService: syncService,
     );
     notificationState = NotificationState(
       notificationService: notificationService,

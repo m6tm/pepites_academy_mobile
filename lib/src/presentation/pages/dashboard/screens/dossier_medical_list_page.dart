@@ -7,6 +7,8 @@ import '../../../../injection_container.dart';
 import '../../../state/dossier_medical_state.dart';
 import '../../../theme/app_colors.dart';
 import '../../../widgets/sync_notification_banner.dart';
+import 'dossier_medical_detail_page.dart';
+import 'dossier_medical_form_page.dart';
 
 /// Page affichant la liste des dossiers medicaux d'un academicien.
 ///
@@ -269,7 +271,14 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
       },
       child: GestureDetector(
         onTap: () {
-          // Navigation vers le detail du dossier (ST-04)
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => DossierMedicalDetailPage(
+                academicien: widget.academicien,
+                dossier: dossier,
+              ),
+            ),
+          );
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -454,8 +463,13 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
   }
 
   void _onCreateDossier() {
-    // Navigation vers le formulaire de creation (ST-04)
-    // TODO: Naviguer vers DossierMedicalFormPage
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DossierMedicalFormPage(
+          academicien: widget.academicien,
+        ),
+      ),
+    );
   }
 
   int _calculateAge(DateTime birthDate) {

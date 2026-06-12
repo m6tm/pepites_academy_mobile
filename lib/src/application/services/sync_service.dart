@@ -284,6 +284,18 @@ class SyncService {
   /// Indique si une synchronisation est en cours.
   bool get isSyncing => _isSyncing;
 
+  /// Indique si l'appareil est actuellement connecte a Internet.
+  Future<bool> isConnected() => _connectivityService.isConnected();
+
+  /// Synchronise les operations en attente en attendant la fin d'une
+  /// eventuelle synchronisation deja en cours.
+  Future<SyncCycleResult?> syncPendingOperationsAndWait() async {
+    while (_isSyncing) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    return syncPendingOperations();
+  }
+
   void _scheduleRetry() {
     _retryTimer?.cancel();
     _retryTimer = Timer(const Duration(seconds: retryDelaySeconds), () async {

@@ -18,6 +18,9 @@ enum NetworkFailureType {
   /// Conflit de données (409) - email/téléphone déjà existant.
   conflict,
 
+  /// Erreur de validation côté serveur (400) - schéma invalide.
+  validation,
+
   /// Erreur inattendue ou inconnue.
   unknown,
 }

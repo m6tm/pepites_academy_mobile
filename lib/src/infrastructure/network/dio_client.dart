@@ -210,6 +210,24 @@ class DioClient {
               statusCode: statusCode,
               message: serverMessage,
             );
+          } else if (statusCode == 400) {
+            String? detailsMessage;
+            if (responseData is Map<String, dynamic> &&
+                responseData['details'] is Map<String, dynamic>) {
+              final details = responseData['details'] as Map<String, dynamic>;
+              detailsMessage = details.entries
+                  .map((e) => '${e.key}: ${e.value}')
+                  .join('; ');
+            }
+            return NetworkFailure(
+              type: NetworkFailureType.validation,
+              statusCode: statusCode,
+              message:
+                  serverMessage ??
+                  (detailsMessage?.isNotEmpty == true
+                      ? 'Données invalides ($detailsMessage)'
+                      : 'Données invalides'),
+            );
           } else if (statusCode != null && statusCode >= 500) {
             return NetworkFailure(
               type: NetworkFailureType.serverError,

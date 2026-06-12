@@ -10,6 +10,7 @@ enum UploadType {
   photoTuteur,
   signatureAcademicien,
   signatureParent,
+  signatureMedical,
   certificatMedical,
 }
 
@@ -119,6 +120,8 @@ class UploadService {
         return 'signature_academicien';
       case UploadType.signatureParent:
         return 'signature_parent';
+      case UploadType.signatureMedical:
+        return 'signature_medical';
       case UploadType.certificatMedical:
         return 'certificat_medical';
     }

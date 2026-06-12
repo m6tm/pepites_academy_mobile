@@ -387,7 +387,10 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
       var value = entry.value;
 
       // Conversion des dates ISO en format date uniquement (YYYY-MM-DD)
-      if ((key == 'date_naissance' || key == 'date') &&
+      if ((key == 'date_naissance' ||
+              key == 'date' ||
+              key == 'date_blessure' ||
+              key == 'validation_finale_date') &&
           value is String &&
           value.contains('T')) {
         value = value.split('T').first;
