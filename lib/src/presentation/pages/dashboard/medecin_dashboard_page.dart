@@ -7,7 +7,7 @@ import '../../widgets/sync_notification_banner.dart';
 import '../auth/login_page.dart';
 import 'screens/medecin_home_screen.dart';
 import 'screens/medecin_academy_screen.dart';
-import 'screens/medecin_consultations_screen.dart';
+import 'screens/medecin_bilans_screen.dart';
 import 'screens/medecin_profile_screen.dart';
 import 'widgets/medecin_internal_widgets.dart';
 
@@ -128,7 +128,7 @@ class _MedecinDashboardPageState extends State<MedecinDashboardPage>
                         onProfileTap: () => setState(() => _selectedNavIndex = 3),
                       ),
                       const MedecinAcademyScreen(),
-                      const MedecinConsultationsScreen(),
+                      const MedecinBilansScreen(),
                       MedecinProfileScreen(
                         userName: widget.userName,
                         fullName: _fullName,
@@ -184,8 +184,8 @@ class _MedecinDashboardPageState extends State<MedecinDashboardPage>
                 onTap: () => setState(() => _selectedNavIndex = 1),
               ),
               MedecinNavItem(
-                icon: Icons.medical_services_rounded,
-                label: l10n.consultations,
+                icon: Icons.assessment_rounded,
+                label: l10n.bilans,
                 isSelected: _selectedNavIndex == 2,
                 onTap: () => setState(() => _selectedNavIndex = 2),
               ),

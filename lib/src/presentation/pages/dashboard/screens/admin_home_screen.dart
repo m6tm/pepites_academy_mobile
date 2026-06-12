@@ -645,6 +645,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       case ActivityType.referentielNiveauModifie:
       case ActivityType.referentielNiveauSupprime:
         return Icons.tune_rounded;
+      case ActivityType.bilanMedicalMensuelCree:
+      case ActivityType.bilanMedicalMensuelModifie:
+      case ActivityType.bilanMedicalMensuelSupprime:
+        return Icons.medical_information_outlined;
     }
   }
 
@@ -674,6 +678,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       case ActivityType.referentielNiveauModifie:
       case ActivityType.referentielNiveauSupprime:
         return const Color(0xFFF59E0B);
+      case ActivityType.bilanMedicalMensuelCree:
+      case ActivityType.bilanMedicalMensuelModifie:
+      case ActivityType.bilanMedicalMensuelSupprime:
+        return const Color(0xFFEF4444);
     }
   }
 

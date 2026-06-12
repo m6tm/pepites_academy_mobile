@@ -359,6 +359,28 @@
       }
     }
   },
+  "activityMedicalReportCreated": "Medical report created",
+  "activityMedicalReportUpdated": "Medical report updated",
+  "activityMedicalReportDeleted": "Medical report deleted",
+  "activityMedicalReportDesc": "{period} - Academic: {academicienId}",
+  "@activityMedicalReportDesc": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "academicienId": {
+        "type": "String"
+      }
+    }
+  },
+  "activityMedicalReportDeletedDesc": "Report deleted: {id}",
+  "@activityMedicalReportDeletedDesc": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "profileAcademician": "Academician",
   "profileCoach": "Coach",
   "search": "Search",
@@ -1604,6 +1626,7 @@
     }
   },
   "serviceSyncMaxRetries": "Maximum number of retries reached",
+  "serviceSyncErrorGeneric": "Server synchronization failed",
   "serviceSearchAcademicianSubtitle": "Academician",
   "serviceSearchCoachSubtitle": "Coach - {specialty}",
   "@serviceSearchCoachSubtitle": {
@@ -2160,5 +2183,31 @@
   "medicalRecordPdfGenerateError": "Unable to generate PDF",
   "medicalRecordPdfHeaderSubtitle": "Medical follow-up sheet",
   "medicalRecordPdfFooterConfidential": "Confidential document",
-  "medicalRecordPdfFooterPage": "Page {page} / {total}"
+  "medicalRecordPdfFooterPage": "Page {page} / {total}",
+  "bilans": "Reports",
+  "bilansTitle": "Medical reports",
+  "bilansSubtitle": "Monthly medical reports of academics",
+  "bilanMedicalEmpty": "No medical report for this academic",
+  "bilanMedicalMonth": "Month",
+  "bilanMedicalYear": "Year",
+  "bilanMedicalMusculaire": "Muscle injuries",
+  "bilanMedicalArticulaire": "Joint injuries",
+  "bilanMedicalTraumatique": "Traumatic injuries",
+  "bilanMedicalMusculaireShort": "Muscle",
+  "bilanMedicalArticulaireShort": "Joint",
+  "bilanMedicalTraumatiqueShort": "Trauma",
+  "bilanMedicalTotalBlessuresLabel": "injuries",
+  "bilanMedicalNewTitle": "New medical report",
+  "bilanMedicalEditTitle": "Edit medical report",
+  "bilanMedicalCreateButton": "Create",
+  "bilanMedicalUpdateButton": "Update",
+  "bilanMedicalDetailTitle": "Report details",
+  "bilanMedicalPeriodeLabel": "Period",
+  "bilanMedicalBlessuresTitle": "Total number of injuries in the season",
+  "bilanMedicalTotalLabel": "Total",
+  "bilanMedicalDeleteTitle": "Delete report",
+  "bilanMedicalDeleteConfirmation": "Do you really want to delete this medical report?",
+  "bilanMedicalErrorInvalidCounters": "Injury counters must be positive or zero",
+  "searchAcademicianHint": "Search for an academician...",
+  "noAcademicianFound": "No academician found"
 }

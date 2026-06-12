@@ -1688,6 +1688,36 @@ abstract class AppLocalizations {
   /// **'Niveau supprime : {name}'**
   String activityLevelRemoved(String name);
 
+  /// No description provided for @activityMedicalReportCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan medical cree'**
+  String get activityMedicalReportCreated;
+
+  /// No description provided for @activityMedicalReportUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan medical modifie'**
+  String get activityMedicalReportUpdated;
+
+  /// No description provided for @activityMedicalReportDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan medical supprime'**
+  String get activityMedicalReportDeleted;
+
+  /// No description provided for @activityMedicalReportDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'{period} - Academicien : {academicienId}'**
+  String activityMedicalReportDesc(String period, String academicienId);
+
+  /// No description provided for @activityMedicalReportDeletedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan supprime : {id}'**
+  String activityMedicalReportDeletedDesc(String id);
+
   /// No description provided for @profileAcademician.
   ///
   /// In fr, this message translates to:
@@ -5564,6 +5594,12 @@ abstract class AppLocalizations {
   /// **'Nombre maximum de tentatives atteint'**
   String get serviceSyncMaxRetries;
 
+  /// No description provided for @serviceSyncErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Echec de synchronisation avec le serveur'**
+  String get serviceSyncErrorGeneric;
+
   /// No description provided for @serviceSearchAcademicianSubtitle.
   ///
   /// In fr, this message translates to:
@@ -7921,6 +7957,162 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Page {page} / {total}'**
   String medicalRecordPdfFooterPage(Object page, Object total);
+
+  /// No description provided for @bilans.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilans'**
+  String get bilans;
+
+  /// No description provided for @bilansTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilans medicaux'**
+  String get bilansTitle;
+
+  /// No description provided for @bilansSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilans mensuels des academiciens'**
+  String get bilansSubtitle;
+
+  /// No description provided for @bilanMedicalEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun bilan medical pour cet academicien'**
+  String get bilanMedicalEmpty;
+
+  /// No description provided for @bilanMedicalMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois'**
+  String get bilanMedicalMonth;
+
+  /// No description provided for @bilanMedicalYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annee'**
+  String get bilanMedicalYear;
+
+  /// No description provided for @bilanMedicalMusculaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Blessures musculaires'**
+  String get bilanMedicalMusculaire;
+
+  /// No description provided for @bilanMedicalArticulaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Blessures articulaires'**
+  String get bilanMedicalArticulaire;
+
+  /// No description provided for @bilanMedicalTraumatique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Blessures traumatiques'**
+  String get bilanMedicalTraumatique;
+
+  /// No description provided for @bilanMedicalMusculaireShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Musculaire'**
+  String get bilanMedicalMusculaireShort;
+
+  /// No description provided for @bilanMedicalArticulaireShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Articulaire'**
+  String get bilanMedicalArticulaireShort;
+
+  /// No description provided for @bilanMedicalTraumatiqueShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traumatique'**
+  String get bilanMedicalTraumatiqueShort;
+
+  /// No description provided for @bilanMedicalTotalBlessuresLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'blessures'**
+  String get bilanMedicalTotalBlessuresLabel;
+
+  /// No description provided for @bilanMedicalNewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau bilan medical'**
+  String get bilanMedicalNewTitle;
+
+  /// No description provided for @bilanMedicalEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le bilan medical'**
+  String get bilanMedicalEditTitle;
+
+  /// No description provided for @bilanMedicalCreateButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Creer'**
+  String get bilanMedicalCreateButton;
+
+  /// No description provided for @bilanMedicalUpdateButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre a jour'**
+  String get bilanMedicalUpdateButton;
+
+  /// No description provided for @bilanMedicalDetailTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Detail du bilan'**
+  String get bilanMedicalDetailTitle;
+
+  /// No description provided for @bilanMedicalPeriodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Periode'**
+  String get bilanMedicalPeriodeLabel;
+
+  /// No description provided for @bilanMedicalBlessuresTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre total de blessures dans la saison'**
+  String get bilanMedicalBlessuresTitle;
+
+  /// No description provided for @bilanMedicalTotalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total'**
+  String get bilanMedicalTotalLabel;
+
+  /// No description provided for @bilanMedicalDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le bilan'**
+  String get bilanMedicalDeleteTitle;
+
+  /// No description provided for @bilanMedicalDeleteConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer ce bilan medical ?'**
+  String get bilanMedicalDeleteConfirmation;
+
+  /// No description provided for @bilanMedicalErrorInvalidCounters.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les compteurs de blessures doivent etre positifs ou nuls'**
+  String get bilanMedicalErrorInvalidCounters;
+
+  /// No description provided for @searchAcademicianHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un academicien...'**
+  String get searchAcademicianHint;
+
+  /// No description provided for @noAcademicianFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun academicien trouve'**
+  String get noAcademicianFound;
 }
 
 class _AppLocalizationsDelegate

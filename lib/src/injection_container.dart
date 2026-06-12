@@ -7,6 +7,7 @@ import 'application/services/annotation_service.dart';
 import 'application/services/app_preferences.dart';
 import 'application/services/app_settings_service.dart';
 import 'application/services/atelier_service.dart';
+import 'application/services/bilan_medical_mensuel_service.dart';
 import 'application/services/evaluation_service.dart';
 import 'application/services/exercice_service.dart';
 import 'application/services/bulletin_service.dart';
@@ -28,6 +29,7 @@ import 'infrastructure/datasources/activity_local_datasource.dart';
 import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
+import 'infrastructure/datasources/bilan_medical_mensuel_local_datasource.dart';
 import 'infrastructure/datasources/evaluation_local_datasource.dart';
 import 'infrastructure/datasources/exercice_local_datasource.dart';
 import 'infrastructure/datasources/bulletin_local_datasource.dart';
@@ -48,6 +50,7 @@ import 'infrastructure/repositories/activity_repository_impl.dart';
 import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
+import 'infrastructure/repositories/bilan_medical_mensuel_repository_impl.dart';
 import 'infrastructure/repositories/dossier_medical_repository_impl.dart';
 import 'infrastructure/repositories/evaluation_repository_impl.dart';
 import 'infrastructure/repositories/exercice_repository_impl.dart';
@@ -83,6 +86,7 @@ import 'presentation/widgets/academy_toast.dart';
 import 'presentation/state/language_state.dart';
 import 'presentation/state/exercice_state.dart';
 import 'presentation/state/atelier_state.dart';
+import 'presentation/state/bilan_medical_mensuel_state.dart';
 import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
@@ -160,6 +164,12 @@ class DependencyInjection {
   static late final DossierMedicalRepositoryImpl dossierMedicalRepository;
   static late final DossierMedicalState dossierMedicalState;
   static late final DossierMedicalFormState dossierMedicalFormState;
+  static late final BilanMedicalMensuelLocalDatasource
+      bilanMedicalMensuelLocalDatasource;
+  static late final BilanMedicalMensuelRepositoryImpl
+      bilanMedicalMensuelRepository;
+  static late final BilanMedicalMensuelService bilanMedicalMensuelService;
+  static late final BilanMedicalMensuelState bilanMedicalMensuelState;
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -517,6 +527,30 @@ class DependencyInjection {
       uploadService,
       syncService: syncService,
     );
+
+    // Initialisation du module Bilans Medicaux Mensuels
+    final bilanMedicalMensuelDatasource = BilanMedicalMensuelLocalDatasource(
+      sharedPrefs,
+    );
+    bilanMedicalMensuelLocalDatasource = bilanMedicalMensuelDatasource;
+    bilanMedicalMensuelRepository = BilanMedicalMensuelRepositoryImpl(
+      bilanMedicalMensuelDatasource,
+    );
+    bilanMedicalMensuelRepository.setEventBus(domainEventBus);
+    bilanMedicalMensuelRepository.setInvalidationRegistry(invalidationRegistry);
+    bilanMedicalMensuelRepository.setConnectivityGuard(connectivityGuard);
+    bilanMedicalMensuelRepository.setDioClient(dioClient);
+    bilanMedicalMensuelRepository.setSyncService(syncService);
+    bilanMedicalMensuelService = BilanMedicalMensuelService(
+      repository: bilanMedicalMensuelRepository,
+      activityService: activityService,
+    );
+    bilanMedicalMensuelState = BilanMedicalMensuelState(
+      bilanMedicalMensuelRepository,
+      domainEventBus,
+      invalidationRegistry,
+    );
+
     notificationState = NotificationState(
       notificationService: notificationService,
       eventBus: domainEventBus,
@@ -546,6 +580,8 @@ class DependencyInjection {
     bulletinRepository.setDioClient(dioClient);
     dossierMedicalRepository.setSyncService(syncService);
     dossierMedicalRepository.setDioClient(dioClient);
+    bilanMedicalMensuelRepository.setSyncService(syncService);
+    bilanMedicalMensuelRepository.setDioClient(dioClient);
     smsRepository.setSyncService(syncService);
     smsRepository.setDioClient(dioClient);
     niveauRepository.setSyncService(syncService);
@@ -571,6 +607,7 @@ class DependencyInjection {
       smsRepository.clearCache();
       activityRepository.clearCache();
       dossierMedicalRepository.clearCache();
+      bilanMedicalMensuelRepository.clearCache();
       invalidationRegistry.clear();
     };
   }

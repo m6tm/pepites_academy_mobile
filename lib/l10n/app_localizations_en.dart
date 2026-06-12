@@ -867,6 +867,25 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get activityMedicalReportCreated => 'Medical report created';
+
+  @override
+  String get activityMedicalReportUpdated => 'Medical report updated';
+
+  @override
+  String get activityMedicalReportDeleted => 'Medical report deleted';
+
+  @override
+  String activityMedicalReportDesc(String period, String academicienId) {
+    return '$period - Academic: $academicienId';
+  }
+
+  @override
+  String activityMedicalReportDeletedDesc(String id) {
+    return 'Report deleted: $id';
+  }
+
+  @override
   String get profileAcademician => 'Academician';
 
   @override
@@ -3081,6 +3100,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serviceSyncMaxRetries => 'Maximum number of retries reached';
 
   @override
+  String get serviceSyncErrorGeneric => 'Server synchronization failed';
+
+  @override
   String get serviceSearchAcademicianSubtitle => 'Academician';
 
   @override
@@ -4350,4 +4372,85 @@ class AppLocalizationsEn extends AppLocalizations {
   String medicalRecordPdfFooterPage(Object page, Object total) {
     return 'Page $page / $total';
   }
+
+  @override
+  String get bilans => 'Reports';
+
+  @override
+  String get bilansTitle => 'Medical reports';
+
+  @override
+  String get bilansSubtitle => 'Monthly medical reports of academics';
+
+  @override
+  String get bilanMedicalEmpty => 'No medical report for this academic';
+
+  @override
+  String get bilanMedicalMonth => 'Month';
+
+  @override
+  String get bilanMedicalYear => 'Year';
+
+  @override
+  String get bilanMedicalMusculaire => 'Muscle injuries';
+
+  @override
+  String get bilanMedicalArticulaire => 'Joint injuries';
+
+  @override
+  String get bilanMedicalTraumatique => 'Traumatic injuries';
+
+  @override
+  String get bilanMedicalMusculaireShort => 'Muscle';
+
+  @override
+  String get bilanMedicalArticulaireShort => 'Joint';
+
+  @override
+  String get bilanMedicalTraumatiqueShort => 'Trauma';
+
+  @override
+  String get bilanMedicalTotalBlessuresLabel => 'injuries';
+
+  @override
+  String get bilanMedicalNewTitle => 'New medical report';
+
+  @override
+  String get bilanMedicalEditTitle => 'Edit medical report';
+
+  @override
+  String get bilanMedicalCreateButton => 'Create';
+
+  @override
+  String get bilanMedicalUpdateButton => 'Update';
+
+  @override
+  String get bilanMedicalDetailTitle => 'Report details';
+
+  @override
+  String get bilanMedicalPeriodeLabel => 'Period';
+
+  @override
+  String get bilanMedicalBlessuresTitle =>
+      'Total number of injuries in the season';
+
+  @override
+  String get bilanMedicalTotalLabel => 'Total';
+
+  @override
+  String get bilanMedicalDeleteTitle => 'Delete report';
+
+  @override
+  String get bilanMedicalDeleteConfirmation =>
+      'Do you really want to delete this medical report?';
+
+  @override
+  String get bilanMedicalErrorInvalidCounters =>
+      'Injury counters must be positive or zero';
+
+  @override
+  String get searchAcademicianHint => 'Search for an academician...';
+
+  @override
+  String get noAcademicianFound => 'No academician found';
 }

@@ -30,6 +30,10 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
       return _handleDossierMedicalOperation(operation, payload);
     }
 
+    if (operation.entityType == SyncEntityType.bilanMedicalMensuel) {
+      return _handleBilanMedicalMensuelOperation(operation, payload);
+    }
+
     switch (operation.operationType) {
       case SyncOperationType.create:
         return _handleCreate(endpoint, payload);
@@ -181,7 +185,7 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
     }
   }
 
-  /// Gère les operations de synchronisation des dossiers medicaux.
+  /// Gere les operations de synchronisation des dossiers medicaux.
   /// Les dossiers medicaux ont des endpoints imbriques (/academiciens/{id}/dossiers-medicaux
   /// pour la creation, /dossiers-medicaux/{id} pour la mise a jour et la suppression).
   Future<SyncResult> _handleDossierMedicalOperation(
@@ -250,6 +254,95 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
           return SyncResult(
             success: false,
             errorMessage: 'Reordonnancement non supporte pour les dossiers medicaux',
+          );
+      }
+    } catch (e) {
+      return SyncResult(success: false, errorMessage: 'Exception: $e');
+    }
+  }
+
+  /// Gere les operations de synchronisation des bilans medicaux mensuels.
+  /// Les bilans medicaux mensuels ont des endpoints imbriques
+  /// (/academiciens/{id}/bilans-medicaux pour la creation,
+  /// /bilans-medicaux/{id} pour la mise a jour et la suppression).
+  Future<SyncResult> _handleBilanMedicalMensuelOperation(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final data = _transformPayloadForApi(
+        payload,
+        isCreate: operation.operationType == SyncOperationType.create,
+      );
+
+      switch (operation.operationType) {
+        case SyncOperationType.create:
+          final academicienId =
+              data['academicien_id']?.toString() ??
+              payload['academicienId']?.toString();
+          if (academicienId == null || academicienId.isEmpty) {
+            return SyncResult(
+              success: false,
+              errorMessage:
+                  'academicien_id manquant pour la creation du bilan medical',
+            );
+          }
+          final result = await _dioClient.post(
+            ApiEndpoints.bilansMedicaux(academicienId),
+            data: data,
+          );
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage:
+                  failure.message ?? 'Erreur lors de la creation du bilan medical',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        case SyncOperationType.update:
+          final result = await _dioClient.put(
+            '${ApiEndpoints.bilansMedicauxBase}/${operation.entityId}',
+            data: data,
+          );
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage:
+                  failure.message ??
+                  'Erreur lors de la mise a jour du bilan medical',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        case SyncOperationType.delete:
+          final result = await _dioClient.delete(
+            '${ApiEndpoints.bilansMedicauxBase}/${operation.entityId}',
+          );
+          return result.fold(
+            (failure) => SyncResult(
+              success: false,
+              errorMessage:
+                  failure.message ??
+                  'Erreur lors de la suppression du bilan medical',
+              statusCode: failure.statusCode,
+            ),
+            (response) => SyncResult(
+              success: true,
+              serverResponse: response as Map<String, dynamic>?,
+            ),
+          );
+        case SyncOperationType.reorder:
+          return SyncResult(
+            success: false,
+            errorMessage:
+                'Reordonnancement non supporte pour les bilans medicaux',
           );
       }
     } catch (e) {
@@ -370,6 +463,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.evaluations;
       case SyncEntityType.dossierMedical:
         return ApiEndpoints.dossiersMedicauxBase;
+      case SyncEntityType.bilanMedicalMensuel:
+        return ApiEndpoints.bilansMedicauxBase;
     }
   }
 

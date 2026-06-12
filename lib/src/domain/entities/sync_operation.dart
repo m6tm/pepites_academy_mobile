@@ -20,6 +20,7 @@ enum SyncEntityType {
   season,
   evaluation,
   dossierMedical,
+  bilanMedicalMensuel,
 }
 
 /// Statuts possibles d'une operation de synchronisation.

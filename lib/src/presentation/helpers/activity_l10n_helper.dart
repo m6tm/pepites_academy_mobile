@@ -39,6 +39,12 @@ class ActivityL10nHelper {
       case ActivityType.referentielNiveauModifie:
       case ActivityType.referentielNiveauSupprime:
         return _l10n.activityReferentialUpdated;
+      case ActivityType.bilanMedicalMensuelCree:
+        return _l10n.activityMedicalReportCreated;
+      case ActivityType.bilanMedicalMensuelModifie:
+        return _l10n.activityMedicalReportUpdated;
+      case ActivityType.bilanMedicalMensuelSupprime:
+        return _l10n.activityMedicalReportDeleted;
     }
   }
 
@@ -110,6 +116,14 @@ class ActivityL10nHelper {
         return _l10n.activityLevelModified(raw);
       case ActivityType.referentielNiveauSupprime:
         return _l10n.activityLevelRemoved(raw);
+      case ActivityType.bilanMedicalMensuelCree:
+      case ActivityType.bilanMedicalMensuelModifie:
+        if (parts.length >= 2) {
+          return _l10n.activityMedicalReportDesc(parts[0], parts[1]);
+        }
+        return raw;
+      case ActivityType.bilanMedicalMensuelSupprime:
+        return _l10n.activityMedicalReportDeletedDesc(raw);
     }
   }
 }

@@ -16,6 +16,9 @@ enum ActivityType {
   referentielNiveauAjoute,
   referentielNiveauModifie,
   referentielNiveauSupprime,
+  bilanMedicalMensuelCree,
+  bilanMedicalMensuelModifie,
+  bilanMedicalMensuelSupprime,
 }
 
 /// Represente une activite enregistree dans le systeme.

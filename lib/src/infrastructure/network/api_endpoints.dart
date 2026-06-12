@@ -102,6 +102,13 @@ class ApiEndpoints {
   /// URL de base pour les dossiers medicaux (update / delete).
   static const String dossiersMedicauxBase = '/dossiers-medicaux';
 
+  /// Retourne l'URL pour les bilans medicaux mensuels d'un academicien.
+  static String bilansMedicaux(String academicienId) =>
+      '/academiciens/$academicienId/bilans-medicaux';
+
+  /// URL de base pour les bilans medicaux mensuels (update / delete).
+  static const String bilansMedicauxBase = '/bilans-medicaux';
+
   /// Délais d'expiration des requêtes (en millisecondes).
   static const int receiveTimeout = 60000; // 1 minute
   static const int connectionTimeout = 60000; // 1 minute

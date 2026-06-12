@@ -424,6 +424,28 @@
       }
     }
   },
+  "activityMedicalReportCreated": "Bilan medical cree",
+  "activityMedicalReportUpdated": "Bilan medical modifie",
+  "activityMedicalReportDeleted": "Bilan medical supprime",
+  "activityMedicalReportDesc": "{period} - Academicien : {academicienId}",
+  "@activityMedicalReportDesc": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "academicienId": {
+        "type": "String"
+      }
+    }
+  },
+  "activityMedicalReportDeletedDesc": "Bilan supprime : {id}",
+  "@activityMedicalReportDeletedDesc": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "profileAcademician": "Academicien",
   "profileCoach": "Encadreur",
   "search": "Rechercher",
@@ -1677,6 +1699,7 @@
     }
   },
   "serviceSyncMaxRetries": "Nombre maximum de tentatives atteint",
+  "serviceSyncErrorGeneric": "Echec de synchronisation avec le serveur",
   "serviceSearchAcademicianSubtitle": "Academicien",
   "serviceSearchCoachSubtitle": "Encadreur - {specialty}",
   "@serviceSearchCoachSubtitle": {
@@ -2233,5 +2256,31 @@
   "medicalRecordPdfGenerateError": "Impossible de generer le PDF",
   "medicalRecordPdfHeaderSubtitle": "Fiche de suivi medical",
   "medicalRecordPdfFooterConfidential": "Document confidentiel",
-  "medicalRecordPdfFooterPage": "Page {page} / {total}"
+  "medicalRecordPdfFooterPage": "Page {page} / {total}",
+  "bilans": "Bilans",
+  "bilansTitle": "Bilans medicaux",
+  "bilansSubtitle": "Bilans mensuels des academiciens",
+  "bilanMedicalEmpty": "Aucun bilan medical pour cet academicien",
+  "bilanMedicalMonth": "Mois",
+  "bilanMedicalYear": "Annee",
+  "bilanMedicalMusculaire": "Blessures musculaires",
+  "bilanMedicalArticulaire": "Blessures articulaires",
+  "bilanMedicalTraumatique": "Blessures traumatiques",
+  "bilanMedicalMusculaireShort": "Musculaire",
+  "bilanMedicalArticulaireShort": "Articulaire",
+  "bilanMedicalTraumatiqueShort": "Traumatique",
+  "bilanMedicalTotalBlessuresLabel": "blessures",
+  "bilanMedicalNewTitle": "Nouveau bilan medical",
+  "bilanMedicalEditTitle": "Modifier le bilan medical",
+  "bilanMedicalCreateButton": "Creer",
+  "bilanMedicalUpdateButton": "Mettre a jour",
+  "bilanMedicalDetailTitle": "Detail du bilan",
+  "bilanMedicalPeriodeLabel": "Periode",
+  "bilanMedicalBlessuresTitle": "Nombre total de blessures dans la saison",
+  "bilanMedicalTotalLabel": "Total",
+  "bilanMedicalDeleteTitle": "Supprimer le bilan",
+  "bilanMedicalDeleteConfirmation": "Voulez-vous vraiment supprimer ce bilan medical ?",
+  "bilanMedicalErrorInvalidCounters": "Les compteurs de blessures doivent etre positifs ou nuls",
+  "searchAcademicianHint": "Rechercher un academicien...",
+  "noAcademicianFound": "Aucun academicien trouve"
 }
