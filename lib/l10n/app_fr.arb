@@ -2226,5 +2226,12 @@
   "medicalStatusApteCompetition": "Apte a la competition",
   "medicalStatusFini": "Cloture",
   "medicalFilesSubtitle": "Consultez et gerez les dossiers medicaux",
-  "medicalFilesEmptyDescription": "Aucun dossier medical disponible"
+  "medicalFilesEmptyDescription": "Aucun dossier medical disponible",
+  "medicalRecordPdfPreviewTitle": "Apercu PDF",
+  "medicalRecordPdfDownloadButton": "Telecharger",
+  "medicalRecordPdfShareError": "Impossible de partager le PDF",
+  "medicalRecordPdfGenerateError": "Impossible de generer le PDF",
+  "medicalRecordPdfHeaderSubtitle": "Fiche de suivi medical",
+  "medicalRecordPdfFooterConfidential": "Document confidentiel",
+  "medicalRecordPdfFooterPage": "Page {page} / {total}"
 }

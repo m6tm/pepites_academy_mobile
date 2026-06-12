@@ -4348,4 +4348,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get medicalFilesEmptyDescription => 'Aucun dossier medical disponible';
+
+  @override
+  String get medicalRecordPdfPreviewTitle => 'Apercu PDF';
+
+  @override
+  String get medicalRecordPdfDownloadButton => 'Telecharger';
+
+  @override
+  String get medicalRecordPdfShareError => 'Impossible de partager le PDF';
+
+  @override
+  String get medicalRecordPdfGenerateError => 'Impossible de generer le PDF';
+
+  @override
+  String get medicalRecordPdfHeaderSubtitle => 'Fiche de suivi medical';
+
+  @override
+  String get medicalRecordPdfFooterConfidential => 'Document confidentiel';
+
+  @override
+  String medicalRecordPdfFooterPage(Object page, Object total) {
+    return 'Page $page / $total';
+  }
 }

@@ -10,6 +10,7 @@ import '../../../../domain/entities/dossier_medical.dart';
 import '../../../../injection_container.dart';
 import '../../../theme/app_colors.dart';
 import 'dossier_medical_form_page.dart';
+import 'medical_record_pdf_preview_page.dart';
 
 /// Page de detail d'un dossier medical en mode lecture seule.
 ///
@@ -327,6 +328,30 @@ class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: isDark ? colorScheme.surface : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.onSurface.withValues(alpha: 0.08),
+                ),
+              ),
+              child: IconButton(
+                icon: Icon(Icons.picture_as_pdf_rounded, color: AppColors.primary),
+                tooltip: l10n.medicalRecordPdfPreviewTitle,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => MedicalRecordPdfPreviewPage(
+                        academicien: widget.academicien,
+                        dossier: _currentDossier,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

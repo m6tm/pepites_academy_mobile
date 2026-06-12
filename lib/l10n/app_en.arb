@@ -2153,5 +2153,12 @@
   "medicalStatusApteCompetition": "Fit for competition",
   "medicalStatusFini": "Closed",
   "medicalFilesSubtitle": "View and manage medical records",
-  "medicalFilesEmptyDescription": "No medical record available"
+  "medicalFilesEmptyDescription": "No medical record available",
+  "medicalRecordPdfPreviewTitle": "PDF preview",
+  "medicalRecordPdfDownloadButton": "Download",
+  "medicalRecordPdfShareError": "Unable to share PDF",
+  "medicalRecordPdfGenerateError": "Unable to generate PDF",
+  "medicalRecordPdfHeaderSubtitle": "Medical follow-up sheet",
+  "medicalRecordPdfFooterConfidential": "Confidential document",
+  "medicalRecordPdfFooterPage": "Page {page} / {total}"
 }

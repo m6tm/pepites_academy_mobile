@@ -4327,4 +4327,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get medicalFilesEmptyDescription => 'No medical record available';
+
+  @override
+  String get medicalRecordPdfPreviewTitle => 'PDF preview';
+
+  @override
+  String get medicalRecordPdfDownloadButton => 'Download';
+
+  @override
+  String get medicalRecordPdfShareError => 'Unable to share PDF';
+
+  @override
+  String get medicalRecordPdfGenerateError => 'Unable to generate PDF';
+
+  @override
+  String get medicalRecordPdfHeaderSubtitle => 'Medical follow-up sheet';
+
+  @override
+  String get medicalRecordPdfFooterConfidential => 'Confidential document';
+
+  @override
+  String medicalRecordPdfFooterPage(Object page, Object total) {
+    return 'Page $page / $total';
+  }
 }

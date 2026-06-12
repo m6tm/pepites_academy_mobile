@@ -7879,6 +7879,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun dossier medical disponible'**
   String get medicalFilesEmptyDescription;
+
+  /// No description provided for @medicalRecordPdfPreviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apercu PDF'**
+  String get medicalRecordPdfPreviewTitle;
+
+  /// No description provided for @medicalRecordPdfDownloadButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Telecharger'**
+  String get medicalRecordPdfDownloadButton;
+
+  /// No description provided for @medicalRecordPdfShareError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de partager le PDF'**
+  String get medicalRecordPdfShareError;
+
+  /// No description provided for @medicalRecordPdfGenerateError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de generer le PDF'**
+  String get medicalRecordPdfGenerateError;
+
+  /// No description provided for @medicalRecordPdfHeaderSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiche de suivi medical'**
+  String get medicalRecordPdfHeaderSubtitle;
+
+  /// No description provided for @medicalRecordPdfFooterConfidential.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document confidentiel'**
+  String get medicalRecordPdfFooterConfidential;
+
+  /// No description provided for @medicalRecordPdfFooterPage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page {page} / {total}'**
+  String medicalRecordPdfFooterPage(Object page, Object total);
 }
 
 class _AppLocalizationsDelegate
