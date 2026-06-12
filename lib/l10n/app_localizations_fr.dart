@@ -3853,4 +3853,499 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get medicalAlertVaccine => 'Suivi Vaccinal';
+
+  @override
+  String get medicalRecordTitle => 'Dossier medical';
+
+  @override
+  String get medicalRecordNewTitle => 'Nouveau dossier';
+
+  @override
+  String get medicalRecordEditTitle => 'Modifier le dossier';
+
+  @override
+  String get medicalRecordsTitle => 'Dossiers medicaux';
+
+  @override
+  String get medicalRecordsSubtitle => 'Historique des blessures';
+
+  @override
+  String get medicalRecordFormSubtitle => 'Dossier medical de suivi';
+
+  @override
+  String get medicalRecordSectionInjuryDeclaration => 'Declaration de blessure';
+
+  @override
+  String get medicalRecordSectionCircumstances => 'Circonstances';
+
+  @override
+  String get medicalRecordSectionDescriptionAndNature =>
+      'Description et nature';
+
+  @override
+  String get medicalRecordSectionFirstAid => 'Premiers soins';
+
+  @override
+  String get medicalRecordSectionObservations => 'Observations';
+
+  @override
+  String get medicalRecordSectionReeducation => 'Suivi de reeducation';
+
+  @override
+  String get medicalRecordSectionProgressiveReturn => 'Retour progressif';
+
+  @override
+  String get medicalRecordSectionReturnValidation => 'Validation de reprise';
+
+  @override
+  String get medicalRecordSectionFinalValidation => 'Validation finale';
+
+  @override
+  String get medicalRecordLabelDate => 'Date';
+
+  @override
+  String get medicalRecordLabelHour => 'Heure';
+
+  @override
+  String get medicalRecordLabelLocation => 'Lieu';
+
+  @override
+  String get medicalRecordLabelOpponent => 'Adversaire';
+
+  @override
+  String get medicalRecordLabelType => 'Type';
+
+  @override
+  String get medicalRecordLabelDetails => 'Details';
+
+  @override
+  String get medicalRecordLabelBodyPart => 'Partie du corps';
+
+  @override
+  String get medicalRecordLabelInjuryType => 'Type de blessure';
+
+  @override
+  String get medicalRecordLabelSeverity => 'Gravite';
+
+  @override
+  String get medicalRecordLabelDescription => 'Description';
+
+  @override
+  String get medicalRecordLabelAge => 'Age';
+
+  @override
+  String get medicalRecordLabelPosition => 'Poste';
+
+  @override
+  String get medicalRecordLabelCategory => 'Categorie';
+
+  @override
+  String get medicalRecordLabelBirthDate => 'Date de naissance';
+
+  @override
+  String get medicalRecordLabelGuardianPhone => 'Telephone garant';
+
+  @override
+  String get medicalRecordLabelInjuryDate => 'Date de blessure';
+
+  @override
+  String get medicalRecordLabelApproximateTime => 'Heure approximative';
+
+  @override
+  String get medicalRecordLabelLocationPrecision => 'Precision du lieu';
+
+  @override
+  String get medicalRecordLabelCircumstanceType => 'Type de circonstance';
+
+  @override
+  String get medicalRecordLabelCircumstanceTypePrecision =>
+      'Precisez le type de circonstance';
+
+  @override
+  String get medicalRecordLabelAdditionalDetails => 'Details complementaires';
+
+  @override
+  String get medicalRecordLabelBodyPartAffected => 'Partie du corps touchee';
+
+  @override
+  String get medicalRecordLabelBodyPartPrecision =>
+      'Precisez la partie du corps';
+
+  @override
+  String get medicalRecordLabelInjuryTypePrecision =>
+      'Precisez le type de blessure';
+
+  @override
+  String get medicalRecordLabelSeverityLevel => 'Niveau de gravite';
+
+  @override
+  String get medicalRecordLabelValidationDate => 'Date de validation';
+
+  @override
+  String get medicalRecordLabelMedicalManager => 'Responsable medical';
+
+  @override
+  String get medicalRecordLabelResponsibleSignature =>
+      'Signature du responsable';
+
+  @override
+  String get medicalRecordLabelFitForTraining => 'Apte entrainement';
+
+  @override
+  String get medicalRecordLabelFitForCompetition => 'Apte competition';
+
+  @override
+  String get medicalRecordLabelSpecialMonitoring => 'Surveillance particuliere';
+
+  @override
+  String get medicalRecordLabelRecommendation => 'Recommandation';
+
+  @override
+  String get medicalRecordLabelManager => 'Responsable';
+
+  @override
+  String get medicalRecordLabelSignature => 'Signature';
+
+  @override
+  String get medicalRecordLabelPain => 'Douleur';
+
+  @override
+  String get medicalRecordLabelObservations => 'Observations';
+
+  @override
+  String get medicalRecordHintSelectTime => 'Selectionner l\'heure';
+
+  @override
+  String get medicalRecordHintSelectLocation => 'Selectionner le lieu';
+
+  @override
+  String get medicalRecordHintLocationPrecision => 'Precisez le lieu';
+
+  @override
+  String get medicalRecordHintOpponentName => 'Nom de l\'adversaire';
+
+  @override
+  String get medicalRecordHintSelect => 'Selectionner';
+
+  @override
+  String get medicalRecordHintCircumstanceTypePrecision =>
+      'Ex: blessure a l\'echauffement...';
+
+  @override
+  String get medicalRecordHintCircumstanceDetails =>
+      'Decrivez la circonstance...';
+
+  @override
+  String get medicalRecordHintBodyPartPrecision =>
+      'Ex: cote droit du thorax...';
+
+  @override
+  String get medicalRecordHintInjuryTypePrecision =>
+      'Ex: luxation acromio-claviculaire...';
+
+  @override
+  String get medicalRecordHintInjuryDescription => 'Decrivez la blessure...';
+
+  @override
+  String get medicalRecordHintAddFirstAid => 'Ajouter un soin...';
+
+  @override
+  String get medicalRecordHintFreeObservations => 'Observations libres...';
+
+  @override
+  String get medicalRecordHintSelectDate => 'Selectionner une date';
+
+  @override
+  String get medicalRecordHintManagerName => 'Nom du responsable';
+
+  @override
+  String get medicalRecordHintFreeRecommendation => 'Recommandation libre...';
+
+  @override
+  String get medicalRecordHintWorksDone => 'Travaux effectues';
+
+  @override
+  String get medicalRecordHintAllowedActivity => 'Activite autorisee';
+
+  @override
+  String get medicalRecordHintValidationAndTime => 'Validation + temps utilise';
+
+  @override
+  String get medicalRecordAddSessionButton => 'Ajouter une seance';
+
+  @override
+  String get medicalRecordAddStepButton => 'Ajouter une etape';
+
+  @override
+  String medicalRecordSessionNumber(int number) {
+    return 'Seance $number';
+  }
+
+  @override
+  String medicalRecordStepNumber(int number) {
+    return 'Etape $number';
+  }
+
+  @override
+  String get medicalRecordCheckboxFitForTraining =>
+      'Joueur apte a reprendre les entrainements';
+
+  @override
+  String get medicalRecordCheckboxFitForCompetition =>
+      'Joueur apte a reprendre la competition';
+
+  @override
+  String get medicalRecordCheckboxSpecialMonitoring =>
+      'Surveillance particuliere recommandee';
+
+  @override
+  String get medicalRecordAddSignatureTitle => 'Ajouter une signature';
+
+  @override
+  String get medicalRecordDrawSignature => 'Dessiner la signature';
+
+  @override
+  String get medicalRecordDrawSignatureSubtitle =>
+      'Signez directement sur l\'ecran';
+
+  @override
+  String get medicalRecordImportFromGallery => 'Importer depuis la galerie';
+
+  @override
+  String get medicalRecordImportFromGallerySubtitle =>
+      'Selectionnez une image existante';
+
+  @override
+  String get medicalRecordUploadInProgress => 'Upload en cours...';
+
+  @override
+  String get medicalRecordUploadFailed => 'Echec de l\'upload';
+
+  @override
+  String get medicalRecordAddSignature => 'Ajouter la signature';
+
+  @override
+  String get medicalRecordCreateButton => 'Creer le dossier medical';
+
+  @override
+  String get medicalRecordNewButton => 'Nouveau dossier';
+
+  @override
+  String get medicalRecordCreateEmptyButton => 'Creer un dossier';
+
+  @override
+  String get medicalRecordRecordsEmptyTitle => 'Aucun dossier medical';
+
+  @override
+  String get medicalRecordRecordsEmptyDescription =>
+      'Cet academicien ne possede encore aucun dossier medical.';
+
+  @override
+  String get medicalRecordNoCircumstances => 'Aucune circonstance renseignee';
+
+  @override
+  String get medicalRecordNoFirstAid => 'Aucun soin renseigne';
+
+  @override
+  String get medicalRecordNoObservations => 'Aucune observation';
+
+  @override
+  String get medicalRecordNoReeducation => 'Aucune seance de reeducation';
+
+  @override
+  String get medicalRecordNoProgressiveReturn =>
+      'Aucune etape de retour progressif';
+
+  @override
+  String get medicalRecordNoReturnValidation => 'Validation non renseignee';
+
+  @override
+  String get medicalRecordNoSignature => 'Signature non renseignee';
+
+  @override
+  String get medicalRecordUnknownDate => 'Date inconnue';
+
+  @override
+  String medicalRecordPainLevel(int level) {
+    return 'Douleur $level/10';
+  }
+
+  @override
+  String medicalRecordWorksLabel(String works) {
+    return 'Travaux : $works';
+  }
+
+  @override
+  String medicalRecordObservationsShortLabel(String observations) {
+    return 'Obs. : $observations';
+  }
+
+  @override
+  String medicalRecordActivityLabel(String activity) {
+    return 'Activite : $activity';
+  }
+
+  @override
+  String medicalRecordValidationAndTimeLabel(String validation) {
+    return 'Validation + temps : $validation';
+  }
+
+  @override
+  String get medicalRecordErrorInjuryDateFuture =>
+      'La date de blessure ne peut pas etre dans le futur.';
+
+  @override
+  String get medicalRecordErrorInjuryTimeFormat =>
+      'L\'heure de blessure doit etre au format HH:mm.';
+
+  @override
+  String get medicalRecordErrorLocationRequired => 'Veuillez preciser le lieu.';
+
+  @override
+  String get medicalRecordErrorCircumstanceTypeRequired =>
+      'Veuillez preciser le type de circonstance.';
+
+  @override
+  String get medicalRecordErrorBodyPartRequired =>
+      'Veuillez preciser la partie du corps touchee.';
+
+  @override
+  String get medicalRecordErrorInjuryTypeRequired =>
+      'Veuillez preciser le type de blessure.';
+
+  @override
+  String get medicalRecordErrorFinalValidationDateFuture =>
+      'La date de validation finale ne peut pas etre dans le futur.';
+
+  @override
+  String get medicalRecordErrorSignatureRequired =>
+      'La signature du responsable medical est obligatoire.';
+
+  @override
+  String get medicalRecordSuccessUpdated =>
+      'Dossier medical mis a jour avec succes.';
+
+  @override
+  String get medicalRecordSuccessCreated => 'Dossier medical cree avec succes.';
+
+  @override
+  String medicalRecordErrorSave(String error) {
+    return 'Erreur lors de l\'enregistrement : $error';
+  }
+
+  @override
+  String ageYears(int age) {
+    return '$age ans';
+  }
+
+  @override
+  String get other => 'Autre';
+
+  @override
+  String get select => 'Selectionner';
+
+  @override
+  String get saveChangesButton => 'Enregistrer les modifications';
+
+  @override
+  String get retryAction => 'Reessayer';
+
+  @override
+  String get bodyPartHead => 'Tete';
+
+  @override
+  String get bodyPartShoulder => 'Epaule';
+
+  @override
+  String get bodyPartArm => 'Bras';
+
+  @override
+  String get bodyPartHand => 'Main';
+
+  @override
+  String get bodyPartBack => 'Dos';
+
+  @override
+  String get bodyPartHip => 'Hanche';
+
+  @override
+  String get bodyPartThigh => 'Cuisse';
+
+  @override
+  String get bodyPartKnee => 'Genou';
+
+  @override
+  String get bodyPartLeg => 'Jambe';
+
+  @override
+  String get bodyPartAnkle => 'Cheville';
+
+  @override
+  String get bodyPartFoot => 'Pied';
+
+  @override
+  String get injuryTypeSprain => 'Entorse';
+
+  @override
+  String get injuryTypeFracture => 'Fracture';
+
+  @override
+  String get injuryTypeStrain => 'Claquage';
+
+  @override
+  String get injuryTypeContracture => 'Contracture';
+
+  @override
+  String get injuryTypeCut => 'Coupure';
+
+  @override
+  String get injuryTypeContusion => 'Contusion';
+
+  @override
+  String get injuryTypeTear => 'Dechirure';
+
+  @override
+  String get severityMild => 'Legere';
+
+  @override
+  String get severityModerate => 'Moyenne';
+
+  @override
+  String get severitySevere => 'Grave';
+
+  @override
+  String get medicalLocationTraining => 'Entrainement';
+
+  @override
+  String get medicalLocationMatch => 'Match';
+
+  @override
+  String get medicalCircumstanceTackle => 'Tacle';
+
+  @override
+  String get medicalCircumstanceFall => 'Chute';
+
+  @override
+  String get medicalCircumstanceCollision => 'Collision';
+
+  @override
+  String get medicalCircumstanceOverload => 'Surcharge';
+
+  @override
+  String get medicalStatusEnCours => 'En cours';
+
+  @override
+  String get medicalStatusApteEntrainement => 'Apte a l\'entrainement';
+
+  @override
+  String get medicalStatusApteCompetition => 'Apte a la competition';
+
+  @override
+  String get medicalStatusFini => 'Cloture';
+
+  @override
+  String get medicalFilesSubtitle => 'Consultez et gerez les dossiers medicaux';
+
+  @override
+  String get medicalFilesEmptyDescription => 'Aucun dossier medical disponible';
 }

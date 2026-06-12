@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../../l10n/app_localizations.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/dossier_medical.dart';
 import '../../../theme/app_colors.dart';
@@ -21,6 +22,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -30,29 +32,29 @@ class DossierMedicalDetailPage extends StatelessWidget {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            _buildHeader(colorScheme, isDark, context),
-            _buildAcademicienInfo(colorScheme, isDark),
-            _buildSectionTitle('Declaration de blessure', colorScheme),
+            _buildHeader(l10n, colorScheme, isDark, context),
+            _buildAcademicienInfo(l10n, colorScheme, isDark),
+            _buildSectionTitle(l10n.medicalRecordSectionInjuryDeclaration, l10n, colorScheme),
             _buildDetailCard([
-              _detailRow('Date', _formatDate(dossier.dateBlessure)),
+              _detailRow(l10n.medicalRecordLabelDate, _formatDate(dossier.dateBlessure)),
               if (dossier.heureBlessure != null && dossier.heureBlessure!.isNotEmpty)
-                _detailRow('Heure', dossier.heureBlessure!),
+                _detailRow(l10n.medicalRecordLabelHour, dossier.heureBlessure!),
               _detailRow(
-                'Lieu',
+                l10n.medicalRecordLabelLocation,
                 _displayValue(
                   dossier.lieu,
                   dossier.circonstances?['lieu_precision']?.toString(),
                 ),
               ),
               if (dossier.adversaire != null && dossier.adversaire!.isNotEmpty)
-                _detailRow('Adversaire', dossier.adversaire!),
+                _detailRow(l10n.medicalRecordLabelOpponent, dossier.adversaire!),
             ], colorScheme, isDark),
-            _buildSectionTitle('Circonstances', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionCircumstances, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.circonstances != null) ...[
                 if (dossier.circonstances!['type'] != null)
                   _detailRow(
-                    'Type',
+                    l10n.medicalRecordLabelType,
                     _displayValue(
                       dossier.circonstances!['type'].toString(),
                       dossier.circonstances!['type_precision']?.toString(),
@@ -60,15 +62,15 @@ class DossierMedicalDetailPage extends StatelessWidget {
                   ),
                 if (dossier.circonstances!['precision'] != null &&
                     dossier.circonstances!['precision'].toString().isNotEmpty)
-                  _detailRow('Details', dossier.circonstances!['precision'].toString()),
+                  _detailRow(l10n.medicalRecordLabelDetails, dossier.circonstances!['precision'].toString()),
               ] else
-                _emptyValue('Aucune circonstance renseignee'),
+                _emptyValue(l10n.medicalRecordNoCircumstances),
             ], colorScheme, isDark),
-            _buildSectionTitle('Description et nature', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionDescriptionAndNature, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.partieCorps != null)
                 _detailRow(
-                  'Partie du corps',
+                  l10n.medicalRecordLabelBodyPart,
                   _displayValue(
                     dossier.partieCorps!,
                     dossier.circonstances?['partie_corps_precision']?.toString(),
@@ -76,18 +78,18 @@ class DossierMedicalDetailPage extends StatelessWidget {
                 ),
               if (dossier.typeBlessure != null)
                 _detailRow(
-                  'Type de blessure',
+                  l10n.medicalRecordLabelInjuryType,
                   _displayValue(
                     dossier.typeBlessure!,
                     dossier.circonstances?['type_blessure_precision']?.toString(),
                   ),
                 ),
               if (dossier.gravite != null)
-                _detailRow('Gravite', _capitalize(dossier.gravite!), color: _graviteColor(dossier.gravite!)),
+                _detailRow(l10n.medicalRecordLabelSeverity, _capitalize(dossier.gravite!), color: _graviteColor(dossier.gravite!)),
               if (dossier.description != null && dossier.description!.isNotEmpty)
-                _detailRow('Description', dossier.description!),
+                _detailRow(l10n.medicalRecordLabelDescription, dossier.description!),
             ], colorScheme, isDark),
-            _buildSectionTitle('Premiers soins', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionFirstAid, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.premiersSoins != null && dossier.premiersSoins!.isNotEmpty)
                 Wrap(
@@ -107,9 +109,9 @@ class DossierMedicalDetailPage extends StatelessWidget {
                       .toList(),
                 )
               else
-                _emptyValue('Aucun soin renseigne'),
+                _emptyValue(l10n.medicalRecordNoFirstAid),
             ], colorScheme, isDark),
-            _buildSectionTitle('Observations', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionObservations, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.observations != null && dossier.observations!.isNotEmpty)
                 Text(
@@ -117,63 +119,63 @@ class DossierMedicalDetailPage extends StatelessWidget {
                   style: GoogleFonts.montserrat(fontSize: 14, height: 1.5),
                 )
               else
-                _emptyValue('Aucune observation'),
+                _emptyValue(l10n.medicalRecordNoObservations),
             ], colorScheme, isDark),
-            _buildSectionTitle('Suivi de reeducation', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionReeducation, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.suiviReeducation != null && dossier.suiviReeducation!.isNotEmpty)
                 Column(
                   children: dossier.suiviReeducation!.asMap().entries.map((e) {
                     final item = e.value;
-                    return _buildReeducationCard(item, colorScheme);
+                    return _buildReeducationCard(item, l10n, colorScheme);
                   }).toList(),
                 )
               else
-                _emptyValue('Aucune seance de reeducation'),
+                _emptyValue(l10n.medicalRecordNoReeducation),
             ], colorScheme, isDark),
-            _buildSectionTitle('Retour progressif', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionProgressiveReturn, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.retourProgressif != null && dossier.retourProgressif!.isNotEmpty)
                 Column(
                   children: dossier.retourProgressif!.asMap().entries.map((e) {
                     final item = e.value;
-                    return _buildRetourProgressifCard(item, colorScheme);
+                    return _buildRetourProgressifCard(item, l10n, colorScheme);
                   }).toList(),
                 )
               else
-                _emptyValue('Aucune etape de retour progressif'),
+                _emptyValue(l10n.medicalRecordNoProgressiveReturn),
             ], colorScheme, isDark),
-            _buildSectionTitle('Validation de reprise', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionReturnValidation, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.validationReprise != null) ...[
                 _detailRow(
-                  'Apte entrainement',
-                  dossier.validationReprise!['entrainement'] == true ? 'Oui' : 'Non',
+                  l10n.medicalRecordLabelFitForTraining,
+                  dossier.validationReprise!['entrainement'] == true ? l10n.yes : l10n.no,
                 ),
                 _detailRow(
-                  'Apte competition',
-                  dossier.validationReprise!['competition'] == true ? 'Oui' : 'Non',
+                  l10n.medicalRecordLabelFitForCompetition,
+                  dossier.validationReprise!['competition'] == true ? l10n.yes : l10n.no,
                 ),
                 _detailRow(
-                  'Surveillance particuliere',
-                  dossier.validationReprise!['surveillance'] == true ? 'Oui' : 'Non',
+                  l10n.medicalRecordLabelSpecialMonitoring,
+                  dossier.validationReprise!['surveillance'] == true ? l10n.yes : l10n.no,
                 ),
                 if (dossier.validationReprise!['recommandation'] != null &&
                     dossier.validationReprise!['recommandation'].toString().isNotEmpty)
-                  _detailRow('Recommandation', dossier.validationReprise!['recommandation'].toString()),
+                  _detailRow(l10n.medicalRecordLabelRecommendation, dossier.validationReprise!['recommandation'].toString()),
               ] else
-                _emptyValue('Validation non renseignee'),
+                _emptyValue(l10n.medicalRecordNoReturnValidation),
             ], colorScheme, isDark),
-            _buildSectionTitle('Validation finale', colorScheme),
+            _buildSectionTitle(l10n.medicalRecordSectionFinalValidation, l10n, colorScheme),
             _buildDetailCard([
               if (dossier.validationFinaleDate != null)
-                _detailRow('Date', _formatDate(dossier.validationFinaleDate!)),
+                _detailRow(l10n.medicalRecordLabelDate, _formatDate(dossier.validationFinaleDate!)),
               if (dossier.responsableMedical != null && dossier.responsableMedical!.isNotEmpty)
-                _detailRow('Responsable', dossier.responsableMedical!),
+                _detailRow(l10n.medicalRecordLabelManager, dossier.responsableMedical!),
               if (dossier.signatureUrl.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
-                  'Signature',
+                  l10n.medicalRecordLabelSignature,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -202,7 +204,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
                   ),
                 ),
               ] else
-                _emptyValue('Signature non renseignee'),
+                _emptyValue(l10n.medicalRecordNoSignature),
             ], colorScheme, isDark),
             const SliverToBoxAdapter(child: SizedBox(height: 120)),
           ],
@@ -223,14 +225,14 @@ class DossierMedicalDetailPage extends StatelessWidget {
         foregroundColor: Colors.white,
         icon: const Icon(Icons.edit_rounded),
         label: Text(
-          'Modifier',
+          l10n.editAction,
           style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(ColorScheme colorScheme, bool isDark, BuildContext context) {
+  Widget _buildHeader(AppLocalizations l10n, ColorScheme colorScheme, bool isDark, BuildContext context) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -255,7 +257,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Dossier medical',
+                    l10n.medicalRecordTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
@@ -282,7 +284,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAcademicienInfo(ColorScheme colorScheme, bool isDark) {
+  Widget _buildAcademicienInfo(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     final acad = academicien;
     final age = _calculateAge(acad.dateNaissance);
 
@@ -321,7 +323,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '$age ans',
+                    l10n.ageYears(age),
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
                       color: Colors.white.withValues(alpha: 0.8),
@@ -348,7 +350,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title, ColorScheme colorScheme) {
+  Widget _buildSectionTitle(String title, AppLocalizations l10n, ColorScheme colorScheme) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
@@ -437,7 +439,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildReeducationCard(Map<String, dynamic> item, ColorScheme colorScheme) {
+  Widget _buildReeducationCard(Map<String, dynamic> item, AppLocalizations l10n, ColorScheme colorScheme) {
     final date = DateTime.tryParse(item['date']?.toString() ?? '');
     final douleurValue = item['douleur'];
     final douleur = douleurValue is num ? douleurValue.toInt() : null;
@@ -456,7 +458,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
               Icon(Icons.calendar_today, size: 14, color: AppColors.primary),
               const SizedBox(width: 6),
               Text(
-                date != null ? _formatDate(date) : 'Date inconnue',
+                date != null ? _formatDate(date) : l10n.medicalRecordUnknownDate,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -471,7 +473,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Douleur $douleur/10',
+                    l10n.medicalRecordPainLevel(douleur),
                     style: GoogleFonts.montserrat(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -484,12 +486,12 @@ class DossierMedicalDetailPage extends StatelessWidget {
           const SizedBox(height: 6),
           if (item['travaux'] != null && item['travaux'].toString().isNotEmpty)
             Text(
-              'Travaux : ${item['travaux']}',
+              l10n.medicalRecordWorksLabel(item['travaux']),
               style: GoogleFonts.montserrat(fontSize: 13),
             ),
           if (item['observations'] != null && item['observations'].toString().isNotEmpty)
             Text(
-              'Obs. : ${item['observations']}',
+              l10n.medicalRecordObservationsShortLabel(item['observations']),
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 color: Colors.grey.shade600,
@@ -500,7 +502,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRetourProgressifCard(Map<String, dynamic> item, ColorScheme colorScheme) {
+  Widget _buildRetourProgressifCard(Map<String, dynamic> item, AppLocalizations l10n, ColorScheme colorScheme) {
     final date = DateTime.tryParse(item['date']?.toString() ?? '');
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -517,7 +519,7 @@ class DossierMedicalDetailPage extends StatelessWidget {
               Icon(Icons.calendar_today, size: 14, color: AppColors.primary),
               const SizedBox(width: 6),
               Text(
-                date != null ? _formatDate(date) : 'Date inconnue',
+                date != null ? _formatDate(date) : l10n.medicalRecordUnknownDate,
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -528,12 +530,12 @@ class DossierMedicalDetailPage extends StatelessWidget {
           const SizedBox(height: 6),
           if (item['activite'] != null && item['activite'].toString().isNotEmpty)
             Text(
-              'Activite : ${item['activite']}',
+              l10n.medicalRecordActivityLabel(item['activite']),
               style: GoogleFonts.montserrat(fontSize: 13),
             ),
           if (item['validation'] != null && item['validation'].toString().isNotEmpty)
             Text(
-              'Validation + temps : ${item['validation']}',
+              l10n.medicalRecordValidationAndTimeLabel(item['validation']),
               style: GoogleFonts.montserrat(fontSize: 13),
             ),
         ],

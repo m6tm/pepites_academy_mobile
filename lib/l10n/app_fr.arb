@@ -74,7 +74,7 @@
   "userNotFoundError": "Utilisateur non trouve",
   "passwordResetError": "Impossible de reinitialiser le mot de passe",
   "unexpectedError": "Une erreur inattendue est survenue",
-  "noInternetConnection": "Aucune connexion Internet",
+  "noInternetConnection": "Aucune connexion internet",
   "settings": "Parametres",
   "settingsSubtitle": "Configuration de l'application",
   "general": "General",
@@ -2013,5 +2013,218 @@
   "medicalVisit": "Visite Médicale",
   "medicalAlertAnkle": "Blessure Cheville",
   "medicalAlertVaccine": "Suivi Vaccinal",
-  "noInternetConnection": "Aucune connexion internet"
+  "medicalRecordTitle": "Dossier medical",
+  "medicalRecordNewTitle": "Nouveau dossier",
+  "medicalRecordEditTitle": "Modifier le dossier",
+  "medicalRecordsTitle": "Dossiers medicaux",
+  "medicalRecordsSubtitle": "Historique des blessures",
+  "medicalRecordFormSubtitle": "Dossier medical de suivi",
+  "medicalRecordSectionInjuryDeclaration": "Declaration de blessure",
+  "medicalRecordSectionCircumstances": "Circonstances",
+  "medicalRecordSectionDescriptionAndNature": "Description et nature",
+  "medicalRecordSectionFirstAid": "Premiers soins",
+  "medicalRecordSectionObservations": "Observations",
+  "medicalRecordSectionReeducation": "Suivi de reeducation",
+  "medicalRecordSectionProgressiveReturn": "Retour progressif",
+  "medicalRecordSectionReturnValidation": "Validation de reprise",
+  "medicalRecordSectionFinalValidation": "Validation finale",
+  "medicalRecordLabelDate": "Date",
+  "medicalRecordLabelHour": "Heure",
+  "medicalRecordLabelLocation": "Lieu",
+  "medicalRecordLabelOpponent": "Adversaire",
+  "medicalRecordLabelType": "Type",
+  "medicalRecordLabelDetails": "Details",
+  "medicalRecordLabelBodyPart": "Partie du corps",
+  "medicalRecordLabelInjuryType": "Type de blessure",
+  "medicalRecordLabelSeverity": "Gravite",
+  "medicalRecordLabelDescription": "Description",
+  "medicalRecordLabelAge": "Age",
+  "medicalRecordLabelPosition": "Poste",
+  "medicalRecordLabelCategory": "Categorie",
+  "medicalRecordLabelBirthDate": "Date de naissance",
+  "medicalRecordLabelGuardianPhone": "Telephone garant",
+  "medicalRecordLabelInjuryDate": "Date de blessure",
+  "medicalRecordLabelApproximateTime": "Heure approximative",
+  "medicalRecordLabelLocationPrecision": "Precision du lieu",
+  "medicalRecordLabelCircumstanceType": "Type de circonstance",
+  "medicalRecordLabelCircumstanceTypePrecision": "Precisez le type de circonstance",
+  "medicalRecordLabelAdditionalDetails": "Details complementaires",
+  "medicalRecordLabelBodyPartAffected": "Partie du corps touchee",
+  "medicalRecordLabelBodyPartPrecision": "Precisez la partie du corps",
+  "medicalRecordLabelInjuryTypePrecision": "Precisez le type de blessure",
+  "medicalRecordLabelSeverityLevel": "Niveau de gravite",
+  "medicalRecordLabelValidationDate": "Date de validation",
+  "medicalRecordLabelMedicalManager": "Responsable medical",
+  "medicalRecordLabelResponsibleSignature": "Signature du responsable",
+  "medicalRecordLabelFitForTraining": "Apte entrainement",
+  "medicalRecordLabelFitForCompetition": "Apte competition",
+  "medicalRecordLabelSpecialMonitoring": "Surveillance particuliere",
+  "medicalRecordLabelRecommendation": "Recommandation",
+  "medicalRecordLabelManager": "Responsable",
+  "medicalRecordLabelSignature": "Signature",
+  "medicalRecordLabelPain": "Douleur",
+  "medicalRecordLabelObservations": "Observations",
+  "medicalRecordHintSelectTime": "Selectionner l'heure",
+  "medicalRecordHintSelectLocation": "Selectionner le lieu",
+  "medicalRecordHintLocationPrecision": "Precisez le lieu",
+  "medicalRecordHintOpponentName": "Nom de l'adversaire",
+  "medicalRecordHintSelect": "Selectionner",
+  "medicalRecordHintCircumstanceTypePrecision": "Ex: blessure a l'echauffement...",
+  "medicalRecordHintCircumstanceDetails": "Decrivez la circonstance...",
+  "medicalRecordHintBodyPartPrecision": "Ex: cote droit du thorax...",
+  "medicalRecordHintInjuryTypePrecision": "Ex: luxation acromio-claviculaire...",
+  "medicalRecordHintInjuryDescription": "Decrivez la blessure...",
+  "medicalRecordHintAddFirstAid": "Ajouter un soin...",
+  "medicalRecordHintFreeObservations": "Observations libres...",
+  "medicalRecordHintSelectDate": "Selectionner une date",
+  "medicalRecordHintManagerName": "Nom du responsable",
+  "medicalRecordHintFreeRecommendation": "Recommandation libre...",
+  "medicalRecordHintWorksDone": "Travaux effectues",
+  "medicalRecordHintAllowedActivity": "Activite autorisee",
+  "medicalRecordHintValidationAndTime": "Validation + temps utilise",
+  "medicalRecordAddSessionButton": "Ajouter une seance",
+  "medicalRecordAddStepButton": "Ajouter une etape",
+  "medicalRecordSessionNumber": "Seance {number}",
+  "@medicalRecordSessionNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "medicalRecordStepNumber": "Etape {number}",
+  "@medicalRecordStepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "medicalRecordCheckboxFitForTraining": "Joueur apte a reprendre les entrainements",
+  "medicalRecordCheckboxFitForCompetition": "Joueur apte a reprendre la competition",
+  "medicalRecordCheckboxSpecialMonitoring": "Surveillance particuliere recommandee",
+  "medicalRecordAddSignatureTitle": "Ajouter une signature",
+  "medicalRecordDrawSignature": "Dessiner la signature",
+  "medicalRecordDrawSignatureSubtitle": "Signez directement sur l'ecran",
+  "medicalRecordImportFromGallery": "Importer depuis la galerie",
+  "medicalRecordImportFromGallerySubtitle": "Selectionnez une image existante",
+  "medicalRecordUploadInProgress": "Upload en cours...",
+  "medicalRecordUploadFailed": "Echec de l'upload",
+  "medicalRecordAddSignature": "Ajouter la signature",
+  "medicalRecordCreateButton": "Creer le dossier medical",
+  "medicalRecordNewButton": "Nouveau dossier",
+  "medicalRecordCreateEmptyButton": "Creer un dossier",
+  "medicalRecordRecordsEmptyTitle": "Aucun dossier medical",
+  "medicalRecordRecordsEmptyDescription": "Cet academicien ne possede encore aucun dossier medical.",
+  "medicalRecordNoCircumstances": "Aucune circonstance renseignee",
+  "medicalRecordNoFirstAid": "Aucun soin renseigne",
+  "medicalRecordNoObservations": "Aucune observation",
+  "medicalRecordNoReeducation": "Aucune seance de reeducation",
+  "medicalRecordNoProgressiveReturn": "Aucune etape de retour progressif",
+  "medicalRecordNoReturnValidation": "Validation non renseignee",
+  "medicalRecordNoSignature": "Signature non renseignee",
+  "medicalRecordUnknownDate": "Date inconnue",
+  "medicalRecordPainLevel": "Douleur {level}/10",
+  "@medicalRecordPainLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "medicalRecordWorksLabel": "Travaux : {works}",
+  "@medicalRecordWorksLabel": {
+    "placeholders": {
+      "works": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordObservationsShortLabel": "Obs. : {observations}",
+  "@medicalRecordObservationsShortLabel": {
+    "placeholders": {
+      "observations": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordActivityLabel": "Activite : {activity}",
+  "@medicalRecordActivityLabel": {
+    "placeholders": {
+      "activity": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordValidationAndTimeLabel": "Validation + temps : {validation}",
+  "@medicalRecordValidationAndTimeLabel": {
+    "placeholders": {
+      "validation": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordErrorInjuryDateFuture": "La date de blessure ne peut pas etre dans le futur.",
+  "medicalRecordErrorInjuryTimeFormat": "L'heure de blessure doit etre au format HH:mm.",
+  "medicalRecordErrorLocationRequired": "Veuillez preciser le lieu.",
+  "medicalRecordErrorCircumstanceTypeRequired": "Veuillez preciser le type de circonstance.",
+  "medicalRecordErrorBodyPartRequired": "Veuillez preciser la partie du corps touchee.",
+  "medicalRecordErrorInjuryTypeRequired": "Veuillez preciser le type de blessure.",
+  "medicalRecordErrorFinalValidationDateFuture": "La date de validation finale ne peut pas etre dans le futur.",
+  "medicalRecordErrorSignatureRequired": "La signature du responsable medical est obligatoire.",
+  "medicalRecordSuccessUpdated": "Dossier medical mis a jour avec succes.",
+  "medicalRecordSuccessCreated": "Dossier medical cree avec succes.",
+  "medicalRecordErrorSave": "Erreur lors de l'enregistrement : {error}",
+  "@medicalRecordErrorSave": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "ageYears": "{age} ans",
+  "@ageYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "other": "Autre",
+  "select": "Selectionner",
+  "saveChangesButton": "Enregistrer les modifications",
+  "retryAction": "Reessayer",
+  "bodyPartHead": "Tete",
+  "bodyPartShoulder": "Epaule",
+  "bodyPartArm": "Bras",
+  "bodyPartHand": "Main",
+  "bodyPartBack": "Dos",
+  "bodyPartHip": "Hanche",
+  "bodyPartThigh": "Cuisse",
+  "bodyPartKnee": "Genou",
+  "bodyPartLeg": "Jambe",
+  "bodyPartAnkle": "Cheville",
+  "bodyPartFoot": "Pied",
+  "injuryTypeSprain": "Entorse",
+  "injuryTypeFracture": "Fracture",
+  "injuryTypeStrain": "Claquage",
+  "injuryTypeContracture": "Contracture",
+  "injuryTypeCut": "Coupure",
+  "injuryTypeContusion": "Contusion",
+  "injuryTypeTear": "Dechirure",
+  "severityMild": "Legere",
+  "severityModerate": "Moyenne",
+  "severitySevere": "Grave",
+  "medicalLocationTraining": "Entrainement",
+  "medicalLocationMatch": "Match",
+  "medicalCircumstanceTackle": "Tacle",
+  "medicalCircumstanceFall": "Chute",
+  "medicalCircumstanceCollision": "Collision",
+  "medicalCircumstanceOverload": "Surcharge",
+  "medicalStatusEnCours": "En cours",
+  "medicalStatusApteEntrainement": "Apte a l'entrainement",
+  "medicalStatusApteCompetition": "Apte a la competition",
+  "medicalStatusFini": "Cloture",
+  "medicalFilesSubtitle": "Consultez et gerez les dossiers medicaux",
+  "medicalFilesEmptyDescription": "Aucun dossier medical disponible"
 }

@@ -144,9 +144,6 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
             SliverToBoxAdapter(
               child: _buildSearchBar(colorScheme, isDark, l10n),
             ),
-            SliverToBoxAdapter(
-              child: _buildQuickStats(colorScheme, isDark),
-            ),
             const SliverToBoxAdapter(child: SizedBox(height: 8)),
             _isLoading
                 ? const SliverFillRemaining(
@@ -165,6 +162,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                           colorScheme,
                           isDark,
                           index,
+                          l10n,
                         );
                       }, childCount: _filteredAcademicians.length),
                     ),
@@ -199,7 +197,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Consultez et gerez les dossiers medicaux',
+                  l10n.medicalFilesSubtitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -304,70 +302,12 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
     );
   }
 
-  Widget _buildQuickStats(ColorScheme colorScheme, bool isDark) {
-    final allergies = _academicians.where((a) => a.aAllergie == true).length;
-    final peau = _academicians.where((a) => a.aProblemesPeau == true).length;
-    final contacts = _academicians
-        .where((a) => a.telephoneParent.isNotEmpty)
-        .length;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: _MiniStat(
-              label: 'Total',
-              value: '${_academicians.length}',
-              icon: Icons.people_rounded,
-              color: AppColors.primary,
-              isDark: isDark,
-              colorScheme: colorScheme,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _MiniStat(
-              label: 'Allergies',
-              value: '$allergies',
-              icon: Icons.warning_amber_rounded,
-              color: AppColors.warning,
-              isDark: isDark,
-              colorScheme: colorScheme,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _MiniStat(
-              label: 'Peau',
-              value: '$peau',
-              icon: Icons.healing_rounded,
-              color: AppColors.error,
-              isDark: isDark,
-              colorScheme: colorScheme,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _MiniStat(
-              label: 'Contacts',
-              value: '$contacts',
-              icon: Icons.contact_phone_rounded,
-              color: AppColors.success,
-              isDark: isDark,
-              colorScheme: colorScheme,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAcademicienCard(
     Academicien acad,
     ColorScheme colorScheme,
     bool isDark,
     int index,
+    AppLocalizations l10n,
   ) {
     final age = _calculateAge(acad.dateNaissance);
     final posteName = _getPosteName(acad.posteFootballId);
@@ -486,7 +426,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                           ),
                         ),
                         Text(
-                          '$age ans',
+                          l10n.ageYears(age),
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
                             color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -512,7 +452,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Allergie',
+                                  l10n.allergies,
                                   style: GoogleFonts.montserrat(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
@@ -606,7 +546,7 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
             Text(
               _searchController.text.isNotEmpty
                   ? l10n.noSearchResult
-                  : 'Aucun dossier medical disponible',
+                  : l10n.medicalFilesEmptyDescription,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
@@ -616,62 +556,6 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Widget de statistique compacte pour la ligne de stats medicale.
-class _MiniStat extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final bool isDark;
-  final ColorScheme colorScheme;
-
-  const _MiniStat({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-    required this.isDark,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-      decoration: BoxDecoration(
-        color: isDark ? colorScheme.surface : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colorScheme.onSurface.withValues(alpha: 0.06),
-        ),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: GoogleFonts.montserrat(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: GoogleFonts.montserrat(
-              fontSize: 9,
-              color: colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
       ),
     );
   }

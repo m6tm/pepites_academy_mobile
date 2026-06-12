@@ -84,7 +84,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                           child: _buildHeader(colorScheme, isDark, l10n),
                         ),
                         SliverToBoxAdapter(
-                          child: _buildAcademicienCard(colorScheme, isDark),
+                          child: _buildAcademicienCard(colorScheme, isDark, l10n),
                         ),
                         if (_state.isLoading && _state.dossiers.isEmpty)
                           const SliverFillRemaining(
@@ -105,6 +105,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                                     colorScheme,
                                     isDark,
                                     index,
+                                    l10n,
                                   );
                                 },
                                 childCount: _state.dossiers.length,
@@ -158,7 +159,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Dossiers medicaux',
+                  l10n.medicalRecordsTitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -170,7 +171,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Historique des blessures',
+                  l10n.medicalRecordsSubtitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -184,7 +185,11 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
     );
   }
 
-  Widget _buildAcademicienCard(ColorScheme colorScheme, bool isDark) {
+  Widget _buildAcademicienCard(
+    ColorScheme colorScheme,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     final acad = widget.academicien;
     final age = _calculateAge(acad.dateNaissance);
 
@@ -222,7 +227,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$age ans',
+                  l10n.ageYears(age),
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -253,6 +258,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
     ColorScheme colorScheme,
     bool isDark,
     int index,
+    AppLocalizations l10n,
   ) {
     final Color statutColor = _statutColor(dossier.statutReprise);
 
@@ -312,7 +318,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      dossier.statutRepriseLabel.toUpperCase(),
+                      _localizedStatusLabel(l10n, dossier.statutReprise).toUpperCase(),
                       style: GoogleFonts.montserrat(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -365,7 +371,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Gravite: ${dossier.gravite!}',
+                      '${l10n.medicalRecordLabelSeverity}: ${_localizedGravity(l10n, dossier.gravite!)}',
                       style: GoogleFonts.montserrat(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -404,7 +410,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun dossier medical',
+              l10n.medicalRecordRecordsEmptyTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -413,7 +419,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Cet academicien ne possede encore aucun dossier medical.',
+              l10n.medicalRecordRecordsEmptyDescription,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
@@ -426,7 +432,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
               onPressed: _onCreateDossier,
               icon: const Icon(Icons.add_rounded),
               label: Text(
-                'Creer un dossier',
+                l10n.medicalRecordCreateEmptyButton,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
@@ -450,13 +456,14 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
   Widget? _buildFab(ColorScheme colorScheme) {
     if (_state.isEmpty) return null;
 
+    final l10n = AppLocalizations.of(context)!;
     return FloatingActionButton.extended(
       onPressed: _onCreateDossier,
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
       icon: const Icon(Icons.add_rounded),
       label: Text(
-        'Nouveau dossier',
+        l10n.medicalRecordNewButton,
         style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
       ),
     );
@@ -470,6 +477,34 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
         ),
       ),
     );
+  }
+
+  String _localizedStatusLabel(AppLocalizations l10n, String statut) {
+    switch (statut) {
+      case 'en_cours':
+        return l10n.medicalStatusEnCours;
+      case 'apte_entrainement':
+        return l10n.medicalStatusApteEntrainement;
+      case 'apte_competition':
+        return l10n.medicalStatusApteCompetition;
+      case 'fini':
+        return l10n.medicalStatusFini;
+      default:
+        return statut;
+    }
+  }
+
+  String _localizedGravity(AppLocalizations l10n, String gravite) {
+    switch (gravite.toLowerCase()) {
+      case 'legere':
+        return l10n.severityMild;
+      case 'moyenne':
+        return l10n.severityModerate;
+      case 'grave':
+        return l10n.severitySevere;
+      default:
+        return gravite;
+    }
   }
 
   int _calculateAge(DateTime birthDate) {

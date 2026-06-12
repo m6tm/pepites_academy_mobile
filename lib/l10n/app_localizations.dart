@@ -6973,6 +6973,912 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Suivi Vaccinal'**
   String get medicalAlertVaccine;
+
+  /// No description provided for @medicalRecordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier medical'**
+  String get medicalRecordTitle;
+
+  /// No description provided for @medicalRecordNewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau dossier'**
+  String get medicalRecordNewTitle;
+
+  /// No description provided for @medicalRecordEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le dossier'**
+  String get medicalRecordEditTitle;
+
+  /// No description provided for @medicalRecordsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossiers medicaux'**
+  String get medicalRecordsTitle;
+
+  /// No description provided for @medicalRecordsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des blessures'**
+  String get medicalRecordsSubtitle;
+
+  /// No description provided for @medicalRecordFormSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier medical de suivi'**
+  String get medicalRecordFormSubtitle;
+
+  /// No description provided for @medicalRecordSectionInjuryDeclaration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Declaration de blessure'**
+  String get medicalRecordSectionInjuryDeclaration;
+
+  /// No description provided for @medicalRecordSectionCircumstances.
+  ///
+  /// In fr, this message translates to:
+  /// **'Circonstances'**
+  String get medicalRecordSectionCircumstances;
+
+  /// No description provided for @medicalRecordSectionDescriptionAndNature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description et nature'**
+  String get medicalRecordSectionDescriptionAndNature;
+
+  /// No description provided for @medicalRecordSectionFirstAid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premiers soins'**
+  String get medicalRecordSectionFirstAid;
+
+  /// No description provided for @medicalRecordSectionObservations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Observations'**
+  String get medicalRecordSectionObservations;
+
+  /// No description provided for @medicalRecordSectionReeducation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi de reeducation'**
+  String get medicalRecordSectionReeducation;
+
+  /// No description provided for @medicalRecordSectionProgressiveReturn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour progressif'**
+  String get medicalRecordSectionProgressiveReturn;
+
+  /// No description provided for @medicalRecordSectionReturnValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation de reprise'**
+  String get medicalRecordSectionReturnValidation;
+
+  /// No description provided for @medicalRecordSectionFinalValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation finale'**
+  String get medicalRecordSectionFinalValidation;
+
+  /// No description provided for @medicalRecordLabelDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date'**
+  String get medicalRecordLabelDate;
+
+  /// No description provided for @medicalRecordLabelHour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure'**
+  String get medicalRecordLabelHour;
+
+  /// No description provided for @medicalRecordLabelLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lieu'**
+  String get medicalRecordLabelLocation;
+
+  /// No description provided for @medicalRecordLabelOpponent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adversaire'**
+  String get medicalRecordLabelOpponent;
+
+  /// No description provided for @medicalRecordLabelType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type'**
+  String get medicalRecordLabelType;
+
+  /// No description provided for @medicalRecordLabelDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Details'**
+  String get medicalRecordLabelDetails;
+
+  /// No description provided for @medicalRecordLabelBodyPart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie du corps'**
+  String get medicalRecordLabelBodyPart;
+
+  /// No description provided for @medicalRecordLabelInjuryType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de blessure'**
+  String get medicalRecordLabelInjuryType;
+
+  /// No description provided for @medicalRecordLabelSeverity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gravite'**
+  String get medicalRecordLabelSeverity;
+
+  /// No description provided for @medicalRecordLabelDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get medicalRecordLabelDescription;
+
+  /// No description provided for @medicalRecordLabelAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Age'**
+  String get medicalRecordLabelAge;
+
+  /// No description provided for @medicalRecordLabelPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poste'**
+  String get medicalRecordLabelPosition;
+
+  /// No description provided for @medicalRecordLabelCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Categorie'**
+  String get medicalRecordLabelCategory;
+
+  /// No description provided for @medicalRecordLabelBirthDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de naissance'**
+  String get medicalRecordLabelBirthDate;
+
+  /// No description provided for @medicalRecordLabelGuardianPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Telephone garant'**
+  String get medicalRecordLabelGuardianPhone;
+
+  /// No description provided for @medicalRecordLabelInjuryDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de blessure'**
+  String get medicalRecordLabelInjuryDate;
+
+  /// No description provided for @medicalRecordLabelApproximateTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure approximative'**
+  String get medicalRecordLabelApproximateTime;
+
+  /// No description provided for @medicalRecordLabelLocationPrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Precision du lieu'**
+  String get medicalRecordLabelLocationPrecision;
+
+  /// No description provided for @medicalRecordLabelCircumstanceType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de circonstance'**
+  String get medicalRecordLabelCircumstanceType;
+
+  /// No description provided for @medicalRecordLabelCircumstanceTypePrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Precisez le type de circonstance'**
+  String get medicalRecordLabelCircumstanceTypePrecision;
+
+  /// No description provided for @medicalRecordLabelAdditionalDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Details complementaires'**
+  String get medicalRecordLabelAdditionalDetails;
+
+  /// No description provided for @medicalRecordLabelBodyPartAffected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie du corps touchee'**
+  String get medicalRecordLabelBodyPartAffected;
+
+  /// No description provided for @medicalRecordLabelBodyPartPrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Precisez la partie du corps'**
+  String get medicalRecordLabelBodyPartPrecision;
+
+  /// No description provided for @medicalRecordLabelInjuryTypePrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Precisez le type de blessure'**
+  String get medicalRecordLabelInjuryTypePrecision;
+
+  /// No description provided for @medicalRecordLabelSeverityLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau de gravite'**
+  String get medicalRecordLabelSeverityLevel;
+
+  /// No description provided for @medicalRecordLabelValidationDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de validation'**
+  String get medicalRecordLabelValidationDate;
+
+  /// No description provided for @medicalRecordLabelMedicalManager.
+  ///
+  /// In fr, this message translates to:
+  /// **'Responsable medical'**
+  String get medicalRecordLabelMedicalManager;
+
+  /// No description provided for @medicalRecordLabelResponsibleSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature du responsable'**
+  String get medicalRecordLabelResponsibleSignature;
+
+  /// No description provided for @medicalRecordLabelFitForTraining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apte entrainement'**
+  String get medicalRecordLabelFitForTraining;
+
+  /// No description provided for @medicalRecordLabelFitForCompetition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apte competition'**
+  String get medicalRecordLabelFitForCompetition;
+
+  /// No description provided for @medicalRecordLabelSpecialMonitoring.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surveillance particuliere'**
+  String get medicalRecordLabelSpecialMonitoring;
+
+  /// No description provided for @medicalRecordLabelRecommendation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandation'**
+  String get medicalRecordLabelRecommendation;
+
+  /// No description provided for @medicalRecordLabelManager.
+  ///
+  /// In fr, this message translates to:
+  /// **'Responsable'**
+  String get medicalRecordLabelManager;
+
+  /// No description provided for @medicalRecordLabelSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature'**
+  String get medicalRecordLabelSignature;
+
+  /// No description provided for @medicalRecordLabelPain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Douleur'**
+  String get medicalRecordLabelPain;
+
+  /// No description provided for @medicalRecordLabelObservations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Observations'**
+  String get medicalRecordLabelObservations;
+
+  /// No description provided for @medicalRecordHintSelectTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionner l\'heure'**
+  String get medicalRecordHintSelectTime;
+
+  /// No description provided for @medicalRecordHintSelectLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionner le lieu'**
+  String get medicalRecordHintSelectLocation;
+
+  /// No description provided for @medicalRecordHintLocationPrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Precisez le lieu'**
+  String get medicalRecordHintLocationPrecision;
+
+  /// No description provided for @medicalRecordHintOpponentName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'adversaire'**
+  String get medicalRecordHintOpponentName;
+
+  /// No description provided for @medicalRecordHintSelect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionner'**
+  String get medicalRecordHintSelect;
+
+  /// No description provided for @medicalRecordHintCircumstanceTypePrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: blessure a l\'echauffement...'**
+  String get medicalRecordHintCircumstanceTypePrecision;
+
+  /// No description provided for @medicalRecordHintCircumstanceDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Decrivez la circonstance...'**
+  String get medicalRecordHintCircumstanceDetails;
+
+  /// No description provided for @medicalRecordHintBodyPartPrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: cote droit du thorax...'**
+  String get medicalRecordHintBodyPartPrecision;
+
+  /// No description provided for @medicalRecordHintInjuryTypePrecision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: luxation acromio-claviculaire...'**
+  String get medicalRecordHintInjuryTypePrecision;
+
+  /// No description provided for @medicalRecordHintInjuryDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Decrivez la blessure...'**
+  String get medicalRecordHintInjuryDescription;
+
+  /// No description provided for @medicalRecordHintAddFirstAid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un soin...'**
+  String get medicalRecordHintAddFirstAid;
+
+  /// No description provided for @medicalRecordHintFreeObservations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Observations libres...'**
+  String get medicalRecordHintFreeObservations;
+
+  /// No description provided for @medicalRecordHintSelectDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionner une date'**
+  String get medicalRecordHintSelectDate;
+
+  /// No description provided for @medicalRecordHintManagerName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du responsable'**
+  String get medicalRecordHintManagerName;
+
+  /// No description provided for @medicalRecordHintFreeRecommendation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandation libre...'**
+  String get medicalRecordHintFreeRecommendation;
+
+  /// No description provided for @medicalRecordHintWorksDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Travaux effectues'**
+  String get medicalRecordHintWorksDone;
+
+  /// No description provided for @medicalRecordHintAllowedActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activite autorisee'**
+  String get medicalRecordHintAllowedActivity;
+
+  /// No description provided for @medicalRecordHintValidationAndTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation + temps utilise'**
+  String get medicalRecordHintValidationAndTime;
+
+  /// No description provided for @medicalRecordAddSessionButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une seance'**
+  String get medicalRecordAddSessionButton;
+
+  /// No description provided for @medicalRecordAddStepButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une etape'**
+  String get medicalRecordAddStepButton;
+
+  /// No description provided for @medicalRecordSessionNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seance {number}'**
+  String medicalRecordSessionNumber(int number);
+
+  /// No description provided for @medicalRecordStepNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Etape {number}'**
+  String medicalRecordStepNumber(int number);
+
+  /// No description provided for @medicalRecordCheckboxFitForTraining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Joueur apte a reprendre les entrainements'**
+  String get medicalRecordCheckboxFitForTraining;
+
+  /// No description provided for @medicalRecordCheckboxFitForCompetition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Joueur apte a reprendre la competition'**
+  String get medicalRecordCheckboxFitForCompetition;
+
+  /// No description provided for @medicalRecordCheckboxSpecialMonitoring.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surveillance particuliere recommandee'**
+  String get medicalRecordCheckboxSpecialMonitoring;
+
+  /// No description provided for @medicalRecordAddSignatureTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une signature'**
+  String get medicalRecordAddSignatureTitle;
+
+  /// No description provided for @medicalRecordDrawSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dessiner la signature'**
+  String get medicalRecordDrawSignature;
+
+  /// No description provided for @medicalRecordDrawSignatureSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signez directement sur l\'ecran'**
+  String get medicalRecordDrawSignatureSubtitle;
+
+  /// No description provided for @medicalRecordImportFromGallery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer depuis la galerie'**
+  String get medicalRecordImportFromGallery;
+
+  /// No description provided for @medicalRecordImportFromGallerySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionnez une image existante'**
+  String get medicalRecordImportFromGallerySubtitle;
+
+  /// No description provided for @medicalRecordUploadInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Upload en cours...'**
+  String get medicalRecordUploadInProgress;
+
+  /// No description provided for @medicalRecordUploadFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Echec de l\'upload'**
+  String get medicalRecordUploadFailed;
+
+  /// No description provided for @medicalRecordAddSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter la signature'**
+  String get medicalRecordAddSignature;
+
+  /// No description provided for @medicalRecordCreateButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Creer le dossier medical'**
+  String get medicalRecordCreateButton;
+
+  /// No description provided for @medicalRecordNewButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau dossier'**
+  String get medicalRecordNewButton;
+
+  /// No description provided for @medicalRecordCreateEmptyButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Creer un dossier'**
+  String get medicalRecordCreateEmptyButton;
+
+  /// No description provided for @medicalRecordRecordsEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun dossier medical'**
+  String get medicalRecordRecordsEmptyTitle;
+
+  /// No description provided for @medicalRecordRecordsEmptyDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet academicien ne possede encore aucun dossier medical.'**
+  String get medicalRecordRecordsEmptyDescription;
+
+  /// No description provided for @medicalRecordNoCircumstances.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune circonstance renseignee'**
+  String get medicalRecordNoCircumstances;
+
+  /// No description provided for @medicalRecordNoFirstAid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun soin renseigne'**
+  String get medicalRecordNoFirstAid;
+
+  /// No description provided for @medicalRecordNoObservations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune observation'**
+  String get medicalRecordNoObservations;
+
+  /// No description provided for @medicalRecordNoReeducation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune seance de reeducation'**
+  String get medicalRecordNoReeducation;
+
+  /// No description provided for @medicalRecordNoProgressiveReturn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune etape de retour progressif'**
+  String get medicalRecordNoProgressiveReturn;
+
+  /// No description provided for @medicalRecordNoReturnValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation non renseignee'**
+  String get medicalRecordNoReturnValidation;
+
+  /// No description provided for @medicalRecordNoSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature non renseignee'**
+  String get medicalRecordNoSignature;
+
+  /// No description provided for @medicalRecordUnknownDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date inconnue'**
+  String get medicalRecordUnknownDate;
+
+  /// No description provided for @medicalRecordPainLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Douleur {level}/10'**
+  String medicalRecordPainLevel(int level);
+
+  /// No description provided for @medicalRecordWorksLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Travaux : {works}'**
+  String medicalRecordWorksLabel(String works);
+
+  /// No description provided for @medicalRecordObservationsShortLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obs. : {observations}'**
+  String medicalRecordObservationsShortLabel(String observations);
+
+  /// No description provided for @medicalRecordActivityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activite : {activity}'**
+  String medicalRecordActivityLabel(String activity);
+
+  /// No description provided for @medicalRecordValidationAndTimeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation + temps : {validation}'**
+  String medicalRecordValidationAndTimeLabel(String validation);
+
+  /// No description provided for @medicalRecordErrorInjuryDateFuture.
+  ///
+  /// In fr, this message translates to:
+  /// **'La date de blessure ne peut pas etre dans le futur.'**
+  String get medicalRecordErrorInjuryDateFuture;
+
+  /// No description provided for @medicalRecordErrorInjuryTimeFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'heure de blessure doit etre au format HH:mm.'**
+  String get medicalRecordErrorInjuryTimeFormat;
+
+  /// No description provided for @medicalRecordErrorLocationRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez preciser le lieu.'**
+  String get medicalRecordErrorLocationRequired;
+
+  /// No description provided for @medicalRecordErrorCircumstanceTypeRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez preciser le type de circonstance.'**
+  String get medicalRecordErrorCircumstanceTypeRequired;
+
+  /// No description provided for @medicalRecordErrorBodyPartRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez preciser la partie du corps touchee.'**
+  String get medicalRecordErrorBodyPartRequired;
+
+  /// No description provided for @medicalRecordErrorInjuryTypeRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez preciser le type de blessure.'**
+  String get medicalRecordErrorInjuryTypeRequired;
+
+  /// No description provided for @medicalRecordErrorFinalValidationDateFuture.
+  ///
+  /// In fr, this message translates to:
+  /// **'La date de validation finale ne peut pas etre dans le futur.'**
+  String get medicalRecordErrorFinalValidationDateFuture;
+
+  /// No description provided for @medicalRecordErrorSignatureRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'La signature du responsable medical est obligatoire.'**
+  String get medicalRecordErrorSignatureRequired;
+
+  /// No description provided for @medicalRecordSuccessUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier medical mis a jour avec succes.'**
+  String get medicalRecordSuccessUpdated;
+
+  /// No description provided for @medicalRecordSuccessCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier medical cree avec succes.'**
+  String get medicalRecordSuccessCreated;
+
+  /// No description provided for @medicalRecordErrorSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'enregistrement : {error}'**
+  String medicalRecordErrorSave(String error);
+
+  /// No description provided for @ageYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'{age} ans'**
+  String ageYears(int age);
+
+  /// No description provided for @other.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get other;
+
+  /// No description provided for @select.
+  ///
+  /// In fr, this message translates to:
+  /// **'Selectionner'**
+  String get select;
+
+  /// No description provided for @saveChangesButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer les modifications'**
+  String get saveChangesButton;
+
+  /// No description provided for @retryAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reessayer'**
+  String get retryAction;
+
+  /// No description provided for @bodyPartHead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tete'**
+  String get bodyPartHead;
+
+  /// No description provided for @bodyPartShoulder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Epaule'**
+  String get bodyPartShoulder;
+
+  /// No description provided for @bodyPartArm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bras'**
+  String get bodyPartArm;
+
+  /// No description provided for @bodyPartHand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Main'**
+  String get bodyPartHand;
+
+  /// No description provided for @bodyPartBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dos'**
+  String get bodyPartBack;
+
+  /// No description provided for @bodyPartHip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hanche'**
+  String get bodyPartHip;
+
+  /// No description provided for @bodyPartThigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cuisse'**
+  String get bodyPartThigh;
+
+  /// No description provided for @bodyPartKnee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Genou'**
+  String get bodyPartKnee;
+
+  /// No description provided for @bodyPartLeg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jambe'**
+  String get bodyPartLeg;
+
+  /// No description provided for @bodyPartAnkle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cheville'**
+  String get bodyPartAnkle;
+
+  /// No description provided for @bodyPartFoot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pied'**
+  String get bodyPartFoot;
+
+  /// No description provided for @injuryTypeSprain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entorse'**
+  String get injuryTypeSprain;
+
+  /// No description provided for @injuryTypeFracture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fracture'**
+  String get injuryTypeFracture;
+
+  /// No description provided for @injuryTypeStrain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Claquage'**
+  String get injuryTypeStrain;
+
+  /// No description provided for @injuryTypeContracture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contracture'**
+  String get injuryTypeContracture;
+
+  /// No description provided for @injuryTypeCut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coupure'**
+  String get injuryTypeCut;
+
+  /// No description provided for @injuryTypeContusion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contusion'**
+  String get injuryTypeContusion;
+
+  /// No description provided for @injuryTypeTear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dechirure'**
+  String get injuryTypeTear;
+
+  /// No description provided for @severityMild.
+  ///
+  /// In fr, this message translates to:
+  /// **'Legere'**
+  String get severityMild;
+
+  /// No description provided for @severityModerate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne'**
+  String get severityModerate;
+
+  /// No description provided for @severitySevere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Grave'**
+  String get severitySevere;
+
+  /// No description provided for @medicalLocationTraining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrainement'**
+  String get medicalLocationTraining;
+
+  /// No description provided for @medicalLocationMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Match'**
+  String get medicalLocationMatch;
+
+  /// No description provided for @medicalCircumstanceTackle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tacle'**
+  String get medicalCircumstanceTackle;
+
+  /// No description provided for @medicalCircumstanceFall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chute'**
+  String get medicalCircumstanceFall;
+
+  /// No description provided for @medicalCircumstanceCollision.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collision'**
+  String get medicalCircumstanceCollision;
+
+  /// No description provided for @medicalCircumstanceOverload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surcharge'**
+  String get medicalCircumstanceOverload;
+
+  /// No description provided for @medicalStatusEnCours.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get medicalStatusEnCours;
+
+  /// No description provided for @medicalStatusApteEntrainement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apte a l\'entrainement'**
+  String get medicalStatusApteEntrainement;
+
+  /// No description provided for @medicalStatusApteCompetition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apte a la competition'**
+  String get medicalStatusApteCompetition;
+
+  /// No description provided for @medicalStatusFini.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cloture'**
+  String get medicalStatusFini;
+
+  /// No description provided for @medicalFilesSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultez et gerez les dossiers medicaux'**
+  String get medicalFilesSubtitle;
+
+  /// No description provided for @medicalFilesEmptyDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun dossier medical disponible'**
+  String get medicalFilesEmptyDescription;
 }
 
 class _AppLocalizationsDelegate

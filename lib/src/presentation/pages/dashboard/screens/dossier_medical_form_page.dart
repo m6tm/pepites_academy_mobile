@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../../l10n/app_localizations.dart';
 
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/dossier_medical.dart';
@@ -51,6 +52,12 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     }
     _initControllers();
     _loadReferentiels();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _state.setLocalizations(AppLocalizations.of(context)!);
   }
 
   void _initControllers() {
@@ -176,7 +183,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     }
   }
 
-  Future<void> _showSignatureOptions() async {
+  Future<void> _showSignatureOptions(AppLocalizations l10n) async {
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -199,7 +206,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Ajouter une signature',
+              l10n.medicalRecordAddSignatureTitle,
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -216,11 +223,11 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                 child: Icon(Icons.draw_outlined, color: AppColors.primary),
               ),
               title: Text(
-                'Dessiner la signature',
+                l10n.medicalRecordDrawSignature,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(
-                'Signez directement sur l\'ecran',
+                l10n.medicalRecordDrawSignatureSubtitle,
                 style: GoogleFonts.montserrat(fontSize: 12, color: Colors.grey),
               ),
               onTap: () {
@@ -239,11 +246,11 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                 child: Icon(Icons.photo_library_outlined, color: AppColors.primary),
               ),
               title: Text(
-                'Importer depuis la galerie',
+                l10n.medicalRecordImportFromGallery,
                 style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(
-                'Selectionnez une image existante',
+                l10n.medicalRecordImportFromGallerySubtitle,
                 style: GoogleFonts.montserrat(fontSize: 12, color: Colors.grey),
               ),
               onTap: () {
@@ -280,6 +287,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -290,37 +298,37 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
             return CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-                _buildHeader(colorScheme, isDark),
-                _buildAcademicienInfo(colorScheme, isDark),
-                _buildSectionTitle('Declaration de blessure', colorScheme),
-                _buildDeclarationForm(colorScheme, isDark),
-                _buildSectionTitle('Circonstances', colorScheme),
-                _buildCirconstancesForm(colorScheme, isDark),
-                _buildSectionTitle('Description et nature', colorScheme),
-                _buildDescriptionForm(colorScheme, isDark),
-                _buildSectionTitle('Premiers soins', colorScheme),
-                _buildPremiersSoinsForm(colorScheme, isDark),
-                _buildSectionTitle('Observations', colorScheme),
-                _buildObservationsForm(colorScheme, isDark),
-                _buildSectionTitle('Suivi de reeducation', colorScheme),
-                _buildSuiviReeducationForm(colorScheme, isDark),
-                _buildSectionTitle('Retour progressif', colorScheme),
-                _buildRetourProgressifForm(colorScheme, isDark),
-                _buildSectionTitle('Validation de reprise', colorScheme),
-                _buildValidationRepriseForm(colorScheme, isDark),
-                _buildSectionTitle('Validation finale', colorScheme),
-                _buildValidationFinaleForm(colorScheme, isDark),
+                _buildHeader(l10n, colorScheme, isDark),
+                _buildAcademicienInfo(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionInjuryDeclaration, colorScheme),
+                _buildDeclarationForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionCircumstances, colorScheme),
+                _buildCirconstancesForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionDescriptionAndNature, colorScheme),
+                _buildDescriptionForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionFirstAid, colorScheme),
+                _buildPremiersSoinsForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionObservations, colorScheme),
+                _buildObservationsForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionReeducation, colorScheme),
+                _buildSuiviReeducationForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionProgressiveReturn, colorScheme),
+                _buildRetourProgressifForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionReturnValidation, colorScheme),
+                _buildValidationRepriseForm(l10n, colorScheme, isDark),
+                _buildSectionTitle(l10n, l10n.medicalRecordSectionFinalValidation, colorScheme),
+                _buildValidationFinaleForm(l10n, colorScheme, isDark),
                 if (_state.hasError)
                   SliverPadding(
                     padding: const EdgeInsets.all(20),
                     sliver: SliverToBoxAdapter(
-                      child: _buildErrorBanner(colorScheme),
+                      child: _buildErrorBanner(l10n, colorScheme),
                     ),
                   ),
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
                   sliver: SliverToBoxAdapter(
-                    child: _buildSaveButton(colorScheme, isDark),
+                    child: _buildSaveButton(l10n, colorScheme, isDark),
                   ),
                 ),
               ],
@@ -334,7 +342,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
   // ------------------------------------------------------------------
   // Widgets helpers
   // ------------------------------------------------------------------
-  Widget _buildHeader(ColorScheme colorScheme, bool isDark) {
+  Widget _buildHeader(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     final isEditing = widget.dossier != null;
     return SliverToBoxAdapter(
       child: Padding(
@@ -360,7 +368,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isEditing ? 'Modifier le dossier' : 'Nouveau dossier',
+                    isEditing ? l10n.medicalRecordEditTitle : l10n.medicalRecordNewTitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
@@ -372,7 +380,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Dossier medical de suivi',
+                    l10n.medicalRecordFormSubtitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
                       color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -387,7 +395,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildAcademicienInfo(ColorScheme colorScheme, bool isDark) {
+  Widget _buildAcademicienInfo(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     final acad = widget.academicien;
     final age = _calculateAge(acad.dateNaissance);
     final telephoneGarant = acad.telephoneGarant;
@@ -423,17 +431,17 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
               ),
             ),
             const SizedBox(height: 8),
-            _buildInfoRow('Age', '$age ans'),
-            if (_posteLabel != null) _buildInfoRow('Poste', _posteLabel!),
-            if (_niveauLabel != null) _buildInfoRow('Categorie', _niveauLabel!),
+            _buildInfoRow(l10n.medicalRecordLabelAge, '$age ans'),
+            if (_posteLabel != null) _buildInfoRow(l10n.medicalRecordLabelPosition, _posteLabel!),
+            if (_niveauLabel != null) _buildInfoRow(l10n.medicalRecordLabelCategory, _niveauLabel!),
             _buildInfoRow(
-              'Date de naissance',
+              l10n.medicalRecordLabelBirthDate,
               '${acad.dateNaissance.day.toString().padLeft(2, '0')}/'
                   '${acad.dateNaissance.month.toString().padLeft(2, '0')}/'
                   '${acad.dateNaissance.year}',
             ),
             if (telephoneGarant.isNotEmpty)
-              _buildInfoRow('Telephone garant', telephoneGarant),
+              _buildInfoRow(l10n.medicalRecordLabelGuardianPhone, telephoneGarant),
           ],
         ),
       ),
@@ -467,7 +475,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildSectionTitle(String title, ColorScheme colorScheme) {
+  Widget _buildSectionTitle(AppLocalizations l10n, String title, ColorScheme colorScheme) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
@@ -511,7 +519,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildLabel(String text, ColorScheme colorScheme) {
+  Widget _buildLabel(AppLocalizations l10n, String text, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
@@ -621,11 +629,11 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
   // ------------------------------------------------------------------
   // Sections
   // ------------------------------------------------------------------
-  Widget _buildDeclarationForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildDeclarationForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
-        _buildLabel('Date de blessure', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelInjuryDate, colorScheme),
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
@@ -660,7 +668,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
           ),
         ),
         const SizedBox(height: 14),
-        _buildLabel('Heure approximative', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelApproximateTime, colorScheme),
         InkWell(
           onTap: () async {
             final now = TimeOfDay.now();
@@ -692,7 +700,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                 Text(
                   _state.heureBlessure.isNotEmpty
                       ? _state.heureBlessure
-                      : 'Selectionner l\'heure',
+                      : l10n.medicalRecordHintSelectTime,
                   style: GoogleFonts.montserrat(fontSize: 14),
                 ),
               ],
@@ -700,9 +708,9 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
           ),
         ),
         const SizedBox(height: 14),
-        _buildLabel('Lieu', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelLocation, colorScheme),
         _buildDropdown<String>(
-          hint: 'Selectionner le lieu',
+          hint: l10n.medicalRecordHintSelectLocation,
           value: _state.lieu.isEmpty ? null : _state.lieu,
           items: ['entrainement', 'match', 'autre']
               .map(
@@ -710,10 +718,10 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                   value: e,
                   child: Text(
                     e == 'entrainement'
-                        ? 'Entrainement'
+                        ? l10n.medicalLocationTraining
                         : e == 'match'
-                            ? 'Match'
-                            : 'Autre',
+                            ? l10n.medicalLocationMatch
+                            : l10n.other,
                     style: GoogleFonts.montserrat(fontSize: 14),
                   ),
                 ),
@@ -723,18 +731,18 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
         ),
         if (_state.lieu == 'autre') ...[
           const SizedBox(height: 14),
-          _buildLabel('Precision du lieu', colorScheme),
+          _buildLabel(l10n, l10n.medicalRecordLabelLocationPrecision, colorScheme),
           _buildTextField(
-            hint: 'Precisez le lieu',
+            hint: l10n.medicalRecordHintLocationPrecision,
             controller: _getController('lieuPrecision', _state.lieuPrecision),
             onChanged: _state.setLieuPrecision,
           ),
         ],
         if (_state.lieu == 'match') ...[
           const SizedBox(height: 14),
-          _buildLabel('Adversaire', colorScheme),
+          _buildLabel(l10n, l10n.medicalRecordLabelOpponent, colorScheme),
           _buildTextField(
-            hint: 'Nom de l\'adversaire',
+            hint: l10n.medicalRecordHintOpponentName,
             controller: _getController('adversaire', _state.adversaire),
             onChanged: _state.setAdversaire,
           ),
@@ -752,20 +760,28 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     return TimeOfDay(hour: hour, minute: minute);
   }
 
-  Widget _buildCirconstancesForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildCirconstancesForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
-        _buildLabel('Type de circonstance', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelCircumstanceType, colorScheme),
         _buildDropdown<String>(
-          hint: 'Selectionner',
+          hint: l10n.medicalRecordHintSelect,
           value: _state.circonstancesType.isEmpty ? null : _state.circonstancesType,
           items: ['tacle', 'chute', 'collision', 'surcharge', 'autre']
               .map(
                 (e) => DropdownMenuItem(
                   value: e,
                   child: Text(
-                    e[0].toUpperCase() + e.substring(1),
+                    e == 'tacle'
+                        ? l10n.medicalCircumstanceTackle
+                        : e == 'chute'
+                            ? l10n.medicalCircumstanceFall
+                            : e == 'collision'
+                                ? l10n.medicalCircumstanceCollision
+                                : e == 'surcharge'
+                                    ? l10n.medicalCircumstanceOverload
+                                    : l10n.other,
                     style: GoogleFonts.montserrat(fontSize: 14),
                   ),
                 ),
@@ -776,17 +792,17 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
         const SizedBox(height: 14),
         if (_state.circonstancesType == 'autre') ...[
           const SizedBox(height: 14),
-          _buildLabel('Precisez le type de circonstance', colorScheme),
+          _buildLabel(l10n, l10n.medicalRecordLabelCircumstanceTypePrecision, colorScheme),
           _buildTextField(
-            hint: 'Ex: blessure a l\'echauffement...',
+            hint: l10n.medicalRecordHintCircumstanceTypePrecision,
             controller: _getController('circonstancesTypePrecision', _state.circonstancesTypePrecision),
             onChanged: _state.setCirconstancesTypePrecision,
           ),
         ],
         const SizedBox(height: 14),
-        _buildLabel('Details complementaires', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelAdditionalDetails, colorScheme),
         _buildTextField(
-          hint: 'Decrivez la circonstance...',
+          hint: l10n.medicalRecordHintCircumstanceDetails,
           controller: _getController('circonstancesPrecision', _state.circonstancesPrecision),
           onChanged: _state.setCirconstancesPrecision,
           maxLines: 4,
@@ -797,13 +813,13 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildDescriptionForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildDescriptionForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
-        _buildLabel('Partie du corps touchee', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelBodyPartAffected, colorScheme),
         _buildDropdown<String>(
-          hint: 'Selectionner',
+          hint: l10n.medicalRecordHintSelect,
           value: _state.partieCorps.isEmpty ? null : _state.partieCorps,
           items: [
             'tete',
@@ -823,7 +839,29 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                 (e) => DropdownMenuItem(
                   value: e,
                   child: Text(
-                    e[0].toUpperCase() + e.substring(1),
+                    e == 'tete'
+                        ? l10n.bodyPartHead
+                        : e == 'epaule'
+                            ? l10n.bodyPartShoulder
+                            : e == 'bras'
+                                ? l10n.bodyPartArm
+                                : e == 'main'
+                                    ? l10n.bodyPartHand
+                                    : e == 'dos'
+                                        ? l10n.bodyPartBack
+                                        : e == 'hanche'
+                                            ? l10n.bodyPartHip
+                                            : e == 'cuisse'
+                                                ? l10n.bodyPartThigh
+                                                : e == 'genou'
+                                                    ? l10n.bodyPartKnee
+                                                    : e == 'jambe'
+                                                        ? l10n.bodyPartLeg
+                                                        : e == 'cheville'
+                                                            ? l10n.bodyPartAnkle
+                                                            : e == 'pied'
+                                                                ? l10n.bodyPartFoot
+                                                                : l10n.other,
                     style: GoogleFonts.montserrat(fontSize: 14),
                   ),
                 ),
@@ -833,17 +871,17 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
         ),
         if (_state.partieCorps == 'autre') ...[
           const SizedBox(height: 14),
-          _buildLabel('Precisez la partie du corps', colorScheme),
+          _buildLabel(l10n, l10n.medicalRecordLabelBodyPartPrecision, colorScheme),
           _buildTextField(
-            hint: 'Ex: cote droit du thorax...',
+            hint: l10n.medicalRecordHintBodyPartPrecision,
             controller: _getController('partieCorpsPrecision', _state.partieCorpsPrecision),
             onChanged: _state.setPartieCorpsPrecision,
           ),
         ],
         const SizedBox(height: 14),
-        _buildLabel('Type de blessure', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelInjuryType, colorScheme),
         _buildDropdown<String>(
-          hint: 'Selectionner',
+          hint: l10n.medicalRecordHintSelect,
           value: _state.typeBlessure.isEmpty ? null : _state.typeBlessure,
           items: [
             'entorse',
@@ -859,7 +897,21 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                 (e) => DropdownMenuItem(
                   value: e,
                   child: Text(
-                    e[0].toUpperCase() + e.substring(1),
+                    e == 'entorse'
+                        ? l10n.injuryTypeSprain
+                        : e == 'fracture'
+                            ? l10n.injuryTypeFracture
+                            : e == 'claquage'
+                                ? l10n.injuryTypeStrain
+                                : e == 'contracture'
+                                    ? l10n.injuryTypeContracture
+                                    : e == 'coupure'
+                                        ? l10n.injuryTypeCut
+                                        : e == 'contusion'
+                                            ? l10n.injuryTypeContusion
+                                            : e == 'dechirure'
+                                                ? l10n.injuryTypeTear
+                                                : l10n.other,
                     style: GoogleFonts.montserrat(fontSize: 14),
                   ),
                 ),
@@ -869,24 +921,28 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
         ),
         if (_state.typeBlessure == 'autre') ...[
           const SizedBox(height: 14),
-          _buildLabel('Precisez le type de blessure', colorScheme),
+          _buildLabel(l10n, l10n.medicalRecordLabelInjuryTypePrecision, colorScheme),
           _buildTextField(
-            hint: 'Ex: luxation acromio-claviculaire...',
+            hint: l10n.medicalRecordHintInjuryTypePrecision,
             controller: _getController('typeBlessurePrecision', _state.typeBlessurePrecision),
             onChanged: _state.setTypeBlessurePrecision,
           ),
         ],
         const SizedBox(height: 14),
-        _buildLabel('Niveau de gravite', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelSeverityLevel, colorScheme),
         _buildDropdown<String>(
-          hint: 'Selectionner',
+          hint: l10n.medicalRecordHintSelect,
           value: _state.gravite.isEmpty ? null : _state.gravite,
           items: ['legere', 'moyenne', 'grave']
               .map(
                 (e) => DropdownMenuItem(
                   value: e,
                   child: Text(
-                    e[0].toUpperCase() + e.substring(1),
+                    e == 'legere'
+                        ? l10n.severityMild
+                        : e == 'moyenne'
+                            ? l10n.severityModerate
+                            : l10n.severitySevere,
                     style: GoogleFonts.montserrat(fontSize: 14),
                   ),
                 ),
@@ -895,9 +951,9 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
           onChanged: (v) => _state.setGravite(v ?? ''),
         ),
         const SizedBox(height: 14),
-        _buildLabel('Description', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelDescription, colorScheme),
         _buildTextField(
-          hint: 'Decrivez la blessure...',
+          hint: l10n.medicalRecordHintInjuryDescription,
           controller: _getController('description', _state.description),
           onChanged: _state.setDescription,
           maxLines: 5,
@@ -908,7 +964,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildPremiersSoinsForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildPremiersSoinsForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     void submitSoin() {
       final controller = _getController('premiersSoins', '');
       final text = controller.text.trim();
@@ -926,7 +982,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
           children: [
             Expanded(
               child: _buildTextField(
-                hint: 'Ajouter un soin...',
+                hint: l10n.medicalRecordHintAddFirstAid,
                 controller: _getController('premiersSoins', ''),
                 focusNode: _premiersSoinsFocusNode,
                 onChanged: (_) {},
@@ -968,12 +1024,12 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildObservationsForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildObservationsForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
         _buildTextField(
-          hint: 'Observations libres...',
+          hint: l10n.medicalRecordHintFreeObservations,
           controller: _getController('observations', _state.observations),
           onChanged: _state.setObservations,
           maxLines: 5,
@@ -984,14 +1040,14 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildSuiviReeducationForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildSuiviReeducationForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
         ..._state.suiviReeducation.asMap().entries.map((entry) {
           final index = entry.key;
           final item = entry.value;
-          return _buildReeducationItem(index, item, colorScheme);
+          return _buildReeducationItem(l10n, index, item, colorScheme);
         }),
         const SizedBox(height: 8),
         SizedBox(
@@ -1000,7 +1056,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
             onPressed: () => _state.addSuiviReeducation(),
             icon: const Icon(Icons.add_rounded),
             label: Text(
-              'Ajouter une seance',
+              l10n.medicalRecordAddSessionButton,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
             style: OutlinedButton.styleFrom(
@@ -1018,6 +1074,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
   }
 
   Widget _buildReeducationItem(
+    AppLocalizations l10n,
     int index,
     Map<String, dynamic> item,
     ColorScheme colorScheme,
@@ -1049,7 +1106,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
             children: [
               Expanded(
                 child: Text(
-                  'Seance ${index + 1}',
+                  l10n.medicalRecordSessionNumber(index + 1),
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -1117,7 +1174,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
               _state.updateSuiviReeducation(index, updated);
             },
             decoration: InputDecoration(
-              hintText: 'Travaux effectues',
+              hintText: l10n.medicalRecordHintWorksDone,
               hintStyle: GoogleFonts.montserrat(fontSize: 13),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: _inputBorder(),
@@ -1130,7 +1187,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
           Row(
             children: [
               Text(
-                'Douleur : ',
+                l10n.medicalRecordLabelPain,
                 style: GoogleFonts.montserrat(fontSize: 13),
               ),
               Expanded(
@@ -1158,7 +1215,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
               _state.updateSuiviReeducation(index, updated);
             },
             decoration: InputDecoration(
-              hintText: 'Observations',
+              hintText: l10n.medicalRecordLabelObservations,
               hintStyle: GoogleFonts.montserrat(fontSize: 13),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: _inputBorder(),
@@ -1175,14 +1232,14 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildRetourProgressifForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildRetourProgressifForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
         ..._state.retourProgressif.asMap().entries.map((entry) {
           final index = entry.key;
           final item = entry.value;
-          return _buildRetourProgressifItem(index, item, colorScheme);
+          return _buildRetourProgressifItem(l10n, index, item, colorScheme);
         }),
         const SizedBox(height: 8),
         SizedBox(
@@ -1191,7 +1248,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
             onPressed: () => _state.addRetourProgressif(),
             icon: const Icon(Icons.add_rounded),
             label: Text(
-              'Ajouter une etape',
+              l10n.medicalRecordAddStepButton,
               style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
             ),
             style: OutlinedButton.styleFrom(
@@ -1209,6 +1266,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
   }
 
   Widget _buildRetourProgressifItem(
+    AppLocalizations l10n,
     int index,
     Map<String, dynamic> item,
     ColorScheme colorScheme,
@@ -1240,7 +1298,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
             children: [
               Expanded(
                 child: Text(
-                  'Etape ${index + 1}',
+                  l10n.medicalRecordStepNumber(index + 1),
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -1308,7 +1366,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
               _state.updateRetourProgressif(index, updated);
             },
             decoration: InputDecoration(
-              hintText: 'Activite autorisee',
+              hintText: l10n.medicalRecordHintAllowedActivity,
               hintStyle: GoogleFonts.montserrat(fontSize: 13),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: _inputBorder(),
@@ -1326,7 +1384,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
               _state.updateRetourProgressif(index, updated);
             },
             decoration: InputDecoration(
-              hintText: 'Validation + temps utilise',
+              hintText: l10n.medicalRecordHintValidationAndTime,
               hintStyle: GoogleFonts.montserrat(fontSize: 13),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: _inputBorder(),
@@ -1343,30 +1401,30 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildValidationRepriseForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildValidationRepriseForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
         _buildCustomCheckbox(
-          label: 'Joueur apte a reprendre les entrainements',
+          label: l10n.medicalRecordCheckboxFitForTraining,
           value: _state.validationRepriseEntrainement,
           onChanged: _state.setValidationRepriseEntrainement,
         ),
         const SizedBox(height: 10),
         _buildCustomCheckbox(
-          label: 'Joueur apte a reprendre la competition',
+          label: l10n.medicalRecordCheckboxFitForCompetition,
           value: _state.validationRepriseCompetition,
           onChanged: _state.setValidationRepriseCompetition,
         ),
         const SizedBox(height: 10),
         _buildCustomCheckbox(
-          label: 'Surveillance particuliere recommandee',
+          label: l10n.medicalRecordCheckboxSpecialMonitoring,
           value: _state.validationRepriseSurveillance,
           onChanged: _state.setValidationRepriseSurveillance,
         ),
         const SizedBox(height: 16),
         _buildTextField(
-          hint: 'Recommandation libre...',
+          hint: l10n.medicalRecordHintFreeRecommendation,
           controller: _getController(
             'validationRepriseRecommandation',
             _state.validationRepriseRecommandation,
@@ -1438,11 +1496,11 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildValidationFinaleForm(ColorScheme colorScheme, bool isDark) {
+  Widget _buildValidationFinaleForm(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return _buildCard(
       isDark: isDark,
       children: [
-        _buildLabel('Date de validation', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelValidationDate, colorScheme),
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
@@ -1471,7 +1529,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                       ? '${_state.validationFinaleDate!.day.toString().padLeft(2, '0')}/'
                           '${_state.validationFinaleDate!.month.toString().padLeft(2, '0')}/'
                           '${_state.validationFinaleDate!.year}'
-                      : 'Selectionner une date',
+                      : l10n.medicalRecordHintSelectDate,
                   style: GoogleFonts.montserrat(fontSize: 14),
                 ),
               ],
@@ -1479,16 +1537,16 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
           ),
         ),
         const SizedBox(height: 14),
-        _buildLabel('Responsable medical', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelMedicalManager, colorScheme),
         _buildTextField(
-          hint: 'Nom du responsable',
+          hint: l10n.medicalRecordHintManagerName,
           controller: _getController('responsableMedical', _state.responsableMedical),
           onChanged: _state.setResponsableMedical,
         ),
         const SizedBox(height: 14),
-        _buildLabel('Signature du responsable', colorScheme),
+        _buildLabel(l10n, l10n.medicalRecordLabelResponsibleSignature, colorScheme),
         GestureDetector(
-          onTap: _showSignatureOptions,
+          onTap: () => _showSignatureOptions(l10n),
           child: Container(
             width: double.infinity,
             height: 140,
@@ -1517,7 +1575,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Upload en cours...',
+                          l10n.medicalRecordUploadInProgress,
                           style: GoogleFonts.montserrat(
                             fontSize: 13,
                             color: AppColors.primary,
@@ -1533,7 +1591,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                           Icon(Icons.error_outline, size: 28, color: Colors.red.shade400),
                           const SizedBox(height: 4),
                           Text(
-                            'Echec de l\'upload',
+                            l10n.medicalRecordUploadFailed,
                             style: GoogleFonts.montserrat(
                               fontSize: 11,
                               color: Colors.red.shade400,
@@ -1544,7 +1602,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                             onPressed: _retrySignatureUpload,
                             icon: const Icon(Icons.refresh, size: 16),
                             label: Text(
-                              'Reessayer',
+                              l10n.retryAction,
                               style: GoogleFonts.montserrat(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -1588,7 +1646,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Ajouter la signature',
+                                l10n.medicalRecordAddSignature,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 13,
                                   color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -1602,7 +1660,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildErrorBanner(ColorScheme colorScheme) {
+  Widget _buildErrorBanner(AppLocalizations l10n, ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1616,7 +1674,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _state.error ?? 'Une erreur est survenue.',
+              _state.error ?? l10n.unexpectedError,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
                 color: Colors.red.shade700,
@@ -1628,7 +1686,7 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
     );
   }
 
-  Widget _buildSaveButton(ColorScheme colorScheme, bool isDark) {
+  Widget _buildSaveButton(AppLocalizations l10n, ColorScheme colorScheme, bool isDark) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -1645,8 +1703,8 @@ class _DossierMedicalFormPageState extends State<DossierMedicalFormPage> {
             : const Icon(Icons.save_rounded),
         label: Text(
           widget.dossier != null
-              ? 'Enregistrer les modifications'
-              : 'Creer le dossier medical',
+              ? l10n.saveChangesButton
+              : l10n.medicalRecordCreateButton,
           style: GoogleFonts.montserrat(
             fontSize: 15,
             fontWeight: FontWeight.w700,

@@ -1940,5 +1940,218 @@
   "medicalVisit": "Medical Visit",
   "medicalAlertAnkle": "Ankle Injury",
   "medicalAlertVaccine": "Vaccination Follow-up",
-  "noInternetConnection": "No internet connection"
+  "medicalRecordTitle": "Medical record",
+  "medicalRecordNewTitle": "New record",
+  "medicalRecordEditTitle": "Edit record",
+  "medicalRecordsTitle": "Medical records",
+  "medicalRecordsSubtitle": "Injury history",
+  "medicalRecordFormSubtitle": "Medical follow-up record",
+  "medicalRecordSectionInjuryDeclaration": "Injury declaration",
+  "medicalRecordSectionCircumstances": "Circumstances",
+  "medicalRecordSectionDescriptionAndNature": "Description and nature",
+  "medicalRecordSectionFirstAid": "First aid",
+  "medicalRecordSectionObservations": "Observations",
+  "medicalRecordSectionReeducation": "Rehabilitation follow-up",
+  "medicalRecordSectionProgressiveReturn": "Progressive return",
+  "medicalRecordSectionReturnValidation": "Return validation",
+  "medicalRecordSectionFinalValidation": "Final validation",
+  "medicalRecordLabelDate": "Date",
+  "medicalRecordLabelHour": "Time",
+  "medicalRecordLabelLocation": "Location",
+  "medicalRecordLabelOpponent": "Opponent",
+  "medicalRecordLabelType": "Type",
+  "medicalRecordLabelDetails": "Details",
+  "medicalRecordLabelBodyPart": "Body part",
+  "medicalRecordLabelInjuryType": "Injury type",
+  "medicalRecordLabelSeverity": "Severity",
+  "medicalRecordLabelDescription": "Description",
+  "medicalRecordLabelAge": "Age",
+  "medicalRecordLabelPosition": "Position",
+  "medicalRecordLabelCategory": "Category",
+  "medicalRecordLabelBirthDate": "Date of birth",
+  "medicalRecordLabelGuardianPhone": "Guardian phone",
+  "medicalRecordLabelInjuryDate": "Injury date",
+  "medicalRecordLabelApproximateTime": "Approximate time",
+  "medicalRecordLabelLocationPrecision": "Location precision",
+  "medicalRecordLabelCircumstanceType": "Circumstance type",
+  "medicalRecordLabelCircumstanceTypePrecision": "Specify circumstance type",
+  "medicalRecordLabelAdditionalDetails": "Additional details",
+  "medicalRecordLabelBodyPartAffected": "Affected body part",
+  "medicalRecordLabelBodyPartPrecision": "Specify body part",
+  "medicalRecordLabelInjuryTypePrecision": "Specify injury type",
+  "medicalRecordLabelSeverityLevel": "Severity level",
+  "medicalRecordLabelValidationDate": "Validation date",
+  "medicalRecordLabelMedicalManager": "Medical manager",
+  "medicalRecordLabelResponsibleSignature": "Responsible signature",
+  "medicalRecordLabelFitForTraining": "Fit for training",
+  "medicalRecordLabelFitForCompetition": "Fit for competition",
+  "medicalRecordLabelSpecialMonitoring": "Special monitoring",
+  "medicalRecordLabelRecommendation": "Recommendation",
+  "medicalRecordLabelManager": "Manager",
+  "medicalRecordLabelSignature": "Signature",
+  "medicalRecordLabelPain": "Pain",
+  "medicalRecordLabelObservations": "Observations",
+  "medicalRecordHintSelectTime": "Select time",
+  "medicalRecordHintSelectLocation": "Select location",
+  "medicalRecordHintLocationPrecision": "Specify location",
+  "medicalRecordHintOpponentName": "Opponent name",
+  "medicalRecordHintSelect": "Select",
+  "medicalRecordHintCircumstanceTypePrecision": "Ex: injury during warm-up...",
+  "medicalRecordHintCircumstanceDetails": "Describe the circumstance...",
+  "medicalRecordHintBodyPartPrecision": "Ex: right side of thorax...",
+  "medicalRecordHintInjuryTypePrecision": "Ex: acromioclavicular dislocation...",
+  "medicalRecordHintInjuryDescription": "Describe the injury...",
+  "medicalRecordHintAddFirstAid": "Add first aid...",
+  "medicalRecordHintFreeObservations": "Free observations...",
+  "medicalRecordHintSelectDate": "Select a date",
+  "medicalRecordHintManagerName": "Manager name",
+  "medicalRecordHintFreeRecommendation": "Free recommendation...",
+  "medicalRecordHintWorksDone": "Work done",
+  "medicalRecordHintAllowedActivity": "Allowed activity",
+  "medicalRecordHintValidationAndTime": "Validation + time used",
+  "medicalRecordAddSessionButton": "Add session",
+  "medicalRecordAddStepButton": "Add step",
+  "medicalRecordSessionNumber": "Session {number}",
+  "@medicalRecordSessionNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "medicalRecordStepNumber": "Step {number}",
+  "@medicalRecordStepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "medicalRecordCheckboxFitForTraining": "Player fit to resume training",
+  "medicalRecordCheckboxFitForCompetition": "Player fit to resume competition",
+  "medicalRecordCheckboxSpecialMonitoring": "Special monitoring recommended",
+  "medicalRecordAddSignatureTitle": "Add a signature",
+  "medicalRecordDrawSignature": "Draw signature",
+  "medicalRecordDrawSignatureSubtitle": "Sign directly on the screen",
+  "medicalRecordImportFromGallery": "Import from gallery",
+  "medicalRecordImportFromGallerySubtitle": "Select an existing image",
+  "medicalRecordUploadInProgress": "Upload in progress...",
+  "medicalRecordUploadFailed": "Upload failed",
+  "medicalRecordAddSignature": "Add signature",
+  "medicalRecordCreateButton": "Create medical record",
+  "medicalRecordNewButton": "New record",
+  "medicalRecordCreateEmptyButton": "Create a record",
+  "medicalRecordRecordsEmptyTitle": "No medical record",
+  "medicalRecordRecordsEmptyDescription": "This academician does not have any medical record yet.",
+  "medicalRecordNoCircumstances": "No circumstances provided",
+  "medicalRecordNoFirstAid": "No first aid provided",
+  "medicalRecordNoObservations": "No observations",
+  "medicalRecordNoReeducation": "No rehabilitation session",
+  "medicalRecordNoProgressiveReturn": "No progressive return step",
+  "medicalRecordNoReturnValidation": "No return validation",
+  "medicalRecordNoSignature": "No signature provided",
+  "medicalRecordUnknownDate": "Unknown date",
+  "medicalRecordPainLevel": "Pain {level}/10",
+  "@medicalRecordPainLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "medicalRecordWorksLabel": "Work: {works}",
+  "@medicalRecordWorksLabel": {
+    "placeholders": {
+      "works": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordObservationsShortLabel": "Obs.: {observations}",
+  "@medicalRecordObservationsShortLabel": {
+    "placeholders": {
+      "observations": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordActivityLabel": "Activity: {activity}",
+  "@medicalRecordActivityLabel": {
+    "placeholders": {
+      "activity": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordValidationAndTimeLabel": "Validation + time: {validation}",
+  "@medicalRecordValidationAndTimeLabel": {
+    "placeholders": {
+      "validation": {
+        "type": "String"
+      }
+    }
+  },
+  "medicalRecordErrorInjuryDateFuture": "Injury date cannot be in the future.",
+  "medicalRecordErrorInjuryTimeFormat": "Injury time must be in HH:mm format.",
+  "medicalRecordErrorLocationRequired": "Please specify the location.",
+  "medicalRecordErrorCircumstanceTypeRequired": "Please specify the circumstance type.",
+  "medicalRecordErrorBodyPartRequired": "Please specify the affected body part.",
+  "medicalRecordErrorInjuryTypeRequired": "Please specify the injury type.",
+  "medicalRecordErrorFinalValidationDateFuture": "Final validation date cannot be in the future.",
+  "medicalRecordErrorSignatureRequired": "Medical manager signature is required.",
+  "medicalRecordSuccessUpdated": "Medical record updated successfully.",
+  "medicalRecordSuccessCreated": "Medical record created successfully.",
+  "medicalRecordErrorSave": "Error while saving: {error}",
+  "@medicalRecordErrorSave": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "ageYears": "{age} years old",
+  "@ageYears": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "other": "Other",
+  "select": "Select",
+  "saveChangesButton": "Save changes",
+  "retryAction": "Retry",
+  "bodyPartHead": "Head",
+  "bodyPartShoulder": "Shoulder",
+  "bodyPartArm": "Arm",
+  "bodyPartHand": "Hand",
+  "bodyPartBack": "Back",
+  "bodyPartHip": "Hip",
+  "bodyPartThigh": "Thigh",
+  "bodyPartKnee": "Knee",
+  "bodyPartLeg": "Leg",
+  "bodyPartAnkle": "Ankle",
+  "bodyPartFoot": "Foot",
+  "injuryTypeSprain": "Sprain",
+  "injuryTypeFracture": "Fracture",
+  "injuryTypeStrain": "Strain",
+  "injuryTypeContracture": "Contracture",
+  "injuryTypeCut": "Cut",
+  "injuryTypeContusion": "Contusion",
+  "injuryTypeTear": "Tear",
+  "severityMild": "Mild",
+  "severityModerate": "Moderate",
+  "severitySevere": "Severe",
+  "medicalLocationTraining": "Training",
+  "medicalLocationMatch": "Match",
+  "medicalCircumstanceTackle": "Tackle",
+  "medicalCircumstanceFall": "Fall",
+  "medicalCircumstanceCollision": "Collision",
+  "medicalCircumstanceOverload": "Overload",
+  "medicalStatusEnCours": "In progress",
+  "medicalStatusApteEntrainement": "Fit for training",
+  "medicalStatusApteCompetition": "Fit for competition",
+  "medicalStatusFini": "Closed",
+  "medicalFilesSubtitle": "View and manage medical records",
+  "medicalFilesEmptyDescription": "No medical record available"
 }

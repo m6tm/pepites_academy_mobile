@@ -49,13 +49,20 @@ class DossierMedical {
   });
 
   /// Retourne un libelle lisible pour la nature de la blessure.
+  /// Affiche la precision correspondante si la valeur est 'autre'.
   String get natureBlessure {
     final parts = <String>[];
     if (partieCorps != null && partieCorps!.isNotEmpty) {
-      parts.add(partieCorps!);
+      final value = partieCorps!.toLowerCase() == 'autre'
+          ? (circonstances?['partie_corps_precision']?.toString() ?? partieCorps!)
+          : partieCorps!;
+      parts.add(value);
     }
     if (typeBlessure != null && typeBlessure!.isNotEmpty) {
-      parts.add(typeBlessure!);
+      final value = typeBlessure!.toLowerCase() == 'autre'
+          ? (circonstances?['type_blessure_precision']?.toString() ?? typeBlessure!)
+          : typeBlessure!;
+      parts.add(value);
     }
     return parts.isNotEmpty ? parts.join(' - ') : 'Non specifiee';
   }

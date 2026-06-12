@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../application/services/sync_service.dart';
 import '../../domain/entities/dossier_medical.dart';
 import '../../domain/entities/sync_operation.dart';
@@ -68,8 +69,14 @@ class DossierMedicalFormState extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   String? _successMessage;
+  AppLocalizations? _l10n;
 
   DossierMedicalFormState(this._repository, this._uploadService, {SyncService? syncService}) : _syncService = syncService;
+
+  /// Met a jour les localisations utilisees pour les messages du state.
+  void setLocalizations(AppLocalizations l10n) {
+    _l10n = l10n;
+  }
 
   // ------------------------------------------------------------------
   // Getters
@@ -407,10 +414,17 @@ class DossierMedicalFormState extends ChangeNotifier {
   // ------------------------------------------------------------------
   // Validation
   // ------------------------------------------------------------------
+  String _t(String fallback, String localized) => localized.isNotEmpty ? localized : fallback;
+
   bool validate() {
+    final l10n = _l10n;
+
     // Date de blessure obligatoire et non dans le futur
     if (_dateBlessure.isAfter(DateTime.now().add(const Duration(days: 1)))) {
-      _error = 'La date de blessure ne peut pas etre dans le futur.';
+      _error = _t(
+        'La date de blessure ne peut pas etre dans le futur.',
+        l10n?.medicalRecordErrorInjuryDateFuture ?? '',
+      );
       notifyListeners();
       return false;
     }
@@ -419,7 +433,10 @@ class DossierMedicalFormState extends ChangeNotifier {
     if (_heureBlessure.isNotEmpty) {
       final timeRegex = RegExp(r'^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$');
       if (!timeRegex.hasMatch(_heureBlessure)) {
-        _error = 'L\'heure de blessure doit etre au format HH:mm.';
+        _error = _t(
+          'L\'heure de blessure doit etre au format HH:mm.',
+          l10n?.medicalRecordErrorInjuryTimeFormat ?? '',
+        );
         notifyListeners();
         return false;
       }
@@ -427,22 +444,34 @@ class DossierMedicalFormState extends ChangeNotifier {
 
     // Champs "Autre" obligatoirement precises
     if (_lieu == 'autre' && _lieuPrecision.trim().isEmpty) {
-      _error = 'Veuillez preciser le lieu.';
+      _error = _t(
+        'Veuillez preciser le lieu.',
+        l10n?.medicalRecordErrorLocationRequired ?? '',
+      );
       notifyListeners();
       return false;
     }
     if (_circonstancesType == 'autre' && _circonstancesTypePrecision.trim().isEmpty) {
-      _error = 'Veuillez preciser le type de circonstance.';
+      _error = _t(
+        'Veuillez preciser le type de circonstance.',
+        l10n?.medicalRecordErrorCircumstanceTypeRequired ?? '',
+      );
       notifyListeners();
       return false;
     }
     if (_partieCorps == 'autre' && _partieCorpsPrecision.trim().isEmpty) {
-      _error = 'Veuillez preciser la partie du corps touchee.';
+      _error = _t(
+        'Veuillez preciser la partie du corps touchee.',
+        l10n?.medicalRecordErrorBodyPartRequired ?? '',
+      );
       notifyListeners();
       return false;
     }
     if (_typeBlessure == 'autre' && _typeBlessurePrecision.trim().isEmpty) {
-      _error = 'Veuillez preciser le type de blessure.';
+      _error = _t(
+        'Veuillez preciser le type de blessure.',
+        l10n?.medicalRecordErrorInjuryTypeRequired ?? '',
+      );
       notifyListeners();
       return false;
     }
@@ -450,14 +479,20 @@ class DossierMedicalFormState extends ChangeNotifier {
     // Validation finale : date non dans le futur si renseignee
     if (_validationFinaleDate != null &&
         _validationFinaleDate!.isAfter(DateTime.now().add(const Duration(days: 1)))) {
-      _error = 'La date de validation finale ne peut pas etre dans le futur.';
+      _error = _t(
+        'La date de validation finale ne peut pas etre dans le futur.',
+        l10n?.medicalRecordErrorFinalValidationDateFuture ?? '',
+      );
       notifyListeners();
       return false;
     }
 
     // Signature obligatoire
     if (_signatureUrl.isEmpty) {
-      _error = 'La signature du responsable medical est obligatoire.';
+      _error = _t(
+        'La signature du responsable medical est obligatoire.',
+        l10n?.medicalRecordErrorSignatureRequired ?? '',
+      );
       notifyListeners();
       return false;
     }
@@ -561,13 +596,22 @@ class DossierMedicalFormState extends ChangeNotifier {
       }
 
       _successMessage = existing != null
-          ? 'Dossier medical mis a jour avec succes.'
-          : 'Dossier medical cree avec succes.';
+          ? _t(
+              'Dossier medical mis a jour avec succes.',
+              _l10n?.medicalRecordSuccessUpdated ?? '',
+            )
+          : _t(
+              'Dossier medical cree avec succes.',
+              _l10n?.medicalRecordSuccessCreated ?? '',
+            );
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
-      _error = 'Erreur lors de l\'enregistrement : $e';
+      _error = _t(
+        'Erreur lors de l\'enregistrement : $e',
+        _l10n?.medicalRecordErrorSave(e.toString()) ?? '',
+      );
       _isLoading = false;
       notifyListeners();
       return false;
