@@ -2152,14 +2152,6 @@
   "medicalRecordNoReturnValidation": "Validation non renseignee",
   "medicalRecordNoSignature": "Signature non renseignee",
   "medicalRecordUnknownDate": "Date inconnue",
-  "medicalRecordPainLevel": "Douleur {level}/10",
-  "@medicalRecordPainLevel": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      }
-    }
-  },
   "medicalRecordWorksLabel": "Travaux : {works}",
   "@medicalRecordWorksLabel": {
     "placeholders": {

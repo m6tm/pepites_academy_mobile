@@ -7622,12 +7622,6 @@ abstract class AppLocalizations {
   /// **'Date inconnue'**
   String get medicalRecordUnknownDate;
 
-  /// No description provided for @medicalRecordPainLevel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Douleur {level}/10'**
-  String medicalRecordPainLevel(int level);
-
   /// No description provided for @medicalRecordWorksLabel.
   ///
   /// In fr, this message translates to:

@@ -2079,14 +2079,6 @@
   "medicalRecordNoReturnValidation": "No return validation",
   "medicalRecordNoSignature": "No signature provided",
   "medicalRecordUnknownDate": "Unknown date",
-  "medicalRecordPainLevel": "Pain {level}/10",
-  "@medicalRecordPainLevel": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      }
-    }
-  },
   "medicalRecordWorksLabel": "Work: {works}",
   "@medicalRecordWorksLabel": {
     "placeholders": {

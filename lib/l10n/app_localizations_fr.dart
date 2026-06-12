@@ -4204,11 +4204,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get medicalRecordUnknownDate => 'Date inconnue';
 
   @override
-  String medicalRecordPainLevel(int level) {
-    return 'Douleur $level/10';
-  }
-
-  @override
   String medicalRecordWorksLabel(String works) {
     return 'Travaux : $works';
   }
