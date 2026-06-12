@@ -3808,6 +3808,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentAlerts => 'Recent Alerts';
 
   @override
+  String get recentActivities => 'Recent activities';
+
+  @override
+  String get medicalOverviewTotalReports => 'Reports';
+
+  @override
+  String get medicalOverviewMuscleInjuries => 'Muscle injuries';
+
+  @override
+  String get medicalOverviewJointInjuries => 'Joint injuries';
+
+  @override
+  String get medicalOverviewTraumaInjuries => 'Trauma injuries';
+
+  @override
   String get medicalHistory => 'Medical History';
 
   @override

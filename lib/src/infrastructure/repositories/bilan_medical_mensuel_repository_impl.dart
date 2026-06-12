@@ -58,6 +58,11 @@ class BilanMedicalMensuelRepositoryImpl implements BilanMedicalMensuelRepository
   }
 
   @override
+  Future<List<BilanMedicalMensuel>> getAll() async {
+    return _datasource.getAll();
+  }
+
+  @override
   Future<List<BilanMedicalMensuel>> getByAcademicienId(String academicienId) async {
     final key = 'academicien_$academicienId';
     final cached = _listCache.get(key);

@@ -3827,6 +3827,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get recentAlerts => 'Alertes Récentes';
 
   @override
+  String get recentActivities => 'Activités récentes';
+
+  @override
+  String get medicalOverviewTotalReports => 'Bilans';
+
+  @override
+  String get medicalOverviewMuscleInjuries => 'Blessures musculaires';
+
+  @override
+  String get medicalOverviewJointInjuries => 'Blessures articulaires';
+
+  @override
+  String get medicalOverviewTraumaInjuries => 'Blessures traumatiques';
+
+  @override
   String get medicalHistory => 'Historique Médical';
 
   @override

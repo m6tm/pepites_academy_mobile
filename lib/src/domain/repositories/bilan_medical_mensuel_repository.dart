@@ -2,6 +2,9 @@ import '../entities/bilan_medical_mensuel.dart';
 
 /// Contrat du repository pour la gestion des bilans medicaux mensuels.
 abstract class BilanMedicalMensuelRepository {
+  /// Retourne tous les bilans medicaux mensuels stockes localement.
+  Future<List<BilanMedicalMensuel>> getAll();
+
   /// Retourne la liste des bilans medicaux mensuels d'un academicien.
   Future<List<BilanMedicalMensuel>> getByAcademicienId(String academicienId);
 

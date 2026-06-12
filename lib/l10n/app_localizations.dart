@@ -6914,6 +6914,36 @@ abstract class AppLocalizations {
   /// **'Alertes Récentes'**
   String get recentAlerts;
 
+  /// No description provided for @recentActivities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités récentes'**
+  String get recentActivities;
+
+  /// No description provided for @medicalOverviewTotalReports.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilans'**
+  String get medicalOverviewTotalReports;
+
+  /// No description provided for @medicalOverviewMuscleInjuries.
+  ///
+  /// In fr, this message translates to:
+  /// **'Blessures musculaires'**
+  String get medicalOverviewMuscleInjuries;
+
+  /// No description provided for @medicalOverviewJointInjuries.
+  ///
+  /// In fr, this message translates to:
+  /// **'Blessures articulaires'**
+  String get medicalOverviewJointInjuries;
+
+  /// No description provided for @medicalOverviewTraumaInjuries.
+  ///
+  /// In fr, this message translates to:
+  /// **'Blessures traumatiques'**
+  String get medicalOverviewTraumaInjuries;
+
   /// No description provided for @medicalHistory.
   ///
   /// In fr, this message translates to:
