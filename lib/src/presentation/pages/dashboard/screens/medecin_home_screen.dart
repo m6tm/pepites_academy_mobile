@@ -6,7 +6,6 @@ import '../../../../presentation/helpers/activity_l10n_helper.dart';
 import '../../../../presentation/widgets/activity_card.dart';
 import '../../../../presentation/widgets/section_title.dart';
 import '../../../../injection_container.dart';
-import '../../../../domain/entities/medecin_dashboard_stats.dart';
 import '../../../theme/app_colors.dart';
 import '../../notification/notifications_page.dart';
 import '../widgets/dashboard_header.dart';
@@ -29,18 +28,13 @@ class MedecinHomeScreen extends StatefulWidget {
   });
 
   @override
-  State<MedecinHomeScreen> createState() => _MedecinHomeScreenState();
+  State<MedecinHomeScreen> createState() => MedecinHomeScreenState();
 }
 
-class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
+class MedecinHomeScreenState extends State<MedecinHomeScreen> {
   List<Activity> _activites = [];
   bool _activitesLoading = true;
 
-  bool _bilansStatsLoading = true;
-  int _totalBilans = 0;
-  int _totalMusculaire = 0;
-  int _totalArticulaire = 0;
-  int _totalTraumatique = 0;
 
   @override
   void initState() {
@@ -48,7 +42,6 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
     // Charger les statistiques au démarrage
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DependencyInjection.medecinDashboardState.loadStats(forceRefresh: true);
-      _loadBilanStats();
       _loadActivitesRecentes();
     });
 
@@ -62,33 +55,10 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
     super.dispose();
   }
 
-  /// Charge les statistiques analytiques reelles issues des bilans medicaux.
-  Future<void> _loadBilanStats() async {
-    try {
-      final bilans =
-          await DependencyInjection.bilanMedicalMensuelRepository.getAll();
-      var totalMusculaire = 0;
-      var totalArticulaire = 0;
-      var totalTraumatique = 0;
-      for (final bilan in bilans) {
-        totalMusculaire += bilan.blessuresMusculaire;
-        totalArticulaire += bilan.blessuresArticulaire;
-        totalTraumatique += bilan.blessuresTraumatique;
-      }
-      if (mounted) {
-        setState(() {
-          _totalBilans = bilans.length;
-          _totalMusculaire = totalMusculaire;
-          _totalArticulaire = totalArticulaire;
-          _totalTraumatique = totalTraumatique;
-          _bilansStatsLoading = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() => _bilansStatsLoading = false);
-      }
-    }
+  /// Recharge les donnees du dashboard lorsque l'onglet redevient visible.
+  Future<void> reload() async {
+    await DependencyInjection.medecinDashboardState.refresh();
+    await _loadActivitesRecentes();
   }
 
   /// Charge les activites recentes depuis le service d'activites.
@@ -117,7 +87,6 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
         syncState.lastSyncResult!.successCount > 0) {
       if (mounted) {
         DependencyInjection.medecinDashboardState.refresh();
-        _loadBilanStats();
         _loadActivitesRecentes();
       }
     }
@@ -139,7 +108,9 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
         return RefreshIndicator(
           onRefresh: dashboardState.refresh,
           child: CustomScrollView(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
             slivers: [
               SliverToBoxAdapter(
                 child: DashboardHeader(
@@ -151,7 +122,8 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                   onNotificationTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const NotificationsPage(userRole: 'medecin_chef'),
+                        builder: (_) =>
+                            const NotificationsPage(userRole: 'medecin_chef'),
                       ),
                     );
                   },
@@ -166,8 +138,10 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                   stats.tauxAptitude.toInt(),
                 ),
               ),
-              SliverToBoxAdapter(child: SectionTitle(title: l10n.healthOverview)),
-              if (dashboardState.isLoading && stats == MedecinDashboardStats.empty)
+              SliverToBoxAdapter(
+                child: SectionTitle(title: l10n.healthOverview),
+              ),
+              if (dashboardState.isLoading && !dashboardState.hasLoadedOnce)
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(child: CircularProgressIndicator()),
@@ -175,15 +149,18 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
               else ...[
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                     child: Row(
                       children: [
                         Expanded(
                           child: MedicalStatCard(
-                            label: l10n.medicalOverviewTotalReports,
-                            value: _bilansStatsLoading
+                            label: l10n.academicians,
+                            value: dashboardState.isLoading && !dashboardState.hasLoadedOnce
                                 ? '-'
-                                : _totalBilans.toString(),
+                                : stats.nbAcademiciens.toString(),
                             icon: Icons.assignment_outlined,
                             color: AppColors.primary,
                             isDark: isDark,
@@ -192,10 +169,10 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: MedicalStatCard(
-                            label: l10n.medicalOverviewMuscleInjuries,
-                            value: _bilansStatsLoading
+                            label: l10n.consultations,
+                            value: dashboardState.isLoading && !dashboardState.hasLoadedOnce
                                 ? '-'
-                                : _totalMusculaire.toString(),
+                                : stats.nbConsultations.toString(),
                             icon: Icons.fitness_center_rounded,
                             color: Colors.orange,
                             isDark: isDark,
@@ -207,15 +184,18 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 4,
+                    ),
                     child: Row(
                       children: [
                         Expanded(
                           child: MedicalStatCard(
-                            label: l10n.medicalOverviewJointInjuries,
-                            value: _bilansStatsLoading
+                            label: l10n.activeAlerts,
+                            value: dashboardState.isLoading && !dashboardState.hasLoadedOnce
                                 ? '-'
-                                : _totalArticulaire.toString(),
+                                : stats.nbAlertesActives.toString(),
                             icon: Icons.accessibility_new_rounded,
                             color: Colors.blue,
                             isDark: isDark,
@@ -224,10 +204,10 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: MedicalStatCard(
-                            label: l10n.medicalOverviewTraumaInjuries,
-                            value: _bilansStatsLoading
+                            label: l10n.unfitPlayers,
+                            value: dashboardState.isLoading && !dashboardState.hasLoadedOnce
                                 ? '-'
-                                : _totalTraumatique.toString(),
+                                : stats.nbJoueursInaptes.toString(),
                             icon: Icons.local_hospital_outlined,
                             color: Colors.red,
                             isDark: isDark,
@@ -237,7 +217,9 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                     ),
                   ),
                 ),
-                SliverToBoxAdapter(child: SectionTitle(title: l10n.recentActivities)),
+                SliverToBoxAdapter(
+                  child: SectionTitle(title: l10n.recentActivities),
+                ),
                 if (_activitesLoading)
                   const SliverToBoxAdapter(
                     child: Padding(
@@ -261,9 +243,7 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                     ),
                   )
                 else
-                  SliverToBoxAdapter(
-                    child: _buildRecentActivity(),
-                  ),
+                  SliverToBoxAdapter(child: _buildRecentActivity()),
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             ],
@@ -303,7 +283,10 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -320,7 +303,9 @@ class _MedecinHomeScreenState extends State<MedecinHomeScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  aptitudePercentage >= 90 ? l10n.optimalHealth : 'Suivi Sanitaire Actif',
+                  aptitudePercentage >= 90
+                      ? l10n.optimalHealth
+                      : 'Suivi Sanitaire Actif',
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,

@@ -14,10 +14,10 @@ class MedecinBilansScreen extends StatefulWidget {
   const MedecinBilansScreen({super.key});
 
   @override
-  State<MedecinBilansScreen> createState() => _MedecinBilansScreenState();
+  State<MedecinBilansScreen> createState() => MedecinBilansScreenState();
 }
 
-class _MedecinBilansScreenState extends State<MedecinBilansScreen> {
+class MedecinBilansScreenState extends State<MedecinBilansScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Academicien> _academicians = [];
   List<Academicien> _filteredAcademicians = [];
@@ -60,6 +60,11 @@ class _MedecinBilansScreenState extends State<MedecinBilansScreen> {
     await DependencyInjection.academicienRepository.syncFromApi();
     DependencyInjection.academicienRepository.clearCache();
     await _loadAcademicians();
+  }
+
+  /// Recharge les academiciens depuis le cache local lorsque l'onglet redevient visible.
+  Future<void> reload() async {
+    await _loadReferentielsAndAcademicians();
   }
 
   String _getPosteName(String posteId) {

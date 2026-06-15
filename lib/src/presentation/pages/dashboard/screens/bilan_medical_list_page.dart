@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../core/navigation/route_aware_refresh_mixin.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/bilan_medical_mensuel.dart';
 import '../../../../injection_container.dart';
@@ -23,7 +24,8 @@ class BilanMedicalListPage extends StatefulWidget {
   State<BilanMedicalListPage> createState() => _BilanMedicalListPageState();
 }
 
-class _BilanMedicalListPageState extends State<BilanMedicalListPage> {
+class _BilanMedicalListPageState extends State<BilanMedicalListPage>
+    with RouteAware, RouteAwareRefreshMixin<BilanMedicalListPage> {
   late final BilanMedicalMensuelState _state;
   String _posteName = '';
 
@@ -31,12 +33,26 @@ class _BilanMedicalListPageState extends State<BilanMedicalListPage> {
   void initState() {
     super.initState();
     _state = DependencyInjection.bilanMedicalMensuelState;
-    _loadPosteAndBilans();
+    _loadPosteName();
+    _silentRefresh();
   }
 
-  Future<void> _loadPosteAndBilans() async {
-    await _loadPosteName();
-    await _loadBilans();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    subscribeRouteObserver(context, DependencyInjection.routeObserver);
+  }
+
+  @override
+  void didPopNext() {
+    refreshNotifier.notifyReturned();
+    _state.refresh(widget.academicien.id);
+  }
+
+  @override
+  void dispose() {
+    unsubscribeRouteObserver(DependencyInjection.routeObserver);
+    super.dispose();
   }
 
   Future<void> _loadPosteName() async {
@@ -52,15 +68,13 @@ class _BilanMedicalListPageState extends State<BilanMedicalListPage> {
     }
   }
 
-  Future<void> _loadBilans() async {
-    await _state.loadBilans(widget.academicien.id);
+  /// Rafraichissement silencieux au chargement initial ou au retour de page.
+  Future<void> _silentRefresh() async {
+    await _state.syncFromApi(widget.academicien.id, silent: true);
   }
 
   Future<void> _onRefresh() async {
-    final success = await _state.syncFromApi(widget.academicien.id);
-    if (!success && mounted) {
-      _state.loadBilans(widget.academicien.id);
-    }
+    await _state.syncFromApi(widget.academicien.id);
   }
 
   void _openDetail(BilanMedicalMensuel bilan) {

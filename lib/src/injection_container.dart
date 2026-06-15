@@ -90,6 +90,7 @@ import 'presentation/state/bilan_medical_mensuel_state.dart';
 import 'presentation/state/annotation_state.dart';
 import 'presentation/state/evaluation_state.dart';
 import 'presentation/state/medecin_dashboard_state.dart';
+import 'presentation/state/current_user_profile_state.dart';
 import 'presentation/state/dossier_medical_form_state.dart';
 import 'presentation/state/dossier_medical_state.dart';
 import 'core/events/domain_event_bus.dart';
@@ -142,6 +143,7 @@ class DependencyInjection {
   static late AtelierState atelierState;
   static late AnnotationState annotationState;
   static late MedecinDashboardState medecinDashboardState;
+  static late CurrentUserProfileState currentUserProfileState;
   static late final FirebasePushNotificationService
   firebasePushNotificationService;
   static late final BiometricService biometricService;
@@ -517,6 +519,7 @@ class DependencyInjection {
     annotationState = AnnotationState(annotationService, domainEventBus);
     evaluationState = EvaluationState(evaluationService, domainEventBus);
     medecinDashboardState = MedecinDashboardState(medecinRepository, domainEventBus);
+    currentUserProfileState = CurrentUserProfileState(preferences, domainEventBus);
     dossierMedicalState = DossierMedicalState(
       dossierMedicalRepository,
       domainEventBus,

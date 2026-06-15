@@ -31,25 +31,21 @@ class MedecinProfileScreen extends StatefulWidget {
   });
 
   @override
-  State<MedecinProfileScreen> createState() => _MedecinProfileScreenState();
+  State<MedecinProfileScreen> createState() => MedecinProfileScreenState();
 }
 
-class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
-  String? _userEmail;
+class MedecinProfileScreenState extends State<MedecinProfileScreen> {
+  late final _profileState = DependencyInjection.currentUserProfileState;
 
   @override
   void initState() {
     super.initState();
-    _loadUserEmail();
+    _profileState.load();
   }
 
-  Future<void> _loadUserEmail() async {
-    final email = await DependencyInjection.preferences.getUserEmail();
-    if (mounted) {
-      setState(() {
-        _userEmail = email;
-      });
-    }
+  /// Recharge les informations du profil lorsque l'onglet redevient visible.
+  Future<void> reload() async {
+    await _profileState.refresh();
   }
 
   @override
@@ -58,7 +54,10 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
 
-    return CustomScrollView(
+    return ListenableBuilder(
+      listenable: _profileState,
+      builder: (context, _) {
+        return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
@@ -117,7 +116,7 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  widget.fullName ?? widget.userName,
+                  _profileState.fullName ?? widget.fullName ?? widget.userName,
                   style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -128,7 +127,7 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _userEmail ?? 'email@pepites.com',
+                  _profileState.email ?? 'email@pepites.com',
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     color: Colors.white.withValues(alpha: 0.5),
@@ -186,6 +185,8 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
+    );
+      },
     );
   }
 
@@ -282,10 +283,15 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
               label: l10n.referentials,
               value: l10n.referentialsSubtitle,
               color: const Color(0xFF10B981),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ReferentielHubPage()),
-              ),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ReferentielHubPage()),
+                );
+                if (mounted) {
+                  await reload();
+                }
+              },
             ),
             Divider(
               height: 1,
@@ -309,11 +315,12 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
   }
 
   Widget _buildProfileImage() {
-    if (widget.photoUrl != null && widget.photoUrl!.isNotEmpty) {
-      final isLocal = !widget.photoUrl!.startsWith('http');
-      if (isLocal && File(widget.photoUrl!).existsSync()) {
+    final photoUrl = _profileState.photoUrl ?? widget.photoUrl;
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      final isLocal = !photoUrl.startsWith('http');
+      if (isLocal && File(photoUrl).existsSync()) {
         return Image.file(
-          File(widget.photoUrl!),
+          File(photoUrl),
           width: 80,
           height: 80,
           fit: BoxFit.cover,
@@ -321,7 +328,7 @@ class _MedecinProfileScreenState extends State<MedecinProfileScreen> {
         );
       } else if (!isLocal) {
         return Image.network(
-          widget.photoUrl!,
+          photoUrl,
           width: 80,
           height: 80,
           fit: BoxFit.cover,

@@ -58,10 +58,15 @@ class DossierMedicalState extends ChangeNotifier
 
   /// Charge les dossiers medicaux d'un academicien.
   /// Interroge l'invalidation registry pour rattraper les evenements manques.
-  Future<void> loadDossiers(String academicienId) async {
+  ///
+  /// [silent] permet de charger sans afficher le loader plein ecran
+  /// (utilise pour les rafraichissements automatiques).
+  Future<void> loadDossiers(String academicienId, {bool silent = false}) async {
     if (_isFetching) return;
     _currentAcademicienId = academicienId;
-    _isLoading = true;
+    if (!silent) {
+      _isLoading = true;
+    }
     _error = null;
     notifyListeners();
 
@@ -81,6 +86,7 @@ class DossierMedicalState extends ChangeNotifier
       }
 
       _isFetching = true;
+      notifyListeners();
       final list = await _repository.getByAcademicienId(academicienId);
       _dossiers = list;
       _lastLoadedAt = DateTime.now();
@@ -93,28 +99,29 @@ class DossierMedicalState extends ChangeNotifier
     }
   }
 
-  /// Rafraichit la liste si les donnees sont potentiellement perimees
-  /// et qu'aucun fetch n'est en cours.
+  /// Rafraichit silencieusement la liste si les donnees sont potentiellement
+  /// perimees et qu'aucun fetch n'est en cours.
   Future<void> refresh(String academicienId) async {
     if (_isFetching) return;
 
     final age = DateTime.now().difference(_lastLoadedAt ?? DateTime(0));
     if (age > const Duration(minutes: 2)) {
-      await loadDossiers(academicienId);
+      await loadDossiers(academicienId, silent: true);
     }
   }
 
   /// Synchronise les dossiers depuis le backend.
-  Future<bool> syncFromApi(String academicienId) async {
+  ///
+  /// [silent] permet de synchroniser sans afficher le loader plein ecran.
+  Future<bool> syncFromApi(String academicienId, {bool silent = false}) async {
     try {
       final success = await _repository.syncFromApi(academicienId);
-      if (success) {
-        await loadDossiers(academicienId);
-      }
+      await loadDossiers(academicienId, silent: silent);
       return success;
     } catch (e) {
       _error = e.toString();
-      notifyListeners();
+      await loadDossiers(academicienId, silent: silent);
+      if (!silent) notifyListeners();
       return false;
     }
   }

@@ -7,7 +7,8 @@ import '../../domain/entities/medecin_dashboard_stats.dart';
 import '../../domain/repositories/medecin_repository.dart';
 
 /// Etat du dashboard medecin avec ChangeNotifier.
-class MedecinDashboardState extends ChangeNotifier with EventBusSubscriberMixin {
+class MedecinDashboardState extends ChangeNotifier
+    with EventBusSubscriberMixin {
   final MedecinRepository _repository;
 
   MedecinDashboardState(this._repository, DomainEventBus eventBus) {
@@ -22,11 +23,13 @@ class MedecinDashboardState extends ChangeNotifier with EventBusSubscriberMixin 
 
   DateTime? _lastFetchedAt;
   bool _isFetching = false;
+  bool _hasLoadedOnce = false;
 
   MedecinDashboardStats get stats => _stats;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isFromCache => _isFromCache;
+  bool get hasLoadedOnce => _hasLoadedOnce;
 
   /// Charge les statistiques du dashboard.
   Future<void> loadStats({bool forceRefresh = false}) async {
@@ -45,6 +48,7 @@ class MedecinDashboardState extends ChangeNotifier with EventBusSubscriberMixin 
         _stats = stats;
         _isFromCache = fromCache;
         _lastFetchedAt = DateTime.now();
+        _hasLoadedOnce = true;
       }
 
       if (failure != null && stats == null) {

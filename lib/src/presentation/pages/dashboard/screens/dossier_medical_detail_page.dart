@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../core/events/dossier_medical_events.dart';
+import '../../../../core/navigation/route_aware_refresh_mixin.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/dossier_medical.dart';
 import '../../../../injection_container.dart';
@@ -30,7 +31,8 @@ class DossierMedicalDetailPage extends StatefulWidget {
   State<DossierMedicalDetailPage> createState() => _DossierMedicalDetailPageState();
 }
 
-class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
+class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage>
+    with RouteAware, RouteAwareRefreshMixin<DossierMedicalDetailPage> {
   late DossierMedical _currentDossier;
   StreamSubscription<DossierMedicalUpdatedEvent>? _updateSubscription;
   StreamSubscription<DossierMedicalDeletedEvent>? _deleteSubscription;
@@ -40,6 +42,34 @@ class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
     super.initState();
     _currentDossier = widget.dossier;
     _listenToEvents();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    subscribeRouteObserver(context, DependencyInjection.routeObserver);
+  }
+
+  @override
+  void didPopNext() {
+    refreshNotifier.notifyReturned();
+    _refreshDossier();
+  }
+
+  @override
+  void dispose() {
+    unsubscribeRouteObserver(DependencyInjection.routeObserver);
+    _updateSubscription?.cancel();
+    _deleteSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refreshDossier() async {
+    final refreshed = await DependencyInjection.dossierMedicalRepository
+        .getById(_currentDossier.id);
+    if (refreshed != null && mounted) {
+      setState(() => _currentDossier = refreshed);
+    }
   }
 
   void _listenToEvents() {
@@ -62,13 +92,6 @@ class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage> {
         Navigator.of(context).pop();
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _updateSubscription?.cancel();
-    _deleteSubscription?.cancel();
-    super.dispose();
   }
 
   @override

@@ -17,10 +17,10 @@ class MedecinAcademyScreen extends StatefulWidget {
   const MedecinAcademyScreen({super.key});
 
   @override
-  State<MedecinAcademyScreen> createState() => _MedecinAcademyScreenState();
+  State<MedecinAcademyScreen> createState() => MedecinAcademyScreenState();
 }
 
-class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
+class MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Academicien> _academicians = [];
   List<Academicien> _filteredAcademicians = [];
@@ -51,6 +51,11 @@ class _MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
     await DependencyInjection.academicienRepository.syncFromApi();
     DependencyInjection.academicienRepository.clearCache();
     await _loadAcademicians();
+  }
+
+  /// Recharge les academiciens depuis le cache local lorsque l'onglet redevient visible.
+  Future<void> reload() async {
+    await _loadReferentielsAndAcademicians();
   }
 
   Future<void> _loadAcademicians() async {

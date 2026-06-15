@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../core/navigation/route_aware_refresh_mixin.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/bilan_medical_mensuel.dart';
 import '../../../../injection_container.dart';
@@ -23,7 +24,8 @@ class BilanMedicalDetailPage extends StatefulWidget {
   State<BilanMedicalDetailPage> createState() => _BilanMedicalDetailPageState();
 }
 
-class _BilanMedicalDetailPageState extends State<BilanMedicalDetailPage> {
+class _BilanMedicalDetailPageState extends State<BilanMedicalDetailPage>
+    with RouteAware, RouteAwareRefreshMixin<BilanMedicalDetailPage> {
   late BilanMedicalMensuel _currentBilan;
   late final BilanMedicalMensuelState _state;
   String _posteName = '';
@@ -35,6 +37,25 @@ class _BilanMedicalDetailPageState extends State<BilanMedicalDetailPage> {
     _state = DependencyInjection.bilanMedicalMensuelState;
     _state.addListener(_onStateChanged);
     _loadPosteName();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    subscribeRouteObserver(context, DependencyInjection.routeObserver);
+  }
+
+  @override
+  void didPopNext() {
+    refreshNotifier.notifyReturned();
+    _state.loadBilans(widget.academicien.id);
+  }
+
+  @override
+  void dispose() {
+    unsubscribeRouteObserver(DependencyInjection.routeObserver);
+    _state.removeListener(_onStateChanged);
+    super.dispose();
   }
 
   Future<void> _loadPosteName() async {
@@ -55,12 +76,6 @@ class _BilanMedicalDetailPageState extends State<BilanMedicalDetailPage> {
     if (updated != null && updated != _currentBilan) {
       setState(() => _currentBilan = updated);
     }
-  }
-
-  @override
-  void dispose() {
-    _state.removeListener(_onStateChanged);
-    super.dispose();
   }
 
   Future<void> _deleteBilan(AppLocalizations l10n) async {

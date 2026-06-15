@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../core/navigation/route_aware_refresh_mixin.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/dossier_medical.dart';
 import '../../../../injection_container.dart';
@@ -26,31 +27,42 @@ class DossierMedicalListPage extends StatefulWidget {
   State<DossierMedicalListPage> createState() => _DossierMedicalListPageState();
 }
 
-class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
+class _DossierMedicalListPageState extends State<DossierMedicalListPage>
+    with RouteAware, RouteAwareRefreshMixin<DossierMedicalListPage> {
   late final DossierMedicalState _state;
 
   @override
   void initState() {
     super.initState();
     _state = DependencyInjection.dossierMedicalState;
-    _loadDossiers();
+    _silentRefresh();
   }
 
-  Future<void> _loadDossiers() async {
-    await _state.loadDossiers(widget.academicien.id);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    subscribeRouteObserver(context, DependencyInjection.routeObserver);
   }
 
-  Future<void> _onRefresh() async {
-    final success = await _state.syncFromApi(widget.academicien.id);
-    if (!success && mounted) {
-      _state.loadDossiers(widget.academicien.id);
-    }
+  @override
+  void didPopNext() {
+    refreshNotifier.notifyReturned();
+    _state.refresh(widget.academicien.id);
   }
 
   @override
   void dispose() {
-    // Ne pas disposer le state car il est gere par DependencyInjection
+    unsubscribeRouteObserver(DependencyInjection.routeObserver);
     super.dispose();
+  }
+
+  /// Rafraichissement silencieux au chargement initial ou au retour de page.
+  Future<void> _silentRefresh() async {
+    await _state.syncFromApi(widget.academicien.id, silent: true);
+  }
+
+  Future<void> _onRefresh() async {
+    await _state.syncFromApi(widget.academicien.id);
   }
 
   @override
@@ -86,13 +98,9 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
                         SliverToBoxAdapter(
                           child: _buildAcademicienCard(colorScheme, isDark, l10n),
                         ),
-                        if (_state.isFetching && _state.dossiers.isNotEmpty)
+                        if (_state.isFetching)
                           SliverToBoxAdapter(
-                            child: LinearProgressIndicator(
-                              minHeight: 2,
-                              color: AppColors.primary,
-                              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                            ),
+                            child: _buildSilentRefreshIndicator(colorScheme),
                           ),
                         if (_state.isLoading && _state.dossiers.isEmpty)
                           const SliverFillRemaining(
@@ -391,6 +399,20 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage> {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSilentRefreshIndicator(ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: LinearProgressIndicator(
+          minHeight: 3,
+          backgroundColor: colorScheme.onSurface.withValues(alpha: 0.05),
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
         ),
       ),
     );

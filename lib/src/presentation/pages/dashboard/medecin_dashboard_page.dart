@@ -35,6 +35,11 @@ class _MedecinDashboardPageState extends State<MedecinDashboardPage>
   String? _fullName;
   DateTime? _lastPressedAt;
 
+  final _homeKey = GlobalKey<MedecinHomeScreenState>();
+  final _academyKey = GlobalKey<MedecinAcademyScreenState>();
+  final _bilansKey = GlobalKey<MedecinBilansScreenState>();
+  final _profileKey = GlobalKey<MedecinProfileScreenState>();
+
   @override
   void initState() {
     super.initState();
@@ -122,14 +127,16 @@ class _MedecinDashboardPageState extends State<MedecinDashboardPage>
                     index: _selectedNavIndex,
                     children: [
                       MedecinHomeScreen(
+                        key: _homeKey,
                         userName: widget.userName,
                         greeting: _getGreeting(),
                         photoUrl: widget.photoUrl,
                         onProfileTap: () => setState(() => _selectedNavIndex = 3),
                       ),
-                      const MedecinAcademyScreen(),
-                      const MedecinBilansScreen(),
+                      MedecinAcademyScreen(key: _academyKey),
+                      MedecinBilansScreen(key: _bilansKey),
                       MedecinProfileScreen(
+                        key: _profileKey,
                         userName: widget.userName,
                         fullName: _fullName,
                         onLogout: _handleLogout,
@@ -175,25 +182,37 @@ class _MedecinDashboardPageState extends State<MedecinDashboardPage>
                 icon: Icons.dashboard_rounded,
                 label: l10n.home,
                 isSelected: _selectedNavIndex == 0,
-                onTap: () => setState(() => _selectedNavIndex = 0),
+                onTap: () {
+                  setState(() => _selectedNavIndex = 0);
+                  _homeKey.currentState?.reload();
+                },
               ),
               MedecinNavItem(
                 icon: Icons.folder_shared_rounded,
                 label: l10n.medicalFiles,
                 isSelected: _selectedNavIndex == 1,
-                onTap: () => setState(() => _selectedNavIndex = 1),
+                onTap: () {
+                  setState(() => _selectedNavIndex = 1);
+                  _academyKey.currentState?.reload();
+                },
               ),
               MedecinNavItem(
                 icon: Icons.assessment_rounded,
                 label: l10n.bilans,
                 isSelected: _selectedNavIndex == 2,
-                onTap: () => setState(() => _selectedNavIndex = 2),
+                onTap: () {
+                  setState(() => _selectedNavIndex = 2);
+                  _bilansKey.currentState?.reload();
+                },
               ),
               MedecinNavItem(
                 icon: Icons.person_rounded,
                 label: l10n.profile,
                 isSelected: _selectedNavIndex == 3,
-                onTap: () => setState(() => _selectedNavIndex = 3),
+                onTap: () {
+                  setState(() => _selectedNavIndex = 3);
+                  _profileKey.currentState?.reload();
+                },
               ),
             ],
           ),

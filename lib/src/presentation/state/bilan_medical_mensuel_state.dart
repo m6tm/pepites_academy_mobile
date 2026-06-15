@@ -58,10 +58,15 @@ class BilanMedicalMensuelState extends ChangeNotifier
 
   /// Charge les bilans medicaux mensuels d'un academicien.
   /// Interroge l'invalidation registry pour rattraper les evenements manques.
-  Future<void> loadBilans(String academicienId) async {
+  ///
+  /// [silent] permet de charger sans afficher le loader plein ecran
+  /// (utilise pour les rafraichissements automatiques).
+  Future<void> loadBilans(String academicienId, {bool silent = false}) async {
     if (_isFetching) return;
     _currentAcademicienId = academicienId;
-    _isLoading = true;
+    if (!silent) {
+      _isLoading = true;
+    }
     _error = null;
     notifyListeners();
 
@@ -88,6 +93,7 @@ class BilanMedicalMensuelState extends ChangeNotifier
       }
 
       _isFetching = true;
+      notifyListeners();
       final list = await _repository.getByAcademicienId(academicienId);
       _bilans = list;
       _lastLoadedAt = DateTime.now();
@@ -100,28 +106,29 @@ class BilanMedicalMensuelState extends ChangeNotifier
     }
   }
 
-  /// Rafraichit la liste si les donnees sont potentiellement perimees
-  /// et qu'aucun fetch n'est en cours.
+  /// Rafraichit silencieusement la liste si les donnees sont potentiellement
+  /// perimees et qu'aucun fetch n'est en cours.
   Future<void> refresh(String academicienId) async {
     if (_isFetching) return;
 
     final age = DateTime.now().difference(_lastLoadedAt ?? DateTime(0));
     if (age > const Duration(minutes: 2)) {
-      await loadBilans(academicienId);
+      await loadBilans(academicienId, silent: true);
     }
   }
 
   /// Synchronise les bilans depuis le backend.
-  Future<bool> syncFromApi(String academicienId) async {
+  ///
+  /// [silent] permet de synchroniser sans afficher le loader plein ecran.
+  Future<bool> syncFromApi(String academicienId, {bool silent = false}) async {
     try {
       final success = await _repository.syncFromApi(academicienId);
-      if (success) {
-        await loadBilans(academicienId);
-      }
+      await loadBilans(academicienId, silent: silent);
       return success;
     } catch (e) {
       _error = e.toString();
-      notifyListeners();
+      await loadBilans(academicienId, silent: silent);
+      if (!silent) notifyListeners();
       return false;
     }
   }
