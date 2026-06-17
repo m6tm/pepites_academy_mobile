@@ -68,7 +68,13 @@ class _BulletinPageState extends State<BulletinPage> {
   }
 
   Future<void> _genererBulletin() async {
-    final encadreurId = widget.encadreur?.id ?? '';
+    // Recuperer l'encadreur connecte depuis les preferences si non fourni
+    String encadreurId = widget.encadreur?.id ?? '';
+    if (encadreurId.isEmpty) {
+      final currentUserId = await DependencyInjection.preferences.getUserId();
+      encadreurId = currentUserId ?? '';
+    }
+    
     final success = await _bulletinState.genererBulletin(
       academicienId: academicien.id,
       encadreurId: encadreurId,

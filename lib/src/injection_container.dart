@@ -291,14 +291,6 @@ class DependencyInjection {
     bulletinRepository.setInvalidationRegistry(invalidationRegistry);
     bulletinRepository.setConnectivityGuard(connectivityGuard);
 
-    // Initialisation du Service Bulletin
-    bulletinService = BulletinService(
-      bulletinRepository: bulletinRepository,
-      annotationRepository: annotationRepository,
-      seanceRepository: seanceRepository,
-      presenceRepository: presenceRepository,
-    );
-
     // Initialisation du module SMS
     final smsDatasource = SmsLocalDatasource(sharedPrefs);
     _smsDatasource = smsDatasource;
@@ -374,7 +366,6 @@ class DependencyInjection {
     // Injection tardive du service d'activites dans les services existants
     seanceService.setActivityService(activityService);
     smsService.setActivityService(activityService);
-    bulletinService.setActivityService(activityService);
     qrScannerService.setActivityService(activityService);
     qrScannerService.setEventBus(domainEventBus);
     referentielService.setActivityService(activityService);
@@ -425,6 +416,13 @@ class DependencyInjection {
 
     // Configuration du callback pour la migration ID local → UUID serveur
     syncService.onServerIdAssigned = _handleServerIdAssigned;
+
+    // Initialisation du Service Bulletin (apres dioClient)
+    bulletinService = BulletinService(
+      bulletinRepository: bulletinRepository,
+      dioClient: dioClient,
+    );
+    bulletinService.setActivityService(activityService);
 
     // Initialisation du module Notifications
     notificationDatasource = NotificationLocalDatasource(sharedPrefs);
@@ -898,7 +896,7 @@ class DependencyInjection {
     seanceService.setLocalizations(l10n);
     atelierService.setLocalizations(l10n);
     exerciceService.setLocalizations(l10n);
-    bulletinService.setLocalizations(l10n);
+    // bulletinService.setLocalizations(l10n);  // Supprime - le service utilise des messages par defaut
     qrScannerService.setLocalizations(l10n);
     referentielService.setLocalizations(l10n);
     searchService.setLocalizations(l10n);

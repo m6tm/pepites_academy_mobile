@@ -101,7 +101,7 @@ class BulletinState extends ChangeNotifier with EventBusSubscriberMixin {
     }
   }
 
-  /// Genere un nouveau bulletin pour un academicien.
+  /// Genere un nouveau bulletin pour un academicien via le backend.
   Future<bool> genererBulletin({
     required String academicienId,
     required String encadreurId,
@@ -113,17 +113,11 @@ class BulletinState extends ChangeNotifier with EventBusSubscriberMixin {
     notifyListeners();
 
     try {
-      final dates = BulletinService.calculerDatesPeriode(
-        _typePeriode,
-        reference: _dateReference,
-      );
-
       final bulletin = await _service.genererBulletin(
         academicienId: academicienId,
         encadreurId: encadreurId,
         typePeriode: _typePeriode,
-        dateDebut: dates.debut,
-        dateFin: dates.fin,
+        dateReference: _dateReference,
         observationsGenerales: observationsGenerales,
       );
 

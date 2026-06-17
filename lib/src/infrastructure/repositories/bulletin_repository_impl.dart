@@ -67,6 +67,25 @@ class BulletinRepositoryImpl implements BulletinRepository {
     return created;
   }
 
+  /// Sauvegarde un bulletin localement sans declencher la synchronisation.
+  /// Utilise quand le bulletin est deja cree cote backend.
+  Future<Bulletin> saveLocal(Bulletin bulletin) async {
+    final existing = _datasource.getById(bulletin.id);
+    if (existing != null) {
+      final updated = await _datasource.update(bulletin);
+      _detailCache.set(bulletin.id, updated, ttl: CacheTtl.bulletins, tags: {'bulletins', 'bulletin_${bulletin.id}'});
+      return updated;
+    } else {
+      final created = await _datasource.add(bulletin);
+      _cache.invalidateByTag('bulletins');
+      _eventBus?.emit(BulletinCreatedEvent(
+        bulletinId: created.id,
+        academicienId: created.academicienId,
+      ));
+      return created;
+    }
+  }
+
   @override
   Future<Bulletin> update(Bulletin bulletin) async {
     final updated = await _datasource.update(bulletin);
@@ -228,7 +247,61 @@ class BulletinRepositoryImpl implements BulletinRepository {
             (map['dateGeneration'] as String?) ??
             DateTime.now().toIso8601String(),
       ),
+      detailsAteliers: _parseDetailsAteliers(
+        map['details_ateliers'] as List<dynamic>?,
+      ),
     );
+  }
+
+  /// Parse les details ateliers depuis le format API.
+  List<DetailAtelierBulletin> _parseDetailsAteliers(List<dynamic>? list) {
+    if (list == null) return [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (map) => DetailAtelierBulletin(
+            atelierId: (map['atelier_id'] as String?) ??
+                (map['atelierId'] as String?) ??
+                '',
+            atelierNom: (map['atelier_nom'] as String?) ??
+                (map['atelierNom'] as String?) ??
+                '',
+            scoreMoyen: (map['score_moyen'] as num?)?.toDouble() ??
+                (map['scoreMoyen'] as num?)?.toDouble() ??
+                0,
+            nbAnnotations: (map['nb_annotations'] as int?) ??
+                (map['nbAnnotations'] as int?) ??
+                0,
+            exercices: _parseDetailsExercices(
+              map['exercices'] as List<dynamic>?,
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  /// Parse les details exercices depuis le format API.
+  List<DetailExerciceBulletin> _parseDetailsExercices(List<dynamic>? list) {
+    if (list == null) return [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (map) => DetailExerciceBulletin(
+            exerciceId: (map['exercice_id'] as String?) ??
+                (map['exerciceId'] as String?) ??
+                '',
+            exerciceNom: (map['exercice_nom'] as String?) ??
+                (map['exerciceNom'] as String?) ??
+                '',
+            scoreMoyen: (map['score_moyen'] as num?)?.toDouble() ??
+                (map['scoreMoyen'] as num?)?.toDouble() ??
+                0,
+            nbAnnotations: (map['nb_annotations'] as int?) ??
+                (map['nbAnnotations'] as int?) ??
+                0,
+          ),
+        )
+        .toList();
   }
 
   /// Parse le type de periode.

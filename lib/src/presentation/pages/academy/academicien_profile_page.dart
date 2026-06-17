@@ -14,6 +14,7 @@ import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import 'academicien_edit_page.dart';
 import '../../utils/screenshot_helper.dart';
+import '../bulletin/bulletin_page.dart';
 
 /// Page de consultation du profil d'un academicien (joueur).
 /// Affiche les informations completes, le badge QR et les statistiques.
@@ -192,6 +193,17 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
         setState(() => _academicien = updated);
       }
     });
+  }
+
+  void _naviguerVersBulletin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BulletinPage(
+          academicien: _academicien,
+        ),
+      ),
+    );
   }
 
   Future<void> _genererFicheInscription() async {
@@ -682,13 +694,13 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: colorScheme.onSurface.withValues(alpha: 0.05),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.assessment_rounded,
+                    Icons.school_rounded,
                     size: 32,
-                    color: colorScheme.onSurface.withValues(alpha: 0.3),
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -697,17 +709,40 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: colorScheme.onSurface.withValues(alpha: 0.4),
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Bientôt disponible',
+                  'Consulter le bulletin de formation et les evaluations',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
-                    color: colorScheme.onSurface.withValues(alpha: 0.3),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                     height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _naviguerVersBulletin,
+                    icon: const Icon(Icons.description_rounded, size: 18),
+                    label: Text(
+                      'Voir le bulletin',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -1038,6 +1073,15 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
               onTap: () {
                 Navigator.pop(context);
                 _ouvrirEdition();
+              },
+            ),
+            _OptionItem(
+              icon: Icons.school_rounded,
+              label: 'Voir le bulletin',
+              color: const Color(0xFF3B82F6),
+              onTap: () {
+                Navigator.pop(context);
+                _naviguerVersBulletin();
               },
             ),
             _OptionItem(

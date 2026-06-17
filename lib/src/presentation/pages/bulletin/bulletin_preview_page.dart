@@ -1,20 +1,13 @@
-import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/bulletin.dart';
 import '../../../domain/entities/encadreur.dart';
 import '../../state/bulletin_state.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/academy_toast.dart';
+import 'bulletin_pdf_preview_page.dart';
 import 'widgets/competences_radar_widget.dart';
 
 /// Ecran de previsualisation du bulletin de formation.
@@ -40,7 +33,6 @@ class BulletinPreviewPage extends StatefulWidget {
 }
 
 class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
-  final GlobalKey _bulletinKey = GlobalKey();
   final TextEditingController _observationsController = TextEditingController();
   bool _isEditing = false;
 
@@ -66,91 +58,13 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
     if (mounted) setState(() {});
   }
 
-  Future<void> _exporterImage(AppLocalizations l10n) async {
-    try {
-      final boundary =
-          _bulletinKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
-      if (boundary == null) return;
-
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
-
-      if (mounted) {
-        AcademyToast.show(
-          context,
-          title: l10n.bulletinCaptured,
-          isSuccess: true,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        AcademyToast.show(
-          context,
-          title: l10n.exportError(e.toString()),
-          isError: true,
-        );
-      }
-    }
-  }
-
-  /// Exporte le bulletin en PDF.
-  /// Capture l'image puis l'insere dans un PDF a la taille de l'image.
-  Future<void> _exporterPdf(AppLocalizations l10n) async {
-    try {
-      final boundary =
-          _bulletinKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
-      if (boundary == null) return;
-
-      // Capturer l'image du bulletin
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
-
-      final pngBytes = byteData.buffer.asUint8List();
-
-      // Creer le PDF avec l'image
-      final pdf = pw.Document();
-      final pdfImage = pw.MemoryImage(pngBytes);
-
-      // Calculer les dimensions pour garder le ratio
-      final imageWidth = image.width.toDouble();
-      final imageHeight = image.height.toDouble();
-      final pageFormat = PdfPageFormat.a4;
-      final scale = pageFormat.width / imageWidth;
-      final scaledHeight = imageHeight * scale;
-
-      pdf.addPage(
-        pw.Page(
-          pageFormat: pageFormat.copyWith(height: scaledHeight),
-          build: (context) =>
-              pw.Center(child: pw.Image(pdfImage, fit: pw.BoxFit.contain)),
-        ),
+  void _toggleEditing() async {
+    if (_isEditing) {
+      await widget.bulletinState.mettreAJourObservations(
+        _observationsController.text,
       );
-
-      // Sauvegarder le fichier
-      final dir = await getApplicationDocumentsDirectory();
-      final fileName =
-          'bulletin_${academicien.nom}_${academicien.prenom}_${bulletin.periodeLabel.replaceAll(' ', '_')}.pdf';
-      final file = File('${dir.path}/$fileName');
-      await file.writeAsBytes(await pdf.save());
-
-      // Partage natif (affiche toutes les options du telephone)
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        subject: l10n.bulletinShareSubject(academicien.nom, academicien.prenom),
-      );
-    } catch (e) {
-      if (mounted) {
-        AcademyToast.show(
-          context,
-          title: l10n.exportError(e.toString()),
-          isError: true,
-        );
-      }
     }
+    setState(() => _isEditing = !_isEditing);
   }
 
   @override
@@ -168,31 +82,30 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
         slivers: [
           _buildAppBar(context, l10n),
           SliverToBoxAdapter(
-            child: RepaintBoundary(
-              key: _bulletinKey,
-              child: Container(
-                color: isDark
-                    ? AppColors.backgroundDark
-                    : AppColors.backgroundLight,
-                child: Column(
-                  children: [
-                    _buildEnTete(isDark, l10n),
-                    _buildIdentiteEleve(isDark, l10n),
-                    _buildStatistiques(isDark, l10n),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CompetencesRadarWidget(
-                        competences: bulletin.competences,
-                        competencesPrecedentes: precedent?.competences,
-                      ),
+            child: Container(
+              color: isDark
+                  ? AppColors.backgroundDark
+                  : AppColors.backgroundLight,
+              child: Column(
+                children: [
+                  _buildEnTete(isDark, l10n),
+                  _buildIdentiteEleve(isDark, l10n),
+                  _buildStatistiques(isDark, l10n),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: CompetencesRadarWidget(
+                      competences: bulletin.competences,
+                      competencesPrecedentes: precedent?.competences,
                     ),
-                    const SizedBox(height: 24),
-                    _buildTableauAppreciations(isDark, l10n),
-                    _buildObservationsGenerales(isDark, l10n),
-                    _buildPiedDePage(isDark, l10n),
-                    const SizedBox(height: 24),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildDetailsAteliers(isDark, l10n),
+                  const SizedBox(height: 24),
+                  _buildTableauAppreciations(isDark, l10n),
+                  _buildObservationsGenerales(isDark, l10n),
+                  _buildPiedDePage(isDark, l10n),
+                  const SizedBox(height: 24),
+                ],
               ),
             ),
           ),
@@ -215,7 +128,16 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
       actions: [
         IconButton(
           icon: const Icon(Icons.share_rounded),
-          onPressed: () => _exporterPdf(l10n),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => BulletinPdfPreviewPage(
+                  academicien: academicien,
+                  bulletin: bulletin,
+                ),
+              ),
+            );
+          },
           tooltip: l10n.shareLabel,
         ),
       ],
@@ -427,6 +349,163 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetailsAteliers(bool isDark, AppLocalizations l10n) {
+    if (bulletin.detailsAteliers.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Details par atelier',
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: isDark ? AppColors.textMainDark : AppColors.textMainLight,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...bulletin.detailsAteliers.map(
+            (detail) => _buildAtelierDetailCard(detail, isDark),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAtelierDetailCard(DetailAtelierBulletin detail, bool isDark) {
+    final noteColor = _noteColorSur5(detail.scoreMoyen); // Note sur 5
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.06),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  detail.atelierNom,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? AppColors.textMainDark
+                        : AppColors.textMainLight,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: noteColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  detail.scoreMoyen.toStringAsFixed(1),
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: noteColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                Icons.edit_note_rounded,
+                size: 14,
+                color: isDark
+                    ? AppColors.textMutedDark
+                    : AppColors.textMutedLight,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '${detail.nbAnnotations} annotation${detail.nbAnnotations > 1 ? 's' : ''}',
+                style: GoogleFonts.montserrat(
+                  fontSize: 11,
+                  color: isDark
+                      ? AppColors.textMutedDark
+                      : AppColors.textMutedLight,
+                ),
+              ),
+            ],
+          ),
+          if (detail.exercices.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            ...detail.exercices.map(
+              (ex) => _buildExerciceDetailRow(ex, isDark),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExerciceDetailRow(DetailExerciceBulletin ex, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, top: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              ex.exerciceNom,
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                color: isDark
+                    ? AppColors.textMutedDark
+                    : AppColors.textMutedLight,
+              ),
+            ),
+          ),
+          Text(
+            ex.scoreMoyen.toStringAsFixed(1),
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '(${ex.nbAnnotations})',
+            style: GoogleFonts.montserrat(
+              fontSize: 10,
+              color: isDark
+                  ? AppColors.textMutedDark
+                  : AppColors.textMutedLight,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -777,69 +856,55 @@ class _BulletinPreviewPageState extends State<BulletinPreviewPage> {
         ),
       ),
       child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _exporterImage(l10n),
-                icon: const Icon(Icons.image_rounded, size: 18),
-                label: Text(
-                  l10n.exportImage,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => BulletinPdfPreviewPage(
+                      academicien: academicien,
+                      bulletin: bulletin,
+                    ),
                   ),
+                );
+              },
+              icon: const Icon(Icons.preview_rounded, size: 18),
+              label: Text(
+                'Previsualiser le PDF',
+                style: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => _exporterPdf(l10n),
-                icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
-                label: Text(
-                  l10n.exportPdf,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  void _toggleEditing() async {
-    if (_isEditing) {
-      await widget.bulletinState.mettreAJourObservations(
-        _observationsController.text,
-      );
-    }
-    setState(() => _isEditing = !_isEditing);
-  }
-
   Color _noteColor(double note) {
+    // Note sur 10 (compatibilite avec les anciens bulletins)
     if (note >= 7) return AppColors.success;
     if (note >= 5) return AppColors.warning;
+    return AppColors.error;
+  }
+
+  Color _noteColorSur5(double note) {
+    // Note sur 5 (nouveau systeme multicritere)
+    if (note >= 4) return AppColors.success;
+    if (note >= 2.5) return AppColors.warning;
     return AppColors.error;
   }
 }

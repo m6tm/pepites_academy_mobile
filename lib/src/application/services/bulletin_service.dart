@@ -1,255 +1,120 @@
-import '../../../l10n/app_localizations.dart';
-import '../../domain/entities/annotation.dart';
 import '../../domain/entities/bulletin.dart';
-import '../../domain/entities/presence.dart';
-import '../../infrastructure/repositories/annotation_repository_impl.dart';
+import '../../infrastructure/network/api_endpoints.dart';
+import '../../infrastructure/network/dio_client.dart';
 import '../../infrastructure/repositories/bulletin_repository_impl.dart';
-import '../../infrastructure/repositories/presence_repository_impl.dart';
-import '../../infrastructure/repositories/seance_repository_impl.dart';
 import 'activity_service.dart';
 
 /// Service applicatif gerant la logique metier des bulletins de formation.
-/// Agrege les annotations sur une periode pour produire un bilan
-/// synthetique des competences d'un academicien.
+/// 
+/// Le calcul des bulletins est desormais effectue cote backend. Ce service
+/// ne fait qu'orchestrer les appels API et la persistance locale.
 class BulletinService {
   final BulletinRepositoryImpl _bulletinRepository;
-  final AnnotationRepositoryImpl _annotationRepository;
-  final SeanceRepositoryImpl _seanceRepository;
-  final PresenceRepositoryImpl _presenceRepository;
+  final DioClient _dioClient;
   ActivityService? _activityService;
-  AppLocalizations? _l10n;
 
   BulletinService({
     required BulletinRepositoryImpl bulletinRepository,
-    required AnnotationRepositoryImpl annotationRepository,
-    required SeanceRepositoryImpl seanceRepository,
-    required PresenceRepositoryImpl presenceRepository,
-  }) : _bulletinRepository = bulletinRepository,
-       _annotationRepository = annotationRepository,
-       _seanceRepository = seanceRepository,
-       _presenceRepository = presenceRepository;
+    required DioClient dioClient,
+  })  : _bulletinRepository = bulletinRepository,
+        _dioClient = dioClient;
 
   /// Injecte le service d'activites.
   void setActivityService(ActivityService service) {
     _activityService = service;
   }
 
-  /// Met a jour les traductions.
-  void setLocalizations(AppLocalizations l10n) {
-    _l10n = l10n;
-  }
-
-  /// Genere un bulletin pour un academicien sur une periode donnee.
-  /// Agrege les annotations et calcule les competences moyennes.
+  /// Genere un bulletin via l'API backend.
+  /// Le backend calcule automatiquement les competences depuis les annotations.
   Future<Bulletin> genererBulletin({
     required String academicienId,
     required String encadreurId,
     required PeriodeType typePeriode,
-    required DateTime dateDebut,
-    required DateTime dateFin,
+    required DateTime dateReference,
     String observationsGenerales = '',
   }) async {
-    final annotations = await _annotationRepository.getByAcademicien(
-      academicienId,
+    final response = await _dioClient.post<dynamic>(
+      ApiEndpoints.bulletins,
+      data: {
+        'academicien_id': academicienId,
+        'encadreur_id': encadreurId,
+        'type_periode': typePeriode.name,
+        'date_reference': dateReference.toIso8601String().split('T').first,
+        'observations_generales': observationsGenerales,
+      },
     );
 
-    final annotationsPeriode = annotations.where((a) {
-      return !a.horodate.isBefore(dateDebut) && !a.horodate.isAfter(dateFin);
-    }).toList();
-
-    final seances = await _seanceRepository.getAll();
-    final seancesPeriode = seances.where((s) {
-      return !s.date.isBefore(dateDebut) && !s.date.isAfter(dateFin);
-    }).toList();
-
-    // Recuperer les presences reelles de l'academicien pour la periode
-    final presences = await _presenceRepository.getByProfil(academicienId);
-    final presencesPeriode = presences.where((p) {
-      return !p.horodateArrivee.isBefore(dateDebut) &&
-          !p.horodateArrivee.isAfter(dateFin) &&
-          p.typeProfil == ProfilType.academicien;
-    }).toList();
-
-    // Compter les seances auxquelles l'academicien etait reellement present
-    final seancesPresent = presencesPeriode
-        .map((p) => p.seanceId)
-        .toSet()
-        .length;
-
-    final competences = _calculerCompetences(annotationsPeriode);
-    final appreciations = _genererAppreciations(annotationsPeriode);
-
-    final bulletin = Bulletin(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      dateDebutPeriode: dateDebut,
-      dateFinPeriode: dateFin,
-      typePeriode: typePeriode,
-      academicienId: academicienId,
-      encadreurId: encadreurId,
-      observationsGenerales: observationsGenerales,
-      competences: competences,
-      appreciations: appreciations,
-      nbSeancesTotal: seancesPeriode.length,
-      nbSeancesPresent: seancesPresent,
-      nbAnnotationsTotal: annotationsPeriode.length,
-      dateGeneration: DateTime.now(),
-    );
-
-    final created = await _bulletinRepository.create(bulletin);
-    await _activityService?.enregistrerBulletinGenere(
-      created.periodeLabel,
-      academicienId,
-      created.id,
-    );
-    return created;
-  }
-
-  /// Calcule les competences moyennes a partir des annotations.
-  /// Mappe les tags des annotations aux domaines de competences.
-  Competences _calculerCompetences(List<Annotation> annotations) {
-    if (annotations.isEmpty) return const Competences();
-
-    double technique = 0, physique = 0, tactique = 0, mental = 0, esprit = 0;
-    int cTech = 0, cPhys = 0, cTact = 0, cMent = 0, cEspr = 0;
-
-    for (final annotation in annotations) {
-      final note = annotation.note ?? 5.0;
-      for (final tag in annotation.tags) {
-        final tagLower = tag.toLowerCase();
-        if (_estTagTechnique(tagLower)) {
-          technique += note;
-          cTech++;
-        } else if (_estTagPhysique(tagLower)) {
-          physique += note;
-          cPhys++;
-        } else if (_estTagTactique(tagLower)) {
-          tactique += note;
-          cTact++;
-        } else if (_estTagMental(tagLower)) {
-          mental += note;
-          cMent++;
-        } else if (_estTagEspritEquipe(tagLower)) {
-          esprit += note;
-          cEspr++;
-        }
-      }
-
-      if (annotation.tags.isEmpty && annotation.note != null) {
-        technique += note;
-        cTech++;
-      }
-    }
-
-    return Competences(
-      technique: cTech > 0 ? (technique / cTech).clamp(0, 10) : 0,
-      physique: cPhys > 0 ? (physique / cPhys).clamp(0, 10) : 0,
-      tactique: cTact > 0 ? (tactique / cTact).clamp(0, 10) : 0,
-      mental: cMent > 0 ? (mental / cMent).clamp(0, 10) : 0,
-      espritEquipe: cEspr > 0 ? (esprit / cEspr).clamp(0, 10) : 0,
+    return response.fold(
+      (failure) => throw Exception(
+        'Erreur lors de la generation du bulletin: ${failure.message}',
+      ),
+      (data) {
+        final map = data as Map<String, dynamic>;
+        final bulletinMap = map['bulletin'] as Map<String, dynamic>;
+        final bulletin = _parseBulletinFromApi(bulletinMap);
+        
+        // Persister localement sans re-synchroniser
+        _bulletinRepository.saveLocal(bulletin);
+        
+        // Enregistrer l'activite
+        _activityService?.enregistrerBulletinGenere(
+          bulletin.periodeLabel,
+          academicienId,
+          bulletin.id,
+        );
+        
+        return bulletin;
+      },
     );
   }
 
-  bool _estTagTechnique(String tag) {
-    return tag.contains('technique') ||
-        tag.contains('dribble') ||
-        tag.contains('passe') ||
-        tag.contains('finition') ||
-        tag.contains('controle') ||
-        tag.contains('tir');
-  }
-
-  bool _estTagPhysique(String tag) {
-    return tag.contains('physique') ||
-        tag.contains('vitesse') ||
-        tag.contains('endurance') ||
-        tag.contains('force') ||
-        tag.contains('agilite');
-  }
-
-  bool _estTagTactique(String tag) {
-    return tag.contains('tactique') ||
-        tag.contains('placement') ||
-        tag.contains('vision') ||
-        tag.contains('strategie') ||
-        tag.contains('jeu');
-  }
-
-  bool _estTagMental(String tag) {
-    return tag.contains('mental') ||
-        tag.contains('concentration') ||
-        tag.contains('motivation') ||
-        tag.contains('discipline') ||
-        tag.contains('attitude');
-  }
-
-  bool _estTagEspritEquipe(String tag) {
-    return tag.contains('equipe') ||
-        tag.contains('collectif') ||
-        tag.contains('communication') ||
-        tag.contains('solidarite') ||
-        tag.contains('leadership');
-  }
-
-  /// Genere les appreciations par domaine a partir des annotations.
-  List<AppreciationDomaine> _genererAppreciations(
-    List<Annotation> annotations,
-  ) {
-    final domaines = <String, List<Annotation>>{};
-
-    for (final annotation in annotations) {
-      for (final tag in annotation.tags) {
-        final domaine = _tagVersDomaine(tag.toLowerCase());
-        domaines.putIfAbsent(domaine, () => []).add(annotation);
-      }
-    }
-
-    return domaines.entries.map((entry) {
-      final notes = entry.value
-          .where((a) => a.note != null)
-          .map((a) => a.note!)
-          .toList();
-      final moyenne = notes.isNotEmpty
-          ? notes.reduce((a, b) => a + b) / notes.length
-          : 0.0;
-
-      return AppreciationDomaine(
-        domaine: entry.key,
-        note: double.parse(moyenne.toStringAsFixed(1)),
-        commentaire: _resumeAnnotations(entry.value),
-      );
-    }).toList();
-  }
-
-  String _tagVersDomaine(String tag) {
-    if (_estTagTechnique(tag)) return _l10n?.domaineTechnique ?? 'Technique';
-    if (_estTagPhysique(tag)) return _l10n?.domainePhysique ?? 'Physique';
-    if (_estTagTactique(tag)) return _l10n?.domaineTactique ?? 'Tactique';
-    if (_estTagMental(tag)) return _l10n?.domaineMental ?? 'Mental';
-    if (_estTagEspritEquipe(tag)) {
-      return _l10n?.domaineEspritEquipe ?? 'Esprit d\'equipe';
-    }
-    return _l10n?.domaineGeneral ?? 'General';
-  }
-
-  String _resumeAnnotations(List<Annotation> annotations) {
-    if (annotations.isEmpty) return '';
-    final derniere = annotations.first;
-    if (annotations.length == 1) return derniere.contenu;
-    return _l10n?.bulletinObservationsResume(
-          annotations.length,
-          derniere.contenu,
-        ) ??
-        '${annotations.length} observations. Derniere : ${derniere.contenu}';
-  }
-
-  /// Recupere les bulletins d'un academicien.
+  /// Recupere les bulletins d'un academicien depuis le backend.
   Future<List<Bulletin>> getBulletinsAcademicien(String academicienId) async {
-    return _bulletinRepository.getByAcademicien(academicienId);
+    final response = await _dioClient.get<dynamic>(
+      '${ApiEndpoints.bulletins}?academicien_id=$academicienId',
+    );
+
+    return response.fold(
+      (failure) async {
+        // Fallback sur le cache local
+        return _bulletinRepository.getByAcademicien(academicienId);
+      },
+      (data) {
+        final list = data as List<dynamic>;
+        final bulletins = list
+            .whereType<Map<String, dynamic>>()
+            .map(_parseBulletinFromApi)
+            .toList();
+        
+        // Synchroniser le cache local
+        for (final b in bulletins) {
+          _bulletinRepository.saveLocal(b);
+        }
+        
+        return bulletins;
+      },
+    );
   }
 
-  /// Recupere un bulletin par son identifiant.
+  /// Recupere un bulletin par son ID.
   Future<Bulletin?> getBulletinById(String id) async {
-    return _bulletinRepository.getById(id);
+    // Essayer d'abord le cache local
+    final local = await _bulletinRepository.getById(id);
+    if (local != null) return local;
+
+    final response = await _dioClient.get<dynamic>(
+      '${ApiEndpoints.bulletins}/$id',
+    );
+
+    return response.fold(
+      (failure) => null,
+      (data) {
+        final map = data as Map<String, dynamic>;
+        final bulletin = _parseBulletinFromApi(map);
+        _bulletinRepository.saveLocal(bulletin);
+        return bulletin;
+      },
+    );
   }
 
   /// Met a jour les observations generales d'un bulletin.
@@ -257,44 +122,198 @@ class BulletinService {
     String bulletinId,
     String observations,
   ) async {
-    final bulletin = await _bulletinRepository.getById(bulletinId);
-    if (bulletin == null) {
-      throw Exception(
-        _l10n?.serviceBulletinNotFound(bulletinId) ??
-            'Bulletin introuvable : $bulletinId',
-      );
-    }
-    return _bulletinRepository.update(
-      bulletin.copyWith(observationsGenerales: observations),
+    final response = await _dioClient.put<dynamic>(
+      '${ApiEndpoints.bulletins}/$bulletinId',
+      data: {
+        'observations_generales': observations,
+      },
+    );
+
+    return response.fold(
+      (failure) => throw Exception(
+        'Erreur lors de la mise a jour du bulletin',
+      ),
+      (data) {
+        final map = data as Map<String, dynamic>;
+        final bulletin = _parseBulletinFromApi(map);
+        _bulletinRepository.update(bulletin);
+        return bulletin;
+      },
     );
   }
 
   /// Supprime un bulletin.
   Future<void> supprimerBulletin(String id) async {
-    return _bulletinRepository.delete(id);
+    final response = await _dioClient.delete<dynamic>(
+      '${ApiEndpoints.bulletins}/$id',
+    );
+
+    return response.fold(
+      (failure) => throw Exception(
+        'Erreur lors de la suppression du bulletin',
+      ),
+      (_) async {
+        await _bulletinRepository.delete(id);
+      },
+    );
   }
 
-  /// Calcule les dates de debut et fin pour un type de periode donne.
-  static ({DateTime debut, DateTime fin}) calculerDatesPeriode(
-    PeriodeType type, {
-    DateTime? reference,
-  }) {
-    final ref = reference ?? DateTime.now();
-    switch (type) {
-      case PeriodeType.mois:
-        final debut = DateTime(ref.year, ref.month, 1);
-        final fin = DateTime(ref.year, ref.month + 1, 0, 23, 59, 59);
-        return (debut: debut, fin: fin);
-      case PeriodeType.trimestre:
-        final trimestreDebut = ((ref.month - 1) ~/ 3) * 3 + 1;
-        final debut = DateTime(ref.year, trimestreDebut, 1);
-        final fin = DateTime(ref.year, trimestreDebut + 3, 0, 23, 59, 59);
-        return (debut: debut, fin: fin);
-      case PeriodeType.saison:
-        final anneeDebut = ref.month >= 9 ? ref.year : ref.year - 1;
-        final debut = DateTime(anneeDebut, 9, 1);
-        final fin = DateTime(anneeDebut + 1, 6, 30, 23, 59, 59);
-        return (debut: debut, fin: fin);
+  /// Parse un bulletin depuis le format API.
+  Bulletin _parseBulletinFromApi(Map<String, dynamic> map) {
+    return Bulletin(
+      id: map['id'] as String,
+      dateDebutPeriode: DateTime.parse(
+        (map['date_debut_periode'] as String?) ??
+            (map['dateDebutPeriode'] as String?) ??
+            DateTime.now().toIso8601String(),
+      ),
+      dateFinPeriode: DateTime.parse(
+        (map['date_fin_periode'] as String?) ??
+            (map['dateFinPeriode'] as String?) ??
+            DateTime.now().toIso8601String(),
+      ),
+      typePeriode: _parsePeriodeType(map['type_periode'] as String?),
+      academicienId:
+          (map['academicien_id'] as String?) ??
+          (map['academicienId'] as String?) ??
+          '',
+      encadreurId:
+          (map['encadreur_id'] as String?) ??
+          (map['encadreurId'] as String?) ??
+          '',
+      observationsGenerales:
+          (map['observations_generales'] as String?) ??
+          (map['observationsGenerales'] as String?) ??
+          '',
+      competences: _parseCompetences(
+        map['competences'] as Map<String, dynamic>?,
+      ),
+      appreciations: _parseAppreciations(
+        map['appreciations'] as List<dynamic>?,
+      ),
+      nbSeancesTotal:
+          (map['nb_seances_total'] as int?) ??
+          (map['nbSeancesTotal'] as int?) ??
+          0,
+      nbSeancesPresent:
+          (map['nb_seances_present'] as int?) ??
+          (map['nbSeancesPresent'] as int?) ??
+          0,
+      nbAnnotationsTotal:
+          (map['nb_annotations_total'] as int?) ??
+          (map['nbAnnotationsTotal'] as int?) ??
+          0,
+      dateGeneration: DateTime.parse(
+        (map['date_generation'] as String?) ??
+            (map['dateGeneration'] as String?) ??
+            DateTime.now().toIso8601String(),
+      ),
+      detailsAteliers: _parseDetailsAteliers(
+        map['details_ateliers'] as List<dynamic>?,
+      ),
+    );
+  }
+
+  PeriodeType _parsePeriodeType(String? type) {
+    switch (type?.toLowerCase()) {
+      case 'mois':
+        return PeriodeType.mois;
+      case 'trimestre':
+        return PeriodeType.trimestre;
+      case 'saison':
+        return PeriodeType.saison;
+      default:
+        return PeriodeType.mois;
     }
+  }
+
+  Competences _parseCompetences(Map<String, dynamic>? json) {
+    if (json == null) return const Competences();
+    return Competences(
+      technique:
+          (json['technique'] as num?)?.toDouble() ??
+          (json['comp_technique'] as num?)?.toDouble() ??
+          0,
+      physique:
+          (json['physique'] as num?)?.toDouble() ??
+          (json['comp_physique'] as num?)?.toDouble() ??
+          0,
+      tactique:
+          (json['tactique'] as num?)?.toDouble() ??
+          (json['comp_tactique'] as num?)?.toDouble() ??
+          0,
+      mental:
+          (json['mental'] as num?)?.toDouble() ??
+          (json['comp_mental'] as num?)?.toDouble() ??
+          0,
+      espritEquipe:
+          (json['espritEquipe'] as num?)?.toDouble() ??
+          (json['comp_esprit_equipe'] as num?)?.toDouble() ??
+          (json['esprit_equipe'] as num?)?.toDouble() ??
+          0,
+    );
+  }
+
+  List<AppreciationDomaine> _parseAppreciations(List<dynamic>? list) {
+    if (list == null) return [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (map) => AppreciationDomaine(
+            domaine: (map['domaine'] as String?) ?? '',
+            note: (map['note'] as num?)?.toDouble() ?? 0,
+            commentaire: (map['commentaire'] as String?) ?? '',
+          ),
+        )
+        .toList();
+  }
+
+  List<DetailAtelierBulletin> _parseDetailsAteliers(List<dynamic>? list) {
+    if (list == null) return [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (map) => DetailAtelierBulletin(
+            atelierId: (map['atelier_id'] as String?) ??
+                (map['atelierId'] as String?) ??
+                '',
+            atelierNom: (map['atelier_nom'] as String?) ??
+                (map['atelierNom'] as String?) ??
+                '',
+            scoreMoyen: (map['score_moyen'] as num?)?.toDouble() ??
+                (map['scoreMoyen'] as num?)?.toDouble() ??
+                0,
+            nbAnnotations: (map['nb_annotations'] as int?) ??
+                (map['nbAnnotations'] as int?) ??
+                0,
+            exercices: _parseDetailsExercices(
+              map['exercices'] as List<dynamic>?,
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  List<DetailExerciceBulletin> _parseDetailsExercices(List<dynamic>? list) {
+    if (list == null) return [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (map) => DetailExerciceBulletin(
+            exerciceId: (map['exercice_id'] as String?) ??
+                (map['exerciceId'] as String?) ??
+                '',
+            exerciceNom: (map['exercice_nom'] as String?) ??
+                (map['exerciceNom'] as String?) ??
+                '',
+            scoreMoyen: (map['score_moyen'] as num?)?.toDouble() ??
+                (map['scoreMoyen'] as num?)?.toDouble() ??
+                0,
+            nbAnnotations: (map['nb_annotations'] as int?) ??
+                (map['nbAnnotations'] as int?) ??
+                0,
+          ),
+        )
+        .toList();
   }
 }

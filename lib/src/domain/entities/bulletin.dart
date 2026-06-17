@@ -106,6 +106,75 @@ class AppreciationDomaine {
   }
 }
 
+/// Detail d'un atelier dans le bulletin : scores par critere et exercices associes.
+class DetailAtelierBulletin {
+  final String atelierId;
+  final String atelierNom;
+  final double scoreMoyen;
+  final int nbAnnotations;
+  final List<DetailExerciceBulletin> exercices;
+
+  const DetailAtelierBulletin({
+    required this.atelierId,
+    required this.atelierNom,
+    required this.scoreMoyen,
+    required this.nbAnnotations,
+    required this.exercices,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'atelierId': atelierId,
+    'atelierNom': atelierNom,
+    'scoreMoyen': scoreMoyen,
+    'nbAnnotations': nbAnnotations,
+    'exercices': exercices.map((e) => e.toJson()).toList(),
+  };
+
+  factory DetailAtelierBulletin.fromJson(Map<String, dynamic> json) {
+    return DetailAtelierBulletin(
+      atelierId: json['atelierId'] as String,
+      atelierNom: json['atelierNom'] as String? ?? '',
+      scoreMoyen: (json['scoreMoyen'] as num?)?.toDouble() ?? 0,
+      nbAnnotations: json['nbAnnotations'] as int? ?? 0,
+      exercices: (json['exercices'] as List<dynamic>?)
+              ?.map((e) => DetailExerciceBulletin.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+}
+
+/// Detail d'un exercice dans le bulletin.
+class DetailExerciceBulletin {
+  final String exerciceId;
+  final String exerciceNom;
+  final double scoreMoyen;
+  final int nbAnnotations;
+
+  const DetailExerciceBulletin({
+    required this.exerciceId,
+    required this.exerciceNom,
+    required this.scoreMoyen,
+    required this.nbAnnotations,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'exerciceId': exerciceId,
+    'exerciceNom': exerciceNom,
+    'scoreMoyen': scoreMoyen,
+    'nbAnnotations': nbAnnotations,
+  };
+
+  factory DetailExerciceBulletin.fromJson(Map<String, dynamic> json) {
+    return DetailExerciceBulletin(
+      exerciceId: json['exerciceId'] as String,
+      exerciceNom: json['exerciceNom'] as String? ?? '',
+      scoreMoyen: (json['scoreMoyen'] as num?)?.toDouble() ?? 0,
+      nbAnnotations: json['nbAnnotations'] as int? ?? 0,
+    );
+  }
+}
+
 /// Represente un bulletin de formation periodique.
 class Bulletin {
   final String id;
@@ -121,6 +190,7 @@ class Bulletin {
   final int nbSeancesPresent;
   final int nbAnnotationsTotal;
   final DateTime dateGeneration;
+  final List<DetailAtelierBulletin> detailsAteliers;
 
   const Bulletin({
     required this.id,
@@ -136,6 +206,7 @@ class Bulletin {
     this.nbSeancesPresent = 0,
     this.nbAnnotationsTotal = 0,
     required this.dateGeneration,
+    this.detailsAteliers = const [],
   });
 
   /// Taux de presence en pourcentage.
@@ -184,6 +255,7 @@ class Bulletin {
     'nbSeancesPresent': nbSeancesPresent,
     'nbAnnotationsTotal': nbAnnotationsTotal,
     'dateGeneration': dateGeneration.toIso8601String(),
+    'detailsAteliers': detailsAteliers.map((d) => d.toJson()).toList(),
   };
 
   /// Deserialise un bulletin depuis un Map JSON.
@@ -213,6 +285,10 @@ class Bulletin {
       nbSeancesPresent: json['nbSeancesPresent'] as int? ?? 0,
       nbAnnotationsTotal: json['nbAnnotationsTotal'] as int? ?? 0,
       dateGeneration: DateTime.parse(json['dateGeneration'] as String),
+      detailsAteliers: (json['detailsAteliers'] as List<dynamic>?)
+              ?.map((e) => DetailAtelierBulletin.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -231,6 +307,7 @@ class Bulletin {
     int? nbSeancesPresent,
     int? nbAnnotationsTotal,
     DateTime? dateGeneration,
+    List<DetailAtelierBulletin>? detailsAteliers,
   }) {
     return Bulletin(
       id: id ?? this.id,
@@ -247,6 +324,7 @@ class Bulletin {
       nbSeancesPresent: nbSeancesPresent ?? this.nbSeancesPresent,
       nbAnnotationsTotal: nbAnnotationsTotal ?? this.nbAnnotationsTotal,
       dateGeneration: dateGeneration ?? this.dateGeneration,
+      detailsAteliers: detailsAteliers ?? this.detailsAteliers,
     );
   }
 }

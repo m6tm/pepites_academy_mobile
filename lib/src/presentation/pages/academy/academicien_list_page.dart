@@ -17,8 +17,16 @@ import 'academicien_profile_page.dart';
 /// Permet la recherche, le filtrage par poste et la consultation des profils.
 class AcademicienListPage extends StatefulWidget {
   final AcademicienRepositoryImpl repository;
+  
+  /// Callback optionnel appele quand un academicien est selectionne.
+  /// Si fourni, le tap sur un academicien appelle ce callback au lieu de naviguer vers le profil.
+  final void Function(Academicien)? onAcademicienSelected;
 
-  const AcademicienListPage({super.key, required this.repository});
+  const AcademicienListPage({
+    super.key, 
+    required this.repository,
+    this.onAcademicienSelected,
+  });
 
   @override
   State<AcademicienListPage> createState() => AcademicienListPageState();
@@ -289,6 +297,10 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   }
 
   void _navigateToProfile(Academicien academicien) {
+    if (widget.onAcademicienSelected != null) {
+      widget.onAcademicienSelected!(academicien);
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(

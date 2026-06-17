@@ -268,11 +268,15 @@ class _SupAdminModuleGridState extends State<SupAdminModuleGrid> {
         color: const Color(0xFF10B981),
         permission: Permission.bulletinView,
         onTap: () {
-          _showContextRequired(
-            context,
-            l10n.bulletinsLabel,
-            l10n.selectPlayerFirst,
-          );
+          if (widget.onNavigateToBulletins != null) {
+            widget.onNavigateToBulletins!();
+          } else {
+            _showContextRequired(
+              context,
+              l10n.bulletinsLabel,
+              l10n.selectPlayerFirst,
+            );
+          }
         },
       ),
       // SMS

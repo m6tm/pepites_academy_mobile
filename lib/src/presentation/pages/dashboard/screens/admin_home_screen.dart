@@ -16,7 +16,9 @@ import '../../../../core/events/encadreur_events.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../../domain/entities/seance.dart';
 import '../../../../domain/entities/dashboard_stats.dart';
+import '../../academy/academicien_list_page.dart';
 import '../../academy/academicien_registration_page.dart';
+import '../../bulletin/bulletin_page.dart';
 import '../../encadreur/encadreur_list_page.dart';
 import '../../referentiel/referentiel_hub_page.dart';
 import '../../notification/notifications_page.dart';
@@ -228,12 +230,24 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               );
             },
             onNavigateToBulletins: () {
-              // La page BulletinPage necessite un academicien
-              // On ne peut pas naviguer directement sans selection
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.players),
-                  behavior: SnackBarBehavior.floating,
+              // Naviguer vers la liste des academiciens pour en selectionner un
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AcademicienListPage(
+                    repository: DependencyInjection.academicienRepository,
+                    onAcademicienSelected: (academicien) {
+                      // Naviguer vers la page du bulletin pour cet academicien
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BulletinPage(
+                            academicien: academicien,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               );
             },
