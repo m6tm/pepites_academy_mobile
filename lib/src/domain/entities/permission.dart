@@ -299,6 +299,11 @@ final Map<Role, Set<Permission>> rolePermissions = {
       Permission.exerciceValidate,
       Permission.exerciceApply,
       Permission.exerciceClose,
+      // Annotations et évaluations : lecture seule
+      Permission.annotationCreate,
+      Permission.annotationUpdate,
+      Permission.evaluationCreate,
+      Permission.evaluationValidate,
     }),
   Role.admin: {
     // Gestion des utilisateurs
@@ -332,11 +337,7 @@ final Map<Role, Set<Permission>> rolePermissions = {
     // Gestion des ateliers (lecture seule)
     Permission.atelierView,
     // Gestion des exercices (lecture seule — inclus dans atelierView)
-    // Évaluations et annotations
-    Permission.annotationCreate,
-    Permission.annotationUpdate,
-    Permission.evaluationCreate,
-    Permission.evaluationValidate,
+    // Évaluations et annotations (lecture seule)
     Permission.annotationView,
     Permission.evaluationView,
     // Bulletins
