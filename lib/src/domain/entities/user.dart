@@ -98,12 +98,12 @@ class User {
     );
   }
 
-  /// Crée une instance depuis un JSON (réponse API).
+  /// Cree une instance depuis un JSON (reponse API).
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String? ?? '',
-      firstName: json['first_name'] as String? ?? '',
-      lastName: json['last_name'] as String? ?? '',
+      firstName: (json['first_name'] ?? json['prenom']) as String? ?? '',
+      lastName: (json['last_name'] ?? json['nom']) as String? ?? '',
       email: json['email'] as String? ?? '',
       role: Role.fromId(json['role'] as String? ?? ''),
       photoUrl: json['photo_url'] as String?,
@@ -113,7 +113,7 @@ class User {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
-      isActive: json['is_active'] as bool? ?? true,
+      isActive: json['is_active'] ?? json['actif'] as bool? ?? true,
     );
   }
 

@@ -164,6 +164,7 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     _loadData();
   }
 

@@ -119,13 +119,16 @@ class _EncadreurListPageState extends State<EncadreurListPage>
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     _loadEncadreurs();
   }
 
   Future<void> _loadEncadreurs() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       final list = await widget.repository.getAll();
+      if (!mounted) return;
       setState(() {
         _encadreurs = list;
         _applyFilters();
@@ -133,6 +136,7 @@ class _EncadreurListPageState extends State<EncadreurListPage>
       });
       _fadeController.forward();
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }

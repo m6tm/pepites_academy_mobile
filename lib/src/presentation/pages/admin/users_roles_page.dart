@@ -237,171 +237,173 @@ class _UsersRolesPageState extends State<UsersRolesPage>
                   ),
                 ],
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Utilisateur concerné
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.onSurface.withValues(alpha: 0.04),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: AppColors.primary.withValues(
-                            alpha: 0.1,
-                          ),
-                          child: Text(
-                            user.initials,
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Utilisateur concerné
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.onSurface.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: AppColors.primary.withValues(
+                              alpha: 0.1,
+                            ),
+                            child: Text(
+                              user.initials,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                user.fullName,
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                user.email,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 12,
-                                  color: colorScheme.onSurface.withValues(
-                                    alpha: 0.5,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user.fullName,
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Sélection du rôle
-                  Text(
-                    l10n.selectNewRole,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: Role.values.map((role) {
-                        final isSelected = selectedRole == role;
-                        return InkWell(
-                          onTap: () =>
-                              setDialogState(() => selectedRole = role),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.primary.withValues(alpha: 0.08)
-                                  : null,
-                              borderRadius: BorderRadius.vertical(
-                                top: role == Role.values.first
-                                    ? const Radius.circular(11)
-                                    : Radius.zero,
-                                bottom: role == Role.values.last
-                                    ? const Radius.circular(11)
-                                    : Radius.zero,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  _getRoleIcon(role),
-                                  size: 20,
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : colorScheme.onSurface.withValues(
-                                          alpha: 0.4,
-                                        ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _getRoleDisplayName(role, l10n),
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 14,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                      color: isSelected
-                                          ? AppColors.primary
-                                          : colorScheme.onSurface,
+                                Text(
+                                  user.email,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 12,
+                                    color: colorScheme.onSurface.withValues(
+                                      alpha: 0.5,
                                     ),
                                   ),
                                 ),
-                                if (isSelected)
-                                  Icon(
-                                    Icons.check_circle_rounded,
-                                    color: AppColors.primary,
-                                    size: 20,
-                                  ),
                               ],
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Avertissement
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.info_outline_rounded,
-                          color: Color(0xFFF59E0B),
-                          size: 18,
+                    const SizedBox(height: 20),
+                    // Sélection du rôle
+                    Text(
+                      l10n.selectNewRole,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: colorScheme.onSurface.withValues(alpha: 0.1),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            l10n.roleChangeWarning,
-                            style: GoogleFonts.montserrat(
-                              fontSize: 11,
-                              color: const Color(0xFFF59E0B),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: Role.values.map((role) {
+                          final isSelected = selectedRole == role;
+                          return InkWell(
+                            onTap: () =>
+                                setDialogState(() => selectedRole = role),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.primary.withValues(alpha: 0.08)
+                                    : null,
+                                borderRadius: BorderRadius.vertical(
+                                  top: role == Role.values.first
+                                      ? const Radius.circular(11)
+                                      : Radius.zero,
+                                  bottom: role == Role.values.last
+                                      ? const Radius.circular(11)
+                                      : Radius.zero,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    _getRoleIcon(role),
+                                    size: 20,
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : colorScheme.onSurface.withValues(
+                                            alpha: 0.4,
+                                          ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      _getRoleDisplayName(role, l10n),
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 14,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w400,
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(
+                                      Icons.check_circle_rounded,
+                                      color: AppColors.primary,
+                                      size: 20,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Avertissement
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.info_outline_rounded,
+                            color: Color(0xFFF59E0B),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              l10n.roleChangeWarning,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 11,
+                                color: const Color(0xFFF59E0B),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               actions: [
                 // Bouton historique
@@ -1189,7 +1191,9 @@ class _UsersRolesPageState extends State<UsersRolesPage>
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
-                              color: colorScheme.onSurface,
+                              color: isDark
+                                  ? AppColors.textMainDark
+                                  : AppColors.textMainLight,
                             ),
                           ),
                         ),

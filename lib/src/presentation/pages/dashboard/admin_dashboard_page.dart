@@ -194,7 +194,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage>
                           }
                         },
                       ),
-                      AdminAcademyScreen(academyListKey: _academyKey),
+                      AdminAcademyScreen(
+                        academyListKey: _academyKey,
+                        onBackPressed: () {
+                          if (mounted) {
+                            setState(() => _selectedNavIndex = 0);
+                          }
+                        },
+                      ),
                       const AdminSeancesScreen(),
                       const AdminCommunicationScreen(),
                       AdminSettingsScreen(

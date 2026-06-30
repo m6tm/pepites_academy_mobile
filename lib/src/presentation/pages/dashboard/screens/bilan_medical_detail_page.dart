@@ -47,6 +47,7 @@ class _BilanMedicalDetailPageState extends State<BilanMedicalDetailPage>
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     refreshNotifier.notifyReturned();
     _state.loadBilans(widget.academicien.id);
   }

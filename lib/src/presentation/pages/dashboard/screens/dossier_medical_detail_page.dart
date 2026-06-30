@@ -52,6 +52,7 @@ class _DossierMedicalDetailPageState extends State<DossierMedicalDetailPage>
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     refreshNotifier.notifyReturned();
     _refreshDossier();
   }

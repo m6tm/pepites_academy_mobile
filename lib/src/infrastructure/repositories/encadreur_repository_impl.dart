@@ -123,6 +123,8 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
     }).toList();
 
     await _datasource.saveAll([...remoteList, ...pendingLocal]);
+    _cache.invalidateByTag('encadreurs');
+    _detailCache.clear();
   }
 
   @override

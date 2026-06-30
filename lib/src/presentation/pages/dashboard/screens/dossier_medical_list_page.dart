@@ -46,6 +46,7 @@ class _DossierMedicalListPageState extends State<DossierMedicalListPage>
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     refreshNotifier.notifyReturned();
     _state.refresh(widget.academicien.id);
   }

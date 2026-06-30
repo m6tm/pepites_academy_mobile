@@ -33,7 +33,7 @@ class EnvironmentService {
   static const Map<AppEnvironment, _NetworkConfig> _configs = {
     AppEnvironment.local: _NetworkConfig(
       // Utiliser `String.fromEnvironment('LOCAL_IP')` pour surcharger l'IP locale.
-      baseUrl: 'http://192.168.1.237:5500/v1',
+      baseUrl: 'http://localhost:5500/v1',
     ),
     AppEnvironment.staging: _NetworkConfig(
       baseUrl: 'https://api-staging.pepitesacademy.com/v1',

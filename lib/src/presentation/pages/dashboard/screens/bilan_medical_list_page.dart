@@ -45,6 +45,7 @@ class _BilanMedicalListPageState extends State<BilanMedicalListPage>
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     refreshNotifier.notifyReturned();
     _state.refresh(widget.academicien.id);
   }

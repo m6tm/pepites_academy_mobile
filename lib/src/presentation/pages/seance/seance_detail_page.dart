@@ -67,6 +67,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     _loadLocalThenRefresh();
   }
 

@@ -269,6 +269,11 @@ class _SupAdminDashboardPageState extends State<SupAdminDashboardPage>
                     AcademicienListPage(
                       key: _academyKey,
                       repository: DependencyInjection.academicienRepository,
+                      onBackPressed: () {
+                        if (mounted) {
+                          setState(() => _selectedNavIndex = 0);
+                        }
+                      },
                     ),
                     const AdminSeancesScreen(),
                     const AdminCommunicationScreen(),

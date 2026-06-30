@@ -17,15 +17,20 @@ import 'academicien_profile_page.dart';
 /// Permet la recherche, le filtrage par poste et la consultation des profils.
 class AcademicienListPage extends StatefulWidget {
   final AcademicienRepositoryImpl repository;
-  
+
   /// Callback optionnel appele quand un academicien est selectionne.
   /// Si fourni, le tap sur un academicien appelle ce callback au lieu de naviguer vers le profil.
   final void Function(Academicien)? onAcademicienSelected;
 
+  /// Callback optionnel appele quand l'utilisateur appuie sur le bouton retour.
+  /// Si fourni, remplace le comportement par defaut [Navigator.pop].
+  final VoidCallback? onBackPressed;
+
   const AcademicienListPage({
-    super.key, 
+    super.key,
     required this.repository,
     this.onAcademicienSelected,
+    this.onBackPressed,
   });
 
   @override
@@ -65,6 +70,7 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
 
   @override
   void didPopNext() {
+    if (!mounted) return;
     _loadReferentielsAndAcademiciens();
   }
 
@@ -237,15 +243,18 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   Future<void> reload() => _loadAcademiciens();
 
   Future<void> _loadAcademiciens() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       final list = await widget.repository.getAll();
+      if (!mounted) return;
       setState(() {
         _academiciens = list;
         _applyFilters();
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -393,7 +402,13 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        if (widget.onBackPressed != null) {
+                          widget.onBackPressed!();
+                        } else if (mounted) {
+                          Navigator.of(context).maybePop();
+                        }
+                      },
                       icon: Icon(
                         Icons.arrow_back_ios_new,
                         color: colorScheme.onSurface,
