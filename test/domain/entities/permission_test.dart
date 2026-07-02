@@ -42,6 +42,16 @@ void main() {
       expect(Role.visiteur.hasPermission(Permission.exerciceValidate), isFalse);
     });
 
+    test('Admin et SuperAdmin doivent avoir academicienUpdate', () {
+      expect(Role.admin.hasPermission(Permission.academicienUpdate), isTrue);
+      expect(Role.supAdmin.hasPermission(Permission.academicienUpdate), isTrue);
+    });
+
+    test('Encadreur et EncadreurChef ne doivent PAS avoir academicienUpdate', () {
+      expect(Role.encadreur.hasPermission(Permission.academicienUpdate), isFalse);
+      expect(Role.encadreurChef.hasPermission(Permission.academicienUpdate), isFalse);
+    });
+
     test('tryFromId doit fonctionner pour exerciceValidate', () {
       expect(Permission.tryFromId('exercice:validate'), Permission.exerciceValidate);
       expect(Permission.tryFromId('EXERCICE:VALIDATE'), Permission.exerciceValidate);

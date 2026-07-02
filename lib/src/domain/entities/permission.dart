@@ -382,9 +382,8 @@ final Map<Role, Set<Permission>> rolePermissions = {
     Permission.userView,
     // Saisons (lecture seule)
     Permission.seasonView,
-    // Académiciens
+    // Académiciens (création et lecture seule — pas de modification)
     Permission.academicienCreate,
-    Permission.academicienUpdate,
     Permission.academicienView,
     // Encadreurs
     Permission.encadreurCreate,
@@ -483,9 +482,8 @@ final Map<Role, Set<Permission>> rolePermissions = {
     Permission.userView,
     // Saisons (lecture seule)
     Permission.seasonView,
-    // Académiciens
+    // Académiciens (création et lecture seule — pas de modification)
     Permission.academicienCreate,
-    Permission.academicienUpdate,
     Permission.academicienView,
     // Encadreurs (lecture seule)
     Permission.encadreurView,

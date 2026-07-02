@@ -5,6 +5,7 @@ import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../domain/entities/academicien.dart';
+import '../../../domain/entities/permission.dart';
 import '../../../domain/entities/poste_football.dart';
 import '../../../domain/entities/niveau_scolaire.dart';
 import '../../../infrastructure/repositories/academicien_repository_impl.dart';
@@ -12,6 +13,7 @@ import '../../../injection_container.dart';
 import '../../../application/services/registration_form_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
+import '../../widgets/permission_guard.dart';
 import 'academicien_edit_page.dart';
 import '../../utils/screenshot_helper.dart';
 import '../bulletin/bulletin_page.dart';
@@ -1074,7 +1076,7 @@ class _AcademicienProfilePageState extends State<AcademicienProfilePage>
                 Navigator.pop(context);
                 _ouvrirEdition();
               },
-            ),
+            ).withPermission(Permission.academicienUpdate),
             _OptionItem(
               icon: Icons.school_rounded,
               label: 'Voir le bulletin',
