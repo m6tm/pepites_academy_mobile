@@ -10,6 +10,9 @@ import '../../../injection_container.dart';
 import '../../../infrastructure/network/api_endpoints.dart';
 import '../../state/annotation_state.dart';
 import '../../theme/app_colors.dart';
+import 'dart:async';
+import '../../../core/events/presence_events.dart';
+import '../../../core/events/app_events.dart';
 import '../../widgets/academy_toast.dart';
 import '../annotation/widgets/annotation_side_panel.dart';
 import '../ateliers/ateliers_page.dart';
@@ -40,6 +43,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   bool _isLoadingAteliers = false;
   bool _isLoadingPersonnes = false;
 
+  bool _isFetching = false;
+  DateTime? _lastFetchedAt;
+  final List<StreamSubscription<dynamic>> _busSubscriptions = [];
+
   late Seance _seance;
   Seance get seance => _seance;
 
@@ -47,7 +54,37 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   void initState() {
     super.initState();
     _seance = widget.seance;
+    _listenToEvents();
     _loadLocalThenRefresh();
+  }
+
+  void _listenToEvents() {
+    _busSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<PresenceCreatedEvent>()
+          .listen((_) => _loadLocalThenRefresh()),
+    );
+    _busSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<AppResumedEvent>()
+          .listen((_) => _onAppResumed()),
+    );
+  }
+
+  void _cancelBusSubscriptions() {
+    for (final sub in _busSubscriptions) {
+      sub.cancel();
+    }
+    _busSubscriptions.clear();
+  }
+
+  Future<void> _onAppResumed() async {
+    if (_isFetching) return;
+    if (_lastFetchedAt == null) return;
+    final age = DateTime.now().difference(_lastFetchedAt!);
+    if (age > const Duration(minutes: 2)) {
+      _loadLocalThenRefresh();
+    }
   }
 
   @override
@@ -61,6 +98,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
 
   @override
   void dispose() {
+    _cancelBusSubscriptions();
     DependencyInjection.routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -72,6 +110,10 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   }
 
   Future<void> _loadLocalFast() async {
+    // On force la relecture des presences depuis le repository (et non depuis
+    // l'etat memoire _presences) pour eviter l'affichage de donnees stale
+    // apres un scan QR ou une modification externe.
+    if (mounted) setState(() => _presences = null);
     await _rafraichirSeance();
     await Future.wait([
       _chargerAteliers(),
@@ -81,21 +123,28 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   }
 
   void _loadLocalThenRefresh() {
+    if (_isFetching) return;
+    if (_lastFetchedAt != null) {
+      final age = DateTime.now().difference(_lastFetchedAt!);
+      if (age < const Duration(seconds: 3)) return;
+    }
+    _isFetching = true;
+
     _loadLocalFast();
     Future.microtask(() async {
-      await _refreshFromBackendIfConnected();
-      if (!mounted) return;
-      await _loadLocalFast();
+      try {
+        await _refreshFromBackendIfConnected();
+        if (!mounted) return;
+        await _loadLocalFast();
+      } finally {
+        _isFetching = false;
+        _lastFetchedAt = DateTime.now();
+      }
     });
   }
 
   Future<void> _refreshAll() async {
-    // Forcer le re-fetch des presences depuis le repo local (et non depuis le cache
-    // memoire _presences) pour que _chargerPersonnes recupere toujours des donnees
-    // fraiches apres la synchronisation backend.
-    if (mounted) setState(() => _presences = null);
-    await _refreshFromBackendIfConnected();
-    await _loadLocalFast();
+    _loadLocalThenRefresh();
   }
 
   Future<void> _refreshFromBackendIfConnected() async {

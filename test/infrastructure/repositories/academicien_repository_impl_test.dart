@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/application/services/sync_service.dart';
-import 'package:pepites_academy_mobile/src/core/events/academicien_events.dart';
 import 'package:pepites_academy_mobile/src/core/events/domain_event.dart';
 import 'package:pepites_academy_mobile/src/core/events/domain_event_bus.dart';
 import 'package:pepites_academy_mobile/src/core/events/invalidation_registry.dart';
