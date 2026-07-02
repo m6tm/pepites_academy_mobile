@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../core/events/academicien_events.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/niveau_scolaire.dart';
 import '../../../../domain/entities/poste_football.dart';
@@ -29,13 +31,30 @@ class MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
   Map<String, PosteFootball> _postesMap = {};
   Map<String, NiveauScolaire> _niveauxMap = {};
 
+  final List<StreamSubscription<dynamic>> _academicienEventsSubscriptions = [];
+
   @override
   void initState() {
     super.initState();
+    _listenToAcademicienEvents();
     _loadReferentielsAndAcademicians();
   }
 
+  void _listenToAcademicienEvents() {
+    _academicienEventsSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<AcademicienCreatedEvent>()
+          .listen((_) => _loadAcademicians()),
+    );
+    _academicienEventsSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<AcademicienUpdatedEvent>()
+          .listen((_) => _loadAcademicians()),
+    );
+  }
+
   Future<void> _loadReferentielsAndAcademicians() async {
+    if (!mounted || _isLoading) return;
     final postes = await DependencyInjection.referentielService.getAllPostes();
     final niveaux = await DependencyInjection.referentielService.getAllNiveaux();
     _postesMap = {for (final p in postes) p.id: p};
@@ -48,6 +67,7 @@ class MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
   /// Rafraichit les donnees depuis le backend, vide le cache memoire
   /// puis recharge la liste locale.
   Future<void> _onRefresh() async {
+    if (_isLoading) return;
     await DependencyInjection.academicienRepository.syncFromApi();
     DependencyInjection.academicienRepository.clearCache();
     await _loadAcademicians();
@@ -59,6 +79,7 @@ class MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
   }
 
   Future<void> _loadAcademicians() async {
+    if (!mounted || _isLoading) return;
     setState(() => _isLoading = true);
     try {
       final results = await DependencyInjection.academicienRepository.getAll();
@@ -105,6 +126,10 @@ class MedecinAcademyScreenState extends State<MedecinAcademyScreen> {
 
   @override
   void dispose() {
+    for (final sub in _academicienEventsSubscriptions) {
+      sub.cancel();
+    }
+    _academicienEventsSubscriptions.clear();
     _searchController.dispose();
     super.dispose();
   }

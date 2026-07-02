@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
+import '../../../core/events/academicien_events.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/historique_parcours_sportif.dart';
 import '../../../domain/entities/poste_football.dart';
@@ -53,10 +55,26 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   // Correspondance niveauId -> NiveauScolaire chargee depuis le referentiel
   Map<String, NiveauScolaire> _niveauxMap = {};
 
+  final List<StreamSubscription<dynamic>> _academicienEventsSubscriptions = [];
+
   @override
   void initState() {
     super.initState();
+    _listenToAcademicienEvents();
     _loadReferentielsAndAcademiciens();
+  }
+
+  void _listenToAcademicienEvents() {
+    _academicienEventsSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<AcademicienCreatedEvent>()
+          .listen((_) => _loadAcademiciens()),
+    );
+    _academicienEventsSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<AcademicienUpdatedEvent>()
+          .listen((_) => _loadAcademiciens()),
+    );
   }
 
   @override
@@ -75,6 +93,7 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   }
 
   Future<void> _loadReferentielsAndAcademiciens() async {
+    if (!mounted || _isLoading) return;
     final postes = await DependencyInjection.referentielService.getAllPostes();
     final niveaux = await DependencyInjection.referentielService
         .getAllNiveaux();
@@ -235,6 +254,10 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   @override
   void dispose() {
     DependencyInjection.routeObserver.unsubscribe(this);
+    for (final sub in _academicienEventsSubscriptions) {
+      sub.cancel();
+    }
+    _academicienEventsSubscriptions.clear();
     _searchController.dispose();
     super.dispose();
   }
@@ -243,7 +266,7 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   Future<void> reload() => _loadAcademiciens();
 
   Future<void> _loadAcademiciens() async {
-    if (!mounted) return;
+    if (!mounted || _isLoading) return;
     setState(() => _isLoading = true);
     try {
       final list = await widget.repository.getAll();
@@ -294,15 +317,14 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   }
 
   Future<void> _navigateToRegistration() async {
-    final result = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => const AcademicienRegistrationPage(),
       ),
     );
-    if (result == true) {
-      _loadAcademiciens();
-    }
+    // Le rechargement est géré par [didPopNext] + event bus pour eviter
+    // les appels concurrents et garantir la fraicheur du cache.
   }
 
   void _navigateToProfile(Academicien academicien) {

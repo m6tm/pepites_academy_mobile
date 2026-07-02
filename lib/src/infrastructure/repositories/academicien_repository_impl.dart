@@ -59,13 +59,24 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   }
 
   /// Migre un academicien cree offline (ID timestamp) vers l'UUID assigne par le serveur.
+  /// Si l'UUID serveur existe deja (suite a un upsertAllFromRemote par exemple),
+  /// on supprime simplement l'entree locale obsolete pour eviter tout doublon.
   Future<void> migrateLocalId(String localId, String serverId) async {
     final local = await _datasource.getById(localId);
     if (local == null) return;
-    final json = local.toJson()..['id'] = serverId;
-    final migrated = Academicien.fromJson(json);
-    await _datasource.create(migrated);
+
+    final existingServer = await _datasource.getById(serverId);
+    if (existingServer == null) {
+      final json = local.toJson()..['id'] = serverId;
+      final migrated = Academicien.fromJson(json);
+      await _datasource.create(migrated);
+    }
+
     await _datasource.delete(localId);
+    _cache.invalidateKey(localId);
+    _cache.invalidateByTag('academiciens');
+    _listCache.invalidateByTag('academiciens');
+    _eventBus?.emit(AcademicienUpdatedEvent(serverId));
   }
 
   @override
@@ -138,13 +149,38 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
 
   /// Fusionne une liste de donnees distantes dans le cache local
   /// sans declencher d'operation de synchronisation vers le serveur.
+  ///
+  /// Garantit l'absence de doublon lors de la migration d'un ID local
+  /// (timestamp genere offline) vers l'UUID assigne par le serveur :
+  /// si un academicien distant a la meme cle naturelle (nom + prenom +
+  /// date de naissance) qu'un academicien local mais un ID different,
+  /// l'ancien ID local est supprime.
   Future<void> upsertAllFromRemote(List<Academicien> remoteList) async {
     final local = await _datasource.getAll();
     final localMap = {for (final a in local) a.id: a};
+
+    String naturalKey(Academicien a) {
+      return '${a.nom.trim().toLowerCase()}|'
+          '${a.prenom.trim().toLowerCase()}|'
+          '${a.dateNaissance.toIso8601String()}';
+    }
+
+    final localByNaturalKey = <String, String>{};
+    for (final a in local) {
+      localByNaturalKey[naturalKey(a)] = a.id;
+    }
+
     for (final remote in remoteList) {
+      final existingLocalId = localByNaturalKey[naturalKey(remote)];
+      if (existingLocalId != null && existingLocalId != remote.id) {
+        localMap.remove(existingLocalId);
+      }
       localMap[remote.id] = remote;
     }
+
     await _datasource.saveAll(localMap.values.toList());
+    _cache.invalidateByTag('academiciens');
+    _listCache.invalidateByTag('academiciens');
   }
 
   @override

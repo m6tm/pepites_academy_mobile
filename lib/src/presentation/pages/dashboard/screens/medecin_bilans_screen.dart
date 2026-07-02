@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../core/events/academicien_events.dart';
 import '../../../../domain/entities/academicien.dart';
 import '../../../../domain/entities/poste_football.dart';
 import '../../../../injection_container.dart';
@@ -24,13 +27,30 @@ class MedecinBilansScreenState extends State<MedecinBilansScreen> {
   Map<String, PosteFootball> _postesMap = {};
   bool _isLoading = true;
 
+  final List<StreamSubscription<dynamic>> _academicienEventsSubscriptions = [];
+
   @override
   void initState() {
     super.initState();
+    _listenToAcademicienEvents();
     _loadReferentielsAndAcademicians();
   }
 
+  void _listenToAcademicienEvents() {
+    _academicienEventsSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<AcademicienCreatedEvent>()
+          .listen((_) => _loadAcademicians()),
+    );
+    _academicienEventsSubscriptions.add(
+      DependencyInjection.domainEventBus
+          .on<AcademicienUpdatedEvent>()
+          .listen((_) => _loadAcademicians()),
+    );
+  }
+
   Future<void> _loadReferentielsAndAcademicians() async {
+    if (!mounted || _isLoading) return;
     final postes = await DependencyInjection.referentielService.getAllPostes();
     _postesMap = {for (final p in postes) p.id: p};
     if (mounted) {
@@ -39,6 +59,7 @@ class MedecinBilansScreenState extends State<MedecinBilansScreen> {
   }
 
   Future<void> _loadAcademicians() async {
+    if (!mounted || _isLoading) return;
     setState(() => _isLoading = true);
     try {
       final results = await DependencyInjection.academicienRepository.getAll();
@@ -57,6 +78,7 @@ class MedecinBilansScreenState extends State<MedecinBilansScreen> {
   }
 
   Future<void> _onRefresh() async {
+    if (_isLoading) return;
     await DependencyInjection.academicienRepository.syncFromApi();
     DependencyInjection.academicienRepository.clearCache();
     await _loadAcademicians();
@@ -306,6 +328,10 @@ class MedecinBilansScreenState extends State<MedecinBilansScreen> {
 
   @override
   void dispose() {
+    for (final sub in _academicienEventsSubscriptions) {
+      sub.cancel();
+    }
+    _academicienEventsSubscriptions.clear();
     _searchController.dispose();
     super.dispose();
   }
