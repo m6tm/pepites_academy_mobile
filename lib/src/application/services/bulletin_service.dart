@@ -33,13 +33,15 @@ class BulletinService {
     required DateTime dateReference,
     String observationsGenerales = '',
   }) async {
+    final periode = _calculerPeriode(typePeriode, dateReference);
     final response = await _dioClient.post<dynamic>(
       ApiEndpoints.bulletins,
       data: {
         'academicien_id': academicienId,
         'encadreur_id': encadreurId,
         'type_periode': typePeriode.name,
-        'date_reference': dateReference.toIso8601String().split('T').first,
+        'date_debut_periode': periode.debut.toIso8601String().split('T').first,
+        'date_fin_periode': periode.fin.toIso8601String().split('T').first,
         'observations_generales': observationsGenerales,
       },
     );
@@ -224,6 +226,30 @@ class BulletinService {
         return PeriodeType.saison;
       default:
         return PeriodeType.mois;
+    }
+  }
+
+  /// Calcule les dates de debut et fin d'une periode a partir d'une date de reference.
+  ({DateTime debut, DateTime fin}) _calculerPeriode(
+    PeriodeType type,
+    DateTime reference,
+  ) {
+    switch (type) {
+      case PeriodeType.mois:
+        final debut = DateTime(reference.year, reference.month, 1);
+        final fin = DateTime(reference.year, reference.month + 1, 0);
+        return (debut: debut, fin: fin);
+      case PeriodeType.trimestre:
+        final trimestre = ((reference.month - 1) ~/ 3);
+        final debut = DateTime(reference.year, trimestre * 3 + 1, 1);
+        final fin = DateTime(reference.year, trimestre * 3 + 4, 0);
+        return (debut: debut, fin: fin);
+      case PeriodeType.saison:
+        final anneeDebut =
+            reference.month >= 9 ? reference.year : reference.year - 1;
+        final debut = DateTime(anneeDebut, 9, 1);
+        final fin = DateTime(anneeDebut + 1, 8, 31);
+        return (debut: debut, fin: fin);
     }
   }
 

@@ -45,7 +45,7 @@ help:
 	@echo "  make run ENV=staging     - Lance l'application en mode debug sur staging"
 	@echo "  make run-debug           - Lance l'application en mode debug"
 	@echo "  make run-profile         - Lance l'application en mode profile"
-	@echo "  make run-release         - Lance l'application en mode release"
+	@echo "  make run-release         - Lance l'application en mode release (production par defaut)"
 	@echo "  make run-local           - Lance l'application en local (debug)"
 	@echo "  make run-staging         - Lance l'application en staging (debug)"
 	@echo "  make run-prod            - Lance l'application en production (debug)"
@@ -129,7 +129,7 @@ run-profile:
 	$(FLUTTER) run --profile $(DART_DEFINE_ENV)
 
 run-release:
-	$(FLUTTER) run --release $(DART_DEFINE_ENV)
+	$(FLUTTER) run --release --dart-define=ENV=production
 
 run-local:
 	$(FLUTTER) run --debug --dart-define=ENV=local
@@ -148,7 +148,7 @@ build-apk:
 	$(FLUTTER) build apk --debug $(DART_DEFINE_ENV)
 
 build-apk-release:
-	$(FLUTTER) build apk --release $(DART_DEFINE_ENV)
+	$(FLUTTER) build apk --release --dart-define=ENV=production
 
 build-appbundle:
 	$(FLUTTER) build appbundle --release $(DART_DEFINE_ENV)

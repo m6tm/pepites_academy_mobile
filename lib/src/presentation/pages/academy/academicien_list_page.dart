@@ -42,7 +42,8 @@ class AcademicienListPage extends StatefulWidget {
 class AcademicienListPageState extends State<AcademicienListPage> with RouteAware {
   List<Academicien> _academiciens = [];
   List<Academicien> _filteredAcademiciens = [];
-  bool _isLoading = true;
+  bool _isLoading = false;
+  bool _isInitializing = true;
   final _searchController = TextEditingController();
   String _selectedFilter = '';
 
@@ -93,21 +94,27 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
   }
 
   Future<void> _loadReferentielsAndAcademiciens() async {
-    if (!mounted || _isLoading) return;
-    final postes = await DependencyInjection.referentielService.getAllPostes();
-    final niveaux = await DependencyInjection.referentielService
-        .getAllNiveaux();
-    _postesMap = {for (final p in postes) p.id: p};
-    _niveauxMap = {for (final n in niveaux) n.id: n};
-    if (mounted) {
-      _filters = [
-        AppLocalizations.of(context)!.all_masculine,
-        ...postes.map((p) => p.nom),
-      ];
-      _selectedFilter = AppLocalizations.of(context)!.all_masculine;
-      // Si connecté, récupère d'abord depuis l'API
-      await _refreshFromApiIfOnline();
-      await _loadAcademiciens();
+    if (!mounted) return;
+    setState(() => _isInitializing = true);
+    try {
+      final postes = await DependencyInjection.referentielService.getAllPostes();
+      final niveaux = await DependencyInjection.referentielService.getAllNiveaux();
+      _postesMap = {for (final p in postes) p.id: p};
+      _niveauxMap = {for (final n in niveaux) n.id: n};
+      if (mounted) {
+        _filters = [
+          AppLocalizations.of(context)!.all_masculine,
+          ...postes.map((p) => p.nom),
+        ];
+        _selectedFilter = AppLocalizations.of(context)!.all_masculine;
+        // Si connecté, récupère d'abord depuis l'API
+        await _refreshFromApiIfOnline();
+        await _loadAcademiciens();
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isInitializing = false);
+      }
     }
   }
 
@@ -383,7 +390,7 @@ class AcademicienListPageState extends State<AcademicienListPage> with RouteAwar
               SliverToBoxAdapter(child: _buildFilterChips(colorScheme)),
               SliverToBoxAdapter(child: _buildQuickStats(colorScheme, isDark)),
               const SliverToBoxAdapter(child: SizedBox(height: 8)),
-              _isLoading
+              (_isLoading || _isInitializing)
                   ? const SliverFillRemaining(
                       child: Center(child: CircularProgressIndicator()),
                     )
