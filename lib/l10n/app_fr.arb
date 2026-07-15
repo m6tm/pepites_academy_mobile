@@ -1658,6 +1658,7 @@
   "serviceScanQrNotRecognized": "Code QR non reconnu",
   "serviceScanTypeAcademician": "Academicien",
   "serviceScanTypeCoach": "Encadreur",
+  "serviceScanCoachNotInvited": "Cet encadreur n'est pas invite a cette seance",
   "serviceAtelierSeanceNotFound": "Seance introuvable : {id}",
   "@serviceAtelierSeanceNotFound": {
     "placeholders": {

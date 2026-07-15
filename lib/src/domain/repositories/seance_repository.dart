@@ -19,7 +19,9 @@ class SeanceWithStats {
 
 /// Contrat pour la gestion des seances d'entrainement.
 abstract class SeanceRepository {
-  Future<Seance?> getById(String id);
+  /// Recupere une seance par son identifiant.
+  /// [forceRefresh] bypass le cache detail et force une synchronisation reseau.
+  Future<Seance?> getById(String id, {bool forceRefresh = false});
   Future<List<Seance>> getAll();
   Future<Seance?> getSeanceOuverte();
   Future<SeanceWithStats?> getSeanceEncoursWithStats();

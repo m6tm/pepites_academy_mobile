@@ -3,16 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../domain/entities/academicien.dart';
 import '../../../domain/entities/atelier.dart';
-import '../../../domain/entities/encadreur.dart';
-import '../../../domain/entities/presence.dart';
 import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
-import '../../../infrastructure/network/api_endpoints.dart';
 import '../../state/annotation_state.dart';
+import '../../state/seance_detail_state.dart';
 import '../../theme/app_colors.dart';
-import 'dart:async';
-import '../../../core/events/presence_events.dart';
-import '../../../core/events/app_events.dart';
 import '../../widgets/academy_toast.dart';
 import '../annotation/widgets/annotation_side_panel.dart';
 import '../ateliers/ateliers_page.dart';
@@ -33,58 +28,13 @@ class SeanceDetailPage extends StatefulWidget {
 }
 
 class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
-  List<Atelier> _ateliers = [];
-  List<Academicien> _academiciens = [];
-  List<Encadreur> _encadreurs = [];
-  Encadreur? _responsable;
-  String? _responsableNom;
-  int? _nbPresents;
-  List<Presence>? _presences;
-  bool _isLoadingAteliers = false;
-  bool _isLoadingPersonnes = false;
-
-  bool _isFetching = false;
-  DateTime? _lastFetchedAt;
-  final List<StreamSubscription<dynamic>> _busSubscriptions = [];
-
-  late Seance _seance;
-  Seance get seance => _seance;
+  late final SeanceDetailState _state;
 
   @override
   void initState() {
     super.initState();
-    _seance = widget.seance;
-    _listenToEvents();
-    _loadLocalThenRefresh();
-  }
-
-  void _listenToEvents() {
-    _busSubscriptions.add(
-      DependencyInjection.domainEventBus
-          .on<PresenceCreatedEvent>()
-          .listen((_) => _loadLocalThenRefresh()),
-    );
-    _busSubscriptions.add(
-      DependencyInjection.domainEventBus
-          .on<AppResumedEvent>()
-          .listen((_) => _onAppResumed()),
-    );
-  }
-
-  void _cancelBusSubscriptions() {
-    for (final sub in _busSubscriptions) {
-      sub.cancel();
-    }
-    _busSubscriptions.clear();
-  }
-
-  Future<void> _onAppResumed() async {
-    if (_isFetching) return;
-    if (_lastFetchedAt == null) return;
-    final age = DateTime.now().difference(_lastFetchedAt!);
-    if (age > const Duration(minutes: 2)) {
-      _loadLocalThenRefresh();
-    }
+    _state = SeanceDetailState(widget.seance);
+    _state.loadInitial();
   }
 
   @override
@@ -98,7 +48,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
 
   @override
   void dispose() {
-    _cancelBusSubscriptions();
+    _state.dispose();
     DependencyInjection.routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -106,366 +56,11 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   @override
   void didPopNext() {
     if (!mounted) return;
-    _loadLocalThenRefresh();
+    _state.refreshFromBackend();
   }
 
-  Future<void> _loadLocalFast() async {
-    // On force la relecture des presences depuis le repository (et non depuis
-    // l'etat memoire _presences) pour eviter l'affichage de donnees stale
-    // apres un scan QR ou une modification externe.
-    if (mounted) setState(() => _presences = null);
-    await _rafraichirSeance();
-    await Future.wait([
-      _chargerAteliers(),
-      _chargerPersonnes(),
-      _chargerResponsableNom(),
-    ]);
-  }
-
-  void _loadLocalThenRefresh() {
-    if (_isFetching) return;
-    if (_lastFetchedAt != null) {
-      final age = DateTime.now().difference(_lastFetchedAt!);
-      if (age < const Duration(seconds: 3)) return;
-    }
-    _isFetching = true;
-
-    _loadLocalFast();
-    Future.microtask(() async {
-      try {
-        await _refreshFromBackendIfConnected();
-        if (!mounted) return;
-        await _loadLocalFast();
-      } finally {
-        _isFetching = false;
-        _lastFetchedAt = DateTime.now();
-      }
-    });
-  }
-
-  Future<void> _refreshAll() async {
-    _loadLocalThenRefresh();
-  }
-
-  Future<void> _refreshFromBackendIfConnected() async {
-    final isConnected = await DependencyInjection.connectivityService
-        .isConnected();
-    if (!isConnected) return;
-
-    final isReachable = await DependencyInjection.apiSyncDatasource
-        .isServerReachable();
-    if (!isReachable) return;
-
-    try {
-      final seancesJson = await DependencyInjection.apiSyncDatasource.fetchAll(
-        ApiEndpoints.seances,
-      );
-
-      // Resoudre l'UUID effectif : si l'ID local est un timestamp (seance creee offline
-      // dont l'UUID serveur n'a pas encore ete propage), on cherche la seance ouverte
-      // dans la reponse du backend pour utiliser son vrai UUID.
-      String effectiveSeanceId = _seance.id;
-      if (seancesJson != null) {
-        final remoteSeances = seancesJson.map(Seance.fromJson).toList();
-        final isTimestampId = RegExp(r'^\d{10,}$').hasMatch(_seance.id);
-        final List<Seance> toUpsert;
-        if (isTimestampId) {
-          final serverOpenSeance = remoteSeances
-              .where((s) => s.statut == SeanceStatus.ouverte)
-              .toList();
-          toUpsert = serverOpenSeance;
-          if (serverOpenSeance.isNotEmpty) {
-            effectiveSeanceId = serverOpenSeance.first.id;
-            if (mounted) setState(() => _seance = serverOpenSeance.first);
-          }
-        } else {
-          toUpsert = remoteSeances.where((s) => s.id == _seance.id).toList();
-        }
-        if (toUpsert.isNotEmpty) {
-          await DependencyInjection.seanceRepository.upsertAllFromRemote(toUpsert);
-        }
-      }
-
-      final ateliersJson = await DependencyInjection.apiSyncDatasource.fetchAll(
-        '${ApiEndpoints.seances}/$effectiveSeanceId/ateliers',
-      );
-      if (ateliersJson != null) {
-        final remote = ateliersJson
-            .map(Atelier.fromJson)
-            .where((a) => a.seanceId == effectiveSeanceId)
-            .toList();
-        await DependencyInjection.atelierRepository.upsertAllFromRemote(remote);
-      }
-
-      final presencesJson = await DependencyInjection.apiSyncDatasource
-          .fetchAll('${ApiEndpoints.presences}?seance_id=$effectiveSeanceId');
-      if (presencesJson != null) {
-        final remote = presencesJson
-            .map(Presence.fromJson)
-            .where((p) => p.seanceId == effectiveSeanceId)
-            .toList();
-        await DependencyInjection.presenceRepository.upsertAllFromRemote(
-          remote,
-        );
-        if (mounted) {
-          setState(() {
-            _presences = remote;
-            _nbPresents = remote.length;
-          });
-        }
-      }
-
-      final academiciensJson = await DependencyInjection.apiSyncDatasource
-          .fetchAll(ApiEndpoints.academiciens);
-      if (academiciensJson != null) {
-        final remote = academiciensJson.map(Academicien.fromJson).toList();
-        await DependencyInjection.academicienRepository.upsertAllFromRemote(
-          remote,
-        );
-      }
-
-      final encadreursJson = await DependencyInjection.apiSyncDatasource
-          .fetchAll(ApiEndpoints.encadreurs);
-      if (encadreursJson != null) {
-        final remote = encadreursJson.map(Encadreur.fromJson).toList();
-        await DependencyInjection.encadreurRepository.replaceAllFromRemote(
-          remote,
-        );
-      }
-    } catch (_) {
-      return;
-    }
-  }
-
-  Future<void> _chargerResponsableNom() async {
-    final responsableId = _seance.encadreurResponsableId;
-    if (responsableId.isEmpty) return;
-
-    try {
-      final currentUserId = await DependencyInjection.preferences.getUserId();
-      if (responsableId == 'current_user' ||
-          (currentUserId != null && currentUserId == responsableId)) {
-        final fullName = await DependencyInjection.preferences
-            .getUserFullName();
-        if (mounted) setState(() => _responsableNom = fullName);
-        return;
-      }
-
-      final enc = await DependencyInjection.encadreurRepository.getById(
-        responsableId,
-      );
-      if (mounted) setState(() => _responsableNom = enc?.nomComplet);
-    } catch (_) {
-      // Ignore
-    }
-  }
-
-  /// Recharge la seance depuis le datasource pour refleter les modifications.
-  Future<void> _rafraichirSeance() async {
-    // Priorite a _seance.id : il peut avoir ete mis a jour vers l'UUID serveur
-    // par _refreshFromBackendIfConnected, auquel cas on ne doit pas revenir au
-    // widget.seance.id original qui est un timestamp stale.
-    var updated = await DependencyInjection.seanceRepository.getById(_seance.id);
-
-    // Fallback : l'ID courant (timestamp) n'existe plus en local car la seance
-    // a ete synchronisee et son entree migrée vers l'UUID serveur.
-    if (updated == null && RegExp(r'^\d{10,}$').hasMatch(_seance.id)) {
-      updated = await DependencyInjection.seanceRepository.getSeanceOuverte();
-    }
-
-    if (mounted && updated != null) {
-      setState(() => _seance = updated!);
-      return;
-    }
-
-    if (mounted) {
-      _chargerPersonnes();
-    }
-  }
-
-  Future<void> _chargerAteliers() async {
-    setState(() => _isLoadingAteliers = true);
-    try {
-      final ateliers = await DependencyInjection.atelierService
-          .getAteliersParSeance(seance.id);
-      if (mounted) {
-        setState(() {
-          _ateliers = ateliers;
-          _isLoadingAteliers = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _isLoadingAteliers = false);
-    }
-  }
-
-  Future<void> _chargerPersonnes() async {
-    setState(() => _isLoadingPersonnes = true);
-    try {
-      final presences =
-          _presences ??
-          await DependencyInjection.presenceRepository.getBySeance(_seance.id);
-
-      // Les presences sont la source de verite : si elles existent, on les utilise
-      // pour construire les listes de participants. On ne se fie aux IDs stockes
-      // sur la seance qu'en l'absence totale de presences (fallback offline).
-      final academicienIds = presences.isNotEmpty
-          ? presences
-                .where((p) => p.typeProfil == ProfilType.academicien)
-                .map((p) => p.profilId)
-                .toSet()
-                .toList()
-          : _seance.academicienIds;
-
-      final encadreurIds = presences.isNotEmpty
-          ? presences
-                .where((p) => p.typeProfil == ProfilType.encadreur)
-                .map((p) => p.profilId)
-                .toSet()
-                .toList()
-          : _seance.encadreurIds;
-
-      final tousAcademiciens = await DependencyInjection.academicienRepository
-          .getAll();
-      final tousEncadreurs = await DependencyInjection.encadreurRepository
-          .getAll();
-
-      final academiciensById = <String, Academicien>{
-        for (final a in tousAcademiciens) a.id: a,
-      };
-      final encadreursById = <String, Encadreur>{
-        for (final e in tousEncadreurs) e.id: e,
-      };
-
-      final loadedAcademiciens = <Academicien>[];
-      for (final id in academicienIds) {
-        final fromAll = academiciensById[id];
-        if (fromAll != null) {
-          loadedAcademiciens.add(fromAll);
-          continue;
-        }
-        final fromRepo = await DependencyInjection.academicienRepository
-            .getById(id);
-        if (fromRepo != null) loadedAcademiciens.add(fromRepo);
-      }
-
-      final loadedEncadreurs = <Encadreur>[];
-      for (final id in encadreurIds) {
-        final fromAll = encadreursById[id];
-        if (fromAll != null) {
-          loadedEncadreurs.add(fromAll);
-          continue;
-        }
-        final fromRepo = await DependencyInjection.encadreurRepository.getById(
-          id,
-        );
-        if (fromRepo != null) loadedEncadreurs.add(fromRepo);
-      }
-
-      Encadreur? responsable;
-      if (_seance.encadreurResponsableId.isNotEmpty &&
-          _seance.encadreurResponsableId != 'current_user') {
-        responsable =
-            encadreursById[_seance.encadreurResponsableId] ??
-            await DependencyInjection.encadreurRepository.getById(
-              _seance.encadreurResponsableId,
-            );
-      }
-
-      if (mounted) {
-        setState(() {
-          _academiciens = loadedAcademiciens;
-          _encadreurs = loadedEncadreurs;
-          _responsable = responsable;
-          _nbPresents = presences.length;
-          _presences = presences;
-          _isLoadingPersonnes = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _isLoadingPersonnes = false);
-    }
-  }
-
-  Future<void> _ouvrirAnnotationAcademicien(Academicien academicien) async {
-    if (_ateliers.isEmpty) {
-      AcademyToast.show(
-        context,
-        title: AppLocalizations.of(context)!.sessionAddAtLeastOneWorkshop,
-        isError: true,
-      );
-      return;
-    }
-
-    if (!mounted) return;
-    showModalBottomSheet<Atelier>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _AtelierPickerSheet(
-        academicien: academicien,
-        ateliers: _ateliers
-            .where((a) => a.statut == AtelierStatut.applique)
-            .toList(),
-      ),
-    ).then((atelier) {
-      if (!mounted || atelier == null) return;
-      _ouvrirAnnotationAcademicienPourAtelier(
-        academicien: academicien,
-        atelier: atelier,
-      ).then((_) {
-        if (!mounted) return;
-        _ouvrirAnnotationAcademicien(academicien);
-      });
-    });
-  }
-
-  Future<void> _ouvrirAnnotationAcademicienPourAtelier({
-    required Academicien academicien,
-    required Atelier atelier,
-  }) async {
-    final annotationState = AnnotationState(
-      DependencyInjection.annotationService,
-      DependencyInjection.domainEventBus,
-    );
-
-    await annotationState.initialiserContexte(
-      atelierId: atelier.id,
-      seanceId: seance.id,
-    );
-    await annotationState.selectionnerAcademicien(academicien.id);
-
-    if (!mounted) {
-      annotationState.dispose();
-      return;
-    }
-
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => AnnotationSidePanel(
-        academicien: academicien,
-        atelier: atelier,
-        seance: seance,
-        annotationState: annotationState,
-        encadreurId: seance.encadreurResponsableId,
-      ),
-    );
-
-    annotationState.deselectionnerAcademicien();
-    annotationState.dispose();
-  }
-
-  Future<void> _naviguerVersComposition() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) =>
-            AteliersPage(seance: seance),
-      ),
-    );
-    _chargerAteliers();
-    _rafraichirSeance();
+  Future<void> _onRefresh() async {
+    await _state.refreshFromBackend();
   }
 
   @override
@@ -473,62 +68,85 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _refreshAll,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
+    return ListenableBuilder(
+      listenable: _state,
+      builder: (context, _) {
+        final seance = _state.seance;
+
+        return Scaffold(
+          body: RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              slivers: [
+                _buildAppBar(context, colorScheme, seance),
+                SliverToBoxAdapter(child: _buildStatusBanner(colorScheme, seance)),
+                SliverToBoxAdapter(
+                  child: _buildInfoSection(colorScheme, isDark, seance),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildStatsRow(colorScheme, isDark, seance),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildSectionTitle(
+                    AppLocalizations.of(context)!.invitedCoachesLabel,
+                    Icons.mail_outline_rounded,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildInvitedCoachesList(colorScheme, isDark),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildSectionTitle(
+                    AppLocalizations.of(context)!.presentCoaches,
+                    Icons.person_rounded,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildEncadreursList(colorScheme, isDark),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildSectionTitle(
+                    AppLocalizations.of(context)!.academicians,
+                    Icons.groups_rounded,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildAcademiciensList(colorScheme, isDark),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildSectionTitleWithAction(
+                    context,
+                    AppLocalizations.of(context)!.workshopsRecapLabel,
+                    Icons.fitness_center_rounded,
+                    seance,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: PermissionGuard(
+                    permission: Permission.atelierView,
+                    child: AteliersProgressCard(ateliers: _state.ateliers),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: _buildAteliersList(colorScheme, isDark, seance),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              ],
+            ),
           ),
-          slivers: [
-            _buildAppBar(context, colorScheme),
-            SliverToBoxAdapter(child: _buildStatusBanner(colorScheme)),
-            SliverToBoxAdapter(child: _buildInfoSection(colorScheme, isDark)),
-            SliverToBoxAdapter(child: _buildStatsRow(colorScheme, isDark)),
-            SliverToBoxAdapter(
-              child: _buildSectionTitle(
-                AppLocalizations.of(context)!.presentCoaches,
-                Icons.person_rounded,
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: _buildEncadreursList(colorScheme, isDark),
-            ),
-            SliverToBoxAdapter(
-              child: _buildSectionTitle(
-                AppLocalizations.of(context)!.academicians,
-                Icons.groups_rounded,
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: _buildAcademiciensList(colorScheme, isDark),
-            ),
-            SliverToBoxAdapter(
-              child: _buildSectionTitleWithAction(
-                context,
-                AppLocalizations.of(context)!.workshopsRecapLabel,
-                Icons.fitness_center_rounded,
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: PermissionGuard(
-                permission: Permission.atelierView,
-                child: AteliersProgressCard(ateliers: _ateliers),
-              ),
-            ),
-            SliverToBoxAdapter(child: _buildAteliersList(colorScheme, isDark)),
-            const SliverToBoxAdapter(child: SizedBox(height: 40)),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildAppBar(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildAppBar(BuildContext context, ColorScheme colorScheme, Seance seance) {
     return SliverAppBar(
       expandedHeight: 140,
       pinned: true,
-      backgroundColor: _statusColor.withValues(alpha: 0.95),
+      backgroundColor: _statusColor(seance).withValues(alpha: 0.95),
       foregroundColor: Colors.white,
       leading: IconButton(
         onPressed: () => Navigator.of(context).pop(),
@@ -548,7 +166,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [_statusColor, _statusColor.withValues(alpha: 0.8)],
+              colors: [_statusColor(seance), _statusColor(seance).withValues(alpha: 0.8)],
             ),
           ),
         ),
@@ -556,25 +174,26 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     );
   }
 
-  Widget _buildStatusBanner(ColorScheme colorScheme) {
+  Widget _buildStatusBanner(ColorScheme colorScheme, Seance seance) {
+    final color = _statusColor(seance);
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: _statusColor.withValues(alpha: 0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _statusColor.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
-          Icon(_statusIcon, color: _statusColor, size: 22),
+          Icon(_statusIcon(seance), color: color, size: 22),
           const SizedBox(width: 10),
           Text(
-            _getStatusLabel(context),
+            _getStatusLabel(context, seance),
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: _statusColor,
+              color: color,
             ),
           ),
           const Spacer(),
@@ -591,7 +210,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     );
   }
 
-  Widget _buildInfoSection(ColorScheme colorScheme, bool isDark) {
+  Widget _buildInfoSection(ColorScheme colorScheme, bool isDark, Seance seance) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(18),
@@ -627,9 +246,9 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
             icon: Icons.person_rounded,
             label: AppLocalizations.of(context)!.responsibleLabel,
             value: seance.encadreurResponsableId == 'current_user'
-                ? (_responsableNom ?? AppLocalizations.of(context)!.meLabel)
-                : (_responsableNom ??
-                      _responsable?.nomComplet ??
+                ? (_state.responsableNom ?? AppLocalizations.of(context)!.meLabel)
+                : (_state.responsableNom ??
+                      _state.responsable?.nomComplet ??
                       seance.encadreurResponsableId),
           ),
         ],
@@ -637,14 +256,19 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     );
   }
 
-  Widget _buildStatsRow(ColorScheme colorScheme, bool isDark) {
-    final nbPresents = _nbPresents ?? seance.nbPresents;
-    final nbAteliers = _ateliers.isNotEmpty
-        ? _ateliers.length
+  Widget _buildStatsRow(ColorScheme colorScheme, bool isDark, Seance seance) {
+    final nbPresents = _state.nbPresents ?? seance.nbPresents;
+    final nbAteliers = _state.ateliers.isNotEmpty
+        ? _state.ateliers.length
         : seance.atelierIds.length;
-    final nbEncadreurs = _encadreurs.isNotEmpty
-        ? _encadreurs.length
-        : seance.encadreurIds.length;
+    final nbEncadreurs = (_state.encadreursPresents.isNotEmpty ||
+            _state.encadreursInvites.isNotEmpty)
+        ? _state.encadreursPresents.length + _state.encadreursInvites.length
+        : seance.encadreurIds.length +
+            (seance.encadreurResponsableId.isNotEmpty &&
+                    seance.encadreurResponsableId != 'current_user'
+                ? 1
+                : 0);
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -701,6 +325,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     BuildContext context,
     String title,
     IconData icon,
+    Seance seance,
   ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
@@ -717,7 +342,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
           ),
           const Spacer(),
           TextButton.icon(
-            onPressed: _naviguerVersComposition,
+            onPressed: () => _naviguerVersComposition(seance),
             icon: Icon(
               seance.estOuverte ? Icons.edit_rounded : Icons.visibility_rounded,
               size: 16,
@@ -746,7 +371,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   }
 
   Widget _buildEncadreursList(ColorScheme colorScheme, bool isDark) {
-    if (_isLoadingPersonnes) {
+    if (_state.isLoadingPersonnes) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
         child: Center(
@@ -759,7 +384,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
       );
     }
 
-    if (_encadreurs.isEmpty) {
+    if (_state.encadreursPresents.isEmpty) {
       return _buildEmptyListMessage(
         AppLocalizations.of(context)!.noCoachRegistered,
         colorScheme,
@@ -772,9 +397,9 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemCount: _encadreurs.length,
+        itemCount: _state.encadreursPresents.length,
         itemBuilder: (context, index) {
-          final enc = _encadreurs[index];
+          final enc = _state.encadreursPresents[index];
           return _PersonChip(
             label: enc.nomComplet,
             initials:
@@ -788,8 +413,8 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     );
   }
 
-  Widget _buildAcademiciensList(ColorScheme colorScheme, bool isDark) {
-    if (_isLoadingPersonnes) {
+  Widget _buildInvitedCoachesList(ColorScheme colorScheme, bool isDark) {
+    if (_state.isLoadingPersonnes) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
         child: Center(
@@ -802,7 +427,50 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
       );
     }
 
-    if (_academiciens.isEmpty) {
+    if (_state.encadreursInvites.isEmpty) {
+      return _buildEmptyListMessage(
+        AppLocalizations.of(context)!.invitedCoachesNone,
+        colorScheme,
+      );
+    }
+
+    return SizedBox(
+      height: 80,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemCount: _state.encadreursInvites.length,
+        itemBuilder: (context, index) {
+          final enc = _state.encadreursInvites[index];
+          return _PersonChip(
+            label: enc.nomComplet,
+            initials:
+                '${enc.prenom.isNotEmpty ? enc.prenom[0] : ''}${enc.nom.isNotEmpty ? enc.nom[0] : ''}',
+            photoUrl: enc.photoUrl,
+            color: const Color(0xFFF59E0B),
+            isDark: isDark,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAcademiciensList(ColorScheme colorScheme, bool isDark) {
+    if (_state.isLoadingPersonnes) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    if (_state.academiciens.isEmpty) {
       return _buildEmptyListMessage(
         AppLocalizations.of(context)!.noAcademicianRegistered,
         colorScheme,
@@ -815,9 +483,9 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemCount: _academiciens.length,
+        itemCount: _state.academiciens.length,
         itemBuilder: (context, index) {
-          final aca = _academiciens[index];
+          final aca = _state.academiciens[index];
           return GestureDetector(
             onTap: () => _ouvrirAnnotationAcademicien(aca),
             child: _PersonChip(
@@ -834,8 +502,8 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     );
   }
 
-  Widget _buildAteliersList(ColorScheme colorScheme, bool isDark) {
-    if (_isLoadingAteliers) {
+  Widget _buildAteliersList(ColorScheme colorScheme, bool isDark, Seance seance) {
+    if (_state.isLoadingAteliers) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
         child: Center(
@@ -848,7 +516,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
       );
     }
 
-    if (_ateliers.isEmpty) {
+    if (_state.ateliers.isEmpty) {
       return _buildEmptyListMessage(
         AppLocalizations.of(context)!.noWorkshopProgrammed,
         colorScheme,
@@ -858,13 +526,13 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: List.generate(_ateliers.length, (index) {
-          final atelier = _ateliers[index];
+        children: List.generate(_state.ateliers.length, (index) {
+          final atelier = _state.ateliers[index];
           final typeColor = _getAtelierTypeColor(atelier.type);
           final typeIcon = _getAtelierTypeIcon(atelier.type);
 
           return GestureDetector(
-            onTap: _naviguerVersComposition,
+            onTap: () => _naviguerVersComposition(seance),
             child: Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(14),
@@ -962,6 +630,150 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     );
   }
 
+  Future<void> _ouvrirAnnotationAcademicien(Academicien academicien) async {
+    if (_state.ateliers.isEmpty) {
+      AcademyToast.show(
+        context,
+        title: AppLocalizations.of(context)!.sessionAddAtLeastOneWorkshop,
+        isError: true,
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    showModalBottomSheet<Atelier>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _AtelierPickerSheet(
+        academicien: academicien,
+        ateliers: _state.ateliers
+            .where((a) => a.statut == AtelierStatut.applique)
+            .toList(),
+      ),
+    ).then((atelier) {
+      if (!mounted || atelier == null) return;
+      _ouvrirAnnotationAcademicienPourAtelier(
+        academicien: academicien,
+        atelier: atelier,
+      ).then((_) {
+        if (!mounted) return;
+        _ouvrirAnnotationAcademicien(academicien);
+      });
+    });
+  }
+
+  Future<void> _ouvrirAnnotationAcademicienPourAtelier({
+    required Academicien academicien,
+    required Atelier atelier,
+  }) async {
+    final annotationState = AnnotationState(
+      DependencyInjection.annotationService,
+      DependencyInjection.domainEventBus,
+    );
+
+    await annotationState.initialiserContexte(
+      atelierId: atelier.id,
+      seanceId: _state.seance.id,
+    );
+    await annotationState.selectionnerAcademicien(academicien.id);
+
+    if (!mounted) {
+      annotationState.dispose();
+      return;
+    }
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AnnotationSidePanel(
+        academicien: academicien,
+        atelier: atelier,
+        seance: _state.seance,
+        annotationState: annotationState,
+        encadreurId: _state.seance.encadreurResponsableId,
+      ),
+    );
+
+    annotationState.deselectionnerAcademicien();
+    annotationState.dispose();
+  }
+
+  Future<void> _naviguerVersComposition(Seance seance) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AteliersPage(seance: seance),
+      ),
+    );
+    _state.refreshFromBackend();
+  }
+
+  Widget _buildEmptyListMessage(String message, ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colorScheme.onSurface.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.info_outline_rounded,
+              size: 16,
+              color: colorScheme.onSurface.withValues(alpha: 0.3),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              message,
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                color: colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _statusColor(Seance seance) {
+    switch (seance.statut) {
+      case SeanceStatus.ouverte:
+        return const Color(0xFF10B981);
+      case SeanceStatus.fermee:
+        return AppColors.textMutedLight;
+      case SeanceStatus.aVenir:
+        return const Color(0xFF3B82F6);
+    }
+  }
+
+  String _getStatusLabel(BuildContext context, Seance seance) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (seance.statut) {
+      case SeanceStatus.ouverte:
+        return l10n.sessionStatusOpen;
+      case SeanceStatus.fermee:
+        return l10n.sessionStatusClosed;
+      case SeanceStatus.aVenir:
+        return l10n.sessionStatusUpcoming;
+    }
+  }
+
+  IconData _statusIcon(Seance seance) {
+    switch (seance.statut) {
+      case SeanceStatus.ouverte:
+        return Icons.play_circle_rounded;
+      case SeanceStatus.fermee:
+        return Icons.check_circle_rounded;
+      case SeanceStatus.aVenir:
+        return Icons.schedule_rounded;
+    }
+  }
+
   static Color _getAtelierTypeColor(AtelierType type) {
     switch (type) {
       case AtelierType.dribble:
@@ -1005,71 +817,6 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
         return Icons.directions_run_rounded;
       case AtelierType.personnalise:
         return Icons.tune_rounded;
-    }
-  }
-
-  Widget _buildEmptyListMessage(String message, ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: colorScheme.onSurface.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.info_outline_rounded,
-              size: 16,
-              color: colorScheme.onSurface.withValues(alpha: 0.3),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              message,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
-                color: colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color get _statusColor {
-    switch (seance.statut) {
-      case SeanceStatus.ouverte:
-        return const Color(0xFF10B981);
-      case SeanceStatus.fermee:
-        return AppColors.textMutedLight;
-      case SeanceStatus.aVenir:
-        return const Color(0xFF3B82F6);
-    }
-  }
-
-  String _getStatusLabel(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (seance.statut) {
-      case SeanceStatus.ouverte:
-        return l10n.sessionStatusOpen;
-      case SeanceStatus.fermee:
-        return l10n.sessionStatusClosed;
-      case SeanceStatus.aVenir:
-        return l10n.sessionStatusUpcoming;
-    }
-  }
-
-  IconData get _statusIcon {
-    switch (seance.statut) {
-      case SeanceStatus.ouverte:
-        return Icons.play_circle_rounded;
-      case SeanceStatus.fermee:
-        return Icons.check_circle_rounded;
-      case SeanceStatus.aVenir:
-        return Icons.schedule_rounded;
     }
   }
 }
@@ -1231,7 +978,6 @@ class _AtelierPickerSheet extends StatelessWidget {
   }
 }
 
-/// Ligne de detail avec icone, label et valeur.
 class _DetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -1279,7 +1025,6 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-/// Boite de statistique compacte.
 class _StatBox extends StatelessWidget {
   final IconData icon;
   final String value;
@@ -1341,7 +1086,6 @@ class _StatBox extends StatelessWidget {
   }
 }
 
-/// Chip representant une personne (encadreur ou academicien).
 class _PersonChip extends StatelessWidget {
   final String label;
   final String? initials;
@@ -1413,7 +1157,6 @@ class _PersonChip extends StatelessWidget {
     );
   }
 
-  /// Construit l'image de profil en gerant les chemins locaux et distants.
   Widget _buildPhoto(String displayInitials) {
     final isLocal = !photoUrl!.startsWith('http');
     final fallback = Center(

@@ -460,11 +460,12 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
+        bool isSubmitting = false;
+
         return StatefulBuilder(
           builder: (context, setModalState) {
             final colorScheme = Theme.of(context).colorScheme;
             final isDark = Theme.of(context).brightness == Brightness.dark;
-            bool isSubmitting = false;
 
             return Container(
               padding: EdgeInsets.only(
@@ -605,10 +606,10 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () async {
-                          if (isSubmitting) return;
-
-                          if (titreController.text.trim().isEmpty) {
+                        onPressed: isSubmitting
+                            ? null
+                            : () async {
+                                if (titreController.text.trim().isEmpty) {
                                   AcademyToast.show(
                                     context,
                                     title: AppLocalizations.of(
@@ -676,8 +677,16 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                                   );
                                 }
                               },
-                        // ignore: dead_code
-                        icon: isSubmitting ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.play_arrow_rounded, size: 20),
+                        icon: isSubmitting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.play_arrow_rounded, size: 20),
                         label: Text(
                           AppLocalizations.of(context)!.startSession,
                           style: GoogleFonts.montserrat(
@@ -688,6 +697,8 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF10B981),
                           foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              const Color(0xFF10B981).withValues(alpha: 0.5),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),

@@ -71,6 +71,12 @@ class QrScannerService {
     _l10n = l10n;
   }
 
+  /// Message localise indiquant qu'un encadreur n'est pas invite.
+  String get coachNotInvitedMessage {
+    return _l10n?.serviceScanCoachNotInvited ??
+        'Cet encadreur n\'est pas invite a cette seance';
+  }
+
   /// Identifie un profil a partir d'un code QR scanne.
   /// Recherche d'abord parmi les academiciens, puis les encadreurs.
   Future<ScanResult> identifyQrCode(String qrCode, String seanceId) async {
@@ -126,11 +132,21 @@ class QrScannerService {
 
   /// Enregistre la presence d'un profil pour une seance.
   /// Met aussi a jour la seance avec le profilId dans la liste correspondante.
-  Future<Presence> enregistrerPresence({
+  /// Pour un encadreur, verifie qu'il est invite a la seance.
+  Future<Presence?> enregistrerPresence({
     required ProfilType typeProfil,
     required String profilId,
     required String seanceId,
   }) async {
+    final seance = await _seanceRepository.getById(seanceId);
+    if (seance == null) return null;
+
+    if (typeProfil == ProfilType.encadreur &&
+        profilId != seance.encadreurResponsableId &&
+        !seance.encadreurIds.contains(profilId)) {
+      return null;
+    }
+
     final presence = Presence(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       horodateArrivee: DateTime.now(),
@@ -140,25 +156,22 @@ class QrScannerService {
     );
     final saved = await _presenceRepository.mark(presence);
 
-    // Mise a jour de la seance avec le profil present
-    final seance = await _seanceRepository.getById(seanceId);
-    if (seance != null) {
-      final updatedAcademicienIds = List<String>.from(seance.academicienIds);
-      final updatedEncadreurIds = List<String>.from(seance.encadreurIds);
+    // Mise a jour de la seance avec le profil present.
+    // Pour les encadreurs, encadreurIds represente la liste des invites ; on ne
+    // la modifie donc pas ici (la presence est stockee dans presenceRepository).
+    final seanceCourante = await _seanceRepository.getById(seanceId);
+    if (seanceCourante != null) {
+      final updatedAcademicienIds = List<String>.from(seanceCourante.academicienIds);
 
       if (typeProfil == ProfilType.academicien &&
           !updatedAcademicienIds.contains(profilId)) {
         updatedAcademicienIds.add(profilId);
-      } else if (typeProfil == ProfilType.encadreur &&
-          !updatedEncadreurIds.contains(profilId)) {
-        updatedEncadreurIds.add(profilId);
       }
 
       final presences = await _presenceRepository.getBySeance(seanceId);
       await _seanceRepository.update(
-        seance.copyWith(
+        seanceCourante.copyWith(
           academicienIds: updatedAcademicienIds,
-          encadreurIds: updatedEncadreurIds,
           nbPresents: presences.length,
         ),
       );

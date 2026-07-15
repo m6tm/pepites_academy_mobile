@@ -3088,6 +3088,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get serviceScanTypeCoach => 'Encadreur';
 
   @override
+  String get serviceScanCoachNotInvited =>
+      'Cet encadreur n\'est pas invite a cette seance';
+
+  @override
   String serviceAtelierSeanceNotFound(String id) {
     return 'Seance introuvable : $id';
   }

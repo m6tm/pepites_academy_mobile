@@ -4,6 +4,7 @@ import '../../core/cache/repository_cache.dart';
 import '../../core/events/atelier_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/atelier.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/atelier_repository.dart';
@@ -20,6 +21,7 @@ class AtelierRepositoryImpl implements AtelierRepository {
   DioClient? _dioClient;
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
 
   AtelierRepositoryImpl(this._datasource);
 
@@ -46,26 +48,32 @@ class AtelierRepositoryImpl implements AtelierRepository {
     _invalidationRegistry = registry;
   }
 
-@override
-  Future<List<Atelier>> getBySeanceId(String seanceId, {bool forceRefresh = false}) async {
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
+  @override
+  Future<List<Atelier>> getBySeanceId(
+    String seanceId, {
+    bool forceRefresh = false,
+  }) async {
     final key = 'seance_$seanceId';
 
-    if (forceRefresh) {
-      _invalidateCache();
-    } else {
+    if (!forceRefresh) {
       final cached = _cache.get(key);
       if (cached != null) return cached;
     }
 
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (forceRefresh && online && _dioClient != null) {
+      await _syncAteliersForSeance(seanceId);
+    }
+
     return _cache.getOrFetch(key, () async {
-      if (forceRefresh && _dioClient != null) {
+      if (online && _dioClient != null) {
         await _syncAteliersForSeance(seanceId);
       }
-      var local = _datasource.getBySeance(seanceId);
-      if (local.isEmpty && _dioClient != null) {
-        await _syncAteliersForSeance(seanceId);
-        local = _datasource.getBySeance(seanceId);
-      }
+      final local = _datasource.getBySeance(seanceId);
       _cache.set(
         key,
         local,

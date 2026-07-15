@@ -222,6 +222,7 @@ class DependencyInjection {
     presenceRepository = PresenceRepositoryImpl(presenceDatasource);
     presenceRepository.setEventBus(domainEventBus);
     presenceRepository.setInvalidationRegistry(invalidationRegistry);
+    presenceRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du Repository Seance
     final seanceDatasource = SeanceLocalDatasource(sharedPrefs);
@@ -244,6 +245,7 @@ class DependencyInjection {
     atelierRepository = AtelierRepositoryImpl(atelierDatasource);
     atelierRepository.setEventBus(domainEventBus);
     atelierRepository.setInvalidationRegistry(invalidationRegistry);
+    atelierRepository.setConnectivityGuard(connectivityGuard);
 
     // Initialisation du Repository Exercice
     final exerciceDatasource = ExerciceLocalDatasource(sharedPrefs);

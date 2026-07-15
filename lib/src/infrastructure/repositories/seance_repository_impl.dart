@@ -22,6 +22,7 @@ class SeanceRepositoryImpl implements SeanceRepository {
   final RepositoryCache<SeanceWithStats> _cache =
       RepositoryCache<SeanceWithStats>(maxSize: 1);
   final RepositoryCache<List<Seance>> _listCache = RepositoryCache<List<Seance>>();
+  final RepositoryCache<Seance?> _detailCache = RepositoryCache<Seance?>();
   SyncService? _syncService;
   DioClient? _dioClient;
   AppLocalizations? _l10n;
@@ -73,11 +74,61 @@ class SeanceRepositoryImpl implements SeanceRepository {
   void _invalidateCaches() {
     _cache.invalidateByTag('seances');
     _listCache.invalidateByTag('seances');
+    _detailCache.invalidateByTag('seances');
   }
 
   @override
-  Future<Seance?> getById(String id) async {
-    return _datasource.getById(id);
+  Future<Seance?> getById(String id, {bool forceRefresh = false}) async {
+    final key = 'seance_$id';
+    if (forceRefresh) {
+      _detailCache.invalidateKey(key);
+    }
+    final cached = _detailCache.get(key);
+    if (cached != null) return cached;
+
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (!online) {
+      return _detailCache.getStale(key) ?? _datasource.getById(id);
+    }
+
+    return _detailCache.getOrFetch(key, () async {
+      await _refreshSeanceFromApi(id);
+      final local = _datasource.getById(id);
+      if (local != null) {
+        _detailCache.set(
+          key,
+          local,
+          ttl: CacheTtl.seances,
+          tags: {'seances', key},
+        );
+      }
+      return local;
+    });
+  }
+
+  /// Rafraichit une seance depuis le backend et persiste en local.
+  Future<void> _refreshSeanceFromApi(String id) async {
+    final client = _dioClient;
+    if (client == null) return;
+
+    try {
+      final result = await client.get<dynamic>('${ApiEndpoints.seances}/$id');
+      await result.fold(
+        (failure) async {
+          // ignore: avoid_print
+          print('[SeanceRepo] getById API failed: ${failure.message}');
+        },
+        (data) async {
+          if (data is! Map<String, dynamic>) return;
+          final seanceMap = data['seance'] as Map<String, dynamic>? ?? data;
+          final seance = Seance.fromJson(seanceMap);
+          await _datasource.add(seance);
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[SeanceRepo] getById exception: $e');
+    }
   }
 
   @override
@@ -97,6 +148,7 @@ class SeanceRepositoryImpl implements SeanceRepository {
   void clearCache() {
     _cache.clear();
     _listCache.clear();
+    _detailCache.clear();
   }
 
   /// Fusionne une liste de donnees distantes dans le cache local
@@ -330,8 +382,8 @@ class SeanceRepositoryImpl implements SeanceRepository {
   Future<Seance> update(Seance seance) async {
     final updated = await _datasource.update(seance);
     _cache.invalidateKey('encours');
-    _listCache.invalidateByTag('seance_${seance.id}');
-    _invalidateCaches();
+    _listCache.invalidateByTag('seances');
+    _detailCache.invalidateKey('seance_${seance.id}');
     _eventBus?.emit(SeanceUpdatedEvent(seance.id));
     _invalidationRegistry?.markInvalidated<SeanceUpdatedEvent>();
     await _syncService?.enqueueOperation(
@@ -373,7 +425,8 @@ class SeanceRepositoryImpl implements SeanceRepository {
     final updated = seance.copyWith(statut: SeanceStatus.fermee);
     final result = await _datasource.update(updated);
     _cache.invalidateKey('encours');
-    _invalidateCaches();
+    _listCache.invalidateByTag('seances');
+    _detailCache.invalidateKey('seance_$id');
     _eventBus?.emit(SeanceClosedEvent(id));
     _invalidationRegistry?.markInvalidated<SeanceClosedEvent>();
     await _syncService?.enqueueOperation(

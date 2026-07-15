@@ -5558,6 +5558,12 @@ abstract class AppLocalizations {
   /// **'Encadreur'**
   String get serviceScanTypeCoach;
 
+  /// No description provided for @serviceScanCoachNotInvited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet encadreur n\'est pas invite a cette seance'**
+  String get serviceScanCoachNotInvited;
+
   /// No description provided for @serviceAtelierSeanceNotFound.
   ///
   /// In fr, this message translates to:

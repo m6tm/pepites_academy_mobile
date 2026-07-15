@@ -94,11 +94,18 @@ class QrScannerState extends ChangeNotifier {
       }
 
       // Enregistrement de la presence
-      await _service.enregistrerPresence(
+      final presence = await _service.enregistrerPresence(
         typeProfil: result.typeProfil!,
         profilId: result.profilId!,
         seanceId: _seanceId,
       );
+
+      if (presence == null) {
+        _lastResult = ScanResult.failure(_service.coachNotInvitedMessage);
+        _status = ScannerStatus.error;
+        notifyListeners();
+        return;
+      }
 
       _scanCount++;
       _status = ScannerStatus.success;

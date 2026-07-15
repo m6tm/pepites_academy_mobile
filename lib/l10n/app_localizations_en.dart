@@ -3072,6 +3072,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serviceScanTypeCoach => 'Coach';
 
   @override
+  String get serviceScanCoachNotInvited =>
+      'This coach is not invited to this session';
+
+  @override
   String serviceAtelierSeanceNotFound(String id) {
     return 'Session not found: $id';
   }

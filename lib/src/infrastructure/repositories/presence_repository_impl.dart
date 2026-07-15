@@ -1,8 +1,10 @@
 import '../../application/services/sync_service.dart';
+import '../../core/cache/cache_ttl.dart';
 import '../../core/cache/repository_cache.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/presence_events.dart';
 import '../../core/events/invalidation_registry.dart';
+import '../../core/network/connectivity_guard.dart';
 import '../../domain/entities/presence.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/presence_repository.dart';
@@ -19,6 +21,7 @@ class PresenceRepositoryImpl implements PresenceRepository {
   SyncService? _syncService;
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
+  ConnectivityGuard? _connectivityGuard;
 
   PresenceRepositoryImpl(this._datasource);
 
@@ -42,17 +45,23 @@ class PresenceRepositoryImpl implements PresenceRepository {
     _invalidationRegistry = registry;
   }
 
-  void _invalidateCaches() {
+  /// Injecte le garde de connectivite.
+  void setConnectivityGuard(ConnectivityGuard guard) {
+    _connectivityGuard = guard;
+  }
+
+  void _invalidateCaches(String seanceId) {
     _cache.invalidateByTag('presences');
+    _cache.invalidateByTag('seance_$seanceId');
   }
 
   /// Vide les caches memoire (appel lors de la deconnexion).
-  void clearCache() => _invalidateCaches();
+  void clearCache() => _invalidateCaches('');
 
   @override
   Future<Presence> mark(Presence presence) async {
     final marked = await _datasource.add(presence);
-    _invalidateCaches();
+    _invalidateCaches(marked.seanceId);
     _eventBus?.emit(PresenceCreatedEvent(
       presenceId: marked.id,
       seanceId: marked.seanceId,
@@ -74,11 +83,68 @@ class PresenceRepositoryImpl implements PresenceRepository {
     final cached = _cache.get(key);
     if (cached != null) return cached;
 
+    final online = await _connectivityGuard?.isOnline ?? true;
+    if (online && _dioClient != null) {
+      await syncBySeanceFromApi(seanceId);
+    }
+
     return _cache.getOrFetch(key, () async {
+      if (online && _dioClient != null) {
+        await syncBySeanceFromApi(seanceId);
+      }
       final list = _datasource.getBySeance(seanceId);
-      _cache.set(key, list, tags: {'presences', key});
+      _cache.set(
+        key,
+        list,
+        ttl: CacheTtl.presences,
+        tags: {'presences', key},
+      );
       return list;
     });
+  }
+
+  /// Synchronise les presences d'une seance depuis le backend.
+  Future<bool> syncBySeanceFromApi(String seanceId) async {
+    final client = _dioClient;
+    if (client == null) return false;
+
+    try {
+      final result = await client.get<dynamic>(
+        '${ApiEndpoints.presences}?seance_id=$seanceId',
+      );
+
+      return await result.fold(
+        (failure) {
+          // ignore: avoid_print
+          print('[PresenceRepo] syncBySeance failed: ${failure.message}');
+          return false;
+        },
+        (data) async {
+          final List<dynamic> rawList;
+          if (data is List) {
+            rawList = data;
+          } else if (data is Map<String, dynamic>) {
+            rawList = data.values.whereType<List>().expand((e) => e).toList();
+          } else {
+            return false;
+          }
+
+          final presences = rawList
+              .whereType<Map<String, dynamic>>()
+              .map((map) => _parsePresence(map))
+              .where((p) => p.id.isNotEmpty)
+              .toList();
+
+          await _datasource.upsertAllFromRemote(presences);
+          _cache.invalidateByTag('seance_$seanceId');
+          return true;
+        },
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('[PresenceRepo] syncBySeance exception: $e');
+      return false;
+    }
   }
 
   @override

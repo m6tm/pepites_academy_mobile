@@ -1585,6 +1585,7 @@
   "serviceScanQrNotRecognized": "QR code not recognized",
   "serviceScanTypeAcademician": "Academician",
   "serviceScanTypeCoach": "Coach",
+  "serviceScanCoachNotInvited": "This coach is not invited to this session",
   "serviceAtelierSeanceNotFound": "Session not found: {id}",
   "@serviceAtelierSeanceNotFound": {
     "placeholders": {
