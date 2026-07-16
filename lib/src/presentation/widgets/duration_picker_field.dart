@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -235,7 +236,10 @@ class DurationPickerField extends StatelessWidget {
       controller: controller,
       itemExtent: 44,
       physics: const FixedExtentScrollPhysics(),
-      onSelectedItemChanged: onSelected,
+      onSelectedItemChanged: (index) {
+        HapticFeedback.selectionClick();
+        onSelected(index);
+      },
       childDelegate: ListWheelChildBuilderDelegate(
         childCount: childCount,
         builder: (context, index) {
