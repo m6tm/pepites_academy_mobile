@@ -36,6 +36,30 @@ class PresenceLocalDatasource implements ClearableDatasource {
     await _saveAll(map.values.toList());
   }
 
+  /// Remplace les presences d'une seance par la liste distante (le serveur
+  /// fait foi). Les presences des autres seances sont conservees, ainsi que
+  /// les scans locaux en attente de synchronisation (ID timestamp) dont le
+  /// profil n'est pas deja connu du serveur.
+  Future<void> upsertAllFromRemoteForSeance(
+    String seanceId,
+    List<Presence> remoteList,
+  ) async {
+    final local = getAll();
+    final remoteIds = remoteList.map((p) => p.id).toSet();
+    final remoteProfils = remoteList.map((p) => p.profilId).toSet();
+    final kept = local.where((p) {
+      if (p.seanceId != seanceId) return true;
+      final isLocalPending = RegExp(r'^\d{10,}$').hasMatch(p.id);
+      if (!isLocalPending) return false;
+      return !remoteIds.contains(p.id) && !remoteProfils.contains(p.profilId);
+    }).toList();
+    final map = {for (final p in kept) p.id: p};
+    for (final remote in remoteList) {
+      map[remote.id] = remote;
+    }
+    await _saveAll(map.values.toList());
+  }
+
   /// Recupere les presences d'une seance specifique.
   List<Presence> getBySeance(String seanceId) {
     return getAll().where((p) => p.seanceId == seanceId).toList();

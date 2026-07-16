@@ -167,9 +167,10 @@ class SeanceDetailState extends ChangeNotifier with EventBusSubscriberMixin {
 
   /// Rafraichit les donnees depuis le backend si connecte, puis recharge
   /// l'interface avec les donnees locales fraiches.
-  Future<void> refreshFromBackend() async {
+  /// [force] ignore l'anti-rebond de 3 secondes (pull-to-refresh explicite).
+  Future<void> refreshFromBackend({bool force = false}) async {
     if (_isRefreshing) return;
-    if (_lastFetchedAt != null) {
+    if (!force && _lastFetchedAt != null) {
       final age = DateTime.now().difference(_lastFetchedAt!);
       if (age < const Duration(seconds: 3)) return;
     }

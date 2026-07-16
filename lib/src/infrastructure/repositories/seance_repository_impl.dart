@@ -373,10 +373,26 @@ class SeanceRepositoryImpl implements SeanceRepository {
   }
 
   Seance _parseSeanceFromMap(Map<String, dynamic> map, Seance fallback) {
-    return fallback.copyWith(
-      id: map['id'] as String? ?? fallback.id,
-      statut: _parseStatut(map['statut'] as String?),
-    );
+    try {
+      final parsed = Seance.fromJson(map);
+      return parsed.copyWith(
+        encadreurIds: parsed.encadreurIds.isNotEmpty
+            ? parsed.encadreurIds
+            : fallback.encadreurIds,
+        academicienIds: parsed.academicienIds.isNotEmpty
+            ? parsed.academicienIds
+            : fallback.academicienIds,
+        atelierIds: parsed.atelierIds.isNotEmpty
+            ? parsed.atelierIds
+            : fallback.atelierIds,
+        seasonId: parsed.seasonId ?? fallback.seasonId,
+      );
+    } catch (_) {
+      return fallback.copyWith(
+        id: map['id'] as String? ?? fallback.id,
+        statut: _parseStatut(map['statut'] as String?),
+      );
+    }
   }
 
   @override
@@ -487,46 +503,13 @@ class SeanceRepositoryImpl implements SeanceRepository {
           final remote = rawList
               .whereType<Map<String, dynamic>>()
               .map((map) {
-                return Seance(
-                  id: map['id'] as String,
-                  titre: (map['titre'] as String?) ?? '',
-                  date: DateTime.parse(
-                    (map['date'] as String?) ??
-                        (map['date_debut'] as String?) ??
-                        DateTime.now().toIso8601String(),
-                  ),
-                  heureDebut: DateTime.parse(
-                    (map['heure_debut'] as String?) ??
-                        (map['heureDebut'] as String?) ??
-                        '1970-01-01T09:00:00',
-                  ),
-                  heureFin: DateTime.parse(
-                    (map['heure_fin'] as String?) ??
-                        (map['heureFin'] as String?) ??
-                        '1970-01-01T11:00:00',
-                  ),
-                  statut: _parseStatut(map['statut'] as String?),
-                  encadreurResponsableId:
-                      (map['encadreur_responsable_id'] as String?) ??
-                      (map['encadreurResponsableId'] as String?) ??
-                      '',
-                  encadreurIds:
-                      (map['encadreur_ids'] as List<dynamic>?)
-                          ?.map((e) => e as String)
-                          .toList() ??
-                      [],
-                  academicienIds:
-                      (map['academicien_ids'] as List<dynamic>?)
-                          ?.map((e) => e as String)
-                          .toList() ??
-                      [],
-                  atelierIds:
-                      (map['atelier_ids'] as List<dynamic>?)
-                          ?.map((e) => e as String)
-                          .toList() ??
-                      [],
-                );
+                try {
+                  return Seance.fromJson(map);
+                } catch (_) {
+                  return null;
+                }
               })
+              .whereType<Seance>()
               .where((s) => s.id.isNotEmpty)
               .toList();
 

@@ -60,7 +60,7 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
   }
 
   Future<void> _onRefresh() async {
-    await _state.refreshFromBackend();
+    await _state.refreshFromBackend(force: true);
   }
 
   @override
@@ -264,7 +264,9 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     final nbEncadreurs = (_state.encadreursPresents.isNotEmpty ||
             _state.encadreursInvites.isNotEmpty)
         ? _state.encadreursPresents.length + _state.encadreursInvites.length
-        : seance.encadreurIds.length +
+        : seance.encadreurIds
+                .where((id) => id != seance.encadreurResponsableId)
+                .length +
             (seance.encadreurResponsableId.isNotEmpty &&
                     seance.encadreurResponsableId != 'current_user'
                 ? 1

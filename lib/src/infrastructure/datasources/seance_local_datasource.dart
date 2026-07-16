@@ -81,10 +81,19 @@ class SeanceLocalDatasource implements ClearableDatasource {
   }
 
   /// Fusionne une liste de seances distantes dans le cache local.
-  /// Les donnees distantes ecrasent les locales pour les memes IDs.
+  /// Les donnees distantes ecrasent les locales pour les memes IDs et le
+  /// serveur fait foi : les seances synchronisees (ID serveur) absentes de la
+  /// liste distante sont supprimees. Les seances creees hors-ligne
+  /// (ID timestamp, en attente de synchronisation) sont conservees.
   Future<void> upsertAll(List<Seance> remoteList) async {
     final local = getAll();
-    final merged = <String, Seance>{for (final s in local) s.id: s};
+    final remoteIds = remoteList.map((s) => s.id).toSet();
+    final kept = local.where((s) {
+      final isLocalPending = RegExp(r'^\d{10,}$').hasMatch(s.id);
+      if (isLocalPending) return true;
+      return remoteIds.contains(s.id);
+    }).toList();
+    final merged = <String, Seance>{for (final s in kept) s.id: s};
     for (final remote in remoteList) {
       merged[remote.id] = remote;
     }

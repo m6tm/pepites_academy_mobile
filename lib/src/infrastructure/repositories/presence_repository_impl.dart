@@ -135,7 +135,7 @@ class PresenceRepositoryImpl implements PresenceRepository {
               .where((p) => p.id.isNotEmpty)
               .toList();
 
-          await _datasource.upsertAllFromRemote(presences);
+          await _datasource.upsertAllFromRemoteForSeance(seanceId, presences);
           _cache.invalidateByTag('seance_$seanceId');
           return true;
         },
