@@ -66,6 +66,10 @@ class SeanceDetailState extends ChangeNotifier with EventBusSubscriberMixin {
 
   DateTime? _lastFetchedAt;
 
+  /// Future du refresh en cours, utilisee pour faire patienter un
+  /// pull-to-refresh explicite jusqu'a la fin de la requete en vol.
+  Future<void>? _refreshEnCours;
+
   void _subscribeToEvents() {
     listenTo<PresenceCreatedEvent>(
       DependencyInjection.domainEventBus,
@@ -168,8 +172,14 @@ class SeanceDetailState extends ChangeNotifier with EventBusSubscriberMixin {
   /// Rafraichit les donnees depuis le backend si connecte, puis recharge
   /// l'interface avec les donnees locales fraiches.
   /// [force] ignore l'anti-rebond de 3 secondes (pull-to-refresh explicite).
+  /// Si un refresh est deja en cours (ex. chargement initial), le pull-to-refresh
+  /// attend sa fin pour que l'indicateur reste visible pendant la requete.
   Future<void> refreshFromBackend({bool force = false}) async {
-    if (_isRefreshing) return;
+    final enCours = _refreshEnCours;
+    if (enCours != null) {
+      if (force) await enCours;
+      return;
+    }
     if (!force && _lastFetchedAt != null) {
       final age = DateTime.now().difference(_lastFetchedAt!);
       if (age < const Duration(seconds: 3)) return;
@@ -177,33 +187,40 @@ class SeanceDetailState extends ChangeNotifier with EventBusSubscriberMixin {
     _isRefreshing = true;
    _safeNotifyListeners();
 
+    final future = _executerRefresh();
+    _refreshEnCours = future;
     try {
-      final online = await DependencyInjection.connectivityGuard.isOnline;
-      if (!online) {
-        await _loadLocalFast();
-        return;
-      }
-
-      final seanceId = _seance.id;
-
-      await DependencyInjection.seanceRepository.getById(
-        seanceId,
-        forceRefresh: true,
-      );
-      await DependencyInjection.atelierRepository.getBySeanceId(
-        seanceId,
-        forceRefresh: true,
-      );
-      await DependencyInjection.presenceRepository.syncBySeanceFromApi(seanceId);
-      await DependencyInjection.academicienRepository.syncFromApi();
-      await DependencyInjection.encadreurRepository.syncFromApi();
-
-      await _loadLocalFast();
+      await future;
     } finally {
+      _refreshEnCours = null;
       _isRefreshing = false;
       _lastFetchedAt = DateTime.now();
      _safeNotifyListeners();
     }
+  }
+
+  Future<void> _executerRefresh() async {
+    final online = await DependencyInjection.connectivityGuard.isOnline;
+    if (!online) {
+      await _loadLocalFast();
+      return;
+    }
+
+    final seanceId = _seance.id;
+
+    await DependencyInjection.seanceRepository.getById(
+      seanceId,
+      forceRefresh: true,
+    );
+    await DependencyInjection.atelierRepository.getBySeanceId(
+      seanceId,
+      forceRefresh: true,
+    );
+    await DependencyInjection.presenceRepository.syncBySeanceFromApi(seanceId);
+    await DependencyInjection.academicienRepository.syncFromApi();
+    await DependencyInjection.encadreurRepository.syncFromApi();
+
+    await _loadLocalFast();
   }
 
   Future<void> _rafraichirSeance() async {
