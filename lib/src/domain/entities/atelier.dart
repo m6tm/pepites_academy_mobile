@@ -42,24 +42,32 @@ class Atelier {
   final String id;
   final String nom;
   final String description;
+  final String theme;
+  final String objectifs;
+  final int? dureeMinutes;
   final AtelierType type;
   final String? typeCustom;
   final String? icone;
   final int ordre;
   final AtelierStatut statut;
   final String seanceId;
+  final List<String> categorieIds;
   final List<ConfigurationElementEvaluation>? configurationEvaluation;
 
   const Atelier({
     required this.id,
     required this.nom,
     required this.description,
+    this.theme = '',
+    this.objectifs = '',
+    this.dureeMinutes,
     required this.type,
     this.typeCustom,
     this.icone,
     required this.ordre,
     required this.statut,
     required this.seanceId,
+    this.categorieIds = const [],
     this.configurationEvaluation,
   });
 
@@ -78,24 +86,32 @@ class Atelier {
     String? id,
     String? nom,
     String? description,
+    String? theme,
+    String? objectifs,
+    int? dureeMinutes,
     AtelierType? type,
     String? typeCustom,
     String? icone,
     int? ordre,
     AtelierStatut? statut,
     String? seanceId,
+    List<String>? categorieIds,
     List<ConfigurationElementEvaluation>? configurationEvaluation,
   }) {
     return Atelier(
       id: id ?? this.id,
       nom: nom ?? this.nom,
       description: description ?? this.description,
+      theme: theme ?? this.theme,
+      objectifs: objectifs ?? this.objectifs,
+      dureeMinutes: dureeMinutes ?? this.dureeMinutes,
       type: type ?? this.type,
       typeCustom: typeCustom ?? this.typeCustom,
       icone: icone ?? this.icone,
       ordre: ordre ?? this.ordre,
       statut: statut ?? this.statut,
       seanceId: seanceId ?? this.seanceId,
+      categorieIds: categorieIds ?? this.categorieIds,
       configurationEvaluation: configurationEvaluation ?? this.configurationEvaluation,
     );
   }
@@ -105,12 +121,16 @@ class Atelier {
       'id': id,
       'nom': nom,
       'description': description,
+      'theme': theme,
+      'objectifs': objectifs,
+      'duree_minutes': dureeMinutes,
       'type': type.name,
       'type_custom': typeCustom,
       'icone': icone,
       'ordre': ordre,
       'statut': statut.name,
       'seance_id': seanceId,
+      'categorie_ids': categorieIds,
       'configuration_evaluation': configurationEvaluation?.map((e) => e.toJson()).toList(),
     };
   }
@@ -120,12 +140,19 @@ class Atelier {
       id: json['id'] as String,
       nom: json['nom'] as String,
       description: (json['description'] ?? '') as String,
+      theme: (json['theme'] ?? '') as String,
+      objectifs: (json['objectifs'] ?? '') as String,
+      dureeMinutes: json['duree_minutes'] as int? ?? json['dureeMinutes'] as int?,
       type: AtelierType.values.byName(json['type'] as String),
       typeCustom: json['type_custom'] as String?,
       icone: json['icone'] as String?,
       ordre: (json['ordre'] ?? 0) as int,
       statut: AtelierStatut.values.byName(json['statut'] as String),
       seanceId: (json['seance_id'] ?? json['seanceId']) as String,
+      categorieIds: ((json['categorie_ids'] ?? json['categorieIds']) as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       configurationEvaluation: json['configuration_evaluation'] != null
           ? (json['configuration_evaluation'] as List)
               .map((e) => ConfigurationElementEvaluation.fromJson(e as Map<String, dynamic>))

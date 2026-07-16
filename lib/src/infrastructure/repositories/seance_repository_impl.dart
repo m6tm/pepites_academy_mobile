@@ -167,6 +167,7 @@ class SeanceRepositoryImpl implements SeanceRepository {
       localMap[remote.id] = remote;
     }
     await _datasource.saveAll(localMap.values.toList());
+    _invalidateCaches();
   }
 
   Future<bool> _hasPendingLocalClose(String seanceId) async {
@@ -530,6 +531,7 @@ class SeanceRepositoryImpl implements SeanceRepository {
               .toList();
 
           await _datasource.upsertAll(remote);
+          _invalidateCaches();
           // ignore: avoid_print
           print('[Seance] Synced ${remote.length} items from backend');
           return true;
