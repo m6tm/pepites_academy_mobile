@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../application/services/referentiel_service.dart';
 import '../../domain/entities/poste_football.dart';
 import '../../domain/entities/niveau_scolaire.dart';
+import '../../domain/entities/categorie_joueur.dart';
 
-/// State management pour les referentiels (postes de football et niveaux scolaires).
+/// State management pour les referentiels (postes de football,
+/// niveaux scolaires et categories de joueurs).
 /// Gere le chargement, la creation, la modification et la suppression.
 class ReferentielState extends ChangeNotifier {
   final ReferentielService _service;
@@ -17,6 +19,10 @@ class ReferentielState extends ChangeNotifier {
   // --- Niveaux scolaires ---
   List<NiveauScolaire> _niveaux = [];
   List<NiveauScolaire> get niveaux => _niveaux;
+
+  // --- Categories de joueurs ---
+  List<CategorieJoueur> _categories = [];
+  List<CategorieJoueur> get categories => _categories;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -193,6 +199,99 @@ class ReferentielState extends ChangeNotifier {
       if (result.success) {
         _successMessage = result.message;
         await chargerNiveaux();
+        return true;
+      } else {
+        _errorMessage = result.message;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la suppression : $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Charge toutes les categories de joueurs.
+  Future<void> chargerCategories() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _categories = await _service.getAllCategories();
+    } catch (e) {
+      _errorMessage = 'Erreur lors du chargement des categories : $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Cree une nouvelle categorie de joueurs.
+  Future<bool> creerCategorie({
+    required String nom,
+    String? description,
+    required int ordre,
+  }) async {
+    _errorMessage = null;
+    _successMessage = null;
+
+    try {
+      final result = await _service.creerCategorie(
+        nom: nom,
+        description: description,
+        ordre: ordre,
+      );
+      if (result.success) {
+        _successMessage = result.message;
+        await chargerCategories();
+        return true;
+      } else {
+        _errorMessage = result.message;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la creation : $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Modifie une categorie de joueurs existante.
+  Future<bool> modifierCategorie(CategorieJoueur categorie) async {
+    _errorMessage = null;
+    _successMessage = null;
+
+    try {
+      final result = await _service.modifierCategorie(categorie);
+      if (result.success) {
+        _successMessage = result.message;
+        await chargerCategories();
+        return true;
+      } else {
+        _errorMessage = result.message;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la modification : $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Supprime une categorie de joueurs.
+  Future<bool> supprimerCategorie(String id) async {
+    _errorMessage = null;
+    _successMessage = null;
+
+    try {
+      final result = await _service.supprimerCategorie(id);
+      if (result.success) {
+        _successMessage = result.message;
+        await chargerCategories();
         return true;
       } else {
         _errorMessage = result.message;

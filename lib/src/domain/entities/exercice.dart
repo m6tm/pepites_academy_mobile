@@ -31,6 +31,7 @@ class Exercice {
     String? objectifs,
     String? materiels,
     int? dureeMinutes,
+    bool clearDureeMinutes = false,
     int? ordre,
     ExerciceStatut? statut,
     String? atelierId,
@@ -41,7 +42,9 @@ class Exercice {
       description: description ?? this.description,
       objectifs: objectifs ?? this.objectifs,
       materiels: materiels ?? this.materiels,
-      dureeMinutes: dureeMinutes ?? this.dureeMinutes,
+      dureeMinutes: clearDureeMinutes
+          ? null
+          : (dureeMinutes ?? this.dureeMinutes),
       ordre: ordre ?? this.ordre,
       statut: statut ?? this.statut,
       atelierId: atelierId ?? this.atelierId,

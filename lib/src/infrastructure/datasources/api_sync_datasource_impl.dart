@@ -449,6 +449,8 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
         return ApiEndpoints.postesFootball;
       case SyncEntityType.niveauScolaire:
         return ApiEndpoints.niveauxScolaires;
+      case SyncEntityType.categorieJoueur:
+        return ApiEndpoints.categoriesJoueurs;
       case SyncEntityType.smsMessage:
         return ApiEndpoints.sms;
       case SyncEntityType.notification:

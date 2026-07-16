@@ -310,6 +310,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get schoolLevelsDesc => 'Gerez les niveaux scolaires des academiciens';
 
   @override
+  String get playerCategories => 'Catégories de joueurs';
+
+  @override
+  String get playerCategoriesSubtitle => 'U9, U11, U13, U15, Seniors...';
+
+  @override
+  String get playerCategoriesDesc =>
+      'Gérez les catégories de joueurs des ateliers';
+
+  @override
   String get home => 'Accueil';
 
   @override
@@ -2629,6 +2639,45 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ajoutez votre premier niveau scolaire\npour commencer.';
 
   @override
+  String get managePlayerCategories => 'Gestion des catégories de joueurs';
+
+  @override
+  String get noCategory => 'Aucune catégorie';
+
+  @override
+  String get addFirstCategory =>
+      'Ajoutez votre première catégorie de joueurs\npour commencer.';
+
+  @override
+  String playerCategoriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count catégories',
+      one: '1 catégorie',
+      zero: 'Aucune catégorie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteCategory => 'Supprimer la catégorie';
+
+  @override
+  String deleteCategoryConfirmation(String name) {
+    return 'Voulez-vous vraiment supprimer la catégorie \"$name\" ?';
+  }
+
+  @override
+  String get editCategory => 'Modifier la catégorie';
+
+  @override
+  String get newCategory => 'Nouvelle catégorie';
+
+  @override
+  String get categoryName => 'Nom de la catégorie';
+
+  @override
   String get deletePosition => 'Supprimer le poste';
 
   @override
@@ -3068,6 +3117,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String serviceRefNiveauCannotDelete(int count) {
     return 'Impossible de supprimer ce niveau : $count academicien(s) rattache(s).';
   }
+
+  @override
+  String get serviceRefCategorieExists =>
+      'Une categorie avec ce nom existe deja.';
+
+  @override
+  String get serviceRefCategorieOtherExists =>
+      'Une autre categorie avec ce nom existe deja.';
+
+  @override
+  String serviceRefCategorieCreated(String name) {
+    return 'Categorie \"$name\" creee avec succes.';
+  }
+
+  @override
+  String serviceRefCategorieUpdated(String name) {
+    return 'Categorie \"$name\" modifiee avec succes.';
+  }
+
+  @override
+  String get serviceRefCategorieDeleted => 'Categorie supprimee avec succes.';
 
   @override
   String get serviceScanPresenceAlreadyRecorded => 'Presence deja enregistree';

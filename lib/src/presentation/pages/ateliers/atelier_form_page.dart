@@ -1,12 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
+import '../../../core/events/referentiel_events.dart';
 import '../../../domain/entities/atelier.dart';
+import '../../../domain/entities/categorie_joueur.dart';
 import '../../../domain/entities/critere_evaluation.dart';
 import '../../state/atelier_state.dart';
 import '../../widgets/glass_text_field.dart';
 import '../../widgets/glass_dropdown.dart';
 import '../../widgets/icon_selector.dart';
+import '../../widgets/duration_picker_field.dart';
 import '../../widgets/evaluation_configuration_selector.dart';
 
 import '../../../injection_container.dart';
@@ -35,12 +39,18 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _themeController;
+  late final TextEditingController _objectifsController;
   late final TextEditingController _typeCustomController;
   late AtelierType _selectedType;
   String? _selectedIcon;
+  int? _dureeMinutes;
   bool _isSubmitting = false;
   List<CritereEvaluation> _criteres = [];
   List<ConfigurationElementEvaluation> _configurationEvaluation = [];
+  List<CategorieJoueur> _categories = [];
+  final Set<String> _selectedCategorieIds = {};
+  StreamSubscription<ReferentielUpdatedEvent>? _referentielSubscription;
 
   @override
   void initState() {
@@ -50,14 +60,28 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     _descriptionController = TextEditingController(
       text: widget.atelier?.description ?? '',
     );
+    _themeController = TextEditingController(
+      text: widget.atelier?.theme ?? '',
+    );
+    _objectifsController = TextEditingController(
+      text: widget.atelier?.objectifs ?? '',
+    );
     _typeCustomController = TextEditingController(
       text: widget.atelier?.typeCustom ?? '',
     );
     _selectedType = widget.atelier?.type ?? AtelierType.dribble;
     _selectedIcon = widget.atelier?.icone;
+    _dureeMinutes = widget.atelier?.dureeMinutes;
+    _selectedCategorieIds.addAll(widget.atelier?.categorieIds ?? const []);
     _configurationEvaluation =
         widget.atelier?.configurationEvaluation?.toList() ?? [];
     _chargerCriteres();
+    _chargerCategories();
+
+    // Recharge les categories si le referentiel est modifie ailleurs.
+    _referentielSubscription = DependencyInjection.domainEventBus
+        .on<ReferentielUpdatedEvent>()
+        .listen((_) => _chargerCategories());
 
     if (widget.syncSeanceIdWithState) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -71,6 +95,18 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
         .evaluationReferentielRepository.getAllCriteres();
     if (mounted) {
       setState(() => _criteres = criteres);
+    }
+  }
+
+  Future<void> _chargerCategories() async {
+    try {
+      final categories = await DependencyInjection.referentielService
+          .getAllCategories();
+      if (mounted) {
+        setState(() => _categories = categories);
+      }
+    } catch (_) {
+      // Hors-ligne ou referentiel indisponible : la liste reste vide.
     }
   }
 
@@ -94,8 +130,11 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
 
   @override
   void dispose() {
+    _referentielSubscription?.cancel();
     _nomController.dispose();
     _descriptionController.dispose();
+    _themeController.dispose();
+    _objectifsController.dispose();
     _typeCustomController.dispose();
     super.dispose();
   }
@@ -122,6 +161,10 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
         type: _selectedType,
         typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
         description: _descriptionController.text.trim(),
+        theme: _themeController.text.trim(),
+        objectifs: _objectifsController.text.trim(),
+        dureeMinutes: _dureeMinutes,
+        categorieIds: _selectedCategorieIds.toList(),
         icone: _selectedIcon,
         configurationEvaluation: _configurationEvaluation.isNotEmpty
             ? _configurationEvaluation
@@ -134,6 +177,11 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
           type: _selectedType,
           typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
           description: _descriptionController.text.trim(),
+          theme: _themeController.text.trim(),
+          objectifs: _objectifsController.text.trim(),
+          dureeMinutes: _dureeMinutes,
+          clearDureeMinutes: _dureeMinutes == null,
+          categorieIds: _selectedCategorieIds.toList(),
           icone: _selectedIcon,
           configurationEvaluation: _configurationEvaluation.isNotEmpty
               ? _configurationEvaluation
@@ -244,6 +292,39 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
                             maxLines: 4,
                           ),
 
+                          const SizedBox(height: 24),
+
+                          GlassTextField(
+                            label: 'Thème de l\'atelier',
+                            hint: 'Ex: Jeu de transition offensive...',
+                            controller: _themeController,
+                            prefixIcon: Icons.lightbulb_outline_rounded,
+                            maxLines: 3,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          GlassTextField(
+                            label: 'Objectifs',
+                            hint: 'Objectifs pédagogiques de l\'atelier...',
+                            controller: _objectifsController,
+                            prefixIcon: Icons.flag_outlined,
+                            maxLines: 3,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          DurationPickerField(
+                            label: 'Durée',
+                            dureeMinutes: _dureeMinutes,
+                            onChanged: (minutes) =>
+                                setState(() => _dureeMinutes = minutes),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          _buildCategoriesSelector(textColor),
+
                           if (_criteres.isNotEmpty) ...[
                             const SizedBox(height: 32),
                             EvaluationConfigurationSelector(
@@ -270,6 +351,74 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Selecteur multiple des categories de joueurs (chips).
+  Widget _buildCategoriesSelector(Color textColor) {
+    final hintColor = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.textMutedDark
+        : AppColors.textMutedLight;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            'Catégories de joueurs',
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ),
+        if (_categories.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              'Aucune catégorie disponible',
+              style: TextStyle(color: hintColor, fontSize: 13),
+            ),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _categories.map((categorie) {
+              final selected = _selectedCategorieIds.contains(categorie.id);
+              return FilterChip(
+                label: Text(categorie.nom),
+                selected: selected,
+                onSelected: (value) {
+                  setState(() {
+                    if (value) {
+                      _selectedCategorieIds.add(categorie.id);
+                    } else {
+                      _selectedCategorieIds.remove(categorie.id);
+                    }
+                  });
+                },
+                selectedColor: AppColors.primary.withValues(alpha: 0.15),
+                checkmarkColor: AppColors.primary,
+                labelStyle: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  color: selected ? AppColors.primary : textColor,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: selected
+                        ? AppColors.primary
+                        : textColor.withValues(alpha: 0.15),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+      ],
     );
   }
 

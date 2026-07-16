@@ -3,6 +3,7 @@ export 'annotation.dart';
 export 'atelier.dart';
 export 'biometric_preferences.dart';
 export 'bulletin.dart';
+export 'categorie_joueur.dart';
 export 'dashboard_stats.dart';
 export 'dossier_medical.dart';
 export 'encadreur.dart';

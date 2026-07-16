@@ -102,6 +102,9 @@ class ExerciceState extends ChangeNotifier
     required String atelierId,
     required String nom,
     String description = '',
+    String objectifs = '',
+    String materiels = '',
+    int? dureeMinutes,
     ExerciceStatut statut = ExerciceStatut.cree,
   }) async {
     _loadingStates[atelierId] = true;
@@ -114,6 +117,9 @@ class ExerciceState extends ChangeNotifier
         atelierId: atelierId,
         nom: nom,
         description: description,
+        objectifs: objectifs,
+        materiels: materiels,
+        dureeMinutes: dureeMinutes,
         statut: statut,
       );
       _successMessage = 'Exercice "$nom" ajoute avec succes.';

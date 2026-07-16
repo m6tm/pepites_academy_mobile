@@ -1,8 +1,10 @@
 import '../../../l10n/app_localizations.dart';
 import '../../domain/entities/poste_football.dart';
 import '../../domain/entities/niveau_scolaire.dart';
+import '../../domain/entities/categorie_joueur.dart';
 import '../../domain/repositories/poste_football_repository.dart';
 import '../../domain/repositories/niveau_scolaire_repository.dart';
+import '../../domain/repositories/categorie_joueur_repository.dart';
 import 'activity_service.dart';
 
 /// Resultat d'une operation sur un referentiel.
@@ -14,24 +16,31 @@ class ReferentielResult {
 }
 
 /// Service applicatif gerant la logique metier des referentiels.
-/// Centralise les operations CRUD sur les postes de football et niveaux scolaires.
+/// Centralise les operations CRUD sur les postes de football,
+/// les niveaux scolaires et les categories de joueurs.
 class ReferentielService {
   final PosteFootballRepository _posteRepository;
   final NiveauScolaireRepository _niveauRepository;
+  final CategorieJoueurRepository _categorieRepository;
   ActivityService? _activityService;
   AppLocalizations? _l10n;
 
   ReferentielService({
     required PosteFootballRepository posteRepository,
     required NiveauScolaireRepository niveauRepository,
+    required CategorieJoueurRepository categorieRepository,
   }) : _posteRepository = posteRepository,
-       _niveauRepository = niveauRepository;
+       _niveauRepository = niveauRepository,
+       _categorieRepository = categorieRepository;
 
   /// Acces au repository des postes pour la synchronisation.
   PosteFootballRepository get posteRepository => _posteRepository;
 
   /// Acces au repository des niveaux pour la synchronisation.
   NiveauScolaireRepository get niveauRepository => _niveauRepository;
+
+  /// Acces au repository des categories pour la synchronisation.
+  CategorieJoueurRepository get categorieRepository => _categorieRepository;
 
   /// Injecte le service d'activites (injection tardive pour eviter les dependances circulaires).
   void setActivityService(ActivityService service) {
@@ -225,6 +234,85 @@ class ReferentielService {
     return ReferentielResult(
       success: true,
       message: _l10n?.serviceRefNiveauDeleted ?? 'Niveau supprime avec succes.',
+    );
+  }
+
+  // --- Categories de joueurs ---
+
+  /// Recupere toutes les categories de joueurs triees par ordre.
+  Future<List<CategorieJoueur>> getAllCategories() async {
+    return _categorieRepository.getAll();
+  }
+
+  /// Cree une nouvelle categorie de joueurs.
+  Future<ReferentielResult> creerCategorie({
+    required String nom,
+    String? description,
+    required int ordre,
+  }) async {
+    final categories = await _categorieRepository.getAll();
+    final existe = categories.any(
+      (c) => c.nom.toLowerCase() == nom.toLowerCase(),
+    );
+    if (existe) {
+      return ReferentielResult(
+        success: false,
+        message:
+            _l10n?.serviceRefCategorieExists ??
+            'Une categorie avec ce nom existe deja.',
+      );
+    }
+
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final categorie = CategorieJoueur(
+      id: id,
+      nom: nom,
+      description: description,
+      ordre: ordre,
+    );
+    await _categorieRepository.create(categorie);
+    return ReferentielResult(
+      success: true,
+      message:
+          _l10n?.serviceRefCategorieCreated(nom) ??
+          'Categorie "$nom" creee avec succes.',
+    );
+  }
+
+  /// Met a jour une categorie de joueurs existante.
+  Future<ReferentielResult> modifierCategorie(CategorieJoueur categorie) async {
+    final categories = await _categorieRepository.getAll();
+    final doublon = categories.any(
+      (c) =>
+          c.id != categorie.id &&
+          c.nom.toLowerCase() == categorie.nom.toLowerCase(),
+    );
+    if (doublon) {
+      return ReferentielResult(
+        success: false,
+        message:
+            _l10n?.serviceRefCategorieOtherExists ??
+            'Une autre categorie avec ce nom existe deja.',
+      );
+    }
+
+    await _categorieRepository.update(categorie);
+    return ReferentielResult(
+      success: true,
+      message:
+          _l10n?.serviceRefCategorieUpdated(categorie.nom) ??
+          'Categorie "${categorie.nom}" modifiee avec succes.',
+    );
+  }
+
+  /// Supprime une categorie de joueurs.
+  Future<ReferentielResult> supprimerCategorie(String id) async {
+    await _categorieRepository.delete(id);
+    return ReferentielResult(
+      success: true,
+      message:
+          _l10n?.serviceRefCategorieDeleted ??
+          'Categorie supprimee avec succes.',
     );
   }
 }

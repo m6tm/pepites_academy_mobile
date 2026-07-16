@@ -668,6 +668,24 @@ abstract class AppLocalizations {
   /// **'Gerez les niveaux scolaires des academiciens'**
   String get schoolLevelsDesc;
 
+  /// No description provided for @playerCategories.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégories de joueurs'**
+  String get playerCategories;
+
+  /// No description provided for @playerCategoriesSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'U9, U11, U13, U15, Seniors...'**
+  String get playerCategoriesSubtitle;
+
+  /// No description provided for @playerCategoriesDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérez les catégories de joueurs des ateliers'**
+  String get playerCategoriesDesc;
+
   /// No description provided for @home.
   ///
   /// In fr, this message translates to:
@@ -4784,6 +4802,60 @@ abstract class AppLocalizations {
   /// **'Ajoutez votre premier niveau scolaire\npour commencer.'**
   String get addFirstLevel;
 
+  /// No description provided for @managePlayerCategories.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des catégories de joueurs'**
+  String get managePlayerCategories;
+
+  /// No description provided for @noCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune catégorie'**
+  String get noCategory;
+
+  /// No description provided for @addFirstCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez votre première catégorie de joueurs\npour commencer.'**
+  String get addFirstCategory;
+
+  /// No description provided for @playerCategoriesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune catégorie} =1{1 catégorie} other{{count} catégories}}'**
+  String playerCategoriesCount(int count);
+
+  /// No description provided for @deleteCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la catégorie'**
+  String get deleteCategory;
+
+  /// No description provided for @deleteCategoryConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment supprimer la catégorie \"{name}\" ?'**
+  String deleteCategoryConfirmation(String name);
+
+  /// No description provided for @editCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la catégorie'**
+  String get editCategory;
+
+  /// No description provided for @newCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle catégorie'**
+  String get newCategory;
+
+  /// No description provided for @categoryName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de la catégorie'**
+  String get categoryName;
+
   /// No description provided for @deletePosition.
   ///
   /// In fr, this message translates to:
@@ -5521,6 +5593,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible de supprimer ce niveau : {count} academicien(s) rattache(s).'**
   String serviceRefNiveauCannotDelete(int count);
+
+  /// No description provided for @serviceRefCategorieExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une categorie avec ce nom existe deja.'**
+  String get serviceRefCategorieExists;
+
+  /// No description provided for @serviceRefCategorieOtherExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une autre categorie avec ce nom existe deja.'**
+  String get serviceRefCategorieOtherExists;
+
+  /// No description provided for @serviceRefCategorieCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Categorie \"{name}\" creee avec succes.'**
+  String serviceRefCategorieCreated(String name);
+
+  /// No description provided for @serviceRefCategorieUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Categorie \"{name}\" modifiee avec succes.'**
+  String serviceRefCategorieUpdated(String name);
+
+  /// No description provided for @serviceRefCategorieDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Categorie supprimee avec succes.'**
+  String get serviceRefCategorieDeleted;
 
   /// No description provided for @serviceScanPresenceAlreadyRecorded.
   ///

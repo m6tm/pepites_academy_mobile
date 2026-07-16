@@ -4,9 +4,11 @@ import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
 import 'postes_football_page.dart';
 import 'niveaux_scolaires_page.dart';
+import 'categories_joueurs_page.dart';
 
 /// Page hub pour la gestion des referentiels.
-/// Donne acces aux ecrans de gestion des postes de football et des niveaux scolaires.
+/// Donne acces aux ecrans de gestion des postes de football,
+/// des niveaux scolaires et des categories de joueurs.
 class ReferentielHubPage extends StatelessWidget {
   const ReferentielHubPage({super.key});
 
@@ -69,6 +71,25 @@ class ReferentielHubPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const NiveauxScolairesPage(),
+                  ),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(
+              child: _buildReferentielCard(
+                context: context,
+                colorScheme: colorScheme,
+                isDark: isDark,
+                icon: Icons.groups_rounded,
+                color: const Color(0xFF8B5CF6),
+                title: l10n.playerCategories,
+                subtitle: l10n.playerCategoriesSubtitle,
+                description: l10n.playerCategoriesDesc,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CategoriesJoueursPage(),
                   ),
                 ),
               ),

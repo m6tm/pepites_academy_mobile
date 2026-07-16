@@ -309,6 +309,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get schoolLevelsDesc => 'Manage school levels of academicians';
 
   @override
+  String get playerCategories => 'Player categories';
+
+  @override
+  String get playerCategoriesSubtitle => 'U9, U11, U13, U15, Seniors...';
+
+  @override
+  String get playerCategoriesDesc => 'Manage player categories for workshops';
+
+  @override
   String get home => 'Home';
 
   @override
@@ -2612,6 +2621,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstLevel => 'Add your first school level\nto start.';
 
   @override
+  String get managePlayerCategories => 'Management of player categories';
+
+  @override
+  String get noCategory => 'No category';
+
+  @override
+  String get addFirstCategory => 'Add your first player category\nto start.';
+
+  @override
+  String playerCategoriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count categories',
+      one: '1 category',
+      zero: 'No category',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteCategory => 'Delete category';
+
+  @override
+  String deleteCategoryConfirmation(String name) {
+    return 'Are you sure you want to delete the category \"$name\"?';
+  }
+
+  @override
+  String get editCategory => 'Edit category';
+
+  @override
+  String get newCategory => 'New category';
+
+  @override
+  String get categoryName => 'Category name';
+
+  @override
   String get deletePosition => 'Delete position';
 
   @override
@@ -3051,6 +3098,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String serviceRefNiveauCannotDelete(int count) {
     return 'Cannot delete this level: $count academician(s) linked.';
   }
+
+  @override
+  String get serviceRefCategorieExists =>
+      'A category with this name already exists.';
+
+  @override
+  String get serviceRefCategorieOtherExists =>
+      'Another category with this name already exists.';
+
+  @override
+  String serviceRefCategorieCreated(String name) {
+    return 'Category \"$name\" created successfully.';
+  }
+
+  @override
+  String serviceRefCategorieUpdated(String name) {
+    return 'Category \"$name\" updated successfully.';
+  }
+
+  @override
+  String get serviceRefCategorieDeleted => 'Category deleted successfully.';
 
   @override
   String get serviceScanPresenceAlreadyRecorded =>

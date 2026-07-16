@@ -217,10 +217,14 @@ class AtelierRepositoryImpl implements AtelierRepository {
     return {
       'nom': atelier.nom,
       'description': atelier.description,
+      'theme': atelier.theme,
+      'objectifs': atelier.objectifs,
+      if (atelier.dureeMinutes != null) 'duree_minutes': atelier.dureeMinutes,
       'type': atelier.type.name,
       if (atelier.typeCustom != null) 'type_custom': atelier.typeCustom,
       if (atelier.icone != null) 'icone': atelier.icone,
       'ordre': atelier.ordre,
+      'categorie_ids': atelier.categorieIds,
       if (atelier.configurationEvaluation != null)
         'configuration_evaluation': atelier.configurationEvaluation!
             .map((c) => c.toJson())
@@ -296,10 +300,14 @@ class AtelierRepositoryImpl implements AtelierRepository {
     return {
       'nom': atelier.nom,
       'description': atelier.description,
+      'theme': atelier.theme,
+      'objectifs': atelier.objectifs,
+      'duree_minutes': atelier.dureeMinutes,
       'type': atelier.type.name,
       if (atelier.typeCustom != null) 'type_custom': atelier.typeCustom,
       if (atelier.icone != null) 'icone': atelier.icone,
       'ordre': atelier.ordre,
+      'categorie_ids': atelier.categorieIds,
       if (atelier.configurationEvaluation != null)
         'configuration_evaluation': atelier.configurationEvaluation!
             .map((c) => c.toJson())

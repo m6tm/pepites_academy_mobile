@@ -176,6 +176,8 @@ class SyncQueueLocalDatasource implements ClearableDatasource {
         return 0;
       case SyncEntityType.posteFootball:
         return 0;
+      case SyncEntityType.categorieJoueur:
+        return 0;
       case SyncEntityType.fcmToken:
         return 0; // Token FCM en priorite haute
       case SyncEntityType.dashboard:

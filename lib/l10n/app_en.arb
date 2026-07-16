@@ -102,6 +102,9 @@
   "schoolLevels": "School levels",
   "schoolLevelsSubtitle": "Primary, Secondary, High School...",
   "schoolLevelsDesc": "Manage school levels of academicians",
+  "playerCategories": "Player categories",
+  "playerCategoriesSubtitle": "U9, U11, U13, U15, Seniors...",
+  "playerCategoriesDesc": "Manage player categories for workshops",
   "home": "Home",
   "academy": "Academy",
   "sessions": "Sessions",
@@ -1277,6 +1280,29 @@
   "manageAcademicLevels": "Management of academic levels",
   "noLevel": "No level",
   "addFirstLevel": "Add your first school level\nto start.",
+  "managePlayerCategories": "Management of player categories",
+  "noCategory": "No category",
+  "addFirstCategory": "Add your first player category\nto start.",
+  "playerCategoriesCount": "{count, plural, =0{No category} =1{1 category} other{{count} categories}}",
+  "@playerCategoriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteCategory": "Delete category",
+  "deleteCategoryConfirmation": "Are you sure you want to delete the category \"{name}\"?",
+  "@deleteCategoryConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editCategory": "Edit category",
+  "newCategory": "New category",
+  "categoryName": "Category name",
   "deletePosition": "Delete position",
   "deletePositionConfirmation": "Are you sure you want to delete the position \"{name}\"?",
   "@deletePositionConfirmation": {
@@ -1579,6 +1605,25 @@
       }
     }
   },
+  "serviceRefCategorieExists": "A category with this name already exists.",
+  "serviceRefCategorieOtherExists": "Another category with this name already exists.",
+  "serviceRefCategorieCreated": "Category \"{name}\" created successfully.",
+  "@serviceRefCategorieCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefCategorieUpdated": "Category \"{name}\" updated successfully.",
+  "@serviceRefCategorieUpdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefCategorieDeleted": "Category deleted successfully.",
   "serviceScanPresenceAlreadyRecorded": "Attendance already recorded",
   "serviceScanAcademicianIdentified": "Academician identified",
   "serviceScanCoachIdentified": "Coach identified",

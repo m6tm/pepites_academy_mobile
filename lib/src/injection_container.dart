@@ -30,6 +30,7 @@ import 'infrastructure/datasources/academicien_local_datasource.dart';
 import 'infrastructure/datasources/annotation_local_datasource.dart';
 import 'infrastructure/datasources/atelier_local_datasource.dart';
 import 'infrastructure/datasources/bilan_medical_mensuel_local_datasource.dart';
+import 'infrastructure/datasources/categorie_joueur_local_datasource.dart';
 import 'infrastructure/datasources/evaluation_local_datasource.dart';
 import 'infrastructure/datasources/exercice_local_datasource.dart';
 import 'infrastructure/datasources/bulletin_local_datasource.dart';
@@ -51,6 +52,7 @@ import 'infrastructure/repositories/academicien_repository_impl.dart';
 import 'infrastructure/repositories/annotation_repository_impl.dart';
 import 'infrastructure/repositories/atelier_repository_impl.dart';
 import 'infrastructure/repositories/bilan_medical_mensuel_repository_impl.dart';
+import 'infrastructure/repositories/categorie_joueur_repository_impl.dart';
 import 'infrastructure/repositories/dossier_medical_repository_impl.dart';
 import 'infrastructure/repositories/evaluation_repository_impl.dart';
 import 'infrastructure/repositories/exercice_repository_impl.dart';
@@ -337,9 +339,19 @@ class DependencyInjection {
     niveauRepository.setInvalidationRegistry(invalidationRegistry);
     niveauRepository.setConnectivityGuard(connectivityGuard);
 
+    final categorieDatasource = CategorieJoueurLocalDatasource(sharedPrefs);
+    await categorieDatasource.ensureInitialized();
+    final categorieRepository = CategorieJoueurRepositoryImpl(
+      categorieDatasource,
+    );
+    categorieRepository.setEventBus(domainEventBus);
+    categorieRepository.setInvalidationRegistry(invalidationRegistry);
+    categorieRepository.setConnectivityGuard(connectivityGuard);
+
     referentielService = ReferentielService(
       posteRepository: posteRepository,
       niveauRepository: niveauRepository,
+      categorieRepository: categorieRepository,
     );
 
     // Initialisation du Referentiel d'Evaluation (seed idempotent)
@@ -591,6 +603,8 @@ class DependencyInjection {
     niveauRepository.setDioClient(dioClient);
     posteRepository.setSyncService(syncService);
     posteRepository.setDioClient(dioClient);
+    categorieRepository.setSyncService(syncService);
+    categorieRepository.setDioClient(dioClient);
 
     // Nettoyage des caches lors de la deconnexion
     authService.onLogout = () {
@@ -606,6 +620,7 @@ class DependencyInjection {
       notificationRepository.clearCache();
       posteRepository.clearCache();
       niveauRepository.clearCache();
+      categorieRepository.clearCache();
       evaluationReferentielRepository.clearCache();
       smsRepository.clearCache();
       activityRepository.clearCache();
@@ -700,6 +715,11 @@ class DependencyInjection {
         case SyncEntityType.encadreur:
           await encadreurRepository.migrateLocalId(localId, serverId);
           break;
+        case SyncEntityType.categorieJoueur:
+          await (referentielService.categorieRepository
+                  as CategorieJoueurRepositoryImpl)
+              .migrateLocalId(localId, serverId);
+          break;
         default:
           break;
       }
@@ -715,7 +735,7 @@ class DependencyInjection {
   /// L'UI peut afficher un message a l'utilisateur et recharger la liste.
   static void Function(String seanceBloqueanteId)? onSeanceConflict;
 
-  /// Synchronise les referentiels (postes et niveaux) depuis le backend.
+  /// Synchronise les referentiels (postes, niveaux et categories) depuis le backend.
   /// Doit etre appelee apres l'authentification reussie.
   /// Retourne true si la synchronisation a reussi.
   static Future<bool> syncReferentiels() async {
@@ -728,7 +748,11 @@ class DependencyInjection {
           await (referentielService.niveauRepository
                   as NiveauScolaireRepositoryImpl)
               .syncFromApi();
-      return postesOk && niveauxOk;
+      final categoriesOk =
+          await (referentielService.categorieRepository
+                  as CategorieJoueurRepositoryImpl)
+              .syncFromApi();
+      return postesOk && niveauxOk && categoriesOk;
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync referentiels: $e');
@@ -758,6 +782,19 @@ class DependencyInjection {
     } catch (e) {
       // ignore: avoid_print
       print('[DI] Erreur sync niveaux: $e');
+      return false;
+    }
+  }
+
+  /// Synchronise uniquement les categories de joueurs depuis le backend.
+  static Future<bool> syncCategoriesJoueurs() async {
+    try {
+      return await (referentielService.categorieRepository
+              as CategorieJoueurRepositoryImpl)
+          .syncFromApi();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DI] Erreur sync categories: $e');
       return false;
     }
   }

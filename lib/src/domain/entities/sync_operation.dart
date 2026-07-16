@@ -14,6 +14,7 @@ enum SyncEntityType {
   encadreur,
   niveauScolaire,
   posteFootball,
+  categorieJoueur,
   smsMessage,
   fcmToken,
   dashboard,

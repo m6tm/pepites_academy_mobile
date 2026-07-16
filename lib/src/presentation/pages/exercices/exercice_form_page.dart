@@ -4,6 +4,7 @@ import 'package:pepites_academy_mobile/src/presentation/theme/app_colors.dart';
 import '../../../domain/entities/exercice.dart';
 import '../../state/exercice_state.dart';
 import '../../widgets/glass_text_field.dart';
+import '../../widgets/duration_picker_field.dart';
 import '../../../injection_container.dart';
 import '../../../domain/entities/permission.dart';
 import '../../widgets/academy_toast.dart';
@@ -28,6 +29,9 @@ class _ExerciceFormPageState extends State<ExerciceFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _objectifsController;
+  late final TextEditingController _materielsController;
+  int? _dureeMinutes;
   bool _isSubmitting = false;
 
   @override
@@ -36,6 +40,9 @@ class _ExerciceFormPageState extends State<ExerciceFormPage> {
     _checkPermissions();
     _nomController = TextEditingController(text: widget.exercice?.nom ?? '');
     _descriptionController = TextEditingController(text: widget.exercice?.description ?? '');
+    _objectifsController = TextEditingController(text: widget.exercice?.objectifs ?? '');
+    _materielsController = TextEditingController(text: widget.exercice?.materiels ?? '');
+    _dureeMinutes = widget.exercice?.dureeMinutes;
   }
 
   Future<void> _checkPermissions() async {
@@ -60,6 +67,8 @@ class _ExerciceFormPageState extends State<ExerciceFormPage> {
   void dispose() {
     _nomController.dispose();
     _descriptionController.dispose();
+    _objectifsController.dispose();
+    _materielsController.dispose();
     super.dispose();
   }
 
@@ -74,6 +83,9 @@ class _ExerciceFormPageState extends State<ExerciceFormPage> {
         atelierId: widget.atelierId,
         nom: _nomController.text.trim(),
         description: _descriptionController.text.trim(),
+        objectifs: _objectifsController.text.trim(),
+        materiels: _materielsController.text.trim(),
+        dureeMinutes: _dureeMinutes,
         statut: ExerciceStatut.valide,
       );
     } else {
@@ -81,6 +93,10 @@ class _ExerciceFormPageState extends State<ExerciceFormPage> {
         widget.exercice!.copyWith(
           nom: _nomController.text.trim(),
           description: _descriptionController.text.trim(),
+          objectifs: _objectifsController.text.trim(),
+          materiels: _materielsController.text.trim(),
+          dureeMinutes: _dureeMinutes,
+          clearDureeMinutes: _dureeMinutes == null,
           statut: ExerciceStatut.valide,
         ),
       );
@@ -146,7 +162,36 @@ class _ExerciceFormPageState extends State<ExerciceFormPage> {
                             prefixIcon: Icons.description_rounded,
                             maxLines: 4,
                           ),
-                          
+
+                          const SizedBox(height: 24),
+
+                          DurationPickerField(
+                            label: 'Durée',
+                            dureeMinutes: _dureeMinutes,
+                            onChanged: (minutes) =>
+                                setState(() => _dureeMinutes = minutes),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          GlassTextField(
+                            label: 'Objectifs',
+                            hint: 'Objectifs pédagogiques de l\'exercice...',
+                            controller: _objectifsController,
+                            prefixIcon: Icons.flag_outlined,
+                            maxLines: 3,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          GlassTextField(
+                            label: 'Matériels',
+                            hint: 'Plots, ballons, chasubles...',
+                            controller: _materielsController,
+                            prefixIcon: Icons.construction_rounded,
+                            maxLines: 3,
+                          ),
+
                           const SizedBox(height: 40),
                           
                           _buildSubmitButton(),

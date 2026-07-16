@@ -43,6 +43,9 @@ class ExerciceService {
     required String atelierId,
     required String nom,
     String description = '',
+    String objectifs = '',
+    String materiels = '',
+    int? dureeMinutes,
     ExerciceStatut statut = ExerciceStatut.cree,
   }) async {
     final atelier = await _atelierRepository.getById(atelierId);
@@ -60,6 +63,9 @@ class ExerciceService {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       nom: nom,
       description: description,
+      objectifs: objectifs,
+      materiels: materiels,
+      dureeMinutes: dureeMinutes,
       ordre: ordre,
       statut: statut,
       atelierId: atelierId,

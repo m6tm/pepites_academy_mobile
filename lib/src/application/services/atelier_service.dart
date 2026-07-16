@@ -60,6 +60,10 @@ class AtelierService {
     required AtelierType type,
     String? typeCustom,
     String description = '',
+    String theme = '',
+    String objectifs = '',
+    int? dureeMinutes,
+    List<String> categorieIds = const [],
     String? icone,
     List<ConfigurationElementEvaluation>? configurationEvaluation,
   }) async {
@@ -78,6 +82,9 @@ class AtelierService {
       id: _generateUuid(),
       nom: nom,
       description: description,
+      theme: theme,
+      objectifs: objectifs,
+      dureeMinutes: dureeMinutes,
       type: type,
       typeCustom: typeCustom,
       icone: icone,
@@ -88,6 +95,7 @@ class AtelierService {
           ? AtelierStatut.valide
           : AtelierStatut.cree,
       seanceId: seanceId,
+      categorieIds: categorieIds,
       configurationEvaluation: configurationEvaluation,
     );
 

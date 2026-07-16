@@ -60,6 +60,7 @@ class ApiEndpoints {
   /// Chemins pour les référentiels.
   static const String postesFootball = '/referentiels/postes';
   static const String niveauxScolaires = '/referentiels/niveaux';
+  static const String categoriesJoueurs = '/referentiels/categories';
 
   /// Chemins pour les SMS.
   static const String sms = '/sms';

@@ -123,6 +123,9 @@
   "schoolLevels": "Niveaux scolaires",
   "schoolLevelsSubtitle": "CP, CE1, 6eme, 3eme, Terminale...",
   "schoolLevelsDesc": "Gerez les niveaux scolaires des academiciens",
+  "playerCategories": "Catégories de joueurs",
+  "playerCategoriesSubtitle": "U9, U11, U13, U15, Seniors...",
+  "playerCategoriesDesc": "Gérez les catégories de joueurs des ateliers",
   "home": "Accueil",
   "academy": "Academie",
   "sessions": "Seances",
@@ -1350,6 +1353,29 @@
   "manageAcademicLevels": "Gestion des niveaux académiques",
   "noLevel": "Aucun niveau",
   "addFirstLevel": "Ajoutez votre premier niveau scolaire\npour commencer.",
+  "managePlayerCategories": "Gestion des catégories de joueurs",
+  "noCategory": "Aucune catégorie",
+  "addFirstCategory": "Ajoutez votre première catégorie de joueurs\npour commencer.",
+  "playerCategoriesCount": "{count, plural, =0{Aucune catégorie} =1{1 catégorie} other{{count} catégories}}",
+  "@playerCategoriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteCategory": "Supprimer la catégorie",
+  "deleteCategoryConfirmation": "Voulez-vous vraiment supprimer la catégorie \"{name}\" ?",
+  "@deleteCategoryConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editCategory": "Modifier la catégorie",
+  "newCategory": "Nouvelle catégorie",
+  "categoryName": "Nom de la catégorie",
   "deletePosition": "Supprimer le poste",
   "deletePositionConfirmation": "Voulez-vous vraiment supprimer le poste \"{name}\" ?",
   "@deletePositionConfirmation": {
@@ -1652,6 +1678,25 @@
       }
     }
   },
+  "serviceRefCategorieExists": "Une categorie avec ce nom existe deja.",
+  "serviceRefCategorieOtherExists": "Une autre categorie avec ce nom existe deja.",
+  "serviceRefCategorieCreated": "Categorie \"{name}\" creee avec succes.",
+  "@serviceRefCategorieCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefCategorieUpdated": "Categorie \"{name}\" modifiee avec succes.",
+  "@serviceRefCategorieUpdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRefCategorieDeleted": "Categorie supprimee avec succes.",
   "serviceScanPresenceAlreadyRecorded": "Presence deja enregistree",
   "serviceScanAcademicianIdentified": "Academicien identifie",
   "serviceScanCoachIdentified": "Encadreur identifie",

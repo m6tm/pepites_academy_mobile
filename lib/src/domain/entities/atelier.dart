@@ -89,6 +89,7 @@ class Atelier {
     String? theme,
     String? objectifs,
     int? dureeMinutes,
+    bool clearDureeMinutes = false,
     AtelierType? type,
     String? typeCustom,
     String? icone,
@@ -104,7 +105,9 @@ class Atelier {
       description: description ?? this.description,
       theme: theme ?? this.theme,
       objectifs: objectifs ?? this.objectifs,
-      dureeMinutes: dureeMinutes ?? this.dureeMinutes,
+      dureeMinutes: clearDureeMinutes
+          ? null
+          : (dureeMinutes ?? this.dureeMinutes),
       type: type ?? this.type,
       typeCustom: typeCustom ?? this.typeCustom,
       icone: icone ?? this.icone,
@@ -149,15 +152,31 @@ class Atelier {
       ordre: (json['ordre'] ?? 0) as int,
       statut: AtelierStatut.values.byName(json['statut'] as String),
       seanceId: (json['seance_id'] ?? json['seanceId']) as String,
-      categorieIds: ((json['categorie_ids'] ?? json['categorieIds']) as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
+      categorieIds: _parseCategorieIds(json),
       configurationEvaluation: json['configuration_evaluation'] != null
           ? (json['configuration_evaluation'] as List)
               .map((e) => ConfigurationElementEvaluation.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
     );
+  }
+
+  /// Extrait les IDs de categories depuis le JSON.
+  /// Supporte la liste plate `categorie_ids` (stockage local, sync) et
+  /// la liste imbriquee `categories` retournee par le backend.
+  static List<String> _parseCategorieIds(Map<String, dynamic> json) {
+    final raw = json['categorie_ids'] ?? json['categorieIds'];
+    if (raw is List) {
+      return raw.map((e) => e.toString()).toList();
+    }
+    final nested = json['categories'];
+    if (nested is List) {
+      return nested
+          .whereType<Map<String, dynamic>>()
+          .map((e) => e['id']?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toList();
+    }
+    return [];
   }
 }
