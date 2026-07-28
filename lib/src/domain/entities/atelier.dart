@@ -139,6 +139,15 @@ class Atelier {
   }
 
   factory Atelier.fromJson(Map<String, dynamic> json) {
+    final rawConfig = json['configuration_evaluation'] ?? json['configurationEvaluation'];
+    List<ConfigurationElementEvaluation>? parsedConfig;
+    if (rawConfig is List) {
+      parsedConfig = rawConfig
+          .whereType<Map<String, dynamic>>()
+          .map((e) => ConfigurationElementEvaluation.fromJson(e))
+          .toList();
+    }
+
     return Atelier(
       id: json['id'] as String,
       nom: json['nom'] as String,
@@ -147,17 +156,13 @@ class Atelier {
       objectifs: (json['objectifs'] ?? '') as String,
       dureeMinutes: json['duree_minutes'] as int? ?? json['dureeMinutes'] as int?,
       type: AtelierType.values.byName(json['type'] as String),
-      typeCustom: json['type_custom'] as String?,
-      icone: json['icone'] as String?,
+      typeCustom: json['type_custom'] as String? ?? json['typeCustom'] as String?,
+      icone: json['icone'] as String? ?? json['icon'] as String?,
       ordre: (json['ordre'] ?? 0) as int,
       statut: AtelierStatut.values.byName(json['statut'] as String),
       seanceId: (json['seance_id'] ?? json['seanceId']) as String,
       categorieIds: _parseCategorieIds(json),
-      configurationEvaluation: json['configuration_evaluation'] != null
-          ? (json['configuration_evaluation'] as List)
-              .map((e) => ConfigurationElementEvaluation.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : null,
+      configurationEvaluation: parsedConfig,
     );
   }
 

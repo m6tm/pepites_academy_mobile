@@ -10,6 +10,7 @@ import '../../state/exercice_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../../widgets/atelier_card.dart';
+import '../ateliers/atelier_form_page.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Ecran de composition des ateliers rattache a une seance.
@@ -487,7 +488,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
           );
         },
         itemCount: state.ateliers.length,
-        onReorder: (oldIndex, newIndex) {
+        onReorderItem: (oldIndex, newIndex) {
           state.reordonnerAteliers(oldIndex, newIndex);
         },
       ),
@@ -500,6 +501,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _AtelierFormSheet(
+        atelier: null,
         onSubmit: (nom, type, typeCustom, description) {
           widget.atelierState.ajouterAtelier(
             seanceId: widget.seance.id,
@@ -514,22 +516,14 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
   }
 
   void _showModifierAtelierDialog(BuildContext context, Atelier atelier) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _AtelierFormSheet(
-        atelier: atelier,
-        onSubmit: (nom, type, typeCustom, description) {
-          widget.atelierState.modifierAtelier(
-            atelier.copyWith(
-              nom: nom,
-              type: type,
-              typeCustom: typeCustom,
-              description: description,
-            ),
-          );
-        },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AtelierFormPage(
+          seanceId: widget.seance.id,
+          atelier: atelier,
+          atelierState: widget.atelierState,
+        ),
+        fullscreenDialog: true,
       ),
     );
   }
@@ -656,7 +650,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
 }
 
 
-/// Bottom sheet pour ajouter ou modifier un atelier.
+/// Bottom sheet pour ajouter un atelier.
 class _AtelierFormSheet extends StatefulWidget {
   final Atelier? atelier;
   final void Function(String nom, AtelierType type, String? typeCustom, String description)
@@ -675,34 +669,14 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
   late final TextEditingController _typeCustomController;
   late AtelierType _selectedType;
   bool _isCustomName = false;
-  bool _didInitDependencies = false;
 
   @override
   void initState() {
     super.initState();
-    _nomController = TextEditingController(text: widget.atelier?.nom ?? '');
-    _descriptionController = TextEditingController(
-      text: widget.atelier?.description ?? '',
-    );
-    _typeCustomController = TextEditingController(
-      text: widget.atelier?.typeCustom ?? '',
-    );
-    _selectedType = widget.atelier?.type ?? AtelierType.dribble;
-    _isCustomName = widget.atelier?.type == AtelierType.personnalise;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_didInitDependencies) return;
-    _didInitDependencies = true;
-
-    if (widget.atelier != null) {
-      final defaultName = _getDefaultName(context, widget.atelier!.type);
-      _isCustomName =
-          widget.atelier!.type == AtelierType.personnalise ||
-          widget.atelier!.nom != defaultName;
-    }
+    _nomController = TextEditingController(text: '');
+    _descriptionController = TextEditingController(text: '');
+    _typeCustomController = TextEditingController(text: '');
+    _selectedType = AtelierType.dribble;
   }
 
   @override
@@ -722,8 +696,6 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
       _selectedType = type;
       if (type == AtelierType.personnalise) {
         _isCustomName = true;
-        _nomController.text = '';
-        _typeCustomController.text = widget.atelier?.typeCustom ?? '';
       } else if (!_isCustomName) {
         _nomController.text = _getDefaultName(context, type);
       }

@@ -253,7 +253,7 @@ class _AtelierCardState extends State<AtelierCard> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: widget.exercices.length,
-                    onReorder: widget.onReorderExercice!,
+                    onReorderItem: widget.onReorderExercice!,
                     itemBuilder: (context, idx) {
                       final ex = widget.exercices[idx];
                       return ExerciceListTile(

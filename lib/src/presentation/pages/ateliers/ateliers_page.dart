@@ -377,7 +377,7 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverReorderableList(
         itemCount: ateliers.length,
-        onReorder: _atelierState.reordonnerAteliers,
+        onReorderItem: _atelierState.reordonnerAteliers,
         itemBuilder: (context, index) {
           final atelier = ateliers[index];
           final exercices =

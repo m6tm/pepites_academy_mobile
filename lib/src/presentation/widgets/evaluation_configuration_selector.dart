@@ -35,6 +35,7 @@ class _EvaluationConfigurationSelectorState
   }
 
   void _initFromConfiguration() {
+    _selections.clear();
     if (widget.configurationInitiale != null) {
       for (final config in widget.configurationInitiale!) {
         _selections.putIfAbsent(config.critereId, () => {});
@@ -42,6 +43,15 @@ class _EvaluationConfigurationSelectorState
           _selections[config.critereId]!.add(elementId);
         }
       }
+    }
+  }
+
+  @override
+  void didUpdateWidget(EvaluationConfigurationSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.configurationInitiale != widget.configurationInitiale ||
+        oldWidget.criteres != widget.criteres) {
+      _initFromConfiguration();
     }
   }
 

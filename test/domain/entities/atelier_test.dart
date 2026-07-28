@@ -21,11 +21,17 @@ void main() {
         'id': '1',
         'nom': 'Dribble',
         'description': 'Techniques de dribble',
+        'theme': '',
+        'objectifs': '',
+        'duree_minutes': null,
         'type': 'dribble',
+        'type_custom': null,
         'icone': 'sports_soccer',
         'ordre': 1,
         'statut': 'cree',
-        'seanceId': '42',
+        'seance_id': '42',
+        'categorie_ids': [],
+        'configuration_evaluation': null,
       };
 
       expect(result, expectedMap);
