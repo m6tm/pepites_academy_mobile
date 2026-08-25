@@ -108,6 +108,8 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
   bool _hasDeleteAtelierPermission = false;
   bool _hasApplyAtelierPermission = false;
 
+  bool get _isSeanceFermee => widget.seance.estFermee;
+
   @override
   void initState() {
     super.initState();
@@ -233,7 +235,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
-      floatingActionButton: (widget.seance.estOuverte && _hasCreateAtelierPermission)
+      floatingActionButton: (!_isSeanceFermee && _hasCreateAtelierPermission)
           ? FloatingActionButton.extended(
               onPressed: () => _showAjouterAtelierDialog(context),
               backgroundColor: AppColors.primary,
@@ -410,7 +412,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
                 height: 1.5,
               ),
             ),
-            if (widget.seance.estOuverte) ...[
+            if (!_isSeanceFermee) ...[
               const SizedBox(height: 28),
               ElevatedButton.icon(
                 onPressed: () => _showAjouterAtelierDialog(context),
@@ -440,25 +442,8 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
 
   Widget _buildAtelierList(ColorScheme colorScheme, bool isDark, ExerciceState exerciceState) {
     final state = widget.atelierState;
-    final isEditable = widget.seance.estOuverte && _hasUpdateAtelierPermission;
-
-    if (!widget.seance.estOuverte) {
-      return SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            final atelier = state.ateliers[index];
-            final exercices = exerciceState.exercicesParAtelier[atelier.id] ?? [];
-            return AtelierCard(
-              index: index,
-              atelier: atelier,
-              exercices: exercices,
-              isEditable: false,
-            );
-          }, childCount: state.ateliers.length),
-        ),
-      );
-    }
+    final isEditable = !_isSeanceFermee && _hasUpdateAtelierPermission;
+    final isOpen = widget.seance.estOuverte;
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -471,26 +456,26 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             index: index,
             child: AtelierCard(
               index: index,
-              onReorderExercice: (oldIndex, newIndex) =>
-                  exerciceState.reordonnerExercices(atelier.id, oldIndex, newIndex),
               atelier: atelier,
               exercices: exercices,
               isEditable: isEditable,
               onEdit: isEditable ? () => _showModifierAtelierDialog(context, atelier) : null,
-              onDelete: (widget.seance.estOuverte && _hasDeleteAtelierPermission) 
-                  ? () => _confirmerSuppression(context, atelier) 
+              onDelete: (!_isSeanceFermee && _hasDeleteAtelierPermission)
+                  ? () => _confirmerSuppression(context, atelier)
                   : null,
               isApplying: state.isProcessingAtelier(atelier.id),
-              onApply: (widget.seance.estOuverte && _hasApplyAtelierPermission)
+              onApply: (isOpen && _hasApplyAtelierPermission)
                   ? () => _confirmApplyAtelier(context, atelier)
                   : null,
             ),
           );
         },
         itemCount: state.ateliers.length,
-        onReorderItem: (oldIndex, newIndex) {
-          state.reordonnerAteliers(oldIndex, newIndex);
-        },
+        onReorderItem: isEditable
+            ? (oldIndex, newIndex) {
+                state.reordonnerAteliers(oldIndex, newIndex);
+              }
+            : null,
       ),
     );
   }

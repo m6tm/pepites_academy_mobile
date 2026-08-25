@@ -3464,6 +3464,24 @@ abstract class AppLocalizations {
   /// **'Ex: Entrainement Technique'**
   String get sessionTitleHint;
 
+  /// No description provided for @sessionDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de la seance'**
+  String get sessionDateLabel;
+
+  /// No description provided for @sessionThemeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Theme / Objectif de la seance'**
+  String get sessionThemeLabel;
+
+  /// No description provided for @sessionThemeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Travail technique - passes courtes'**
+  String get sessionThemeHint;
+
   /// No description provided for @startLabel.
   ///
   /// In fr, this message translates to:
@@ -3475,6 +3493,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Fin'**
   String get endLabel;
+
+  /// No description provided for @scheduleSessionButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programmer'**
+  String get scheduleSessionButton;
+
+  /// No description provided for @startNowButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demarrer'**
+  String get startNowButton;
+
+  /// No description provided for @editSessionButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la seance'**
+  String get editSessionButton;
+
+  /// No description provided for @launchSessionButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer la seance'**
+  String get launchSessionButton;
+
+  /// No description provided for @cannotLaunchBeforeStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de lancer la seance avant la date et l\'heure prevues.'**
+  String get cannotLaunchBeforeStart;
+
+  /// No description provided for @sessionStartTimeInPast.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'heure de debut est deja passee.'**
+  String get sessionStartTimeInPast;
+
+  /// No description provided for @sessionEndBeforeStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'heure de fin doit etre apres l\'heure de debut.'**
+  String get sessionEndBeforeStart;
+
+  /// No description provided for @sessionTimeOverlap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le creneau chevauche la seance \"{title}\".'**
+  String sessionTimeOverlap(String title);
 
   /// No description provided for @startSession.
   ///

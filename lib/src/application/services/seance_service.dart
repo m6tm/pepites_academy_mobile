@@ -77,17 +77,19 @@ class SeanceService {
     return _seanceRepository.getSeanceOuverte();
   }
 
-  /// Tente d'ouvrir une nouvelle seance.
+  /// Cree une nouvelle seance (ouverte ou programme).
   /// Le controle de doublons est delègue au backend (online) ou au repository
   /// (offline). Les seances locales avec ID timestamp stales sont purgees
   /// automatiquement par le repository lors de la creation en ligne.
-  Future<OuvertureResult> ouvrirSeance({
+  Future<OuvertureResult> creerSeance({
     required String titre,
     required DateTime date,
     required DateTime heureDebut,
     required DateTime heureFin,
     required String encadreurResponsableId,
     List<String> encadreurInvitesIds = const [],
+    SeanceStatus statut = SeanceStatus.ouverte,
+    String themeObjectif = '',
   }) async {
     final seance = Seance(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -95,19 +97,24 @@ class SeanceService {
       date: date,
       heureDebut: heureDebut,
       heureFin: heureFin,
-      statut: SeanceStatus.ouverte,
+      statut: statut,
       encadreurResponsableId: encadreurResponsableId,
       encadreurIds: encadreurInvitesIds,
+      themeObjectif: themeObjectif,
     );
 
     try {
       final created = await _seanceRepository.create(seance);
-      await _activityService?.enregistrerSeanceOuverte(titre, created.id);
+      if (statut == SeanceStatus.ouverte) {
+        await _activityService?.enregistrerSeanceOuverte(titre, created.id);
+      }
       return OuvertureResult(
         success: true,
         message:
-            _l10n?.serviceSeanceOpenedSuccess(titre) ??
-            'Seance "$titre" ouverte avec succes.',
+            statut == SeanceStatus.ouverte
+                ? (_l10n?.serviceSeanceOpenedSuccess(titre) ??
+                    'Seance "$titre" ouverte avec succes.')
+                : 'Seance "$titre" programmee avec succes.',
         seance: created,
       );
     } catch (e) {
@@ -124,6 +131,61 @@ class SeanceService {
       return OuvertureResult(
         success: false,
         message: 'Erreur inattendue : $e',
+      );
+    }
+  }
+
+  /// Ouvre immediatement une nouvelle seance.
+  /// Alias de [creerSeance] avec le statut [SeanceStatus.ouverte].
+  Future<OuvertureResult> ouvrirSeance({
+    required String titre,
+    required DateTime date,
+    required DateTime heureDebut,
+    required DateTime heureFin,
+    required String encadreurResponsableId,
+    List<String> encadreurInvitesIds = const [],
+    String themeObjectif = '',
+  }) => creerSeance(
+    titre: titre,
+    date: date,
+    heureDebut: heureDebut,
+    heureFin: heureFin,
+    encadreurResponsableId: encadreurResponsableId,
+    encadreurInvitesIds: encadreurInvitesIds,
+    statut: SeanceStatus.ouverte,
+    themeObjectif: themeObjectif,
+  );
+
+  /// Met a jour les parametres d'une seance existante.
+  Future<OuvertureResult> modifierSeance({
+    required Seance seance,
+    String? titre,
+    DateTime? date,
+    DateTime? heureDebut,
+    DateTime? heureFin,
+    List<String>? encadreurInvitesIds,
+    String? themeObjectif,
+  }) async {
+    final updated = seance.copyWith(
+      titre: titre,
+      date: date,
+      heureDebut: heureDebut,
+      heureFin: heureFin,
+      encadreurIds: encadreurInvitesIds,
+      themeObjectif: themeObjectif,
+    );
+
+    try {
+      final saved = await _seanceRepository.update(updated);
+      return OuvertureResult(
+        success: true,
+        message: 'Seance "${saved.titre}" mise a jour avec succes.',
+        seance: saved,
+      );
+    } catch (e) {
+      return OuvertureResult(
+        success: false,
+        message: 'Erreur lors de la mise a jour : $e',
       );
     }
   }

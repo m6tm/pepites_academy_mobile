@@ -852,8 +852,26 @@
   "fillInfoToStart": "Fill in the information to start.",
   "sessionTitleLabel": "Session title",
   "sessionTitleHint": "E.g.: Technical Training",
+  "sessionDateLabel": "Session date",
+  "sessionThemeLabel": "Theme / Session objective",
+  "sessionThemeHint": "E.g.: Technical work - short passes",
   "startLabel": "Start",
   "endLabel": "End",
+  "scheduleSessionButton": "Schedule",
+  "startNowButton": "Start now",
+  "editSessionButton": "Edit session",
+  "launchSessionButton": "Launch session",
+  "cannotLaunchBeforeStart": "Cannot launch the session before the scheduled date and time.",
+  "sessionStartTimeInPast": "The start time has already passed.",
+  "sessionEndBeforeStart": "End time must be after start time.",
+  "sessionTimeOverlap": "This time slot overlaps with \"{title}\".",
+  "@sessionTimeOverlap": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "startSession": "Start session",
   "pleaseEnterTitle": "Please enter a title.",
   "invitedCoachesLabel": "Invited coaches",

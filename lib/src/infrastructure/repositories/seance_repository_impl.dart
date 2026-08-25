@@ -326,18 +326,21 @@ class SeanceRepositoryImpl implements SeanceRepository {
   }
 
   /// Creation offline-first avec ID timestamp + mise en file de sync.
-  /// Verifie d'abord qu'aucune seance n'est deja ouverte localement.
+  /// Verifie d'abord qu'aucune seance n'est deja ouverte localement
+  /// uniquement si la nouvelle seance doit etre ouverte.
   Future<Seance> _createOffline(Seance seance) async {
-    final existing = _datasource.getSeanceOuverte();
-    if (existing != null) {
-      throw Exception('SEANCE_CONFLIT');
+    if (seance.statut == SeanceStatus.ouverte) {
+      final existing = _datasource.getSeanceOuverte();
+      if (existing != null) {
+        throw Exception('SEANCE_CONFLIT');
+      }
     }
     final created = await _datasource.add(seance);
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.seance,
       entityId: created.id,
       operationType: SyncOperationType.create,
-      data: created.toJson(),
+      data: _buildCreatePayload(created),
     );
     return created;
   }
@@ -369,7 +372,21 @@ class SeanceRepositoryImpl implements SeanceRepository {
       'heure_fin': seance.heureFin.toIso8601String(),
       'encadreur_responsable_id': seance.encadreurResponsableId,
       if (seance.encadreurIds.isNotEmpty) 'encadreur_ids': seance.encadreurIds,
+      if (seance.themeObjectif.isNotEmpty) 'theme_objectif': seance.themeObjectif,
+      'statut': _statutToPayload(seance.statut),
     };
+  }
+
+  /// Convertit le statut enum en valeur attendue par l'API backend.
+  String _statutToPayload(SeanceStatus statut) {
+    switch (statut) {
+      case SeanceStatus.ouverte:
+        return 'ouverte';
+      case SeanceStatus.fermee:
+        return 'fermee';
+      case SeanceStatus.aVenir:
+        return 'a_venir';
+    }
   }
 
   Seance _parseSeanceFromMap(Map<String, dynamic> map, Seance fallback) {
@@ -407,9 +424,22 @@ class SeanceRepositoryImpl implements SeanceRepository {
       entityType: SyncEntityType.seance,
       entityId: updated.id,
       operationType: SyncOperationType.update,
-      data: updated.toJson(),
+      data: _buildUpdatePayload(updated),
     );
     return updated;
+  }
+
+  Map<String, dynamic> _buildUpdatePayload(Seance seance) {
+    return {
+      'id': seance.id,
+      'titre': seance.titre,
+      'date': seance.date.toIso8601String().split('T').first,
+      'heure_debut': seance.heureDebut.toIso8601String(),
+      'heure_fin': seance.heureFin.toIso8601String(),
+      'statut': _statutToPayload(seance.statut),
+      'encadreur_responsable_id': seance.encadreurResponsableId,
+      if (seance.themeObjectif.isNotEmpty) 'theme_objectif': seance.themeObjectif,
+    };
   }
 
   @override
@@ -422,11 +452,16 @@ class SeanceRepositoryImpl implements SeanceRepository {
     }
     final updated = seance.copyWith(statut: SeanceStatus.ouverte);
     final result = await _datasource.update(updated);
+    _cache.invalidateKey('encours');
+    _listCache.invalidateByTag('seances');
+    _detailCache.invalidateKey('seance_$id');
+    _eventBus?.emit(SeanceUpdatedEvent(id));
+    _invalidationRegistry?.markInvalidated<SeanceUpdatedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.seance,
       entityId: result.id,
       operationType: SyncOperationType.update,
-      data: result.toJson(),
+      data: _buildUpdatePayload(result),
     );
     return result;
   }
@@ -450,7 +485,7 @@ class SeanceRepositoryImpl implements SeanceRepository {
       entityType: SyncEntityType.seance,
       entityId: result.id,
       operationType: SyncOperationType.update,
-      data: result.toJson(),
+      data: _buildUpdatePayload(result),
     );
     return result;
   }
@@ -534,8 +569,11 @@ class SeanceRepositoryImpl implements SeanceRepository {
         return SeanceStatus.ouverte;
       case 'fermee':
         return SeanceStatus.fermee;
+      case 'a_venir':
+      case 'avenir':
+        return SeanceStatus.aVenir;
       default:
-        return SeanceStatus.fermee;
+        return SeanceStatus.aVenir;
     }
   }
 }

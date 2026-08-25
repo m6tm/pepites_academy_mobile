@@ -1843,10 +1843,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionTitleHint => 'E.g.: Technical Training';
 
   @override
+  String get sessionDateLabel => 'Session date';
+
+  @override
+  String get sessionThemeLabel => 'Theme / Session objective';
+
+  @override
+  String get sessionThemeHint => 'E.g.: Technical work - short passes';
+
+  @override
   String get startLabel => 'Start';
 
   @override
   String get endLabel => 'End';
+
+  @override
+  String get scheduleSessionButton => 'Schedule';
+
+  @override
+  String get startNowButton => 'Start now';
+
+  @override
+  String get editSessionButton => 'Edit session';
+
+  @override
+  String get launchSessionButton => 'Launch session';
+
+  @override
+  String get cannotLaunchBeforeStart =>
+      'Cannot launch the session before the scheduled date and time.';
+
+  @override
+  String get sessionStartTimeInPast => 'The start time has already passed.';
+
+  @override
+  String get sessionEndBeforeStart => 'End time must be after start time.';
+
+  @override
+  String sessionTimeOverlap(String title) {
+    return 'This time slot overlaps with \"$title\".';
+  }
 
   @override
   String get startSession => 'Start session';

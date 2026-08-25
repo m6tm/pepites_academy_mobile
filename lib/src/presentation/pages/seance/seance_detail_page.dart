@@ -346,14 +346,14 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
           TextButton.icon(
             onPressed: () => _naviguerVersComposition(seance),
             icon: Icon(
-              seance.estOuverte ? Icons.edit_rounded : Icons.visibility_rounded,
+              seance.estFermee ? Icons.visibility_rounded : Icons.edit_rounded,
               size: 16,
               color: AppColors.primary,
             ),
             label: Text(
-              seance.estOuverte
-                  ? AppLocalizations.of(context)!.manageAction
-                  : AppLocalizations.of(context)!.viewAll,
+              seance.estFermee
+                  ? AppLocalizations.of(context)!.viewAll
+                  : AppLocalizations.of(context)!.manageAction,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,

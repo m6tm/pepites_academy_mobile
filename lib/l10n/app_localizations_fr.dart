@@ -1857,10 +1857,47 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sessionTitleHint => 'Ex: Entrainement Technique';
 
   @override
+  String get sessionDateLabel => 'Date de la seance';
+
+  @override
+  String get sessionThemeLabel => 'Theme / Objectif de la seance';
+
+  @override
+  String get sessionThemeHint => 'Ex: Travail technique - passes courtes';
+
+  @override
   String get startLabel => 'Debut';
 
   @override
   String get endLabel => 'Fin';
+
+  @override
+  String get scheduleSessionButton => 'Programmer';
+
+  @override
+  String get startNowButton => 'Demarrer';
+
+  @override
+  String get editSessionButton => 'Modifier la seance';
+
+  @override
+  String get launchSessionButton => 'Lancer la seance';
+
+  @override
+  String get cannotLaunchBeforeStart =>
+      'Impossible de lancer la seance avant la date et l\'heure prevues.';
+
+  @override
+  String get sessionStartTimeInPast => 'L\'heure de debut est deja passee.';
+
+  @override
+  String get sessionEndBeforeStart =>
+      'L\'heure de fin doit etre apres l\'heure de debut.';
+
+  @override
+  String sessionTimeOverlap(String title) {
+    return 'Le creneau chevauche la seance \"$title\".';
+  }
 
   @override
   String get startSession => 'Demarrer la seance';

@@ -924,8 +924,26 @@
   "fillInfoToStart": "Remplissez les informations pour demarrer.",
   "sessionTitleLabel": "Titre de la seance",
   "sessionTitleHint": "Ex: Entrainement Technique",
+  "sessionDateLabel": "Date de la seance",
+  "sessionThemeLabel": "Theme / Objectif de la seance",
+  "sessionThemeHint": "Ex: Travail technique - passes courtes",
   "startLabel": "Debut",
   "endLabel": "Fin",
+  "scheduleSessionButton": "Programmer",
+  "startNowButton": "Demarrer",
+  "editSessionButton": "Modifier la seance",
+  "launchSessionButton": "Lancer la seance",
+  "cannotLaunchBeforeStart": "Impossible de lancer la seance avant la date et l'heure prevues.",
+  "sessionStartTimeInPast": "L'heure de debut est deja passee.",
+  "sessionEndBeforeStart": "L'heure de fin doit etre apres l'heure de debut.",
+  "sessionTimeOverlap": "Le creneau chevauche la seance \"{title}\".",
+  "@sessionTimeOverlap": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "startSession": "Demarrer la seance",
   "pleaseEnterTitle": "Veuillez saisir un titre.",
   "invitedCoachesLabel": "Encadreurs invites",

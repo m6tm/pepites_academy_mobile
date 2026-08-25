@@ -25,9 +25,11 @@ class EncadreurSeancesScreen extends StatefulWidget {
   State<EncadreurSeancesScreen> createState() => _EncadreurSeancesScreenState();
 }
 
-class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
+class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen>
+    with RouteAware {
   late final SeanceState _seanceState;
   SeanceFilter _selectedFilter = SeanceFilter.toutes;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -51,30 +53,51 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      DependencyInjection.routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    if (!mounted) return;
+    _refreshFromApiIfOnlineThenLoad();
+  }
+
   /// Si connecté, récupère la liste depuis l'API et met à jour le cache local
   /// via upsert direct (sans sync), puis charge l'affichage.
   Future<void> _refreshFromApiIfOnlineThenLoad() async {
-    if (DependencyInjection.connectivityState.isConnected) {
-      try {
-        final data = await DependencyInjection.apiSyncDatasource.fetchAll(
-          ApiEndpoints.seances,
-        );
-        if (data != null && data.isNotEmpty) {
-          final remoteList = data
-              .map(_seanceFromApiJson)
-              .whereType<Seance>()
-              .toList();
-          if (remoteList.isNotEmpty) {
-            await DependencyInjection.seanceRepository.upsertAllFromRemote(
-              remoteList,
-            );
+    if (_isRefreshing) return;
+    _isRefreshing = true;
+    try {
+      if (DependencyInjection.connectivityState.isConnected) {
+        try {
+          final data = await DependencyInjection.apiSyncDatasource.fetchAll(
+            ApiEndpoints.seances,
+          );
+          if (data != null && data.isNotEmpty) {
+            final remoteList = data
+                .map(_seanceFromApiJson)
+                .whereType<Seance>()
+                .toList();
+            if (remoteList.isNotEmpty) {
+              await DependencyInjection.seanceRepository.upsertAllFromRemote(
+                remoteList,
+              );
+            }
           }
+        } catch (_) {
+          // Ignorer les erreurs réseau
         }
-      } catch (_) {
-        // Ignorer les erreurs réseau
       }
+      await _seanceState.chargerSeances();
+    } finally {
+      _isRefreshing = false;
     }
-    await _seanceState.chargerSeances();
   }
 
   /// Convertit un JSON API en entité Seance.
@@ -88,6 +111,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
 
   @override
   void dispose() {
+    DependencyInjection.routeObserver.unsubscribe(this);
     _seanceState.removeListener(_onStateChanged);
     super.dispose();
   }
@@ -136,6 +160,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
                   nbAteliers: seance.nbAteliers,
                   status: _mapStatus(seance.statut),
                   onTap: () => _navigateToDetail(seance),
+                  actions: _buildSeanceActions(seance),
                 );
               }, childCount: _seanceState.seances.length),
             ),
@@ -190,10 +215,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
               ],
             ),
             child: IconButton(
-              onPressed: (_seanceState.seanceOuverte != null ||
-                      _seanceState.isLoading)
-                  ? null
-                  : _showOuvrirSeanceDialog,
+              onPressed: _seanceState.isLoading ? null : _showCreateSeanceSheet,
               icon: const Icon(Icons.play_arrow_rounded, color: Colors.white),
               tooltip: AppLocalizations.of(context)!.openSessionTooltip,
             ),
@@ -416,10 +438,7 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: (_seanceState.seanceOuverte != null ||
-                    _seanceState.isLoading)
-                ? null
-                : _showOuvrirSeanceDialog,
+            onPressed: _seanceState.isLoading ? null : _showCreateSeanceSheet,
             icon: const Icon(Icons.play_arrow_rounded, size: 20),
             label: Text(
               AppLocalizations.of(context)!.openSession,
@@ -443,279 +462,217 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     );
   }
 
-  Future<void> _showOuvrirSeanceDialog() async {
+  Future<void> _showCreateSeanceSheet() async {
     final currentEncadreurId =
         await DependencyInjection.preferences.getUserId();
     if (!mounted) return;
 
-    final titreController = TextEditingController();
-    TimeOfDay heureDebut = const TimeOfDay(hour: 15, minute: 0);
-    TimeOfDay heureFin = const TimeOfDay(hour: 17, minute: 0);
-    final selectedEncadreurIds = <String>{};
-
-    if (!mounted) return;
-
-    showModalBottomSheet(
+    await showModalBottomSheet<_SeanceFormResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        bool isSubmitting = false;
-
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            final colorScheme = Theme.of(context).colorScheme;
-            final isDark = Theme.of(context).brightness == Brightness.dark;
-
-            return Container(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
-              ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: colorScheme.onSurface.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      AppLocalizations.of(context)!.openSession,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      AppLocalizations.of(context)!.fillInfoToStart,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        color: colorScheme.onSurface.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    TextField(
-                      controller: titreController,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(
-                          context,
-                        )!.sessionTitleLabel,
-                        labelStyle: GoogleFonts.montserrat(fontSize: 13),
-                        hintText: AppLocalizations.of(
-                          context,
-                        )!.sessionTitleHint,
-                        hintStyle: GoogleFonts.montserrat(
-                          fontSize: 13,
-                          color: colorScheme.onSurface.withValues(alpha: 0.3),
-                        ),
-                        prefixIcon: const Icon(Icons.title_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: colorScheme.onSurface.withValues(alpha: 0.1),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: AppColors.primary,
-                            width: 1.5,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: colorScheme.onSurface.withValues(
-                          alpha: 0.03,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _TimePickerField(
-                            label: AppLocalizations.of(context)!.startLabel,
-                            time: heureDebut,
-                            onTap: () async {
-                              final picked = await showTimePicker(
-                                context: context,
-                                initialTime: heureDebut,
-                              );
-                              if (picked != null) {
-                                setModalState(() => heureDebut = picked);
-                              }
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _TimePickerField(
-                            label: AppLocalizations.of(context)!.endLabel,
-                            time: heureFin,
-                            onTap: () async {
-                              final picked = await showTimePicker(
-                                context: context,
-                                initialTime: heureFin,
-                              );
-                              if (picked != null) {
-                                setModalState(() => heureFin = picked);
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    _EncadreursInvitesSelector(
-                      excludedId: currentEncadreurId,
-                      selectedIds: selectedEncadreurIds,
-                      onToggle: (id) {
-                        setModalState(() {
-                          if (selectedEncadreurIds.contains(id)) {
-                            selectedEncadreurIds.remove(id);
-                          } else {
-                            selectedEncadreurIds.add(id);
-                          }
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: isSubmitting
-                            ? null
-                            : () async {
-                                if (titreController.text.trim().isEmpty) {
-                                  AcademyToast.show(
-                                    context,
-                                    title: AppLocalizations.of(
-                                      context,
-                                    )!.pleaseEnterTitle,
-                                    isError: true,
-                                  );
-                                  return;
-                                }
-
-                                if (currentEncadreurId == null ||
-                                    currentEncadreurId.isEmpty) {
-                                  AcademyToast.show(
-                                    context,
-                                    title: 'Erreur d\'authentification',
-                                    isError: true,
-                                  );
-                                  return;
-                                }
-
-                                setModalState(() => isSubmitting = true);
-
-                                final navigator = Navigator.of(context);
-                                final now = DateTime.now();
-                                final result = await _seanceState.ouvrirSeance(
-                                  titre: titreController.text.trim(),
-                                  date: now,
-                                  heureDebut: DateTime(
-                                    now.year,
-                                    now.month,
-                                    now.day,
-                                    heureDebut.hour,
-                                    heureDebut.minute,
-                                  ),
-                                  heureFin: DateTime(
-                                    now.year,
-                                    now.month,
-                                    now.day,
-                                    heureFin.hour,
-                                    heureFin.minute,
-                                  ),
-                                  encadreurResponsableId: currentEncadreurId,
-                                  encadreurInvitesIds:
-                                      selectedEncadreurIds.toList(),
-                                );
-
-                                if (mounted) {
-                                  setModalState(() => isSubmitting = false);
-                                }
-
-                                if (!mounted) return;
-
-                                if (result.success) {
-                                  if (!mounted) return;
-                                  navigator.pop();
-                                  AcademyToast.show(
-                                    this.context,
-                                    title: result.message,
-                                    isSuccess: true,
-                                  );
-                                } else {
-                                  _showAvertissementSeanceOuverte(
-                                    result.message,
-                                    result.seanceBloqueante,
-                                  );
-                                }
-                              },
-                        icon: isSubmitting
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.play_arrow_rounded, size: 20),
-                        label: Text(
-                          AppLocalizations.of(context)!.startSession,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF10B981),
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor:
-                              const Color(0xFF10B981).withValues(alpha: 0.5),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+      builder: (ctx) => _SeanceFormSheet(
+        encadreurResponsableId: currentEncadreurId,
+        canStartNow: _seanceState.seanceOuverte == null,
+        onSubmit: (result) => _submitSeanceForm(
+          result: result,
+          encadreurResponsableId: currentEncadreurId ?? '',
+        ),
+      ),
     );
+  }
+
+  Future<void> _showEditSeanceSheet(Seance seance) async {
+    await showModalBottomSheet<_SeanceFormResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _SeanceFormSheet(
+        seance: seance,
+        encadreurResponsableId: seance.encadreurResponsableId,
+        onSubmit: (result) => _submitEditSeanceForm(seance, result),
+      ),
+    );
+  }
+
+  Future<OuvertureResult> _submitEditSeanceForm(
+    Seance seance,
+    _SeanceFormResult result,
+  ) async {
+    final date = result.date;
+    final hd = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      result.heureDebut.hour,
+      result.heureDebut.minute,
+    );
+    final hf = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      result.heureFin.hour,
+      result.heureFin.minute,
+    );
+
+    final validationError = _validateTimeSlot(
+      date: date,
+      heureDebut: hd,
+      heureFin: hf,
+      excludeSeanceId: seance.id,
+    );
+    if (validationError != null) {
+      return OuvertureResult(success: false, message: validationError);
+    }
+
+    final editResult = await _seanceState.modifierSeance(
+      seance: seance,
+      titre: result.titre.trim(),
+      date: date,
+      heureDebut: hd,
+      heureFin: hf,
+      encadreurInvitesIds: result.invitedIds.toList(),
+      themeObjectif: result.themeObjectif.trim(),
+    );
+
+    if (!mounted) return editResult;
+    if (editResult.success) {
+      AcademyToast.show(
+        context,
+        title: editResult.message,
+        isSuccess: true,
+      );
+    } else {
+      _showAvertissementSeanceOuverte(
+        editResult.message,
+        editResult.seanceBloqueante,
+      );
+    }
+    return editResult;
+  }
+
+  Future<void> _lancerSeanceProgrammee(Seance seance) async {
+    final debut = DateTime(
+      seance.date.year,
+      seance.date.month,
+      seance.date.day,
+      seance.heureDebut.hour,
+      seance.heureDebut.minute,
+    );
+
+    if (DateTime.now().isBefore(debut)) {
+      AcademyToast.show(
+        context,
+        title: AppLocalizations.of(context)!.cannotLaunchBeforeStart,
+        isError: true,
+      );
+      return;
+    }
+
+    final result = await _seanceState.lancerSeance(seance);
+
+    if (!mounted) return;
+    if (result.success) {
+      AcademyToast.show(
+        context,
+        title: result.message,
+        isSuccess: true,
+      );
+    } else {
+      _showAvertissementSeanceOuverte(
+        result.message,
+        result.seanceBloqueante,
+      );
+    }
+  }
+
+  Future<OuvertureResult> _submitSeanceForm({
+    required _SeanceFormResult result,
+    required String encadreurResponsableId,
+  }) async {
+    if (encadreurResponsableId.isEmpty) {
+      return const OuvertureResult(
+        success: false,
+        message: 'Erreur d\'authentification',
+      );
+    }
+
+    final date = result.date;
+    final hd = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      result.heureDebut.hour,
+      result.heureDebut.minute,
+    );
+    final hf = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      result.heureFin.hour,
+      result.heureFin.minute,
+    );
+
+    final validationError = _validateTimeSlot(
+      date: date,
+      heureDebut: hd,
+      heureFin: hf,
+    );
+    if (validationError != null) {
+      return OuvertureResult(success: false, message: validationError);
+    }
+
+    final createResult = await _seanceState.creerSeance(
+      titre: result.titre.trim(),
+      date: date,
+      heureDebut: hd,
+      heureFin: hf,
+      encadreurResponsableId: encadreurResponsableId,
+      encadreurInvitesIds: result.invitedIds.toList(),
+      statut: result.statut!,
+      themeObjectif: result.themeObjectif.trim(),
+    );
+
+    if (!mounted) return createResult;
+    if (createResult.success) {
+      AcademyToast.show(
+        context,
+        title: createResult.message,
+        isSuccess: true,
+      );
+    } else {
+      _showAvertissementSeanceOuverte(
+        createResult.message,
+        createResult.seanceBloqueante,
+      );
+    }
+    return createResult;
+  }
+
+  List<Widget> _buildSeanceActions(Seance seance) {
+    if (seance.estAVenir) {
+      return [
+        IconButton(
+          onPressed: () => _showEditSeanceSheet(seance),
+          icon: const Icon(Icons.edit_rounded),
+          tooltip: AppLocalizations.of(context)!.editSessionButton,
+          color: AppColors.primary,
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          padding: EdgeInsets.zero,
+          iconSize: 20,
+        ),
+        IconButton(
+          onPressed: () => _lancerSeanceProgrammee(seance),
+          icon: const Icon(Icons.play_arrow_rounded),
+          tooltip: AppLocalizations.of(context)!.launchSessionButton,
+          color: const Color(0xFF10B981),
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          padding: EdgeInsets.zero,
+          iconSize: 22,
+        ),
+      ];
+    }
+    return [];
   }
 
   /// Affiche un avertissement si une seance est restee ouverte.
@@ -1098,6 +1055,58 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
     ).push(MaterialPageRoute(builder: (_) => SeanceDetailPage(seance: seance)));
   }
 
+  /// Valide qu'un créneau horaire est dans le futur (si aujourd'hui) et qu'il ne
+  /// chevauche aucune séance existante sur la même journée.
+  String? _validateTimeSlot({
+    required DateTime date,
+    required DateTime heureDebut,
+    required DateTime heureFin,
+    String? excludeSeanceId,
+  }) {
+    final now = DateTime.now();
+    final isToday = date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+
+    if (isToday && heureDebut.isBefore(now)) {
+      return AppLocalizations.of(context)!.sessionStartTimeInPast;
+    }
+
+    if (!heureDebut.isBefore(heureFin)) {
+      return AppLocalizations.of(context)!.sessionEndBeforeStart;
+    }
+
+    for (final existing in _seanceState.seances) {
+      if (excludeSeanceId != null && existing.id == excludeSeanceId) continue;
+      if (existing.date.year != date.year ||
+          existing.date.month != date.month ||
+          existing.date.day != date.day) {
+        continue;
+      }
+
+      final existingStart = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        existing.heureDebut.hour,
+        existing.heureDebut.minute,
+      );
+      final existingEnd = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        existing.heureFin.hour,
+        existing.heureFin.minute,
+      );
+
+      if (heureDebut.isBefore(existingEnd) && heureFin.isAfter(existingStart)) {
+        return AppLocalizations.of(context)!.sessionTimeOverlap(existing.titre);
+      }
+    }
+
+    return null;
+  }
+
   String _formatHeure(DateTime dt) {
     return '${dt.hour.toString().padLeft(2, '0')}:'
         '${dt.minute.toString().padLeft(2, '0')}';
@@ -1112,6 +1121,564 @@ class _EncadreurSeancesScreenState extends State<EncadreurSeancesScreen> {
       case SeanceStatus.aVenir:
         return SeanceCardStatus.aVenir;
     }
+  }
+}
+
+/// Resultat renvoye par le bottom sheet de creation/edition de seance.
+class _SeanceFormResult {
+  final String titre;
+  final DateTime date;
+  final TimeOfDay heureDebut;
+  final TimeOfDay heureFin;
+  final Set<String> invitedIds;
+  final String themeObjectif;
+  final SeanceStatus? statut;
+
+  _SeanceFormResult({
+    required this.titre,
+    required this.date,
+    required this.heureDebut,
+    required this.heureFin,
+    required this.invitedIds,
+    required this.themeObjectif,
+    this.statut,
+  });
+}
+
+/// Callback de soumission du bottom sheet de seance.
+typedef _SeanceSubmitCallback = Future<OuvertureResult> Function(
+  _SeanceFormResult result,
+);
+
+/// Bottom sheet de creation/edition d'une seance.
+class _SeanceFormSheet extends StatefulWidget {
+  final Seance? seance;
+  final String? encadreurResponsableId;
+  final bool canStartNow;
+  final _SeanceSubmitCallback? onSubmit;
+
+  const _SeanceFormSheet({
+    this.seance,
+    this.encadreurResponsableId,
+    this.canStartNow = true,
+    this.onSubmit,
+  });
+
+  @override
+  State<_SeanceFormSheet> createState() => _SeanceFormSheetState();
+}
+
+class _SeanceFormSheetState extends State<_SeanceFormSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _titreController;
+  late final TextEditingController _themeController;
+  late DateTime _selectedDate;
+  late TimeOfDay _heureDebut;
+  late TimeOfDay _heureFin;
+  final _selectedEncadreurIds = <String>{};
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  bool get _isEditing => widget.seance != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final seance = widget.seance;
+    if (seance != null) {
+      _titreController = TextEditingController(text: seance.titre);
+      _themeController = TextEditingController(text: seance.themeObjectif);
+      _selectedDate = seance.date;
+      _heureDebut = TimeOfDay(
+        hour: seance.heureDebut.hour,
+        minute: seance.heureDebut.minute,
+      );
+      _heureFin = TimeOfDay(
+        hour: seance.heureFin.hour,
+        minute: seance.heureFin.minute,
+      );
+      _selectedEncadreurIds.addAll(seance.encadreurIds);
+    } else {
+      _titreController = TextEditingController();
+      _themeController = TextEditingController();
+      _selectedDate = DateTime.now();
+      _heureDebut = const TimeOfDay(hour: 15, minute: 0);
+      _heureFin = const TimeOfDay(hour: 17, minute: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _titreController.dispose();
+    _themeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit(SeanceStatus? statut) async {
+    if (_isSubmitting) return;
+    if (_titreController.text.trim().isEmpty) {
+      setState(() {
+        _errorMessage = AppLocalizations.of(context)!.pleaseEnterTitle;
+      });
+      return;
+    }
+
+    final result = _SeanceFormResult(
+      titre: _titreController.text.trim(),
+      date: _selectedDate,
+      heureDebut: _heureDebut,
+      heureFin: _heureFin,
+      invitedIds: Set.from(_selectedEncadreurIds),
+      themeObjectif: _themeController.text.trim(),
+      statut: statut,
+    );
+
+    final onSubmit = widget.onSubmit;
+    if (onSubmit == null) {
+      Navigator.of(context).pop(result);
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final submitResult = await onSubmit(result);
+      if (!mounted) return;
+
+      if (submitResult.success) {
+        Navigator.of(context).pop(result);
+      } else {
+        setState(() => _errorMessage = submitResult.message);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _errorMessage = e.toString());
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(_selectedDate.year - 1, 1, 1),
+      lastDate: DateTime(_selectedDate.year + 2, 12, 31),
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  Future<void> _pickHeureDebut() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _heureDebut,
+    );
+    if (picked != null) {
+      setState(() => _heureDebut = picked);
+    }
+  }
+
+  Future<void> _pickHeureFin() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _heureFin,
+    );
+    if (picked != null) {
+      setState(() => _heureFin = picked);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                _isEditing
+                    ? l10n.editSessionButton
+                    : l10n.openSession,
+                style: GoogleFonts.montserrat(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.fillInfoToStart,
+                style: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _titreController,
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: InputDecoration(
+                  labelText: l10n.sessionTitleLabel,
+                  labelStyle: GoogleFonts.montserrat(fontSize: 13),
+                  hintText: l10n.sessionTitleHint,
+                  hintStyle: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    color: colorScheme.onSurface.withValues(alpha: 0.3),
+                  ),
+                  prefixIcon: const Icon(Icons.title_rounded),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: colorScheme.onSurface.withValues(alpha: 0.03),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _DatePickerField(
+                label: l10n.sessionDateLabel,
+                date: _selectedDate,
+                onTap: _pickDate,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _TimePickerField(
+                      label: l10n.startLabel,
+                      time: _heureDebut,
+                      onTap: _pickHeureDebut,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _TimePickerField(
+                      label: l10n.endLabel,
+                      time: _heureFin,
+                      onTap: _pickHeureFin,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.sessionThemeLabel,
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _themeController,
+                maxLines: 3,
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  color: colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
+                  hintText: l10n.sessionThemeHint,
+                  hintStyle: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    color: colorScheme.onSurface.withValues(alpha: 0.3),
+                  ),
+                  filled: true,
+                  fillColor: colorScheme.onSurface.withValues(alpha: 0.03),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              _EncadreursInvitesSelector(
+                excludedId: widget.encadreurResponsableId,
+                selectedIds: _selectedEncadreurIds,
+                onToggle: (id) {
+                  setState(() {
+                    if (_selectedEncadreurIds.contains(id)) {
+                      _selectedEncadreurIds.remove(id);
+                    } else {
+                      _selectedEncadreurIds.add(id);
+                    }
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+              if (_errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.error.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.error_outline_rounded,
+                        color: AppColors.error,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 12,
+                            color: AppColors.error,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              if (_isEditing)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => _submit(null),
+                    icon: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save_rounded, size: 20),
+                    label: Text(
+                      l10n.saveAction,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor:
+                          AppColors.primary.withValues(alpha: 0.5),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isSubmitting
+                            ? null
+                            : () => _submit(SeanceStatus.aVenir),
+                        icon: _isSubmitting
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.schedule_rounded, size: 18),
+                        label: Text(
+                          l10n.scheduleSessionButton,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              AppColors.primary.withValues(alpha: 0.5),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: (_isSubmitting || !widget.canStartNow)
+                            ? null
+                            : () => _submit(SeanceStatus.ouverte),
+                        icon: _isSubmitting
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.play_arrow_rounded, size: 18),
+                        label: Text(
+                          l10n.startNowButton,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF10B981),
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              const Color(0xFF10B981).withValues(alpha: 0.5),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget pour selectionner une date.
+class _DatePickerField extends StatelessWidget {
+  final String label;
+  final DateTime date;
+  final VoidCallback onTap;
+
+  const _DatePickerField({
+    required this.label,
+    required this.date,
+    required this.onTap,
+  });
+
+  String _formatDate(DateTime dt) {
+    return '${dt.day.toString().padLeft(2, '0')}/'
+        '${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: colorScheme.onSurface.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_today_rounded,
+              size: 18,
+              color: colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 10,
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+                Text(
+                  _formatDate(date),
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -16,6 +16,7 @@ class Seance {
   final int nbPresents;
   final int nbAteliers;
   final String? seasonId;
+  final String themeObjectif;
 
   Seance({
     required this.id,
@@ -31,6 +32,7 @@ class Seance {
     this.nbPresents = 0,
     this.nbAteliers = 0,
     this.seasonId,
+    this.themeObjectif = '',
   });
 
   /// Cree une copie de la seance avec des champs modifies.
@@ -48,6 +50,7 @@ class Seance {
     int? nbPresents,
     int? nbAteliers,
     String? seasonId,
+    String? themeObjectif,
   }) {
     return Seance(
       id: id ?? this.id,
@@ -64,6 +67,7 @@ class Seance {
       nbPresents: nbPresents ?? this.nbPresents,
       nbAteliers: nbAteliers ?? this.nbAteliers,
       seasonId: seasonId ?? this.seasonId,
+      themeObjectif: themeObjectif ?? this.themeObjectif,
     );
   }
 
@@ -83,6 +87,7 @@ class Seance {
       'nbPresents': nbPresents,
       'nbAteliers': nbAteliers,
       'seasonId': seasonId,
+      'themeObjectif': themeObjectif,
     };
   }
 
@@ -99,10 +104,7 @@ class Seance {
       heureFin: DateTime.parse(
         json['heureFin'] as String? ?? json['heure_fin'] as String,
       ),
-      statut: SeanceStatus.values.firstWhere(
-        (e) => e.name == json['statut'],
-        orElse: () => SeanceStatus.aVenir,
-      ),
+      statut: _parseStatut(json['statut'] as String?),
       encadreurResponsableId:
           json['encadreurResponsableId'] as String? ??
           json['encadreur_responsable_id'] as String? ??
@@ -130,7 +132,26 @@ class Seance {
       nbAteliers:
           json['nbAteliers'] as int? ?? json['nb_ateliers'] as int? ?? 0,
       seasonId: json['seasonId'] as String? ?? json['season_id'] as String?,
+      themeObjectif:
+          json['themeObjectif'] as String? ??
+          json['theme_objectif'] as String? ??
+          '',
     );
+  }
+
+  /// Parse le statut depuis les valeurs API (snake_case) ou locales (camelCase).
+  static SeanceStatus _parseStatut(String? statut) {
+    switch (statut?.toLowerCase()) {
+      case 'ouverte':
+        return SeanceStatus.ouverte;
+      case 'fermee':
+        return SeanceStatus.fermee;
+      case 'a_venir':
+      case 'avenir':
+        return SeanceStatus.aVenir;
+      default:
+        return SeanceStatus.aVenir;
+    }
   }
 
   /// Verifie si la seance est actuellement ouverte.

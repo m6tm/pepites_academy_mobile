@@ -63,6 +63,8 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
   bool _hasCloseAtelierPermission = false;
   bool _hasCloseExercicePermission = false;
 
+  bool get _isSeanceFermee => widget.seance.estFermee;
+
   @override
   void initState() {
     super.initState();
@@ -201,7 +203,7 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
         ],
         ),
       ),
-      floatingActionButton: (_hasCreatePermission && widget.seance.estOuverte)
+      floatingActionButton: (!_isSeanceFermee && _hasCreatePermission)
           ? FloatingActionButton.extended(
               onPressed: () => _showAddAtelier(context),
               backgroundColor: AppColors.primary,
@@ -383,6 +385,10 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
           final exercices =
               _exerciceState.exercicesParAtelier[atelier.id] ?? [];
 
+          final isEditable = !_isSeanceFermee && _hasUpdatePermission;
+          final isExercicesEditable = !_isSeanceFermee && _hasUpdateExercicePermission;
+          final isOpen = widget.seance.estOuverte;
+
           return AtelierCard(
             key: ValueKey(atelier.id),
             index: index,
@@ -390,20 +396,25 @@ class _AteliersPageState extends State<AteliersPage> with RouteAware {
             exercices: exercices,
             isLoadingExercices: _exerciceState.isLoading(atelier.id),
             isApplying: _atelierState.isProcessingAtelier(atelier.id),
-            isEditable: _hasUpdatePermission && widget.seance.estOuverte,
-            isExercicesEditable: _hasUpdateExercicePermission && widget.seance.estOuverte,
+            isEditable: isEditable,
+            isExercicesEditable: isExercicesEditable,
             onAnnotateExercice: (ex) => _naviguerVersAnnotation(atelier, exercice: ex),
-            onEdit: () => _showEditAtelier(context, atelier),
-            onDelete: () => _showDeleteConfirmation(context, atelier),
-            onAddExercice: () => _showAddExercice(context, atelier),
-            onEditExercice: (ex) => _showEditExercice(context, ex),
-            onDeleteExercice: (ex) =>
-                _exerciceState.supprimerExercice(ex.id, atelier.id),
-            onApply: (_hasApplyAtelierPermission && widget.seance.estOuverte) ? () => _confirmApplyAtelier(context, atelier) : null,
-            onClose: (_hasCloseAtelierPermission && widget.seance.estOuverte) ? () => _confirmCloseAtelier(context, atelier) : null,
-            onCloseExercice: (_hasCloseExercicePermission && widget.seance.estOuverte) ? (ex) => _confirmCloseExercice(context, ex) : null,
-            onReorderExercice: (oldIndex, newIndex) =>
-                _exerciceState.reordonnerExercices(atelier.id, oldIndex, newIndex),
+            onEdit: isEditable ? () => _showEditAtelier(context, atelier) : null,
+            onDelete: !_isSeanceFermee
+                ? () => _showDeleteConfirmation(context, atelier)
+                : null,
+            onAddExercice: isExercicesEditable ? () => _showAddExercice(context, atelier) : null,
+            onEditExercice: isExercicesEditable ? (ex) => _showEditExercice(context, ex) : null,
+            onDeleteExercice: isExercicesEditable
+                ? (ex) => _exerciceState.supprimerExercice(ex.id, atelier.id)
+                : null,
+            onApply: (isOpen && _hasApplyAtelierPermission) ? () => _confirmApplyAtelier(context, atelier) : null,
+            onClose: (isOpen && _hasCloseAtelierPermission) ? () => _confirmCloseAtelier(context, atelier) : null,
+            onCloseExercice: (isOpen && _hasCloseExercicePermission) ? (ex) => _confirmCloseExercice(context, ex) : null,
+            onReorderExercice: isExercicesEditable
+                ? (oldIndex, newIndex) =>
+                    _exerciceState.reordonnerExercices(atelier.id, oldIndex, newIndex)
+                : null,
           );
         },
       ),

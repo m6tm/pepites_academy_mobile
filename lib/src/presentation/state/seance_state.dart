@@ -157,13 +157,15 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     notifyListeners();
   }
 
-  Future<OuvertureResult> ouvrirSeance({
+  Future<OuvertureResult> creerSeance({
     required String titre,
     required DateTime date,
     required DateTime heureDebut,
     required DateTime heureFin,
     required String encadreurResponsableId,
     List<String> encadreurInvitesIds = const [],
+    SeanceStatus statut = SeanceStatus.ouverte,
+    String themeObjectif = '',
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -171,13 +173,15 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
     notifyListeners();
 
     try {
-      final result = await _service.ouvrirSeance(
+      final result = await _service.creerSeance(
         titre: titre,
         date: date,
         heureDebut: heureDebut,
         heureFin: heureFin,
         encadreurResponsableId: encadreurResponsableId,
         encadreurInvitesIds: encadreurInvitesIds,
+        statut: statut,
+        themeObjectif: themeObjectif,
       );
 
       if (result.success) {
@@ -191,7 +195,113 @@ class SeanceState extends ChangeNotifier with EventBusSubscriberMixin {
 
       return result;
     } catch (e) {
-      _errorMessage = 'Erreur lors de l\'ouverture : $e';
+      _errorMessage = 'Erreur lors de la creation : $e';
+      _isLoading = false;
+      notifyListeners();
+      return OuvertureResult(
+        success: false,
+        message: _errorMessage!,
+      );
+    }
+  }
+
+  /// Alias de [creerSeance] pour creer et ouvrir immediatement une seance.
+  Future<OuvertureResult> ouvrirSeance({
+    required String titre,
+    required DateTime date,
+    required DateTime heureDebut,
+    required DateTime heureFin,
+    required String encadreurResponsableId,
+    List<String> encadreurInvitesIds = const [],
+    String themeObjectif = '',
+  }) => creerSeance(
+    titre: titre,
+    date: date,
+    heureDebut: heureDebut,
+    heureFin: heureFin,
+    encadreurResponsableId: encadreurResponsableId,
+    encadreurInvitesIds: encadreurInvitesIds,
+    statut: SeanceStatus.ouverte,
+    themeObjectif: themeObjectif,
+  );
+
+  /// Met a jour les parametres d'une seance existante.
+  Future<OuvertureResult> modifierSeance({
+    required Seance seance,
+    String? titre,
+    DateTime? date,
+    DateTime? heureDebut,
+    DateTime? heureFin,
+    List<String>? encadreurInvitesIds,
+    String? themeObjectif,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      final result = await _service.modifierSeance(
+        seance: seance,
+        titre: titre,
+        date: date,
+        heureDebut: heureDebut,
+        heureFin: heureFin,
+        encadreurInvitesIds: encadreurInvitesIds,
+        themeObjectif: themeObjectif,
+      );
+
+      if (result.success) {
+        _successMessage = result.message;
+        await chargerSeances();
+      } else {
+        _errorMessage = result.message;
+        _isLoading = false;
+        notifyListeners();
+      }
+
+      return result;
+    } catch (e) {
+      _errorMessage = 'Erreur lors de la modification : $e';
+      _isLoading = false;
+      notifyListeners();
+      return OuvertureResult(
+        success: false,
+        message: _errorMessage!,
+      );
+    }
+  }
+
+  /// Lance une seance programme (passe le statut a ouverte).
+  Future<OuvertureResult> lancerSeance(Seance seance) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      final existing = await _repository.getSeanceOuverte();
+      if (existing != null && existing.id != seance.id) {
+        _isLoading = false;
+        notifyListeners();
+        return OuvertureResult(
+          success: false,
+          message:
+              'Impossible de lancer la seance. Une autre seance est deja ouverte.',
+          seanceBloqueante: existing,
+        );
+      }
+
+      final result = await _repository.ouvrir(seance.id);
+      await chargerSeances();
+      _successMessage = 'Seance "${result.titre}" lancee avec succes.';
+      return OuvertureResult(
+        success: true,
+        message: _successMessage!,
+        seance: result,
+      );
+    } catch (e) {
+      _errorMessage = 'Erreur lors du lancement : $e';
       _isLoading = false;
       notifyListeners();
       return OuvertureResult(

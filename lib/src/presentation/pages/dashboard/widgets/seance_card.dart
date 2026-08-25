@@ -17,6 +17,7 @@ class SeanceCard extends StatelessWidget {
   final int nbAteliers;
   final SeanceCardStatus status;
   final VoidCallback? onTap;
+  final List<Widget> actions;
 
   const SeanceCard({
     super.key,
@@ -29,6 +30,7 @@ class SeanceCard extends StatelessWidget {
     required this.nbAteliers,
     required this.status,
     this.onTap,
+    this.actions = const [],
   });
 
   Color get _statusColor {
@@ -136,6 +138,13 @@ class SeanceCard extends StatelessWidget {
                     color: colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                 ),
+                if (actions.isNotEmpty) ...[
+                  const SizedBox(width: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: actions,
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 12),
