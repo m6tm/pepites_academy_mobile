@@ -117,9 +117,6 @@ class AtelierState extends ChangeNotifier
   /// Ajoute un atelier a la seance courante.
   Future<bool> ajouterAtelier({
     required String nom,
-    required AtelierType type,
-    String? typeCustom,
-    String description = '',
     String theme = '',
     String objectifs = '',
     int? dureeMinutes,
@@ -140,9 +137,6 @@ class AtelierState extends ChangeNotifier
       final created = await _service.ajouterAtelier(
         seanceId: targetSeanceId,
         nom: nom,
-        type: type,
-        typeCustom: typeCustom,
-        description: description,
         theme: theme,
         objectifs: objectifs,
         dureeMinutes: dureeMinutes,

@@ -4,6 +4,7 @@ import '../../domain/entities/atelier.dart';
 import '../../domain/entities/exercice.dart';
 import 'exercice_list_tile.dart';
 import 'statut_indicator.dart';
+import 'icon_selector.dart';
 
 /// Une carte expandable pour afficher les détails d'un atelier et ses exercices.
 class AtelierCard extends StatefulWidget {
@@ -57,7 +58,7 @@ class _AtelierCardState extends State<AtelierCard> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final typeColor = _getAtelierTypeColor(widget.atelier.type);
+    final typeColor = AtelierIconeMapper.getColor(widget.atelier.icone);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -100,7 +101,7 @@ class _AtelierCardState extends State<AtelierCard> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
-                      _getTypeIcon(widget.atelier.type),
+                      AtelierIconeMapper.getIcon(widget.atelier.icone),
                       color: typeColor,
                       size: 24,
                     ),
@@ -217,19 +218,7 @@ class _AtelierCardState extends State<AtelierCard> {
             secondChild: Column(
               children: [
                 const Divider(height: 1),
-                if (widget.atelier.description.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      widget.atelier.description,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                
+
                 // Exercices List
                 if (widget.isLoadingExercices)
                   const Padding(
@@ -308,31 +297,4 @@ class _AtelierCardState extends State<AtelierCard> {
     );
   }
 
-  Color _getAtelierTypeColor(AtelierType type) {
-    switch (type) {
-      case AtelierType.dribble: return const Color(0xFF3B82F6);
-      case AtelierType.passes: return const Color(0xFF10B981);
-      case AtelierType.finition: return const Color(0xFFEF4444);
-      case AtelierType.physique: return const Color(0xFFF59E0B);
-      case AtelierType.jeuEnSituation: return const Color(0xFF8B5CF6);
-      case AtelierType.tactique: return const Color(0xFF6366F1);
-      case AtelierType.gardien: return const Color(0xFF14B8A6);
-      case AtelierType.echauffement: return const Color(0xFFF97316);
-      case AtelierType.personnalise: return const Color(0xFF64748B);
-    }
-  }
-
-  IconData _getTypeIcon(AtelierType type) {
-    switch (type) {
-      case AtelierType.dribble: return Icons.sports_soccer_rounded;
-      case AtelierType.passes: return Icons.swap_horiz_rounded;
-      case AtelierType.finition: return Icons.sports_rounded;
-      case AtelierType.physique: return Icons.timer_rounded;
-      case AtelierType.jeuEnSituation: return Icons.groups_rounded;
-      case AtelierType.tactique: return Icons.map_rounded;
-      case AtelierType.gardien: return Icons.sports_handball_rounded;
-      case AtelierType.echauffement: return Icons.directions_run_rounded;
-      case AtelierType.personnalise: return Icons.tune_rounded;
-    }
-  }
 }

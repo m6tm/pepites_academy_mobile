@@ -10,6 +10,7 @@ import '../../state/exercice_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
 import '../../widgets/atelier_card.dart';
+import '../../widgets/icon_selector.dart';
 import '../ateliers/atelier_form_page.dart';
 import '../../../../l10n/app_localizations.dart';
 
@@ -28,78 +29,8 @@ class AtelierCompositionPage extends StatefulWidget {
     required this.exerciceState,
   });
 
-  static String getTypeLabel(BuildContext context, AtelierType type) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (type) {
-      case AtelierType.dribble:
-        return l10n.workshopTypeDribble;
-      case AtelierType.passes:
-        return l10n.workshopTypePasses;
-      case AtelierType.finition:
-        return l10n.workshopTypeFinition;
-      case AtelierType.physique:
-        return l10n.workshopTypePhysique;
-      case AtelierType.jeuEnSituation:
-        return l10n.workshopTypeJeuEnSituation;
-      case AtelierType.tactique:
-        return l10n.workshopTypeTactique;
-      case AtelierType.gardien:
-        return l10n.workshopTypeGardien;
-      case AtelierType.echauffement:
-        return l10n.workshopTypeEchauffement;
-      case AtelierType.personnalise:
-        return l10n.workshopTypePersonnalise;
-    }
-  }
-
   @override
   State<AtelierCompositionPage> createState() => _AtelierCompositionPageState();
-
-  static Color getTypeColor(AtelierType type) {
-    switch (type) {
-      case AtelierType.dribble:
-        return const Color(0xFF3B82F6);
-      case AtelierType.passes:
-        return const Color(0xFF10B981);
-      case AtelierType.finition:
-        return const Color(0xFFEF4444);
-      case AtelierType.physique:
-        return const Color(0xFFF59E0B);
-      case AtelierType.jeuEnSituation:
-        return const Color(0xFF8B5CF6);
-      case AtelierType.tactique:
-        return const Color(0xFF6366F1);
-      case AtelierType.gardien:
-        return const Color(0xFF14B8A6);
-      case AtelierType.echauffement:
-        return const Color(0xFFF97316);
-      case AtelierType.personnalise:
-        return const Color(0xFF64748B);
-    }
-  }
-
-  static IconData getTypeIcon(AtelierType type) {
-    switch (type) {
-      case AtelierType.dribble:
-        return Icons.sports_soccer_rounded;
-      case AtelierType.passes:
-        return Icons.swap_horiz_rounded;
-      case AtelierType.finition:
-        return Icons.sports_rounded;
-      case AtelierType.physique:
-        return Icons.timer_rounded;
-      case AtelierType.jeuEnSituation:
-        return Icons.groups_rounded;
-      case AtelierType.tactique:
-        return Icons.map_rounded;
-      case AtelierType.gardien:
-        return Icons.sports_handball_rounded;
-      case AtelierType.echauffement:
-        return Icons.directions_run_rounded;
-      case AtelierType.personnalise:
-        return Icons.tune_rounded;
-    }
-  }
 }
 
 class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
@@ -176,11 +107,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       return Atelier(
         id: json['id'] as String,
         nom: json['nom'] as String? ?? '',
-        description: json['description'] as String? ?? '',
-        type: AtelierType.values.firstWhere(
-          (e) => e.name == json['type'],
-          orElse: () => AtelierType.personnalise,
-        ),
+        icone: json['icone'] as String? ?? json['icon'] as String?,
         ordre: json['ordre'] as int? ?? 0,
         statut: AtelierStatut.cree,
         seanceId: (json['seance_id'] ?? json['seanceId']) as String,
@@ -475,7 +402,8 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
             ? (oldIndex, newIndex) {
                 state.reordonnerAteliers(oldIndex, newIndex);
               }
-            : null,
+            : (oldIndex, newIndex) {},
+
       ),
     );
   }
@@ -487,13 +415,11 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => _AtelierFormSheet(
         atelier: null,
-        onSubmit: (nom, type, typeCustom, description) {
+        onSubmit: (nom, icone) {
           widget.atelierState.ajouterAtelier(
             seanceId: widget.seance.id,
             nom: nom,
-            type: type,
-            typeCustom: typeCustom,
-            description: description,
+            icone: icone,
           );
         },
       ),
@@ -638,8 +564,7 @@ class _AtelierCompositionPageState extends State<AtelierCompositionPage> {
 /// Bottom sheet pour ajouter un atelier.
 class _AtelierFormSheet extends StatefulWidget {
   final Atelier? atelier;
-  final void Function(String nom, AtelierType type, String? typeCustom, String description)
-  onSubmit;
+  final void Function(String nom, String? icone) onSubmit;
 
   const _AtelierFormSheet({this.atelier, required this.onSubmit});
 
@@ -650,39 +575,28 @@ class _AtelierFormSheet extends StatefulWidget {
 class _AtelierFormSheetState extends State<_AtelierFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
-  late final TextEditingController _descriptionController;
-  late final TextEditingController _typeCustomController;
-  late AtelierType _selectedType;
+  late String _selectedIcon;
   bool _isCustomName = false;
 
   @override
   void initState() {
     super.initState();
     _nomController = TextEditingController(text: '');
-    _descriptionController = TextEditingController(text: '');
-    _typeCustomController = TextEditingController(text: '');
-    _selectedType = AtelierType.dribble;
+    _selectedIcon = AtelierIconeMapper.icons.first['value'] as String;
   }
 
   @override
   void dispose() {
     _nomController.dispose();
-    _descriptionController.dispose();
-    _typeCustomController.dispose();
     super.dispose();
   }
 
-  String _getDefaultName(BuildContext context, AtelierType type) {
-    return AtelierCompositionPage.getTypeLabel(context, type);
-  }
-
-  void _onTypeSelected(AtelierType type) {
+  void _onIconSelected(String? icon) {
+    if (icon == null) return;
     setState(() {
-      _selectedType = type;
-      if (type == AtelierType.personnalise) {
-        _isCustomName = true;
-      } else if (!_isCustomName) {
-        _nomController.text = _getDefaultName(context, type);
+      _selectedIcon = icon;
+      if (!_isCustomName) {
+        _nomController.text = AtelierIconeMapper.getLabel(icon);
       }
     });
   }
@@ -738,43 +652,10 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildTypeGrid(colorScheme, isDark),
-              if (_selectedType == AtelierType.personnalise) ...[
-                const SizedBox(height: 16),
-                Text(
-                  'Type personnalisé (optionnel)',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _typeCustomController,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    color: colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Ex: Mental, Vidéo, etc.',
-                    hintStyle: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      color: colorScheme.onSurface.withValues(alpha: 0.3),
-                    ),
-                    filled: true,
-                    fillColor: colorScheme.onSurface.withValues(alpha: 0.04),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                  ),
-                ),
-              ],
+              IconSelector(
+                selectedIcon: _selectedIcon,
+                onIconSelected: _onIconSelected,
+              ),
               const SizedBox(height: 20),
               Text(
                 AppLocalizations.of(context)!.workshopNameLabel,
@@ -818,41 +699,6 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
                   _isCustomName = true;
                 },
               ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.descriptionLabel,
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 3,
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  color: colorScheme.onSurface,
-                ),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.descriptionHint,
-                  hintStyle: GoogleFonts.montserrat(
-                    fontSize: 13,
-                    color: colorScheme.onSurface.withValues(alpha: 0.3),
-                  ),
-                  filled: true,
-                  fillColor: colorScheme.onSurface.withValues(alpha: 0.04),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-              ),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -885,84 +731,11 @@ class _AtelierFormSheetState extends State<_AtelierFormSheet> {
     );
   }
 
-  Widget _buildTypeGrid(ColorScheme colorScheme, bool isDark) {
-    final types = AtelierType.values;
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: 1.1,
-      ),
-      itemCount: types.length,
-      itemBuilder: (context, index) {
-        final type = types[index];
-        final isSelected = type == _selectedType;
-        final color = AtelierCompositionPage.getTypeColor(type);
-        final icon = AtelierCompositionPage.getTypeIcon(type);
-
-        return GestureDetector(
-          onTap: () => _onTypeSelected(type),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? color.withValues(alpha: 0.12)
-                  : colorScheme.onSurface.withValues(alpha: 0.03),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected
-                    ? color.withValues(alpha: 0.5)
-                    : colorScheme.onSurface.withValues(alpha: 0.06),
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected
-                      ? color
-                      : colorScheme.onSurface.withValues(alpha: 0.4),
-                  size: 28,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _getDefaultName(context, type).isEmpty
-                      ? AppLocalizations.of(context)!.workshopTypePersonnalise
-                      : _getDefaultName(context, type),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected
-                        ? color
-                        : colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
       widget.onSubmit(
         _nomController.text.trim(),
-        _selectedType,
-        _selectedType == AtelierType.personnalise 
-            ? _typeCustomController.text.trim()
-            : null,
-        _descriptionController.text.trim(),
+        _selectedIcon,
       );
       Navigator.of(context).pop();
     }

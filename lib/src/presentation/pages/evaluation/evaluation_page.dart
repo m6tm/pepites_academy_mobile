@@ -7,6 +7,7 @@ import '../../../injection_container.dart';
 import '../../state/evaluation_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
+import '../../widgets/icon_selector.dart';
 import 'widgets/academicien_evaluation_tile.dart';
 import 'widgets/evaluation_bottom_sheet.dart';
 
@@ -223,7 +224,7 @@ class _EvaluationPageState extends State<EvaluationPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      atelier.typeLabel,
+                      AtelierIconeMapper.getLabel(atelier.icone),
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         color: isDark

@@ -1,7 +1,5 @@
 import 'enums/atelier_statut.dart';
-import 'enums/atelier_type.dart';
 export 'enums/atelier_statut.dart';
-export 'enums/atelier_type.dart';
 
 /// Configuration d'evaluation d'un atelier : N elements par critere (min 1).
 class ConfigurationElementEvaluation {
@@ -41,12 +39,9 @@ class ConfigurationElementEvaluation {
 class Atelier {
   final String id;
   final String nom;
-  final String description;
   final String theme;
   final String objectifs;
   final int? dureeMinutes;
-  final AtelierType type;
-  final String? typeCustom;
   final String? icone;
   final int ordre;
   final AtelierStatut statut;
@@ -57,12 +52,9 @@ class Atelier {
   const Atelier({
     required this.id,
     required this.nom,
-    required this.description,
     this.theme = '',
     this.objectifs = '',
     this.dureeMinutes,
-    required this.type,
-    this.typeCustom,
     this.icone,
     required this.ordre,
     required this.statut,
@@ -70,10 +62,6 @@ class Atelier {
     this.categorieIds = const [],
     this.configurationEvaluation,
   });
-
-  String get typeLabel => (type == AtelierType.personnalise && typeCustom != null && typeCustom!.isNotEmpty)
-      ? typeCustom!
-      : type.label;
 
   /// Indique si la configuration d'evaluation est complete (5 criteres, chacun avec au moins 1 element).
   bool get configurationEvaluationComplete =>
@@ -85,13 +73,10 @@ class Atelier {
   Atelier copyWith({
     String? id,
     String? nom,
-    String? description,
     String? theme,
     String? objectifs,
     int? dureeMinutes,
     bool clearDureeMinutes = false,
-    AtelierType? type,
-    String? typeCustom,
     String? icone,
     int? ordre,
     AtelierStatut? statut,
@@ -102,14 +87,11 @@ class Atelier {
     return Atelier(
       id: id ?? this.id,
       nom: nom ?? this.nom,
-      description: description ?? this.description,
       theme: theme ?? this.theme,
       objectifs: objectifs ?? this.objectifs,
       dureeMinutes: clearDureeMinutes
           ? null
           : (dureeMinutes ?? this.dureeMinutes),
-      type: type ?? this.type,
-      typeCustom: typeCustom ?? this.typeCustom,
       icone: icone ?? this.icone,
       ordre: ordre ?? this.ordre,
       statut: statut ?? this.statut,
@@ -123,12 +105,9 @@ class Atelier {
     return {
       'id': id,
       'nom': nom,
-      'description': description,
       'theme': theme,
       'objectifs': objectifs,
       'duree_minutes': dureeMinutes,
-      'type': type.name,
-      'type_custom': typeCustom,
       'icone': icone,
       'ordre': ordre,
       'statut': statut.name,
@@ -151,12 +130,10 @@ class Atelier {
     return Atelier(
       id: json['id'] as String,
       nom: json['nom'] as String,
-      description: (json['description'] ?? '') as String,
       theme: (json['theme'] ?? '') as String,
       objectifs: (json['objectifs'] ?? '') as String,
       dureeMinutes: json['duree_minutes'] as int? ?? json['dureeMinutes'] as int?,
-      type: AtelierType.values.byName(json['type'] as String),
-      typeCustom: json['type_custom'] as String? ?? json['typeCustom'] as String?,
+      // Champs legacy ignores silencieusement s'ils sont presents.
       icone: json['icone'] as String? ?? json['icon'] as String?,
       ordre: (json['ordre'] ?? 0) as int,
       statut: AtelierStatut.values.byName(json['statut'] as String),

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pepites_academy_mobile/l10n/app_localizations.dart';
+import 'package:pepites_academy_mobile/src/core/events/domain_event_bus.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/atelier.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/role.dart';
 import 'package:pepites_academy_mobile/src/application/services/role_service.dart';
+import 'package:pepites_academy_mobile/src/infrastructure/datasources/evaluation_referentiel_local_datasource.dart';
+import 'package:pepites_academy_mobile/src/infrastructure/repositories/evaluation_referentiel_repository_impl.dart';
 import 'package:pepites_academy_mobile/src/presentation/state/atelier_state.dart';
 import 'package:pepites_academy_mobile/src/injection_container.dart';
 import 'package:pepites_academy_mobile/src/presentation/pages/ateliers/atelier_form_page.dart';
@@ -17,29 +21,35 @@ void main() {
   late MockAtelierState mockAtelierState;
   late MockRoleService mockRoleService;
 
-  setUpAll(() {
+  setUpAll(() async {
     mockAtelierState = MockAtelierState();
     mockRoleService = MockRoleService();
     DependencyInjection.atelierState = mockAtelierState;
     DependencyInjection.roleService = mockRoleService;
-    
+    DependencyInjection.domainEventBus = DomainEventBus();
+
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    DependencyInjection.evaluationReferentielRepository =
+        EvaluationReferentielRepositoryImpl(
+      EvaluationReferentielLocalDatasource(prefs),
+    );
+
     registerFallbackValue(Atelier(
-      id: 'dummy', 
-      nom: 'dummy', 
-      description: 'dummy', 
-      type: AtelierType.dribble, 
-      ordre: 0, 
-      statut: AtelierStatut.cree, 
+      id: 'dummy',
+      nom: 'dummy',
+      icone: 'technique',
+      ordre: 0,
+      statut: AtelierStatut.cree,
       seanceId: 'dummy'
     ));
-    registerFallbackValue(AtelierType.dribble);
   });
 
   setUp(() {
     reset(mockAtelierState);
     reset(mockRoleService);
     
-    when(() => mockRoleService.getCurrentUserRole()).thenAnswer((_) async => Role.admin);
+    when(() => mockRoleService.getCurrentUserRole()).thenAnswer((_) async => Role.encadreurChef);
   });
 
   Widget buildTestableWidget({Atelier? atelier}) {
@@ -77,7 +87,7 @@ void main() {
       addTearDown(() => tester.view.resetPhysicalSize());
 
       final testAtelier = Atelier(
-        id: 'a_1', nom: 'Test', description: '', type: AtelierType.dribble,
+        id: 'a_1', nom: 'Test', icone: 'technique',
         ordre: 0, statut: AtelierStatut.cree, seanceId: 's_1'
       );
       await tester.pumpWidget(buildTestableWidget(atelier: testAtelier));
@@ -100,9 +110,13 @@ void main() {
       expect(find.text('Le nom est obligatoire'), findsOneWidget);
       verifyNever(() => mockAtelierState.ajouterAtelier(
         nom: any(named: 'nom'),
-        type: any(named: 'type'),
-        description: any(named: 'description'),
+        theme: any(named: 'theme'),
+        objectifs: any(named: 'objectifs'),
+        dureeMinutes: any(named: 'dureeMinutes'),
+        categorieIds: any(named: 'categorieIds'),
         icone: any(named: 'icone'),
+        configurationEvaluation: any(named: 'configurationEvaluation'),
+        seanceId: any(named: 'seanceId'),
       ));
     });
 
@@ -113,9 +127,13 @@ void main() {
 
       when(() => mockAtelierState.ajouterAtelier(
         nom: any(named: 'nom'),
-        type: any(named: 'type'),
-        description: any(named: 'description'),
+        theme: any(named: 'theme'),
+        objectifs: any(named: 'objectifs'),
+        dureeMinutes: any(named: 'dureeMinutes'),
+        categorieIds: any(named: 'categorieIds'),
         icone: any(named: 'icone'),
+        configurationEvaluation: any(named: 'configurationEvaluation'),
+        seanceId: any(named: 'seanceId'),
       )).thenAnswer((_) async => true);
 
       await tester.pumpWidget(buildTestableWidget());
@@ -128,9 +146,13 @@ void main() {
       
       verify(() => mockAtelierState.ajouterAtelier(
         nom: 'Nouvel Atelier',
-        type: any(named: 'type'),
-        description: any(named: 'description'),
+        theme: any(named: 'theme'),
+        objectifs: any(named: 'objectifs'),
+        dureeMinutes: any(named: 'dureeMinutes'),
+        categorieIds: any(named: 'categorieIds'),
         icone: any(named: 'icone'),
+        configurationEvaluation: any(named: 'configurationEvaluation'),
+        seanceId: any(named: 'seanceId'),
       )).called(1);
     });
 
@@ -159,9 +181,13 @@ void main() {
 
       when(() => mockAtelierState.ajouterAtelier(
         nom: any(named: 'nom'),
-        type: any(named: 'type'),
-        description: any(named: 'description'),
+        theme: any(named: 'theme'),
+        objectifs: any(named: 'objectifs'),
+        dureeMinutes: any(named: 'dureeMinutes'),
+        categorieIds: any(named: 'categorieIds'),
         icone: any(named: 'icone'),
+        configurationEvaluation: any(named: 'configurationEvaluation'),
+        seanceId: any(named: 'seanceId'),
       )).thenAnswer((_) async => false);
 
       await tester.pumpWidget(buildTestableWidget());
@@ -174,7 +200,7 @@ void main() {
       // Attente du traitement asynchrone et de l'affichage du toast
       await tester.pumpAndSettle();
       
-      expect(find.text('Erreur lors de la création'), findsOneWidget);
+      expect(find.text('Erreur lors de la creation'), findsOneWidget);
     });
   });
 }

@@ -68,6 +68,7 @@ void main() {
     ).thenAnswer((_) async => Role.admin);
 
     when(() => mockAtelierState.appliquerAtelier(any())).thenAnswer((_) async => true);
+    when(() => mockAtelierState.isProcessingAtelier(any())).thenReturn(false);
     when(() => mockExerciceState.appliquerExercice(any(), any())).thenAnswer((_) async => true);
 
     testSeance = Seance(
@@ -129,8 +130,7 @@ void main() {
       final atelier = Atelier(
         id: 'at_1',
         nom: 'Atelier Test',
-        description: '',
-        type: AtelierType.dribble,
+        icone: 'technique',
         ordre: 0,
         statut: AtelierStatut.valide,
         seanceId: testSeance.id,

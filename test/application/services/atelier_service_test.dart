@@ -33,8 +33,7 @@ void main() {
   const tAtelier = Atelier(
     id: '1',
     nom: 'Dribble',
-    description: 'Desc',
-    type: AtelierType.dribble,
+    icone: 'technique',
     ordre: 0,
     statut: AtelierStatut.valide,
     seanceId: '42',
@@ -52,7 +51,6 @@ void main() {
     
     registerFallbackValue(tAtelier);
     registerFallbackValue(AtelierStatut.cree);
-    registerFallbackValue(AtelierType.dribble);
     registerFallbackValue(tSeance);
   });
 
@@ -77,7 +75,7 @@ void main() {
       when(() => mockSeanceRepo.getById(any())).thenAnswer((_) async => null);
 
       expect(
-        () => service.ajouterAtelier(seanceId: '42', nom: 'Test', type: AtelierType.dribble),
+        () => service.ajouterAtelier(seanceId: '42', nom: 'Test'),
         throwsException,
       );
     });
@@ -91,7 +89,6 @@ void main() {
       final result = await service.ajouterAtelier(
         seanceId: '42',
         nom: 'Dribble',
-        type: AtelierType.dribble,
       );
 
       expect(result, tAtelier);

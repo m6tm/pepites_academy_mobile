@@ -9,6 +9,7 @@ import '../../../domain/entities/presence.dart';
 import '../../../domain/entities/seance.dart';
 import '../../../injection_container.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/icon_selector.dart';
 
 /// Fiche de consultation detaillee d'une seance d'entrainement.
 /// Recapitulatif complet en lecture seule : infos, participants, ateliers, annotations.
@@ -590,25 +591,12 @@ class _SeanceDetailConsultationPageState
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      atelier.typeLabel,
+                      AtelierIconeMapper.getLabel(atelier.icone),
                       style: GoogleFonts.montserrat(
                         fontSize: 11,
                         color: colorScheme.onSurface.withValues(alpha: 0.45),
                       ),
                     ),
-                    if (atelier.description.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        atelier.description,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withValues(alpha: 0.55),
-                          height: 1.4,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
                   ],
                 ),
               ),

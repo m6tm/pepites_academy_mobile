@@ -17,27 +17,27 @@ void main() {
     testWidgets('displays counts correctly for various statuses', (WidgetTester tester) async {
       final ateliers = [
         const Atelier(
-          id: '1', nom: 'A1', description: '', type: AtelierType.dribble, ordre: 1,
+          id: '1', nom: 'A1', icone: 'technique', ordre: 1,
           statut: AtelierStatut.cree, seanceId: 's1',
         ),
         const Atelier(
-          id: '2', nom: 'A2', description: '', type: AtelierType.passes, ordre: 2,
+          id: '2', nom: 'A2', icone: 'physique', ordre: 2,
           statut: AtelierStatut.modifie, seanceId: 's1',
         ),
         const Atelier(
-          id: '3', nom: 'A3', description: '', type: AtelierType.passes, ordre: 3,
+          id: '3', nom: 'A3', icone: 'physique', ordre: 3,
           statut: AtelierStatut.modifie, seanceId: 's1',
         ),
         const Atelier(
-          id: '4', nom: 'A4', description: '', type: AtelierType.finition, ordre: 4,
+          id: '4', nom: 'A4', icone: 'tactique', ordre: 4,
           statut: AtelierStatut.valide, seanceId: 's1',
         ),
         const Atelier(
-          id: '5', nom: 'A5', description: '', type: AtelierType.finition, ordre: 5,
+          id: '5', nom: 'A5', icone: 'tactique', ordre: 5,
           statut: AtelierStatut.applique, seanceId: 's1',
         ),
         const Atelier(
-          id: '6', nom: 'A6', description: '', type: AtelierType.finition, ordre: 6,
+          id: '6', nom: 'A6', icone: 'tactique', ordre: 6,
           statut: AtelierStatut.ferme, seanceId: 's1',
         ),
       ];
@@ -58,11 +58,11 @@ void main() {
     testWidgets('displays 100% when all are closed or applied', (WidgetTester tester) async {
       final ateliers = [
         const Atelier(
-          id: '1', nom: 'A1', description: '', type: AtelierType.dribble, ordre: 1,
+          id: '1', nom: 'A1', icone: 'technique', ordre: 1,
           statut: AtelierStatut.ferme, seanceId: 's1',
         ),
         const Atelier(
-          id: '2', nom: 'A2', description: '', type: AtelierType.passes, ordre: 2,
+          id: '2', nom: 'A2', icone: 'physique', ordre: 2,
           statut: AtelierStatut.applique, seanceId: 's1',
         ),
       ];
@@ -75,11 +75,11 @@ void main() {
     testWidgets('displays 0% when none are progressed', (WidgetTester tester) async {
       final ateliers = [
         const Atelier(
-          id: '1', nom: 'A1', description: '', type: AtelierType.dribble, ordre: 1,
+          id: '1', nom: 'A1', icone: 'technique', ordre: 1,
           statut: AtelierStatut.cree, seanceId: 's1',
         ),
         const Atelier(
-          id: '2', nom: 'A2', description: '', type: AtelierType.passes, ordre: 2,
+          id: '2', nom: 'A2', icone: 'physique', ordre: 2,
           statut: AtelierStatut.valide, seanceId: 's1',
         ),
       ];
@@ -107,7 +107,7 @@ void main() {
 
     testWidgets('handles large number of ateliers correctly', (WidgetTester tester) async {
       final ateliers = List.generate(100, (i) => Atelier(
-        id: '$i', nom: 'A$i', description: '', type: AtelierType.dribble, ordre: i,
+        id: '$i', nom: 'A$i', icone: 'technique', ordre: i,
         statut: i < 75 ? AtelierStatut.ferme : AtelierStatut.cree, seanceId: 's1',
       ));
 

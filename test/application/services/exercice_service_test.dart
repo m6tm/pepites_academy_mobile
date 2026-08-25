@@ -26,8 +26,7 @@ void main() {
   const tAtelier = Atelier(
     id: '10',
     nom: 'Dribble',
-    description: 'Desc',
-    type: AtelierType.dribble,
+    icone: 'technique',
     ordre: 0,
     statut: AtelierStatut.valide,
     seanceId: '42',

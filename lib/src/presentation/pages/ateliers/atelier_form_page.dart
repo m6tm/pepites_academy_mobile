@@ -8,7 +8,6 @@ import '../../../domain/entities/categorie_joueur.dart';
 import '../../../domain/entities/critere_evaluation.dart';
 import '../../state/atelier_state.dart';
 import '../../widgets/glass_text_field.dart';
-import '../../widgets/glass_dropdown.dart';
 import '../../widgets/icon_selector.dart';
 import '../../widgets/duration_picker_field.dart';
 import '../../widgets/evaluation_configuration_selector.dart';
@@ -38,11 +37,8 @@ class AtelierFormPage extends StatefulWidget {
 class _AtelierFormPageState extends State<AtelierFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
-  late final TextEditingController _descriptionController;
   late final TextEditingController _themeController;
   late final TextEditingController _objectifsController;
-  late final TextEditingController _typeCustomController;
-  late AtelierType _selectedType;
   String? _selectedIcon;
   int? _dureeMinutes;
   bool _isSubmitting = false;
@@ -57,20 +53,13 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
     super.initState();
     _checkPermissions();
     _nomController = TextEditingController(text: widget.atelier?.nom ?? '');
-    _descriptionController = TextEditingController(
-      text: widget.atelier?.description ?? '',
-    );
     _themeController = TextEditingController(
       text: widget.atelier?.theme ?? '',
     );
     _objectifsController = TextEditingController(
       text: widget.atelier?.objectifs ?? '',
     );
-    _typeCustomController = TextEditingController(
-      text: widget.atelier?.typeCustom ?? '',
-    );
-    _selectedType = widget.atelier?.type ?? AtelierType.dribble;
-    _selectedIcon = widget.atelier?.icone;
+    _selectedIcon = widget.atelier?.icone ?? AtelierIconeMapper.icons.first['value'] as String;
     _dureeMinutes = widget.atelier?.dureeMinutes;
     _selectedCategorieIds.addAll(widget.atelier?.categorieIds ?? const []);
     _configurationEvaluation =
@@ -132,10 +121,8 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
   void dispose() {
     _referentielSubscription?.cancel();
     _nomController.dispose();
-    _descriptionController.dispose();
     _themeController.dispose();
     _objectifsController.dispose();
-    _typeCustomController.dispose();
     super.dispose();
   }
 
@@ -158,9 +145,6 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
       success = await widget.atelierState.ajouterAtelier(
         seanceId: widget.seanceId,
         nom: _nomController.text.trim(),
-        type: _selectedType,
-        typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
-        description: _descriptionController.text.trim(),
         theme: _themeController.text.trim(),
         objectifs: _objectifsController.text.trim(),
         dureeMinutes: _dureeMinutes,
@@ -174,9 +158,6 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
       success = await widget.atelierState.modifierAtelier(
         widget.atelier!.copyWith(
           nom: _nomController.text.trim(),
-          type: _selectedType,
-          typeCustom: _selectedType == AtelierType.personnalise ? _typeCustomController.text.trim() : null,
-          description: _descriptionController.text.trim(),
           theme: _themeController.text.trim(),
           objectifs: _objectifsController.text.trim(),
           dureeMinutes: _dureeMinutes,
@@ -245,51 +226,10 @@ class _AtelierFormPageState extends State<AtelierFormPage> {
 
                           const SizedBox(height: 24),
 
-                          GlassDropdown<AtelierType>(
-                            label: 'Type d\'atelier',
-                            value: _selectedType,
-                            prefixIcon: Icons.category_rounded,
-                            items: AtelierType.values
-                                .map(
-                                  (type) => DropdownMenuItem(
-                                    value: type,
-                                    child: Text(type.label),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() => _selectedType = val);
-                              }
-                            },
-                          ),
-
-                          if (_selectedType == AtelierType.personnalise) ...[
-                            const SizedBox(height: 24),
-                            GlassTextField(
-                              label: 'Précisez le type (optionnel)',
-                              hint: 'Ex: Vidéo, Musique, Théorie...',
-                              controller: _typeCustomController,
-                              prefixIcon: Icons.edit_note_rounded,
-                            ),
-                          ],
-
-                          const SizedBox(height: 24),
-
                           IconSelector(
                             selectedIcon: _selectedIcon,
                             onIconSelected: (icon) =>
                                 setState(() => _selectedIcon = icon),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          GlassTextField(
-                            label: 'Description',
-                            hint: 'Objectifs et matériel nécessaire...',
-                            controller: _descriptionController,
-                            prefixIcon: Icons.description_rounded,
-                            maxLines: 4,
                           ),
 
                           const SizedBox(height: 24),

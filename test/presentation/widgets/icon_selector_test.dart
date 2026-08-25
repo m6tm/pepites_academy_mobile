@@ -16,10 +16,13 @@ void main() {
         ),
       );
 
-      // Vérifie la présence de quelques icônes clés par leur icône Material
-      expect(find.byIcon(Icons.sports_soccer), findsOneWidget);
-      expect(find.byIcon(Icons.directions_run), findsOneWidget);
-      expect(find.byIcon(Icons.fitness_center), findsOneWidget);
+      // Vérifie la présence des 6 icônes d'atelier par leur icône Material
+      expect(find.byIcon(Icons.build_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.fitness_center_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.map_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.psychology_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.rule_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.lightbulb_rounded), findsOneWidget);
     });
 
     testWidgets('Appelle onIconSelected quand une icône est tapée', (tester) async {
@@ -34,11 +37,11 @@ void main() {
         ),
       );
 
-      // Tape sur l'icône "Physique" (directions_run)
-      await tester.tap(find.byIcon(Icons.directions_run));
+      // Tape sur l'icône "Physique" (fitness_center_rounded)
+      await tester.tap(find.byIcon(Icons.fitness_center_rounded));
       await tester.pump();
 
-      expect(selectedValue, 'directions_run');
+      expect(selectedValue, 'physique');
     });
 
     testWidgets('Met en évidence l\'icône sélectionnée', (tester) async {
@@ -47,27 +50,27 @@ void main() {
           theme: ThemeData(brightness: Brightness.light),
           home: Scaffold(
             body: IconSelector(
-              selectedIcon: 'timer',
+              selectedIcon: 'technique',
               onIconSelected: (_) {},
             ),
           ),
         ),
       );
 
-      // On cherche le container qui a la couleur primaire (sélection)
+      // On cherche le container qui a la couleur de l'icône sélectionnée
       final animatedContainerFinder = find.byType(AnimatedContainer);
-      
-      // On vérifie que l'un des containers a la couleur primary
+      final selectedColor = AtelierIconeMapper.getColor('technique');
+
       bool foundSelected = false;
       for (final element in tester.elementList(animatedContainerFinder)) {
         final container = element.widget as AnimatedContainer;
         final decoration = container.decoration as BoxDecoration?;
-        if (decoration?.color == AppColors.primary) {
+        if (decoration?.color == selectedColor) {
           foundSelected = true;
           break;
         }
       }
-      
+
       expect(foundSelected, isTrue);
     });
   });

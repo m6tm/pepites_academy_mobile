@@ -9,6 +9,7 @@ import '../../state/annotation_state.dart';
 import '../../state/seance_detail_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
+import '../../widgets/icon_selector.dart';
 import '../annotation/widgets/annotation_side_panel.dart';
 import '../ateliers/ateliers_page.dart';
 import '../../widgets/ateliers_progress_card.dart';
@@ -530,8 +531,8 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
       child: Column(
         children: List.generate(_state.ateliers.length, (index) {
           final atelier = _state.ateliers[index];
-          final typeColor = _getAtelierTypeColor(atelier.type);
-          final typeIcon = _getAtelierTypeIcon(atelier.type);
+          final typeColor = AtelierIconeMapper.getColor(atelier.icone);
+          final typeIcon = AtelierIconeMapper.getIcon(atelier.icone);
 
           return GestureDetector(
             onTap: () => _naviguerVersComposition(seance),
@@ -577,43 +578,16 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 3),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 7,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: typeColor.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                atelier.typeLabel,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: typeColor,
-                                ),
-                              ),
+                        Text(
+                          AtelierIconeMapper.getLabel(atelier.icone),
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.4,
                             ),
-                            if (atelier.description.isNotEmpty) ...[
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  atelier.description,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 11,
-                                    color: colorScheme.onSurface.withValues(
-                                      alpha: 0.4,
-                                    ),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -776,51 +750,6 @@ class _SeanceDetailPageState extends State<SeanceDetailPage> with RouteAware {
     }
   }
 
-  static Color _getAtelierTypeColor(AtelierType type) {
-    switch (type) {
-      case AtelierType.dribble:
-        return const Color(0xFF3B82F6);
-      case AtelierType.passes:
-        return const Color(0xFF10B981);
-      case AtelierType.finition:
-        return const Color(0xFFEF4444);
-      case AtelierType.physique:
-        return const Color(0xFFF59E0B);
-      case AtelierType.jeuEnSituation:
-        return const Color(0xFF8B5CF6);
-      case AtelierType.tactique:
-        return const Color(0xFF6366F1);
-      case AtelierType.gardien:
-        return const Color(0xFF14B8A6);
-      case AtelierType.echauffement:
-        return const Color(0xFFF97316);
-      case AtelierType.personnalise:
-        return const Color(0xFF64748B);
-    }
-  }
-
-  static IconData _getAtelierTypeIcon(AtelierType type) {
-    switch (type) {
-      case AtelierType.dribble:
-        return Icons.sports_soccer_rounded;
-      case AtelierType.passes:
-        return Icons.swap_horiz_rounded;
-      case AtelierType.finition:
-        return Icons.sports_rounded;
-      case AtelierType.physique:
-        return Icons.timer_rounded;
-      case AtelierType.jeuEnSituation:
-        return Icons.groups_rounded;
-      case AtelierType.tactique:
-        return Icons.map_rounded;
-      case AtelierType.gardien:
-        return Icons.sports_handball_rounded;
-      case AtelierType.echauffement:
-        return Icons.directions_run_rounded;
-      case AtelierType.personnalise:
-        return Icons.tune_rounded;
-    }
-  }
 }
 
 class _AtelierPickerSheet extends StatelessWidget {
@@ -905,12 +834,8 @@ class _AtelierPickerSheet extends StatelessWidget {
               separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final atelier = ateliers[index];
-                final typeColor = _SeanceDetailPageState._getAtelierTypeColor(
-                  atelier.type,
-                );
-                final typeIcon = _SeanceDetailPageState._getAtelierTypeIcon(
-                  atelier.type,
-                );
+                final typeColor = AtelierIconeMapper.getColor(atelier.icone);
+                final typeIcon = AtelierIconeMapper.getIcon(atelier.icone);
 
                 return GestureDetector(
                   onTap: () => Navigator.of(context).pop(atelier),
@@ -951,7 +876,7 @@ class _AtelierPickerSheet extends StatelessWidget {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                atelier.typeLabel,
+                                AtelierIconeMapper.getLabel(atelier.icone),
                                 style: GoogleFonts.montserrat(
                                   fontSize: 11,
                                   color: colorScheme.onSurface.withValues(

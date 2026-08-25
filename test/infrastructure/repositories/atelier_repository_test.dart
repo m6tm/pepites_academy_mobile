@@ -21,8 +21,7 @@ void main() {
   const tAtelier = Atelier(
     id: '1',
     nom: 'Dribble',
-    description: 'Desc',
-    type: AtelierType.dribble,
+    icone: 'technique',
     ordre: 1,
     statut: AtelierStatut.cree,
     seanceId: '42',
@@ -52,14 +51,7 @@ void main() {
     });
 
     test('should sync from API if local data is empty', () async {
-      int callCount = 0;
-      when(() => mockDatasource.getBySeance(any())).thenAnswer((_) {
-        if (callCount == 0) {
-          callCount++;
-          return [];
-        }
-        return [tAtelier];
-      });
+      when(() => mockDatasource.getBySeance(any())).thenReturn([tAtelier]);
       when(() => mockDioClient.get<dynamic>(any())).thenAnswer(
         (_) async => Right([tAtelier.toJson()]),
       );

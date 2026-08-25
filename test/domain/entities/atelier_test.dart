@@ -6,9 +6,7 @@ void main() {
     const tAtelier = Atelier(
       id: '1',
       nom: 'Dribble',
-      description: 'Techniques de dribble',
-      type: AtelierType.dribble,
-      icone: 'sports_soccer',
+      icone: 'technique',
       ordre: 1,
       statut: AtelierStatut.cree,
       seanceId: '42',
@@ -20,13 +18,10 @@ void main() {
       final expectedMap = {
         'id': '1',
         'nom': 'Dribble',
-        'description': 'Techniques de dribble',
         'theme': '',
         'objectifs': '',
         'duree_minutes': null,
-        'type': 'dribble',
-        'type_custom': null,
-        'icone': 'sports_soccer',
+        'icone': 'technique',
         'ordre': 1,
         'statut': 'cree',
         'seance_id': '42',
@@ -41,9 +36,7 @@ void main() {
       final Map<String, dynamic> jsonMap = {
         'id': '1',
         'nom': 'Dribble',
-        'description': 'Techniques de dribble',
-        'type': 'dribble',
-        'icone': 'sports_soccer',
+        'icone': 'technique',
         'ordre': 1,
         'statut': 'cree',
         'seance_id': '42',
@@ -53,7 +46,7 @@ void main() {
 
       expect(result.id, tAtelier.id);
       expect(result.nom, tAtelier.nom);
-      expect(result.type, tAtelier.type);
+      expect(result.icone, tAtelier.icone);
       expect(result.seanceId, tAtelier.seanceId);
     });
 
@@ -65,8 +58,23 @@ void main() {
       expect(updatedAtelier.id, tAtelier.id); // Should remain same
     });
 
-    test('typeLabel should return the correct label', () {
-      expect(tAtelier.typeLabel, isNotEmpty);
+    test('fromJson should ignore legacy fields if present', () {
+      final Map<String, dynamic> jsonMap = {
+        'id': '1',
+        'nom': 'Dribble',
+        'description': 'Legacy description',
+        'type': 'dribble',
+        'type_custom': 'Legacy custom',
+        'icone': 'technique',
+        'ordre': 1,
+        'statut': 'cree',
+        'seance_id': '42',
+      };
+
+      final result = Atelier.fromJson(jsonMap);
+
+      expect(result.icone, 'technique');
+      expect(result.nom, 'Dribble');
     });
   });
 }

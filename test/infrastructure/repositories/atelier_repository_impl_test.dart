@@ -23,8 +23,7 @@ void main() {
   const fallbackAtelier = Atelier(
     id: '', 
     nom: '', 
-    description: '', 
-    type: AtelierType.physique, 
+    icone: 'technique',
     ordre: 0, 
     statut: AtelierStatut.cree, 
     seanceId: ''
@@ -49,9 +48,8 @@ void main() {
       id: '1',
       seanceId: 'seance-1',
       nom: 'Test Atelier',
-      description: 'Desc',
+      icone: 'tactique',
       ordre: 1,
-      type: AtelierType.tactique,
       statut: AtelierStatut.cree,
     );
 
@@ -72,7 +70,7 @@ void main() {
       // Arrange
       when(() => mockDatasource.getBySeance('seance-1'))
           .thenReturn(<Atelier>[]);
-      when(() => mockDioClient.get<dynamic>(ApiEndpoints.ateliers))
+      when(() => mockDioClient.get<dynamic>('${ApiEndpoints.seances}/seance-1/ateliers'))
           .thenAnswer((_) async => Right([testAtelier.toJson()]));
       when(() => mockDatasource.upsertAll(any()))
           .thenAnswer((_) async => Future<void>.value());
@@ -81,7 +79,7 @@ void main() {
       await repository.getBySeanceId('seance-1');
 
       // Assert
-      verify(() => mockDioClient.get(ApiEndpoints.ateliers)).called(1);
+      verify(() => mockDioClient.get('${ApiEndpoints.seances}/seance-1/ateliers')).called(1);
       verify(() => mockDatasource.upsertAll(any())).called(1);
     });
 
@@ -131,8 +129,7 @@ void main() {
             entityId: 'seance-1',
             operationType: SyncOperationType.reorder,
             data: {
-              'seance_id': 'seance-1',
-              'atelier_ids': ids,
+              'order': ids,
             },
           )).called(1);
     });
@@ -235,8 +232,6 @@ void main() {
         'id': '1',
         'seance_id': 'seance-1',
         'nom': 'Test Atelier',
-        'description': 'Desc',
-        'type': 'tactique',
         'ordre': 1,
         'statut': 'applique',
       };
@@ -263,8 +258,6 @@ void main() {
         'id': '1',
         'seance_id': 'seance-1',
         'nom': 'Test Atelier',
-        'description': 'Desc',
-        'type': 'tactique',
         'ordre': 1,
         'statut': 'ferme',
       };

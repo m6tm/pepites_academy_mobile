@@ -8,8 +8,7 @@ void main() {
   const tAtelier = Atelier(
     id: '1',
     nom: 'Dribble',
-    description: 'Description test',
-    type: AtelierType.dribble,
+    icone: 'technique',
     ordre: 0,
     statut: AtelierStatut.valide,
     seanceId: '42',
@@ -40,7 +39,7 @@ void main() {
     expect(find.text('1 exercices'), findsOneWidget);
   });
 
-  testWidgets('should expand and show description when tapped', (WidgetTester tester) async {
+  testWidgets('should expand and show exercices when tapped', (WidgetTester tester) async {
     await tester.pumpWidget(makeTestableWidget(
       const AtelierCard(
         atelier: tAtelier,
@@ -49,14 +48,9 @@ void main() {
       ),
     ));
 
-    // Description should be hidden initially (it's in the second child of AnimatedCrossFade)
-    // But RenderBox might still find it if it's in the tree. 
-    // Usually CrossFade hides it.
-    
     await tester.tap(find.text('Dribble'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Description test'), findsOneWidget);
     expect(find.text('Ex 1'), findsOneWidget);
   });
 

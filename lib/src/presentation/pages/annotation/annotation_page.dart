@@ -9,6 +9,7 @@ import '../../../injection_container.dart';
 import '../../state/annotation_state.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/academy_toast.dart';
+import '../../widgets/icon_selector.dart';
 import 'widgets/academicien_annotation_tile.dart';
 import 'widgets/annotation_side_panel.dart';
 
@@ -241,7 +242,7 @@ class _AnnotationPageState extends State<AnnotationPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      atelier.typeLabel,
+                      AtelierIconeMapper.getLabel(atelier.icone),
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         color: isDark
@@ -254,18 +255,6 @@ class _AnnotationPageState extends State<AnnotationPage> {
               ),
             ],
           ),
-          if (atelier.description.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              atelier.description,
-              style: GoogleFonts.montserrat(
-                fontSize: 13,
-                color: isDark
-                    ? AppColors.textMutedDark
-                    : AppColors.textMutedLight,
-              ),
-            ),
-          ],
           const SizedBox(height: 12),
           Wrap(
             spacing: 12,

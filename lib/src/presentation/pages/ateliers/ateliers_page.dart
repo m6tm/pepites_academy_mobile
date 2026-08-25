@@ -23,30 +23,6 @@ class AteliersPage extends StatefulWidget {
 
   const AteliersPage({super.key, required this.seance});
 
-  static String getTypeLabel(BuildContext context, AtelierType type) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (type) {
-      case AtelierType.dribble:
-        return l10n.workshopTypeDribble;
-      case AtelierType.passes:
-        return l10n.workshopTypePasses;
-      case AtelierType.finition:
-        return l10n.workshopTypeFinition;
-      case AtelierType.physique:
-        return l10n.workshopTypePhysique;
-      case AtelierType.jeuEnSituation:
-        return l10n.workshopTypeJeuEnSituation;
-      case AtelierType.tactique:
-        return l10n.workshopTypeTactique;
-      case AtelierType.gardien:
-        return l10n.workshopTypeGardien;
-      case AtelierType.echauffement:
-        return l10n.workshopTypeEchauffement;
-      case AtelierType.personnalise:
-        return l10n.workshopTypePersonnalise;
-    }
-  }
-
   @override
   State<AteliersPage> createState() => _AteliersPageState();
 }

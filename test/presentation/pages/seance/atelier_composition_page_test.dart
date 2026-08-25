@@ -59,6 +59,7 @@ void main() {
     when(() => mockAtelierState.addListener(any())).thenReturn(null);
     when(() => mockAtelierState.removeListener(any())).thenReturn(null);
     when(() => mockAtelierState.chargerAteliers(any())).thenAnswer((_) async {});
+    when(() => mockAtelierState.isProcessingAtelier(any())).thenReturn(false);
 
     when(() => mockExerciceState.isLoading(any())).thenReturn(false);
     when(() => mockExerciceState.exercicesParAtelier).thenReturn({});
@@ -66,7 +67,7 @@ void main() {
     when(() => mockExerciceState.removeListener(any())).thenReturn(null);
     when(() => mockExerciceState.chargerExercices(any())).thenAnswer((_) async {});
 
-    when(() => mockRoleService.getCurrentUserRole()).thenAnswer((_) async => Role.admin);
+    when(() => mockRoleService.getCurrentUserRole()).thenAnswer((_) async => Role.encadreurChef);
     when(() => mockRoleService.hasPermission(any())).thenReturn(true);
 
     testSeance = Seance(
@@ -104,8 +105,7 @@ void main() {
       final atelier = Atelier(
         id: 'at_1',
         nom: 'Atelier Test',
-        description: '',
-        type: AtelierType.dribble,
+        icone: 'technique',
         ordre: 0,
         statut: AtelierStatut.valide,
         seanceId: testSeance.id,
@@ -124,8 +124,7 @@ void main() {
       final atelier = Atelier(
         id: 'at_1',
         nom: 'Atelier Test',
-        description: '',
-        type: AtelierType.dribble,
+        icone: 'technique',
         ordre: 0,
         statut: AtelierStatut.valide,
         seanceId: testSeance.id,

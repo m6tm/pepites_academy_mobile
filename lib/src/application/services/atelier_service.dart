@@ -57,9 +57,6 @@ class AtelierService {
   Future<Atelier> ajouterAtelier({
     required String seanceId,
     required String nom,
-    required AtelierType type,
-    String? typeCustom,
-    String description = '',
     String theme = '',
     String objectifs = '',
     int? dureeMinutes,
@@ -81,12 +78,9 @@ class AtelierService {
     final atelier = Atelier(
       id: _generateUuid(),
       nom: nom,
-      description: description,
       theme: theme,
       objectifs: objectifs,
       dureeMinutes: dureeMinutes,
-      type: type,
-      typeCustom: typeCustom,
       icone: icone,
       ordre: ordre,
       statut: configurationEvaluation != null &&

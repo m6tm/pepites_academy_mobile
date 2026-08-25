@@ -1,6 +1,80 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
+/// Mapper pour les icônes d'atelier disponibles.
+/// Chaque valeur est associée à une icône Material, un label et une couleur.
+class AtelierIconeMapper {
+  static const List<Map<String, dynamic>> _icons = [
+    {
+      'icon': Icons.build_rounded,
+      'label': 'Technique',
+      'value': 'technique',
+      'color': Color(0xFF3B82F6),
+    },
+    {
+      'icon': Icons.fitness_center_rounded,
+      'label': 'Physique',
+      'value': 'physique',
+      'color': Color(0xFFF59E0B),
+    },
+    {
+      'icon': Icons.map_rounded,
+      'label': 'Tactique',
+      'value': 'tactique',
+      'color': Color(0xFF6366F1),
+    },
+    {
+      'icon': Icons.psychology_rounded,
+      'label': 'Mental',
+      'value': 'mental',
+      'color': Color(0xFF8B5CF6),
+    },
+    {
+      'icon': Icons.rule_rounded,
+      'label': 'Discipline',
+      'value': 'discipline',
+      'color': Color(0xFF10B981),
+    },
+    {
+      'icon': Icons.lightbulb_rounded,
+      'label': 'Cognitif',
+      'value': 'cognitif',
+      'color': Color(0xFFEC4899),
+    },
+  ];
+
+  static List<Map<String, dynamic>> get icons => List.unmodifiable(_icons);
+
+  static Map<String, dynamic>? _find(String? value) {
+    if (value == null || value.isEmpty) return null;
+    return _icons.firstWhere(
+      (item) => item['value'] == value,
+      orElse: () => <String, dynamic>{},
+    );
+  }
+
+  static IconData getIcon(String? value) {
+    final item = _find(value);
+    return item != null && item.isNotEmpty
+        ? item['icon'] as IconData
+        : Icons.sports_soccer_rounded;
+  }
+
+  static String getLabel(String? value) {
+    final item = _find(value);
+    return item != null && item.isNotEmpty
+        ? item['label'] as String
+        : 'Atelier';
+  }
+
+  static Color getColor(String? value) {
+    final item = _find(value);
+    return item != null && item.isNotEmpty
+        ? item['color'] as Color
+        : AppColors.primary;
+  }
+}
+
 class IconSelector extends StatelessWidget {
   final String? selectedIcon;
   final ValueChanged<String?> onIconSelected;
@@ -11,23 +85,11 @@ class IconSelector extends StatelessWidget {
     required this.onIconSelected,
   });
 
-  static const List<Map<String, dynamic>> _icons = [
-    {'icon': Icons.sports_soccer, 'label': 'Général', 'value': 'sports_soccer'},
-    {'icon': Icons.directions_run, 'label': 'Physique', 'value': 'directions_run'},
-    {'icon': Icons.fitness_center, 'label': 'Musculation', 'value': 'fitness_center'},
-    {'icon': Icons.timer, 'label': 'Vitesse', 'value': 'timer'},
-    {'icon': Icons.group, 'label': 'Collectif', 'value': 'group'},
-    {'icon': Icons.person, 'label': 'Individuel', 'value': 'person'},
-    {'icon': Icons.shield, 'label': 'Défense', 'value': 'shield'},
-    {'icon': Icons.bolt, 'label': 'Attaque', 'value': 'bolt'},
-    {'icon': Icons.sports_score, 'label': 'Finition', 'value': 'sports_score'},
-    {'icon': Icons.psychology, 'label': 'Tactique', 'value': 'psychology'},
-  ];
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.textMainDark : AppColors.textMainLight;
+    final icons = AtelierIconeMapper.icons;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,11 +109,12 @@ class IconSelector extends StatelessWidget {
           height: 80,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: _icons.length,
+            itemCount: icons.length,
             separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              final item = _icons[index];
+              final item = icons[index];
               final isSelected = selectedIcon == item['value'];
+              final color = item['color'] as Color;
 
               return GestureDetector(
                 onTap: () => onIconSelected(item['value']),
@@ -60,19 +123,19 @@ class IconSelector extends StatelessWidget {
                   width: 64,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary
+                        ? color
                         : (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isSelected
-                          ? AppColors.primary
+                          ? color
                           : (isDark ? Colors.white12 : Colors.black12),
                       width: 2,
                     ),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.3),
+                              color: color.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             )
@@ -83,7 +146,7 @@ class IconSelector extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        item['icon'],
+                        item['icon'] as IconData,
                         color: isSelected
                             ? Colors.white
                             : (isDark ? Colors.white70 : Colors.black54),
@@ -91,7 +154,7 @@ class IconSelector extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item['label'],
+                        item['label'] as String,
                         style: TextStyle(
                           color: isSelected
                               ? Colors.white
