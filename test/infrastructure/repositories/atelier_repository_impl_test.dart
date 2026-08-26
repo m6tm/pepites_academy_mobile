@@ -160,6 +160,7 @@ void main() {
 
     test('delete doit supprimer localement et enfiler une opération de sync', () async {
       // Arrange
+      when(() => mockDatasource.getById('1')).thenReturn(testAtelier);
       when(() => mockDatasource.delete('1')).thenAnswer((_) async => Future<void>.value());
       when(() => mockSyncService.enqueueOperation(
             entityType: any(named: 'entityType'),
@@ -167,6 +168,8 @@ void main() {
             operationType: any(named: 'operationType'),
             data: any(named: 'data'),
           )).thenAnswer((_) async => Future<void>.value());
+      when(() => mockSyncService.cancelOperationsForEntity(any(), any()))
+          .thenAnswer((_) async => Future<void>.value());
 
       // Act
       await repository.delete('1');
@@ -179,6 +182,30 @@ void main() {
             operationType: SyncOperationType.delete,
             data: {'id': '1'},
           )).called(1);
+    });
+
+    test('delete doit reussir silencieusement et annuler les operations sync si l entite est introuvable avec un ID local', () async {
+      // Arrange
+      const localId = '1787752317637';
+      when(() => mockDatasource.getById(localId)).thenReturn(null);
+      when(() => mockSyncService.cancelOperationsForEntity(any(), any()))
+          .thenAnswer((_) async => Future<void>.value());
+
+      // Act
+      await repository.delete(localId);
+
+      // Assert
+      verifyNever(() => mockDatasource.delete(any()));
+      verify(() => mockSyncService.cancelOperationsForEntity(
+            SyncEntityType.atelier,
+            localId,
+          )).called(1);
+      verifyNever(() => mockSyncService.enqueueOperation(
+            entityType: any(named: 'entityType'),
+            entityId: any(named: 'entityId'),
+            operationType: any(named: 'operationType'),
+            data: any(named: 'data'),
+          ));
     });
 
     test('getById doit déléguer au datasource local', () async {

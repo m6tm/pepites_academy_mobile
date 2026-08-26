@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pepites_academy_mobile/src/domain/entities/atelier.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/exercice.dart';
 import 'package:pepites_academy_mobile/src/presentation/widgets/exercice_list_tile.dart';
 
@@ -18,19 +19,23 @@ void main() {
   });
   Widget buildTestableWidget({
     required Exercice exercice,
+    AtelierStatut? atelierStatut,
     bool isEditable = false,
     VoidCallback? onEdit,
     VoidCallback? onDelete,
     VoidCallback? onClose,
+    VoidCallback? onAnnotate,
   }) {
     return MaterialApp(
       home: Scaffold(
         body: ExerciceListTile(
           exercice: exercice,
+          atelierStatut: atelierStatut,
           isEditable: isEditable,
           onEdit: onEdit,
           onDelete: onDelete,
           onClose: onClose,
+          onAnnotate: onAnnotate,
         ),
       ),
     );
@@ -135,6 +140,54 @@ void main() {
 
       // Le bouton "fermer" ne doit pas être présent
       expect(find.byTooltip('Fermer l\'exercice'), findsNothing);
+    });
+
+    testWidgets('Active l annotation si l exercice est applique', (WidgetTester tester) async {
+      final exerciceApplique = testExercice.copyWith(statut: ExerciceStatut.applique);
+      bool annotateCalled = false;
+
+      await tester.pumpWidget(buildTestableWidget(
+        exercice: exerciceApplique,
+        isEditable: true,
+        onAnnotate: () => annotateCalled = true,
+      ));
+
+      final annotateButtonFinder = find.byTooltip('Annoter l\'exercice');
+      expect(annotateButtonFinder, findsOneWidget);
+
+      await tester.tap(annotateButtonFinder);
+      expect(annotateCalled, isTrue);
+    });
+
+    testWidgets('Active l annotation si l atelier est applique meme si l exercice est valide', (WidgetTester tester) async {
+      final exerciceValide = testExercice.copyWith(statut: ExerciceStatut.valide);
+      bool annotateCalled = false;
+
+      await tester.pumpWidget(buildTestableWidget(
+        exercice: exerciceValide,
+        atelierStatut: AtelierStatut.applique,
+        isEditable: true,
+        onAnnotate: () => annotateCalled = true,
+      ));
+
+      final annotateButtonFinder = find.byTooltip('Annoter l\'exercice');
+      expect(annotateButtonFinder, findsOneWidget);
+
+      await tester.tap(annotateButtonFinder);
+      expect(annotateCalled, isTrue);
+    });
+
+    testWidgets('Desactive l annotation si l exercice est ferme', (WidgetTester tester) async {
+      final exerciceFerme = testExercice.copyWith(statut: ExerciceStatut.ferme);
+
+      await tester.pumpWidget(buildTestableWidget(
+        exercice: exerciceFerme,
+        atelierStatut: AtelierStatut.applique,
+        isEditable: true,
+        onAnnotate: () {},
+      ));
+
+      expect(find.byTooltip('Annoter l\'exercice'), findsNothing);
     });
   });
 }

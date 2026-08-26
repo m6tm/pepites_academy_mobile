@@ -249,6 +249,7 @@ class _AtelierCardState extends State<AtelierCard> {
                         key: ValueKey(ex.id),
                         index: idx,
                         exercice: ex,
+                        atelierStatut: widget.atelier.statut,
                         isEditable: widget.isExercicesEditable,
                         onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,
@@ -261,6 +262,7 @@ class _AtelierCardState extends State<AtelierCard> {
                   ...widget.exercices.map((ex) => ExerciceListTile(
                         key: ValueKey(ex.id),
                         exercice: ex,
+                        atelierStatut: widget.atelier.statut,
                         isEditable: widget.isExercicesEditable,
                         onEdit: widget.onEditExercice != null ? () => widget.onEditExercice!(ex) : null,
                         onDelete: widget.onDeleteExercice != null ? () => widget.onDeleteExercice!(ex) : null,

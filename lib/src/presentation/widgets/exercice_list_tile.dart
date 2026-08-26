@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../domain/entities/atelier.dart';
 import '../../domain/entities/exercice.dart';
 import 'statut_indicator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// Composant de liste pour chaque exercice associé à un atelier.
 class ExerciceListTile extends StatelessWidget {
   final Exercice exercice;
+  final AtelierStatut? atelierStatut;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onClose;
@@ -16,6 +18,7 @@ class ExerciceListTile extends StatelessWidget {
   const ExerciceListTile({
     super.key,
     required this.exercice,
+    this.atelierStatut,
     this.onEdit,
     this.onDelete,
     this.onClose,
@@ -23,6 +26,12 @@ class ExerciceListTile extends StatelessWidget {
     this.isEditable = false,
     this.index,
   });
+
+  bool get _canAnnotate {
+    if (exercice.statut == ExerciceStatut.applique) return true;
+    if (exercice.statut == ExerciceStatut.ferme) return false;
+    return atelierStatut == AtelierStatut.applique;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +80,12 @@ class ExerciceListTile extends StatelessWidget {
                     icon: Icon(
                       Icons.note_alt_outlined,
                       size: 18,
-                      color: exercice.statut == ExerciceStatut.applique
+                      color: _canAnnotate
                           ? colorScheme.primary
                           : colorScheme.onSurface.withValues(alpha: 0.3),
                     ),
-                    onPressed: exercice.statut == ExerciceStatut.applique ? onAnnotate : null,
-                    tooltip: exercice.statut == ExerciceStatut.applique
+                    onPressed: _canAnnotate ? onAnnotate : null,
+                    tooltip: _canAnnotate
                         ? 'Annoter l\'exercice'
                         : 'Veuillez appliquer l\'exercice pour commencer les annotations',
                     padding: EdgeInsets.zero,

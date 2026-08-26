@@ -21,6 +21,7 @@ class AtelierState extends ChangeNotifier
 
   AtelierState(this._service, this._eventBus) {
     listenTo<AppResumedEvent>(_eventBus, (_) => _onAppResumed());
+    listenTo<AtelierDeletedEvent>(_eventBus, (e) => _onAtelierDeleted(e));
   }
 
   void setLocalizations(AppLocalizations l10n) {
@@ -37,6 +38,14 @@ class AtelierState extends ChangeNotifier
     final age = DateTime.now().difference(_lastFetchedAt!);
     if (age > const Duration(minutes: 2)) {
       await rafraichirDepuisServeur(_seanceId!);
+    }
+  }
+
+  void _onAtelierDeleted(AtelierDeletedEvent event) {
+    final previousLength = _ateliers.length;
+    _ateliers.removeWhere((a) => a.id == event.atelierId);
+    if (_ateliers.length != previousLength) {
+      notifyListeners();
     }
   }
 
@@ -240,10 +249,10 @@ class AtelierState extends ChangeNotifier
 
     try {
       await _service.supprimerAtelier(atelierId);
+      _ateliers.removeWhere((a) => a.id == atelierId);
       _successMessage = 'Atelier supprime avec succes.';
-      if (_seanceId != null) {
-        await chargerAteliers(_seanceId!);
-      }
+      _isLoading = false;
+      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = 'Erreur lors de la suppression : $e';

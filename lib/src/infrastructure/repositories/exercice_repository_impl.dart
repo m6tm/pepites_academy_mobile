@@ -148,23 +148,54 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     return updated;
   }
 
+
+
   @override
   Future<void> delete(String id) async {
     final existing = _datasource.getById(id);
-    final atelierId = existing?.atelierId;
-    await _datasource.delete(id);
-    if (atelierId != null) {
-      _cache.invalidateByTag('atelier_$atelierId');
+
+    if (existing == null) {
+      // L'entite n'existe deja plus localement. Si l'ID etait un ID local
+      // temporaire (timestamp), les operations de sync associees deviennent
+      // obsoletes (ex. create + delete qui s'annulent). On les annule pour
+      // eviter des erreurs 404 cote serveur.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.exercice, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.exercice,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _detailCache.invalidateKey(id);
+      _invalidationRegistry?.markInvalidated<ExerciceDeletedEvent>();
+      _eventBus?.emit(ExerciceDeletedEvent(exerciceId: id, atelierId: ''));
+      return;
     }
+
+    final atelierId = existing.atelierId;
+    await _datasource.delete(id);
+    _cache.invalidateByTag('atelier_$atelierId');
     _detailCache.invalidateKey(id);
     _invalidationRegistry?.markInvalidated<ExerciceDeletedEvent>();
-    _eventBus?.emit(ExerciceDeletedEvent(exerciceId: id, atelierId: atelierId ?? ''));
+    _eventBus?.emit(ExerciceDeletedEvent(exerciceId: id, atelierId: atelierId));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.exercice,
       entityId: id,
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   @override

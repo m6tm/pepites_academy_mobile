@@ -395,9 +395,36 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
+
+    if (existing == null) {
+      // L'entite n'existe deja plus localement. Si l'ID etait un ID local
+      // temporaire (timestamp), les operations de sync associees deviennent
+      // obsoletes (ex. create + delete qui s'annulent). On les annule pour
+      // eviter des erreurs 404 cote serveur.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.atelier, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.atelier,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _invalidateCache();
+      _invalidationRegistry?.markInvalidated<AtelierDeletedEvent>();
+      _eventBus?.emit(AtelierDeletedEvent(atelierId: id, seanceId: ''));
+      return;
+    }
+
+    final seanceId = existing.seanceId;
     await _datasource.delete(id);
     _invalidateCache();
-    _eventBus?.emit(AtelierDeletedEvent(id));
+    _eventBus?.emit(AtelierDeletedEvent(
+      atelierId: id,
+      seanceId: seanceId,
+    ));
     _invalidationRegistry?.markInvalidated<AtelierDeletedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.atelier,
@@ -405,6 +432,15 @@ class AtelierRepositoryImpl implements AtelierRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   @override

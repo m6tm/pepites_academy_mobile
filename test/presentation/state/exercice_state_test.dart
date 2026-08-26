@@ -185,6 +185,62 @@ void main() {
     });
   });
 
+  group('ExerciceState - supprimerExercice', () {
+    test('doit retirer l exercice de la liste apres suppression reussie', () async {
+      // Arrange
+      final exercice = Exercice(
+        id: exerciceId,
+        nom: exerciceNom,
+        description: 'Desc',
+        ordre: 0,
+        statut: ExerciceStatut.cree,
+        atelierId: atelierId,
+      );
+      state.exercicesParAtelier[atelierId] = [exercice];
+      when(() => mockExerciceRepo.getById(exerciceId))
+          .thenAnswer((_) async => exercice);
+      when(() => mockExerciceRepo.delete(exerciceId))
+          .thenAnswer((_) async {});
+      when(() => mockExerciceRepo.getByAtelierId(atelierId))
+          .thenAnswer((_) async => []);
+
+      // Act
+      final result = await state.supprimerExercice(exerciceId, atelierId);
+
+      // Assert
+      expect(result, isTrue);
+      expect(state.exercicesParAtelier[atelierId], isEmpty);
+      expect(state.successMessage, isNotNull);
+      expect(state.isLoading(atelierId), isFalse);
+    });
+
+    test('doit garder l exercice en cas d erreur', () async {
+      // Arrange
+      final exercice = Exercice(
+        id: exerciceId,
+        nom: exerciceNom,
+        description: 'Desc',
+        ordre: 0,
+        statut: ExerciceStatut.cree,
+        atelierId: atelierId,
+      );
+      state.exercicesParAtelier[atelierId] = [exercice];
+      when(() => mockExerciceRepo.getById(exerciceId))
+          .thenAnswer((_) async => exercice);
+      when(() => mockExerciceRepo.delete(exerciceId))
+          .thenThrow(Exception('Erreur'));
+
+      // Act
+      final result = await state.supprimerExercice(exerciceId, atelierId);
+
+      // Assert
+      expect(result, isFalse);
+      expect(state.exercicesParAtelier[atelierId]!.length, 1);
+      expect(state.errorMessage, isNotNull);
+      expect(state.isLoading(atelierId), isFalse);
+    });
+  });
+
   group('ExerciceState - clearMessages', () {
     test('doit effacer les messages et notifier', () async {
       // Arrange : creer un etat avec un message d'erreur

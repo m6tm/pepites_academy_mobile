@@ -21,9 +21,13 @@ class AtelierUpdatedEvent extends DomainEvent {
 }
 
 class AtelierDeletedEvent extends DomainEvent {
+  final String atelierId;
   final String seanceId;
 
-  const AtelierDeletedEvent(this.seanceId);
+  const AtelierDeletedEvent({
+    required this.atelierId,
+    required this.seanceId,
+  });
 }
 
 class ConfigurationAtelierModifieeEvent extends DomainEvent {

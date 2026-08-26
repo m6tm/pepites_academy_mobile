@@ -117,6 +117,26 @@ class SyncService {
     }
   }
 
+  /// Annule toutes les operations en attente pour une entite donnee.
+  /// Utilise quand une mutation locale echoue parce que l'entite n'existe
+  /// plus (ex. suppression d'un ID local jamais synchronise).
+  Future<void> cancelOperationsForEntity(
+    SyncEntityType entityType,
+    String entityId,
+  ) async {
+    final pending = await _syncRepository.getPendingOperations();
+    var cancelled = 0;
+    for (final operation in pending) {
+      if (operation.entityType == entityType && operation.entityId == entityId) {
+        await _syncRepository.markCompleted(operation.id);
+        cancelled++;
+      }
+    }
+    if (cancelled > 0) {
+      _notifyPendingCountChanged();
+    }
+  }
+
   /// Synchronise toutes les operations en attente vers le backend.
   Future<SyncCycleResult?> syncPendingOperations() async {
     if (_isSyncing) return null;

@@ -161,11 +161,13 @@ class AtelierService {
   /// Supprime un atelier et met a jour la seance.
   Future<void> supprimerAtelier(String atelierId) async {
     final atelier = await _atelierRepository.getById(atelierId);
+
     if (atelier == null) {
-      throw Exception(
-        _l10n?.serviceAtelierNotFound(atelierId) ??
-            'Atelier introuvable : $atelierId',
-      );
+      // L'atelier n'existe deja plus localement : le repository se charge de
+      // nettoyer les operations de sync obsoletes. On considere la suppression
+      // comme deja effectuee.
+      await _atelierRepository.delete(atelierId);
+      return;
     }
 
     final seanceId = atelier.seanceId;
@@ -189,8 +191,10 @@ class AtelierService {
       await _atelierRepository.reorder(seanceId, ids);
     }
 
-    _eventBus?.emit(AtelierDeletedEvent(seanceId));
-    await refreshAteliers(seanceId);
+    _eventBus?.emit(AtelierDeletedEvent(
+      atelierId: atelierId,
+      seanceId: seanceId,
+    ));
   }
 
   /// Reordonne les ateliers d'une seance.

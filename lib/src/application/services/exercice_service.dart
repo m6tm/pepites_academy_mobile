@@ -104,11 +104,13 @@ class ExerciceService {
   /// Supprime un exercice d'un atelier.
   Future<void> supprimerExercice(String exerciceId) async {
     final exercice = await _exerciceRepository.getById(exerciceId);
+
     if (exercice == null) {
-      throw Exception(
-        _l10n?.serviceExerciceNotFound(exerciceId) ??
-            'Exercice introuvable : $exerciceId',
-      );
+      // L'exercice n'existe deja plus localement : le repository se charge de
+      // nettoyer les operations de sync obsoletes. On considere la suppression
+      // comme deja effectuee.
+      await _exerciceRepository.delete(exerciceId);
+      return;
     }
 
     final atelierId = exercice.atelierId;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../application/services/exercice_service.dart';
 import '../../core/events/app_events.dart';
+import '../../core/events/atelier_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/event_bus_subscriber_mixin.dart';
 import '../../core/events/exercice_events.dart';
@@ -22,9 +23,10 @@ class ExerciceState extends ChangeNotifier
   ExerciceState(this._service, this._eventBus) {
     listenTo<ExerciceCreatedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
     listenTo<ExerciceUpdatedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
-    listenTo<ExerciceDeletedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
+    listenTo<ExerciceDeletedEvent>(_eventBus, (e) => _onExerciceDeleted(e));
     listenTo<ExerciceReorderedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
     listenTo<ExerciceClosedEvent>(_eventBus, (e) => _onExerciceChanged(e.atelierId));
+    listenTo<AtelierDeletedEvent>(_eventBus, (e) => _onAtelierDeleted(e));
     listenTo<AppResumedEvent>(_eventBus, (_) => _onRefreshIfStale());
   }
 
@@ -73,6 +75,27 @@ class ExerciceState extends ChangeNotifier
       for (final atelierId in _exercicesParAtelier.keys) {
         chargerExercices(atelierId);
       }
+    }
+  }
+
+  void _onExerciceDeleted(ExerciceDeletedEvent event) {
+    final listsToUpdate = event.atelierId.isEmpty
+        ? _exercicesParAtelier.values.toList()
+        : [_exercicesParAtelier[event.atelierId]].whereType<List<Exercice>>().toList();
+
+    var changed = false;
+    for (final list in listsToUpdate) {
+      final previousLength = list.length;
+      list.removeWhere((e) => e.id == event.exerciceId);
+      if (list.length != previousLength) changed = true;
+    }
+    if (changed) notifyListeners();
+  }
+
+  void _onAtelierDeleted(AtelierDeletedEvent event) {
+    if (_exercicesParAtelier.containsKey(event.atelierId)) {
+      _exercicesParAtelier.remove(event.atelierId);
+      notifyListeners();
     }
   }
 
@@ -205,8 +228,10 @@ class ExerciceState extends ChangeNotifier
 
     try {
       await _service.supprimerExercice(exerciceId);
+      _exercicesParAtelier[atelierId]?.removeWhere((e) => e.id == exerciceId);
       _successMessage = 'Exercice supprime avec succes.';
-      await chargerExercices(atelierId);
+      _loadingStates[atelierId] = false;
+      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = 'Erreur lors de la suppression : $e';
