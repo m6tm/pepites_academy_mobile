@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/application/services/sync_service.dart';
+import 'package:pepites_academy_mobile/src/core/resilience/mutation_resilience_handler.dart';
+import 'package:pepites_academy_mobile/src/core/resilience/resilience_result.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/exercice.dart';
 import 'package:pepites_academy_mobile/src/domain/entities/sync_operation.dart';
 import 'package:pepites_academy_mobile/src/infrastructure/datasources/exercice_local_datasource.dart';
@@ -13,6 +15,7 @@ import 'package:pepites_academy_mobile/src/domain/failures/network_failure.dart'
 class MockExerciceLocalDatasource extends Mock implements ExerciceLocalDatasource {}
 class MockDioClient extends Mock implements DioClient {}
 class MockSyncService extends Mock implements SyncService {}
+class MockMutationResilienceHandler extends Mock implements MutationResilienceHandler {}
 
 void main() {
   late ExerciceRepositoryImpl repository;
@@ -176,6 +179,40 @@ void main() {
       verify(() => mockSyncService.cancelOperationsForEntity(
             SyncEntityType.exercice,
             localId,
+          )).called(1);
+      verifyNever(() => mockSyncService.enqueueOperation(
+            entityType: any(named: 'entityType'),
+            entityId: any(named: 'entityId'),
+            operationType: any(named: 'operationType'),
+            data: any(named: 'data'),
+          ));
+    });
+
+    test('delete doit utiliser le resilience handler si l entite est introuvable mais reconstruisable', () async {
+      // Arrange
+      const serverId = '550e8400-e29b-41d4-a716-446655440000';
+      final handler = MockMutationResilienceHandler();
+      final repoWithHandler = ExerciceRepositoryImpl(mockDatasource);
+      repoWithHandler.setSyncService(mockSyncService);
+      repoWithHandler.setMutationResilienceHandler(handler);
+
+      when(() => mockDatasource.getById(serverId)).thenReturn(null);
+      when(() => handler.recover(
+            entityType: SyncEntityType.exercice,
+            entityId: serverId,
+            operationType: SyncOperationType.delete,
+            fallbackPayload: any(named: 'fallbackPayload'),
+          )).thenAnswer((_) async => const ResilienceSuccess<Map<String, dynamic>>({}));
+
+      // Act
+      await repoWithHandler.delete(serverId);
+
+      // Assert
+      verify(() => handler.recover(
+            entityType: SyncEntityType.exercice,
+            entityId: serverId,
+            operationType: SyncOperationType.delete,
+            fallbackPayload: any(named: 'fallbackPayload'),
           )).called(1);
       verifyNever(() => mockSyncService.enqueueOperation(
             entityType: any(named: 'entityType'),

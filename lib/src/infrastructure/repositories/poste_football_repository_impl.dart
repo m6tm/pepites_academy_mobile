@@ -5,6 +5,8 @@ import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/events/referentiel_events.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/poste_football.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/poste_football_repository.dart';
@@ -22,6 +24,7 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cache = RepositoryCache<List<PosteFootball>>();
   final _detailCache = RepositoryCache<PosteFootball>();
@@ -46,6 +49,11 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   @override
@@ -88,6 +96,29 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
 
   @override
   Future<PosteFootball> update(PosteFootball poste) async {
+    final existing = _datasource.getById(poste.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.posteFootball,
+        entityId: poste.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: poste.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final posteMap = (map['poste_football'] as Map<String, dynamic>?) ?? map;
+        if (posteMap.isNotEmpty) {
+          final serverPoste = _parsePosteFootball(posteMap);
+          await _datasource.update(serverPoste);
+          _cache.invalidateByTag('referentiel');
+          _detailCache.invalidateKey(serverPoste.id);
+          _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+          _eventBus?.emit(const ReferentielUpdatedEvent());
+          return serverPoste;
+        }
+      }
+    }
+
     final updated = await _datasource.update(poste);
     _cache.invalidateByTag('referentiel');
     _detailCache.invalidateKey(poste.id);
@@ -104,6 +135,41 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.posteFootball,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _cache.invalidateByTag('referentiel');
+        _detailCache.invalidateKey(id);
+        _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+        _eventBus?.emit(const ReferentielUpdatedEvent());
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.posteFootball, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.posteFootball,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _cache.invalidateByTag('referentiel');
+      _detailCache.invalidateKey(id);
+      _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+      _eventBus?.emit(const ReferentielUpdatedEvent());
+      return;
+    }
+
     await _datasource.delete(id);
     _cache.invalidateByTag('referentiel');
     _detailCache.invalidateKey(id);
@@ -115,6 +181,15 @@ class PosteFootballRepositoryImpl implements PosteFootballRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   @override

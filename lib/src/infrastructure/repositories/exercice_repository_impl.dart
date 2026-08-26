@@ -5,6 +5,8 @@ import '../../core/events/domain_event_bus.dart';
 import '../../core/events/exercice_events.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/exercice.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/exercice_repository.dart';
@@ -21,6 +23,7 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cache = RepositoryCache<List<Exercice>>();
   final _detailCache = RepositoryCache<Exercice>();
@@ -30,6 +33,11 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
   /// Injecte le service de synchronisation.
   void setSyncService(SyncService service) {
     _syncService = service;
+  }
+
+  /// Injecte le handler de résilience.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   /// Migre un exercice local (ID timestamp) vers l'UUID assigne par le serveur.
@@ -134,6 +142,32 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
 
   @override
   Future<Exercice> update(Exercice exercice) async {
+    final existing = _datasource.getById(exercice.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.exercice,
+        entityId: exercice.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: exercice.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final exerciceMap = (map['exercice'] as Map<String, dynamic>?) ?? map;
+        if (exerciceMap.isNotEmpty) {
+          final serverExercice = Exercice.fromJson(exerciceMap);
+          await _datasource.update(serverExercice);
+          _cache.invalidateByTag('atelier_${serverExercice.atelierId}');
+          _detailCache.invalidateKey(serverExercice.id);
+          _invalidationRegistry?.markInvalidated<ExerciceUpdatedEvent>();
+          _eventBus?.emit(ExerciceUpdatedEvent(
+            exerciceId: serverExercice.id,
+            atelierId: serverExercice.atelierId,
+          ));
+          return serverExercice;
+        }
+      }
+    }
+
     final updated = await _datasource.update(exercice);
     _cache.invalidateByTag('atelier_${exercice.atelierId}');
     _detailCache.invalidateKey(exercice.id);
@@ -155,10 +189,20 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     final existing = _datasource.getById(id);
 
     if (existing == null) {
-      // L'entite n'existe deja plus localement. Si l'ID etait un ID local
-      // temporaire (timestamp), les operations de sync associees deviennent
-      // obsoletes (ex. create + delete qui s'annulent). On les annule pour
-      // eviter des erreurs 404 cote serveur.
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.exercice,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _detailCache.invalidateKey(id);
+        _invalidationRegistry?.markInvalidated<ExerciceDeletedEvent>();
+        _eventBus?.emit(ExerciceDeletedEvent(exerciceId: id, atelierId: ''));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
       if (_isLocalId(id)) {
         await _syncService?.cancelOperationsForEntity(SyncEntityType.exercice, id);
       } else {
@@ -219,6 +263,19 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     final atelierId = existing?.atelierId;
     if (existing != null) {
       await _datasource.update(existing.copyWith(statut: ExerciceStatut.ferme));
+    } else {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.exercice,
+        entityId: id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: {'statut': 'ferme'},
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _detailCache.invalidateKey(id);
+        _invalidationRegistry?.markInvalidated<ExerciceClosedEvent>();
+        _eventBus?.emit(ExerciceClosedEvent(exerciceId: id, atelierId: ''));
+        return recovered.data['atelier_closed'] == true;
+      }
     }
     _cache.invalidateByTag('atelier_$atelierId');
     _detailCache.invalidateKey(id);

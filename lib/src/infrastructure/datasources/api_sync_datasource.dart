@@ -37,6 +37,12 @@ abstract class ApiSyncDatasource {
   /// Envoie une operation de synchronisation vers le serveur.
   Future<SyncResult> pushOperation(SyncOperation operation);
 
+  /// Envoie une operation avec un payload reconstruit (resilience).
+  Future<SyncResult> pushOperationWithPayload(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  );
+
   /// Recupere les donnees du serveur pour une entite donnee.
   Future<Map<String, dynamic>?> fetchEntity(String entityType, String entityId);
 
@@ -54,6 +60,15 @@ abstract class ApiSyncDatasource {
 class StubApiSyncDatasource implements ApiSyncDatasource {
   @override
   Future<SyncResult> pushOperation(SyncOperation operation) async {
+    // Simule un succes immediat en mode local uniquement.
+    return SyncResult(success: true);
+  }
+
+  @override
+  Future<SyncResult> pushOperationWithPayload(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {
     // Simule un succes immediat en mode local uniquement.
     return SyncResult(success: true);
   }

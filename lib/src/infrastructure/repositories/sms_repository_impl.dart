@@ -5,6 +5,8 @@ import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/events/sms_events.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/sms_message.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/sms_repository.dart';
@@ -52,6 +54,7 @@ class SmsRepositoryImpl implements SmsRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _historyCache = RepositoryCache<List<SmsMessage>>();
   final _statsCache = RepositoryCache<int>();
@@ -76,6 +79,11 @@ class SmsRepositoryImpl implements SmsRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   @override
@@ -203,6 +211,43 @@ class SmsRepositoryImpl implements SmsRepository {
 
   @override
   Future<void> delete(String id) async {
+    final all = _datasource.getAll();
+    final existingIndex = all.indexWhere((m) => m.id == id);
+    final existing = existingIndex >= 0 ? all[existingIndex] : null;
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.smsMessage,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _historyCache.invalidateByTag('sms');
+        _statsCache.invalidateByTag('sms');
+        _invalidationRegistry?.markInvalidated<SmsMessageDeletedEvent>();
+        _eventBus?.emit(SmsMessageDeletedEvent(id));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.smsMessage, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.smsMessage,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _historyCache.invalidateByTag('sms');
+      _statsCache.invalidateByTag('sms');
+      _invalidationRegistry?.markInvalidated<SmsMessageDeletedEvent>();
+      _eventBus?.emit(SmsMessageDeletedEvent(id));
+      return;
+    }
+
     await _datasource.delete(id);
     _historyCache.invalidateByTag('sms');
     _statsCache.invalidateByTag('sms');
@@ -214,6 +259,15 @@ class SmsRepositoryImpl implements SmsRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   @override

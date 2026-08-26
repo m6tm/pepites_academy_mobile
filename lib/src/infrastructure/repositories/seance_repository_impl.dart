@@ -8,6 +8,8 @@ import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/events/seance_events.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/seance.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/seance_repository.dart';
@@ -29,6 +31,7 @@ class SeanceRepositoryImpl implements SeanceRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   SeanceRepositoryImpl(this._datasource);
 
@@ -69,6 +72,11 @@ class SeanceRepositoryImpl implements SeanceRepository {
   /// Injecte le garde de connectivite.
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   void _invalidateCaches() {
@@ -414,6 +422,30 @@ class SeanceRepositoryImpl implements SeanceRepository {
 
   @override
   Future<Seance> update(Seance seance) async {
+    final existing = _datasource.getById(seance.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.seance,
+        entityId: seance.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: seance.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final seanceMap = (map['seance'] as Map<String, dynamic>?) ?? map;
+        if (seanceMap.isNotEmpty) {
+          final serverSeance = Seance.fromJson(seanceMap);
+          await _datasource.update(serverSeance);
+          _cache.invalidateKey('encours');
+          _listCache.invalidateByTag('seances');
+          _detailCache.invalidateKey('seance_${serverSeance.id}');
+          _eventBus?.emit(SeanceUpdatedEvent(serverSeance.id));
+          _invalidationRegistry?.markInvalidated<SeanceUpdatedEvent>();
+          return serverSeance;
+        }
+      }
+    }
+
     final updated = await _datasource.update(seance);
     _cache.invalidateKey('encours');
     _listCache.invalidateByTag('seances');
@@ -499,6 +531,37 @@ class SeanceRepositoryImpl implements SeanceRepository {
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.seance,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        invalidateSeanceEncoursCache();
+        _invalidateCaches();
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.seance, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.seance,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      invalidateSeanceEncoursCache();
+      _invalidateCaches();
+      return;
+    }
+
     invalidateSeanceEncoursCache();
     await _datasource.delete(id);
     _invalidateCaches();
@@ -508,6 +571,15 @@ class SeanceRepositoryImpl implements SeanceRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   /// Synchronise les seances depuis le backend.

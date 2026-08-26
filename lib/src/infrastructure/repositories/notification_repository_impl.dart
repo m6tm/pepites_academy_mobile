@@ -4,6 +4,8 @@ import '../../core/cache/repository_cache.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/events/notification_events.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/notification_item.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/notification_repository.dart';
@@ -21,6 +23,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   SyncService? _syncService;
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cache = RepositoryCache<List<NotificationItem>>();
 
@@ -40,6 +43,11 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
   void setInvalidationRegistry(InvalidationRegistry registry) {
     _invalidationRegistry = registry;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   void _invalidateCache() {
@@ -144,6 +152,41 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
   @override
   Future<void> delete(String id) async {
+    final all = _datasource.getAll();
+    final existingIndex = all.indexWhere((n) => n.id == id);
+    final existing = existingIndex >= 0 ? all[existingIndex] : null;
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.notification,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _invalidateCache();
+        _invalidationRegistry?.markInvalidated<NotificationDeletedEvent>();
+        _eventBus?.emit(NotificationDeletedEvent(id));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.notification, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.notification,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'action': 'delete'},
+        );
+      }
+      _invalidateCache();
+      _invalidationRegistry?.markInvalidated<NotificationDeletedEvent>();
+      _eventBus?.emit(NotificationDeletedEvent(id));
+      return;
+    }
+
     await _datasource.delete(id);
     _invalidateCache();
     _invalidationRegistry?.markInvalidated<NotificationDeletedEvent>();
@@ -172,6 +215,15 @@ class NotificationRepositoryImpl implements NotificationRepository {
         data: {'action': 'delete'},
       );
     }, (_) async {});
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   @override

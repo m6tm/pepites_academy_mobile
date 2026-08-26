@@ -6,6 +6,8 @@ import '../../core/events/academicien_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/academicien.dart';
 import '../../domain/entities/historique_parcours_sportif.dart';
 import '../../domain/entities/sync_operation.dart';
@@ -25,6 +27,7 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   AcademicienRepositoryImpl(this._datasource);
 
@@ -51,6 +54,11 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   /// Injecte le garde de connectivite.
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   void _invalidateCaches() {
@@ -200,6 +208,29 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
 
   @override
   Future<Academicien> update(Academicien academicien) async {
+    final existing = await _datasource.getById(academicien.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.academicien,
+        entityId: academicien.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: academicien.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final academicienMap = (map['academicien'] as Map<String, dynamic>?) ?? map;
+        if (academicienMap.isNotEmpty) {
+          final serverAcademicien = Academicien.fromJson(academicienMap);
+          await _datasource.update(serverAcademicien);
+          _cache.invalidateByTag('academicien_${serverAcademicien.id}');
+          _invalidateCaches();
+          _eventBus?.emit(AcademicienUpdatedEvent(serverAcademicien.id));
+          _invalidationRegistry?.markInvalidated<AcademicienUpdatedEvent>();
+          return serverAcademicien;
+        }
+      }
+    }
+
     final updated = await _datasource.update(academicien);
     _cache.invalidateByTag('academicien_${academicien.id}');
     _invalidateCaches();
@@ -222,6 +253,41 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
   Future<List<Academicien>> search(String query) => _datasource.search(query);
 
   Future<void> delete(String id) async {
+    final existing = await _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.academicien,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _cache.invalidateKey(id);
+        _invalidateCaches();
+        _invalidationRegistry?.markInvalidated<AcademicienDeletedEvent>();
+        _eventBus?.emit(AcademicienDeletedEvent(id));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.academicien, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.academicien,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _cache.invalidateKey(id);
+      _invalidateCaches();
+      _invalidationRegistry?.markInvalidated<AcademicienDeletedEvent>();
+      _eventBus?.emit(AcademicienDeletedEvent(id));
+      return;
+    }
+
     await _datasource.delete(id);
     _cache.invalidateKey(id);
     _invalidateCaches();
@@ -233,6 +299,15 @@ class AcademicienRepositoryImpl implements AcademicienRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   /// Synchronise les academiciens depuis le backend vers le cache local.

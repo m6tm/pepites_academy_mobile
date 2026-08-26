@@ -6,6 +6,8 @@ import '../../core/events/dossier_medical_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/dossier_medical.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/dossier_medical_repository.dart';
@@ -25,6 +27,7 @@ class DossierMedicalRepositoryImpl implements DossierMedicalRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   DossierMedicalRepositoryImpl(this._datasource);
 
@@ -46,6 +49,11 @@ class DossierMedicalRepositoryImpl implements DossierMedicalRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   void _invalidateListCache(String academicienId) {
@@ -142,6 +150,29 @@ class DossierMedicalRepositoryImpl implements DossierMedicalRepository {
 
   @override
   Future<DossierMedical> update(DossierMedical dossier) async {
+    final existing = await _datasource.getById(dossier.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.dossierMedical,
+        entityId: dossier.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: dossier.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final dossierMap = (map['dossier_medical'] as Map<String, dynamic>?) ?? map;
+        if (dossierMap.isNotEmpty) {
+          final serverDossier = DossierMedical.fromJson(dossierMap);
+          await _datasource.update(serverDossier);
+          _invalidateDetailCache(serverDossier.id);
+          _invalidateListCache(serverDossier.academicienId);
+          _eventBus?.emit(DossierMedicalUpdatedEvent(serverDossier.id, serverDossier.academicienId));
+          _invalidationRegistry?.markInvalidated<DossierMedicalUpdatedEvent>();
+          return serverDossier;
+        }
+      }
+    }
+
     final updated = await _datasource.update(dossier);
     _invalidateDetailCache(updated.id);
     _invalidateListCache(updated.academicienId);
@@ -158,13 +189,43 @@ class DossierMedicalRepositoryImpl implements DossierMedicalRepository {
 
   @override
   Future<void> delete(String id) async {
-    final dossier = await _datasource.getById(id);
+    final existing = await _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.dossierMedical,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _detailCache.invalidateKey(id);
+        _eventBus?.emit(DossierMedicalDeletedEvent(id, ''));
+        _invalidationRegistry?.markInvalidated<DossierMedicalDeletedEvent>();
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.dossierMedical, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.dossierMedical,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _detailCache.invalidateKey(id);
+      _eventBus?.emit(DossierMedicalDeletedEvent(id, ''));
+      _invalidationRegistry?.markInvalidated<DossierMedicalDeletedEvent>();
+      return;
+    }
+
     await _datasource.delete(id);
     _detailCache.invalidateKey(id);
-    if (dossier != null) {
-      _invalidateListCache(dossier.academicienId);
-    }
-    _eventBus?.emit(DossierMedicalDeletedEvent(id, dossier?.academicienId ?? ''));
+    _invalidateListCache(existing.academicienId);
+    _eventBus?.emit(DossierMedicalDeletedEvent(id, existing.academicienId));
     _invalidationRegistry?.markInvalidated<DossierMedicalDeletedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.dossierMedical,
@@ -172,6 +233,15 @@ class DossierMedicalRepositoryImpl implements DossierMedicalRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   /// Vide les caches memoire (appel lors de la deconnexion).

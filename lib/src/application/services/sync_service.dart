@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import '../../../l10n/app_localizations.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/connectivity_status.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/entities/conflict_resolution.dart';
@@ -64,11 +66,19 @@ class SyncService {
   Future<void> Function(SyncEntityType entityType, String localId, String serverId)?
   onServerIdAssigned;
 
+  MutationResilienceHandler? _resilienceHandler;
+
   AppLocalizations? _l10n;
 
   /// Met a jour les traductions.
   void setLocalizations(AppLocalizations l10n) {
     _l10n = l10n;
+  }
+
+  /// Injecte le handler de résilience utilisé lorsqu'une opération échoue
+  /// parce que l'entité est introuvable côté serveur.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   SyncService({
@@ -220,14 +230,40 @@ class SyncService {
               '$conflictMsg - ${result.errorMessage}',
             );
           } else if (result.isNotFound) {
-            // 404: l'entite n'existe pas sur le backend — echec permanent,
-            // inutile de reessayer. On purge l'operation de la queue.
-            await _syncRepository.markCompleted(operation.id);
-            failureCount++;
-            errors.add(
-              '${operation.entityType.name}/${operation.entityId}: '
-              'Entite introuvable sur le serveur (404) — operation abandonnee',
+            // 404: l'entite n'existe pas sur le backend. Avant d'abandonner,
+            // tenter de reconstruire le payload depuis le cache/file d'attente.
+            final recovered = await _resilienceHandler?.recover(
+              entityType: operation.entityType,
+              entityId: operation.entityId,
+              operationType: operation.operationType,
             );
+
+            if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+              await _syncRepository.markCompleted(operation.id);
+              successCount++;
+              if (operation.operationType == SyncOperationType.create) {
+                final serverId = _extractServerId(recovered.data);
+                if (serverId != null && serverId != operation.entityId) {
+                  await onServerIdAssigned?.call(
+                    operation.entityType,
+                    operation.entityId,
+                    serverId,
+                  );
+                }
+              }
+            } else if (recovered is ResilienceEnqueued<Map<String, dynamic>>) {
+              // L'opération a été clonée et remise en file ; on peut purger
+              // l'ancienne opération qui a échoué.
+              await _syncRepository.markCompleted(operation.id);
+            } else {
+              // Echec permanent : aucune donnée source ou serveur insiste sur 404.
+              await _syncRepository.markCompleted(operation.id);
+              failureCount++;
+              errors.add(
+                '${operation.entityType.name}/${operation.entityId}: '
+                'Entite introuvable sur le serveur (404) — operation abandonnee',
+              );
+            }
           } else {
             await _syncRepository.incrementRetryCount(operation.id);
             await _syncRepository.updateStatus(
@@ -314,6 +350,58 @@ class SyncService {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     return syncPendingOperations();
+  }
+
+  /// Retourne les operations en attente pour une entite donnee.
+  Future<List<SyncOperation>> getPendingOperationsForEntity(
+    SyncEntityType entityType,
+    String entityId,
+  ) async {
+    final pending = await _syncRepository.getPendingOperations();
+    return pending
+        .where(
+          (op) => op.entityType == entityType && op.entityId == entityId,
+        )
+        .toList();
+  }
+
+  /// Reconstruit le payload le plus a jour possible pour une entite a partir
+  /// de ses operations de sync en attente.
+  ///
+  /// Par exemple, si la file contient create(A) puis update(A+B), le payload
+  /// resultat sera A+B. Si un delete est present, retourne null (l'entite est
+  /// deja marquee pour suppression).
+  Future<Map<String, dynamic>?> rebuildPayload(
+    SyncEntityType entityType,
+    String entityId,
+  ) async {
+    final operations = await getPendingOperationsForEntity(entityType, entityId);
+    if (operations.isEmpty) return null;
+
+    final sorted = operations.toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    // Si la derniere operation est une suppression, il n'y a rien a reconstruire.
+    if (sorted.last.operationType == SyncOperationType.delete) {
+      return null;
+    }
+
+    Map<String, dynamic>? merged;
+    for (final op in sorted) {
+      final payload = json.decode(op.payload) as Map<String, dynamic>;
+      switch (op.operationType) {
+        case SyncOperationType.create:
+        case SyncOperationType.update:
+          merged = {...?merged, ...payload};
+        case SyncOperationType.reorder:
+          merged ??= {};
+          merged['order'] = payload['order'];
+        case SyncOperationType.delete:
+          // Un delete intermediaire annule tout ce qui precede.
+          merged = null;
+      }
+    }
+    return merged;
   }
 
   void _scheduleRetry() {

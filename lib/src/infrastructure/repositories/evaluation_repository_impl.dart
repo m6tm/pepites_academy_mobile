@@ -5,6 +5,8 @@ import '../../core/events/domain_event_bus.dart';
 import '../../core/events/evaluation_events.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/evaluation.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/evaluation_repository.dart';
@@ -22,6 +24,7 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cacheAtelier = RepositoryCache<List<Evaluation>>();
   final _cacheAcademicien = RepositoryCache<List<Evaluation>>();
@@ -47,6 +50,11 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   void _invalidateCaches() {
@@ -172,6 +180,33 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
 
   @override
   Future<Evaluation> update(Evaluation evaluation) async {
+    final existing = _datasource.getById(evaluation.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.evaluation,
+        entityId: evaluation.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: evaluation.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final evaluationMap = (map['evaluation'] as Map<String, dynamic>?) ?? map;
+        if (evaluationMap.isNotEmpty) {
+          final serverEvaluation = Evaluation.fromJson(evaluationMap);
+          await _datasource.update(serverEvaluation);
+          _invalidateCaches();
+          _invalidationRegistry?.markInvalidated<EvaluationUpdatedEvent>();
+          _eventBus?.emit(EvaluationUpdatedEvent(
+            evaluationId: serverEvaluation.id,
+            academicienId: serverEvaluation.academicienId,
+            atelierId: serverEvaluation.atelierId,
+            seanceId: serverEvaluation.seanceId,
+          ));
+          return serverEvaluation;
+        }
+      }
+    }
+
     final updated = await _datasource.update(evaluation);
     _invalidateCaches();
     _invalidationRegistry?.markInvalidated<EvaluationUpdatedEvent>();
@@ -192,6 +227,39 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.evaluation,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _invalidateCaches();
+        _invalidationRegistry?.markInvalidated<EvaluationDeletedEvent>();
+        _eventBus?.emit(EvaluationDeletedEvent(id));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.evaluation, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.evaluation,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _invalidateCaches();
+      _invalidationRegistry?.markInvalidated<EvaluationDeletedEvent>();
+      _eventBus?.emit(EvaluationDeletedEvent(id));
+      return;
+    }
+
     await _datasource.delete(id);
     _invalidateCaches();
     _invalidationRegistry?.markInvalidated<EvaluationDeletedEvent>();
@@ -202,6 +270,15 @@ class EvaluationRepositoryImpl implements EvaluationRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   /// Synchronise les evaluations depuis le backend et invalide le cache local.

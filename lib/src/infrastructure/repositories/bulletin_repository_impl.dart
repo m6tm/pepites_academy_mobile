@@ -5,6 +5,8 @@ import '../../core/events/bulletin_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/bulletin.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/bulletin_repository.dart';
@@ -21,6 +23,7 @@ class BulletinRepositoryImpl implements BulletinRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cache = RepositoryCache<List<Bulletin>>();
   final _detailCache = RepositoryCache<Bulletin>();
@@ -47,6 +50,11 @@ class BulletinRepositoryImpl implements BulletinRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   @override
@@ -88,6 +96,32 @@ class BulletinRepositoryImpl implements BulletinRepository {
 
   @override
   Future<Bulletin> update(Bulletin bulletin) async {
+    final existing = _datasource.getById(bulletin.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.bulletin,
+        entityId: bulletin.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: bulletin.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final bulletinMap = (map['bulletin'] as Map<String, dynamic>?) ?? map;
+        if (bulletinMap.isNotEmpty) {
+          final serverBulletin = _parseBulletinFromApi(bulletinMap);
+          await _datasource.update(serverBulletin);
+          _cache.invalidateByTag('bulletins');
+          _detailCache.invalidateKey(serverBulletin.id);
+          _invalidationRegistry?.markInvalidated<BulletinCreatedEvent>();
+          _eventBus?.emit(BulletinCreatedEvent(
+            bulletinId: serverBulletin.id,
+            academicienId: serverBulletin.academicienId,
+          ));
+          return serverBulletin;
+        }
+      }
+    }
+
     final updated = await _datasource.update(bulletin);
     _cache.invalidateByTag('bulletins');
     _detailCache.invalidateKey(bulletin.id);
@@ -141,13 +175,53 @@ class BulletinRepositoryImpl implements BulletinRepository {
   @override
   Future<void> delete(String id) async {
     final existing = _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.bulletin,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _cache.invalidateByTag('bulletins');
+        _detailCache.invalidateKey(id);
+        _invalidationRegistry?.markInvalidated<BulletinDeletedEvent>();
+        _eventBus?.emit(BulletinDeletedEvent(
+          bulletinId: id,
+          academicienId: '',
+        ));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.bulletin, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.bulletin,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _cache.invalidateByTag('bulletins');
+      _detailCache.invalidateKey(id);
+      _invalidationRegistry?.markInvalidated<BulletinDeletedEvent>();
+      _eventBus?.emit(BulletinDeletedEvent(
+        bulletinId: id,
+        academicienId: '',
+      ));
+      return;
+    }
+
     await _datasource.delete(id);
     _cache.invalidateByTag('bulletins');
     _detailCache.invalidateKey(id);
     _invalidationRegistry?.markInvalidated<BulletinDeletedEvent>();
     _eventBus?.emit(BulletinDeletedEvent(
       bulletinId: id,
-      academicienId: existing?.academicienId ?? '',
+      academicienId: existing.academicienId,
     ));
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.bulletin,
@@ -155,6 +229,15 @@ class BulletinRepositoryImpl implements BulletinRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   /// Synchronise les bulletins depuis le backend.

@@ -5,6 +5,8 @@ import '../../core/events/domain_event_bus.dart';
 import '../../core/events/encadreur_events.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/encadreur.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/entities/user_role.dart';
@@ -22,6 +24,7 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cache = RepositoryCache<List<Encadreur>>();
   final _detailCache = RepositoryCache<Encadreur>();
@@ -48,6 +51,11 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   @override
@@ -151,6 +159,29 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
 
   @override
   Future<Encadreur> update(Encadreur encadreur) async {
+    final existing = _datasource.getById(encadreur.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.encadreur,
+        entityId: encadreur.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: encadreur.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final encadreurMap = (map['encadreur'] as Map<String, dynamic>?) ?? map;
+        if (encadreurMap.isNotEmpty) {
+          final serverEncadreur = Encadreur.fromJson(encadreurMap);
+          await _datasource.update(serverEncadreur);
+          _cache.invalidateByTag('encadreurs');
+          _detailCache.invalidateKey(serverEncadreur.id);
+          _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
+          _eventBus?.emit(const EncadreurListChangedEvent());
+          return serverEncadreur;
+        }
+      }
+    }
+
     final updated = await _datasource.update(encadreur);
     _cache.invalidateByTag('encadreurs');
     _detailCache.invalidateKey(encadreur.id);
@@ -167,6 +198,41 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.encadreur,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _cache.invalidateByTag('encadreurs');
+        _detailCache.invalidateKey(id);
+        _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
+        _eventBus?.emit(const EncadreurListChangedEvent());
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.encadreur, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.encadreur,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _cache.invalidateByTag('encadreurs');
+      _detailCache.invalidateKey(id);
+      _invalidationRegistry?.markInvalidated<EncadreurListChangedEvent>();
+      _eventBus?.emit(const EncadreurListChangedEvent());
+      return;
+    }
+
     await _datasource.delete(id);
     _cache.invalidateByTag('encadreurs');
     _detailCache.invalidateKey(id);
@@ -178,6 +244,15 @@ class EncadreurRepositoryImpl implements EncadreurRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   /// Supprime un encadreur localement SANS declencher de synchronisation.

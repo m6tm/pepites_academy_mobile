@@ -15,8 +15,16 @@ class ApiSyncDatasourceImpl implements ApiSyncDatasource {
 
   @override
   Future<SyncResult> pushOperation(SyncOperation operation) async {
-    final endpoint = _getEndpointForEntity(operation.entityType);
     final payload = json.decode(operation.payload) as Map<String, dynamic>;
+    return pushOperationWithPayload(operation, payload);
+  }
+
+  @override
+  Future<SyncResult> pushOperationWithPayload(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {
+    final endpoint = _getEndpointForEntity(operation.entityType);
 
     if (operation.entityType == SyncEntityType.notification) {
       return _handleNotificationOperation(operation, endpoint, payload);

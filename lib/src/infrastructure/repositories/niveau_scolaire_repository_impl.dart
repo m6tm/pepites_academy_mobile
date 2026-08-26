@@ -5,6 +5,8 @@ import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/events/referentiel_events.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/niveau_scolaire.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/niveau_scolaire_repository.dart';
@@ -22,6 +24,7 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cache = RepositoryCache<List<NiveauScolaire>>();
   final _detailCache = RepositoryCache<NiveauScolaire>();
@@ -46,6 +49,11 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   @override
@@ -89,6 +97,29 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
 
   @override
   Future<NiveauScolaire> update(NiveauScolaire niveau) async {
+    final existing = _datasource.getById(niveau.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.niveauScolaire,
+        entityId: niveau.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: niveau.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final niveauMap = (map['niveau_scolaire'] as Map<String, dynamic>?) ?? map;
+        if (niveauMap.isNotEmpty) {
+          final serverNiveau = _parseNiveauScolaire(niveauMap);
+          await _datasource.update(serverNiveau);
+          _cache.invalidateByTag('referentiel');
+          _detailCache.invalidateKey(serverNiveau.id);
+          _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+          _eventBus?.emit(const ReferentielUpdatedEvent());
+          return serverNiveau;
+        }
+      }
+    }
+
     final updated = await _datasource.update(niveau);
     _cache.invalidateByTag('referentiel');
     _detailCache.invalidateKey(niveau.id);
@@ -105,6 +136,41 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
 
   @override
   Future<void> delete(String id) async {
+    final existing = _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.niveauScolaire,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _cache.invalidateByTag('referentiel');
+        _detailCache.invalidateKey(id);
+        _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+        _eventBus?.emit(const ReferentielUpdatedEvent());
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.niveauScolaire, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.niveauScolaire,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _cache.invalidateByTag('referentiel');
+      _detailCache.invalidateKey(id);
+      _invalidationRegistry?.markInvalidated<ReferentielUpdatedEvent>();
+      _eventBus?.emit(const ReferentielUpdatedEvent());
+      return;
+    }
+
     await _datasource.delete(id);
     _cache.invalidateByTag('referentiel');
     _detailCache.invalidateKey(id);
@@ -116,6 +182,15 @@ class NiveauScolaireRepositoryImpl implements NiveauScolaireRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   @override

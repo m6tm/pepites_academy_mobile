@@ -5,6 +5,8 @@ import '../../core/events/annotation_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/annotation.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/annotation_repository.dart';
@@ -19,6 +21,7 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   final _cacheAtelier = RepositoryCache<List<Annotation>>();
   final _cacheAcademicien = RepositoryCache<List<Annotation>>();
@@ -44,6 +47,11 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   void _invalidateAll() {
@@ -246,6 +254,34 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
   }
 
   Future<Annotation> update(Annotation annotation) async {
+    final all = _datasource.getAll();
+    final existingIndex = all.indexWhere((a) => a.id == annotation.id);
+    final existing = existingIndex >= 0 ? all[existingIndex] : null;
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.annotation,
+        entityId: annotation.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: annotation.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final annotationMap = (map['annotation'] as Map<String, dynamic>?) ?? map;
+        if (annotationMap.isNotEmpty) {
+          final serverAnnotation = Annotation.fromJson(annotationMap);
+          await _datasource.update(serverAnnotation);
+          _invalidateAll();
+          _invalidationRegistry?.markInvalidated<AnnotationUpdatedEvent>();
+          _eventBus?.emit(AnnotationUpdatedEvent(
+            annotationId: serverAnnotation.id,
+            atelierId: serverAnnotation.atelierId,
+            academicienId: serverAnnotation.academicienId,
+          ));
+          return serverAnnotation;
+        }
+      }
+    }
+
     final updated = await _datasource.update(annotation);
     _invalidateAll();
     _invalidationRegistry?.markInvalidated<AnnotationUpdatedEvent>();
@@ -264,7 +300,47 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
   }
 
   Future<void> delete(String id) async {
-    final existing = _datasource.getAll().firstWhere((a) => a.id == id);
+    final all = _datasource.getAll();
+    final existingIndex = all.indexWhere((a) => a.id == id);
+    final existing = existingIndex >= 0 ? all[existingIndex] : null;
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.annotation,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _invalidateAll();
+        _invalidationRegistry?.markInvalidated<AnnotationDeletedEvent>();
+        _eventBus?.emit(AnnotationDeletedEvent(
+          annotationId: id,
+          atelierId: '',
+        ));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.annotation, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.annotation,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _invalidateAll();
+      _invalidationRegistry?.markInvalidated<AnnotationDeletedEvent>();
+      _eventBus?.emit(AnnotationDeletedEvent(
+        annotationId: id,
+        atelierId: '',
+      ));
+      return;
+    }
+
     await _datasource.delete(id);
     _invalidateAll();
     _invalidationRegistry?.markInvalidated<AnnotationDeletedEvent>();
@@ -278,6 +354,15 @@ class AnnotationRepositoryImpl implements AnnotationRepository {
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   void clearCache() {

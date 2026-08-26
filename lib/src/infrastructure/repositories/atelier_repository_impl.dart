@@ -2,6 +2,8 @@ import '../../application/services/sync_service.dart';
 import '../../core/cache/cache_ttl.dart';
 import '../../core/cache/repository_cache.dart';
 import '../../core/events/atelier_events.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
@@ -22,6 +24,7 @@ class AtelierRepositoryImpl implements AtelierRepository {
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   AtelierRepositoryImpl(this._datasource);
 
@@ -50,6 +53,10 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   @override
@@ -277,6 +284,31 @@ class AtelierRepositoryImpl implements AtelierRepository {
   }
 
   Future<Atelier> _updateOffline(Atelier atelier) async {
+    final existing = _datasource.getById(atelier.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.atelier,
+        entityId: atelier.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: atelier.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final atelierMap = (map['atelier'] as Map<String, dynamic>?) ?? map;
+        if (atelierMap.isNotEmpty) {
+          final serverAtelier = Atelier.fromJson({...atelierMap, 'seance_id': atelier.seanceId});
+          await _datasource.update(serverAtelier);
+          _invalidateCache();
+          _eventBus?.emit(AtelierCreeEvent(
+            atelierId: serverAtelier.id,
+            seanceId: serverAtelier.seanceId,
+          ));
+          _invalidationRegistry?.markInvalidated<AtelierCreeEvent>();
+          return serverAtelier;
+        }
+      }
+    }
+
     final updated = await _datasource.update(atelier);
     _invalidateCache();
     _eventBus?.emit(AtelierCreeEvent(
@@ -344,7 +376,30 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   Future<Atelier> _applyLocally(String id) async {
     final existing = _datasource.getById(id);
-    if (existing == null) throw Exception('Atelier $id introuvable localement');
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.atelier,
+        entityId: id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: {'statut': 'applique'},
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final atelierMap = (map['atelier'] as Map<String, dynamic>?) ?? map;
+        if (atelierMap.isNotEmpty) {
+          final serverAtelier = Atelier.fromJson(atelierMap);
+          await _datasource.update(serverAtelier);
+          _invalidateCache();
+          _eventBus?.emit(AtelierAppliedEvent(
+            atelierId: serverAtelier.id,
+            seanceId: serverAtelier.seanceId,
+          ));
+          _invalidationRegistry?.markInvalidated<AtelierAppliedEvent>();
+          return serverAtelier;
+        }
+      }
+      throw Exception('Atelier $id introuvable localement');
+    }
     final updated = existing.copyWith(statut: AtelierStatut.applique);
     await _datasource.update(updated);
     _invalidateCache();
@@ -386,7 +441,30 @@ class AtelierRepositoryImpl implements AtelierRepository {
 
   Future<Atelier> _closeLocally(String id) async {
     final existing = _datasource.getById(id);
-    if (existing == null) throw Exception('Atelier $id introuvable localement');
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.atelier,
+        entityId: id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: {'statut': 'ferme'},
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final atelierMap = (map['atelier'] as Map<String, dynamic>?) ?? map;
+        if (atelierMap.isNotEmpty) {
+          final serverAtelier = Atelier.fromJson(atelierMap);
+          await _datasource.update(serverAtelier);
+          _invalidateCache();
+          _eventBus?.emit(AtelierClosedEvent(
+            atelierId: serverAtelier.id,
+            seanceId: serverAtelier.seanceId,
+          ));
+          _invalidationRegistry?.markInvalidated<AtelierClosedEvent>();
+          return serverAtelier;
+        }
+      }
+      throw Exception('Atelier $id introuvable localement');
+    }
     final updated = existing.copyWith(statut: AtelierStatut.ferme);
     await _datasource.update(updated);
     _invalidateCache();
@@ -398,10 +476,20 @@ class AtelierRepositoryImpl implements AtelierRepository {
     final existing = _datasource.getById(id);
 
     if (existing == null) {
-      // L'entite n'existe deja plus localement. Si l'ID etait un ID local
-      // temporaire (timestamp), les operations de sync associees deviennent
-      // obsoletes (ex. create + delete qui s'annulent). On les annule pour
-      // eviter des erreurs 404 cote serveur.
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.atelier,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _invalidateCache();
+        _invalidationRegistry?.markInvalidated<AtelierDeletedEvent>();
+        _eventBus?.emit(AtelierDeletedEvent(atelierId: id, seanceId: ''));
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
       if (_isLocalId(id)) {
         await _syncService?.cancelOperationsForEntity(SyncEntityType.atelier, id);
       } else {

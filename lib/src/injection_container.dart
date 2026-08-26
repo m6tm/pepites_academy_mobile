@@ -101,6 +101,7 @@ import 'core/events/invalidation_registry.dart';
 import 'core/events/seance_events.dart';
 import 'core/lifecycle/app_lifecycle_service.dart';
 import 'core/network/connectivity_guard.dart';
+import 'core/resilience/mutation_resilience_handler.dart';
 
 /// Gestionnaire d'injection de dependances simplifie pour le projet.
 /// Centralise la creation des services et repositories.
@@ -425,6 +426,14 @@ class DependencyInjection {
       connectivityService: connectivityService,
     );
 
+    // Handler de résilience pour les mutations d'entités introuvables
+    final mutationResilienceHandler = MutationResilienceHandler(
+      syncService: syncService,
+      apiSyncDatasource: apiDatasource,
+      connectivityGuard: connectivityGuard,
+    );
+    syncService.setMutationResilienceHandler(mutationResilienceHandler);
+
     // Configuration du callback pour les erreurs de conflit (409)
     syncService.onConflictError = _handleConflictError;
 
@@ -571,40 +580,56 @@ class DependencyInjection {
       eventBus: domainEventBus,
     );
 
-    // Injection du service de synchronisation dans les repositories
+    // Injection du service de synchronisation et du handler de résilience
     academicienRepository.setSyncService(syncService);
     academicienRepository.setDioClient(dioClient);
+    academicienRepository.setMutationResilienceHandler(mutationResilienceHandler);
     encadreurRepoImpl.setSyncService(syncService);
     encadreurRepoImpl.setDioClient(dioClient);
     encadreurRepoImpl.setEventBus(domainEventBus);
     encadreurRepoImpl.setInvalidationRegistry(invalidationRegistry);
     encadreurRepoImpl.setConnectivityGuard(connectivityGuard);
+    encadreurRepoImpl.setMutationResilienceHandler(mutationResilienceHandler);
     presenceRepository.setSyncService(syncService);
     presenceRepository.setDioClient(dioClient);
     seanceRepository.setSyncService(syncService);
     seanceRepository.setDioClient(dioClient);
+    seanceRepository.setMutationResilienceHandler(mutationResilienceHandler);
     atelierRepository.setSyncService(syncService);
     atelierRepository.setDioClient(dioClient);
+    atelierRepository.setMutationResilienceHandler(mutationResilienceHandler);
     exerciceRepository.setSyncService(syncService);
     exerciceRepository.setDioClient(dioClient);
+    exerciceRepository.setMutationResilienceHandler(mutationResilienceHandler);
     annotationRepository.setSyncService(syncService);
     annotationRepository.setDioClient(dioClient);
+    annotationRepository.setMutationResilienceHandler(mutationResilienceHandler);
     evaluationRepository.setSyncService(syncService);
     evaluationRepository.setDioClient(dioClient);
+    evaluationRepository.setMutationResilienceHandler(mutationResilienceHandler);
     bulletinRepository.setSyncService(syncService);
     bulletinRepository.setDioClient(dioClient);
+    bulletinRepository.setMutationResilienceHandler(mutationResilienceHandler);
     dossierMedicalRepository.setSyncService(syncService);
     dossierMedicalRepository.setDioClient(dioClient);
+    dossierMedicalRepository.setMutationResilienceHandler(mutationResilienceHandler);
     bilanMedicalMensuelRepository.setSyncService(syncService);
     bilanMedicalMensuelRepository.setDioClient(dioClient);
+    bilanMedicalMensuelRepository.setMutationResilienceHandler(mutationResilienceHandler);
     smsRepository.setSyncService(syncService);
     smsRepository.setDioClient(dioClient);
+    smsRepository.setMutationResilienceHandler(mutationResilienceHandler);
+    notificationRepository.setSyncService(syncService);
+    notificationRepository.setMutationResilienceHandler(mutationResilienceHandler);
     niveauRepository.setSyncService(syncService);
     niveauRepository.setDioClient(dioClient);
+    niveauRepository.setMutationResilienceHandler(mutationResilienceHandler);
     posteRepository.setSyncService(syncService);
     posteRepository.setDioClient(dioClient);
+    posteRepository.setMutationResilienceHandler(mutationResilienceHandler);
     categorieRepository.setSyncService(syncService);
     categorieRepository.setDioClient(dioClient);
+    categorieRepository.setMutationResilienceHandler(mutationResilienceHandler);
 
     // Nettoyage des caches lors de la deconnexion
     authService.onLogout = () {

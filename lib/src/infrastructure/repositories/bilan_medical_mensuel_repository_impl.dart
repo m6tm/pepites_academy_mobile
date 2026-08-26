@@ -6,6 +6,8 @@ import '../../core/events/bilan_medical_mensuel_events.dart';
 import '../../core/events/domain_event_bus.dart';
 import '../../core/events/invalidation_registry.dart';
 import '../../core/network/connectivity_guard.dart';
+import '../../core/resilience/mutation_resilience_handler.dart';
+import '../../core/resilience/resilience_result.dart';
 import '../../domain/entities/bilan_medical_mensuel.dart';
 import '../../domain/entities/sync_operation.dart';
 import '../../domain/repositories/bilan_medical_mensuel_repository.dart';
@@ -25,6 +27,7 @@ class BilanMedicalMensuelRepositoryImpl implements BilanMedicalMensuelRepository
   DomainEventBus? _eventBus;
   InvalidationRegistry? _invalidationRegistry;
   ConnectivityGuard? _connectivityGuard;
+  MutationResilienceHandler? _resilienceHandler;
 
   BilanMedicalMensuelRepositoryImpl(this._datasource);
 
@@ -46,6 +49,11 @@ class BilanMedicalMensuelRepositoryImpl implements BilanMedicalMensuelRepository
 
   void setConnectivityGuard(ConnectivityGuard guard) {
     _connectivityGuard = guard;
+  }
+
+  /// Injecte le handler de résilience pour les mutations sur entité introuvable.
+  void setMutationResilienceHandler(MutationResilienceHandler handler) {
+    _resilienceHandler = handler;
   }
 
   void _invalidateListCache(String academicienId) {
@@ -128,6 +136,29 @@ class BilanMedicalMensuelRepositoryImpl implements BilanMedicalMensuelRepository
 
   @override
   Future<BilanMedicalMensuel> update(BilanMedicalMensuel bilan) async {
+    final existing = await _datasource.getById(bilan.id);
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.bilanMedicalMensuel,
+        entityId: bilan.id,
+        operationType: SyncOperationType.update,
+        fallbackPayload: bilan.toJson(),
+      );
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        final map = recovered.data;
+        final bilanMap = (map['bilan_medical_mensuel'] as Map<String, dynamic>?) ?? map;
+        if (bilanMap.isNotEmpty) {
+          final serverBilan = BilanMedicalMensuel.fromJson(bilanMap);
+          await _datasource.update(serverBilan);
+          _invalidateDetailCache(serverBilan.id);
+          _invalidateListCache(serverBilan.academicienId);
+          _eventBus?.emit(BilanMedicalMensuelUpdatedEvent(serverBilan.id, serverBilan.academicienId));
+          _invalidationRegistry?.markInvalidated<BilanMedicalMensuelUpdatedEvent>();
+          return serverBilan;
+        }
+      }
+    }
+
     final updated = await _datasource.update(bilan);
     _invalidateDetailCache(updated.id);
     _invalidateListCache(updated.academicienId);
@@ -144,13 +175,43 @@ class BilanMedicalMensuelRepositoryImpl implements BilanMedicalMensuelRepository
 
   @override
   Future<void> delete(String id) async {
-    final bilan = await _datasource.getById(id);
+    final existing = await _datasource.getById(id);
+
+    if (existing == null) {
+      final recovered = await _resilienceHandler?.recover(
+        entityType: SyncEntityType.bilanMedicalMensuel,
+        entityId: id,
+        operationType: SyncOperationType.delete,
+      );
+
+      if (recovered is ResilienceSuccess<Map<String, dynamic>>) {
+        _detailCache.invalidateKey(id);
+        _eventBus?.emit(BilanMedicalMensuelDeletedEvent(id, ''));
+        _invalidationRegistry?.markInvalidated<BilanMedicalMensuelDeletedEvent>();
+        return;
+      }
+
+      // Fallback : pas de données source ou echec permanent.
+      if (_isLocalId(id)) {
+        await _syncService?.cancelOperationsForEntity(SyncEntityType.bilanMedicalMensuel, id);
+      } else {
+        await _syncService?.enqueueOperation(
+          entityType: SyncEntityType.bilanMedicalMensuel,
+          entityId: id,
+          operationType: SyncOperationType.delete,
+          data: {'id': id},
+        );
+      }
+      _detailCache.invalidateKey(id);
+      _eventBus?.emit(BilanMedicalMensuelDeletedEvent(id, ''));
+      _invalidationRegistry?.markInvalidated<BilanMedicalMensuelDeletedEvent>();
+      return;
+    }
+
     await _datasource.delete(id);
     _detailCache.invalidateKey(id);
-    if (bilan != null) {
-      _invalidateListCache(bilan.academicienId);
-    }
-    _eventBus?.emit(BilanMedicalMensuelDeletedEvent(id, bilan?.academicienId ?? ''));
+    _invalidateListCache(existing.academicienId);
+    _eventBus?.emit(BilanMedicalMensuelDeletedEvent(id, existing.academicienId));
     _invalidationRegistry?.markInvalidated<BilanMedicalMensuelDeletedEvent>();
     await _syncService?.enqueueOperation(
       entityType: SyncEntityType.bilanMedicalMensuel,
@@ -158,6 +219,15 @@ class BilanMedicalMensuelRepositoryImpl implements BilanMedicalMensuelRepository
       operationType: SyncOperationType.delete,
       data: {'id': id},
     );
+  }
+
+  bool _isLocalId(String id) {
+    // Les IDs serveur sont des UUID v4 ; les IDs locaux offline sont des
+    // timestamps numeriques.
+    return !RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(id);
   }
 
   /// Vide les caches memoire (appel lors de la deconnexion).
