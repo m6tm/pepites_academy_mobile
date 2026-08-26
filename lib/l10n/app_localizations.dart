@@ -3812,18 +3812,6 @@ abstract class AppLocalizations {
   /// **'Le nom est requis'**
   String get workshopNameRequired;
 
-  /// No description provided for @descriptionLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Description'**
-  String get descriptionLabel;
-
-  /// No description provided for @descriptionHint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ex: Travail des appuis et conduite de balle'**
-  String get descriptionHint;
-
   /// No description provided for @saveWorkshop.
   ///
   /// In fr, this message translates to:
@@ -3835,60 +3823,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Annoter'**
   String get annotateAction;
-
-  /// No description provided for @workshopTypeDribble.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dribble'**
-  String get workshopTypeDribble;
-
-  /// No description provided for @workshopTypePasses.
-  ///
-  /// In fr, this message translates to:
-  /// **'Passes'**
-  String get workshopTypePasses;
-
-  /// No description provided for @workshopTypeFinition.
-  ///
-  /// In fr, this message translates to:
-  /// **'Finition'**
-  String get workshopTypeFinition;
-
-  /// No description provided for @workshopTypePhysique.
-  ///
-  /// In fr, this message translates to:
-  /// **'Condition physique'**
-  String get workshopTypePhysique;
-
-  /// No description provided for @workshopTypeJeuEnSituation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Jeu en situation'**
-  String get workshopTypeJeuEnSituation;
-
-  /// No description provided for @workshopTypeTactique.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tactique'**
-  String get workshopTypeTactique;
-
-  /// No description provided for @workshopTypeGardien.
-  ///
-  /// In fr, this message translates to:
-  /// **'Gardien'**
-  String get workshopTypeGardien;
-
-  /// No description provided for @workshopTypeEchauffement.
-  ///
-  /// In fr, this message translates to:
-  /// **'Echauffement'**
-  String get workshopTypeEchauffement;
-
-  /// No description provided for @workshopTypePersonnalise.
-  ///
-  /// In fr, this message translates to:
-  /// **'Personnalise'**
-  String get workshopTypePersonnalise;
 
   /// No description provided for @sessionAddAtLeastOneWorkshop.
   ///

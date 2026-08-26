@@ -2062,43 +2062,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get workshopNameRequired => 'Le nom est requis';
 
   @override
-  String get descriptionLabel => 'Description';
-
-  @override
-  String get descriptionHint => 'Ex: Travail des appuis et conduite de balle';
-
-  @override
   String get saveWorkshop => 'Ajouter cet atelier';
 
   @override
   String get annotateAction => 'Annoter';
-
-  @override
-  String get workshopTypeDribble => 'Dribble';
-
-  @override
-  String get workshopTypePasses => 'Passes';
-
-  @override
-  String get workshopTypeFinition => 'Finition';
-
-  @override
-  String get workshopTypePhysique => 'Condition physique';
-
-  @override
-  String get workshopTypeJeuEnSituation => 'Jeu en situation';
-
-  @override
-  String get workshopTypeTactique => 'Tactique';
-
-  @override
-  String get workshopTypeGardien => 'Gardien';
-
-  @override
-  String get workshopTypeEchauffement => 'Echauffement';
-
-  @override
-  String get workshopTypePersonnalise => 'Personnalise';
 
   @override
   String get sessionAddAtLeastOneWorkshop =>
