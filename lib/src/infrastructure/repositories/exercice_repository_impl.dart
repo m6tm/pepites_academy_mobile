@@ -88,12 +88,13 @@ class ExerciceRepositoryImpl implements ExerciceRepository {
     }
 
     return _cache.getOrFetch(key, () async {
-      if (_dioClient != null && (forceRefresh || _datasource.getByAtelier(atelierId).isEmpty)) {
+      var local = _datasource.getByAtelier(atelierId);
+      if (_dioClient != null && (forceRefresh || local.isEmpty)) {
         await syncFromApi();
+        local = _datasource.getByAtelier(atelierId);
       }
-      final result = _datasource.getByAtelier(atelierId);
-      _cache.set(key, result, ttl: CacheTtl.exercices, tags: {'exercices', 'atelier_$atelierId'});
-      return result;
+      _cache.set(key, local, ttl: CacheTtl.exercices, tags: {'exercices', 'atelier_$atelierId'});
+      return local;
     });
   }
 

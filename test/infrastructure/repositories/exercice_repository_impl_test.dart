@@ -108,8 +108,7 @@ void main() {
             entityId: 'atelier-1',
             operationType: SyncOperationType.reorder,
             data: {
-              'atelier_id': 'atelier-1',
-              'exercice_ids': ids,
+              'order': ids,
             },
           )).called(1);
     });

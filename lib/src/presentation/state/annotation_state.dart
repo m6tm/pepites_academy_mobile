@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../application/services/annotation_service.dart';
 import '../../core/events/annotation_events.dart';
@@ -13,6 +15,11 @@ class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
 
   DateTime? _lastFetchedAt;
   bool _isFetching = false;
+  bool _isRefreshing = false;
+
+  /// Future du refresh en cours, utilisee pour faire patienter un
+  /// pull-to-refresh explicite jusqu'a la fin de la requete en vol.
+  Future<void>? _refreshEnCours;
 
   AnnotationState(this._service, this._eventBus) {
     listenTo<AnnotationCreatedEvent>(_eventBus, (e) => _onAnnotationChanged(e.atelierId));
@@ -54,6 +61,8 @@ class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool get isRefreshing => _isRefreshing;
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
@@ -90,11 +99,20 @@ class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
   }
 
   Future<void> chargerAnnotationsAtelier({bool forceRefresh = false}) async {
+    await _chargerAnnotationsAtelier(forceRefresh: forceRefresh, silent: false);
+  }
+
+  Future<void> _chargerAnnotationsAtelier({
+    required bool forceRefresh,
+    required bool silent,
+  }) async {
     if (_atelierId == null) return;
     if (_isFetching) return;
 
     _isFetching = true;
-    _isLoading = true;
+    if (!silent) {
+      _isLoading = true;
+    }
     _errorMessage = null;
     notifyListeners();
 
@@ -108,7 +126,39 @@ class AnnotationState extends ChangeNotifier with EventBusSubscriberMixin {
       _errorMessage = 'Erreur lors du chargement des annotations : $e';
     } finally {
       _isFetching = false;
-      _isLoading = false;
+      if (!silent) {
+        _isLoading = false;
+      }
+      notifyListeners();
+    }
+  }
+
+  /// Rafraichit les annotations depuis le backend.
+  /// [force] ignore l'anti-rebond et attend la fin d'un refresh deja en cours
+  /// (pull-to-refresh explicite). Le state notifie [_isRefreshing] pour que
+  /// l'interface puisse suivre la duree reelle de la requete sans spinner
+  /// central parasite.
+  Future<void> refreshFromBackend({bool force = false}) async {
+    final enCours = _refreshEnCours;
+    if (enCours != null) {
+      if (force) await enCours;
+      return;
+    }
+
+    _isRefreshing = true;
+    notifyListeners();
+
+    final future = _chargerAnnotationsAtelier(
+      forceRefresh: true,
+      silent: true,
+    );
+    _refreshEnCours = future;
+    try {
+      await future;
+    } finally {
+      _refreshEnCours = null;
+      _isRefreshing = false;
+      _lastFetchedAt = DateTime.now();
       notifyListeners();
     }
   }

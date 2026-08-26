@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pepites_academy_mobile/src/application/services/annotation_service.dart';
@@ -113,5 +115,61 @@ void main() {
           seanceId: 'se-1',
           encadreurId: 'enc-1',
         )).called(1);
+  });
+
+  test('refreshFromBackend force attend la fin du chargement', () async {
+    when(() => mockService.getAnnotationsAtelier(any(), forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => []);
+
+    await state.initialiserContexte(atelierId: 'at-1', seanceId: 'se-1');
+
+    final completer = Completer<List<Annotation>>();
+    when(() => mockService.getAnnotationsAtelier(any(), forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) => completer.future);
+
+    final refreshFuture = state.refreshFromBackend(force: true);
+    expect(state.isRefreshing, true);
+
+    completer.complete([testAnnotation]);
+    await refreshFuture;
+
+    expect(state.isRefreshing, false);
+    expect(state.annotationsAtelier.length, 1);
+  });
+
+  test('refreshFromBackend force attend un refresh deja en cours', () async {
+    when(() => mockService.getAnnotationsAtelier(any(), forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => []);
+
+    await state.initialiserContexte(atelierId: 'at-1', seanceId: 'se-1');
+
+    final completer = Completer<List<Annotation>>();
+    when(() => mockService.getAnnotationsAtelier(any(), forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) => completer.future);
+
+    final firstRefresh = state.refreshFromBackend();
+    final secondRefresh = state.refreshFromBackend(force: true);
+
+    completer.complete([testAnnotation]);
+    await secondRefresh;
+    await firstRefresh;
+
+    expect(state.isRefreshing, false);
+  });
+
+  test('refreshFromBackend silencieux ne declenche pas isLoading', () async {
+    when(() => mockService.getAnnotationsAtelier(any(), forceRefresh: any(named: 'forceRefresh')))
+        .thenAnswer((_) async => [testAnnotation]);
+
+    await state.initialiserContexte(atelierId: 'at-1', seanceId: 'se-1');
+
+    var loadingDuringRefresh = false;
+    state.addListener(() {
+      if (state.isLoading) loadingDuringRefresh = true;
+    });
+
+    await state.refreshFromBackend(force: true);
+
+    expect(loadingDuringRefresh, false);
   });
 }

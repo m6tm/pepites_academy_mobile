@@ -85,12 +85,14 @@ class _AnnotationPageState extends State<AnnotationPage> {
   }
 
   Future<void> _rafraichir() async {
-    await annotationState.chargerAnnotationsAtelier(forceRefresh: true);
-    await _chargerAcademiciens();
+    await annotationState.refreshFromBackend(force: true);
+    await _chargerAcademiciens(silent: true);
   }
 
-  Future<void> _chargerAcademiciens() async {
-    setState(() => _isLoadingAcademiciens = true);
+  Future<void> _chargerAcademiciens({bool silent = false}) async {
+    if (!silent) {
+      setState(() => _isLoadingAcademiciens = true);
+    }
     try {
       final tous = await DependencyInjection.academicienRepository.getAll();
       final presents = tous
@@ -99,11 +101,13 @@ class _AnnotationPageState extends State<AnnotationPage> {
       if (mounted) {
         setState(() {
           _academiciens = presents;
-          _isLoadingAcademiciens = false;
+          if (!silent) _isLoadingAcademiciens = false;
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _isLoadingAcademiciens = false);
+      if (mounted && !silent) {
+        setState(() => _isLoadingAcademiciens = false);
+      }
     }
   }
 
